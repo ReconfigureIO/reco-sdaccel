@@ -1,0 +1,76 @@
+#-----------------------------------------------------------
+# Vivado v2016.3_sdx (64-bit)
+# SW Build 1721784 on Tue Nov 29 22:12:24 MST 2016
+# IP Build 1720686 on Mon Nov 28 12:39:17 MST 2016
+# Start of session at: Fri Dec 30 08:32:22 2016
+# Process ID: 11766
+# Current directory: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/xcl_design_clkconv_clkwiz_kernel_0_synth_1
+# Command line: vivado -log xcl_design_clkconv_clkwiz_kernel_0.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source xcl_design_clkconv_clkwiz_kernel_0.tcl
+# Log file: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/xcl_design_clkconv_clkwiz_kernel_0_synth_1/xcl_design_clkconv_clkwiz_kernel_0.vds
+# Journal file: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/xcl_design_clkconv_clkwiz_kernel_0_synth_1/vivado.jou
+#-----------------------------------------------------------
+Sourcing tcl script '/home/joshbohde/xilinix/SDx/2016.3/Vivado/scripts/init.tcl'
+16 Beta devices matching pattern found, 0 enabled.
+enable_beta_device: Time (s): cpu = 00:00:00.65 ; elapsed = 00:00:05 . Memory (MB): peak = 1231.055 ; gain = 235.352 ; free physical = 5982 ; free virtual = 8064
+Loaded SDSoC Platform Tcl Library
+source xcl_design_clkconv_clkwiz_kernel_0.tcl -notrace
+Starting RTL Elaboration : Time (s): cpu = 00:00:09 ; elapsed = 00:00:23 . Memory (MB): peak = 1399.082 ; gain = 488.145 ; free physical = 5651 ; free virtual = 7893
+INFO: [Synth 8-638] synthesizing module 'xcl_design_clkconv_clkwiz_kernel_0' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ip/xcl_design_clkconv_clkwiz_kernel_0/synth/xcl_design_clkconv_clkwiz_kernel_0.v:58]
+INFO: [Synth 8-638] synthesizing module 'axi_clock_converter_v2_1_9_axi_clock_converter' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/cf3b/hdl/axi_clock_converter_v2_1_vl_rfs.v:642]
+INFO: [Synth 8-638] synthesizing module 'axi_infrastructure_v1_1_0_axi2vector' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7e3a/hdl/axi_infrastructure_v1_1_vl_rfs.v:60]
+INFO: [Synth 8-256] done synthesizing module 'axi_infrastructure_v1_1_0_axi2vector' (1#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7e3a/hdl/axi_infrastructure_v1_1_vl_rfs.v:60]
+INFO: [Synth 8-638] synthesizing module 'axi_clock_converter_v2_1_9_lite_async' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/cf3b/hdl/axi_clock_converter_v2_1_vl_rfs.v:514]
+INFO: [Synth 8-638] synthesizing module 'xpm_cdc_handshake' [/home/joshbohde/xilinix/SDx/2016.3/Vivado/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:356]
+INFO: [Synth 8-638] synthesizing module 'xpm_cdc_single' [/home/joshbohde/xilinix/SDx/2016.3/Vivado/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:99]
+INFO: [Synth 8-256] done synthesizing module 'xpm_cdc_single' (2#1) [/home/joshbohde/xilinix/SDx/2016.3/Vivado/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:99]
+INFO: [Synth 8-256] done synthesizing module 'xpm_cdc_handshake' (3#1) [/home/joshbohde/xilinix/SDx/2016.3/Vivado/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:356]
+INFO: [Synth 8-256] done synthesizing module 'axi_clock_converter_v2_1_9_lite_async' (4#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/cf3b/hdl/axi_clock_converter_v2_1_vl_rfs.v:514]
+INFO: [Synth 8-638] synthesizing module 'axi_clock_converter_v2_1_9_lite_async__parameterized0' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/cf3b/hdl/axi_clock_converter_v2_1_vl_rfs.v:514]
+INFO: [Synth 8-638] synthesizing module 'xpm_cdc_handshake__parameterized0' [/home/joshbohde/xilinix/SDx/2016.3/Vivado/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:356]
+INFO: [Synth 8-256] done synthesizing module 'xpm_cdc_handshake__parameterized0' (4#1) [/home/joshbohde/xilinix/SDx/2016.3/Vivado/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:356]
+INFO: [Synth 8-256] done synthesizing module 'axi_clock_converter_v2_1_9_lite_async__parameterized0' (4#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/cf3b/hdl/axi_clock_converter_v2_1_vl_rfs.v:514]
+INFO: [Synth 8-638] synthesizing module 'axi_clock_converter_v2_1_9_lite_async__parameterized1' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/cf3b/hdl/axi_clock_converter_v2_1_vl_rfs.v:514]
+INFO: [Synth 8-638] synthesizing module 'xpm_cdc_handshake__parameterized1' [/home/joshbohde/xilinix/SDx/2016.3/Vivado/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:356]
+INFO: [Synth 8-256] done synthesizing module 'xpm_cdc_handshake__parameterized1' (4#1) [/home/joshbohde/xilinix/SDx/2016.3/Vivado/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:356]
+INFO: [Synth 8-256] done synthesizing module 'axi_clock_converter_v2_1_9_lite_async__parameterized1' (4#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/cf3b/hdl/axi_clock_converter_v2_1_vl_rfs.v:514]
+INFO: [Synth 8-638] synthesizing module 'axi_clock_converter_v2_1_9_lite_async__parameterized2' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/cf3b/hdl/axi_clock_converter_v2_1_vl_rfs.v:514]
+INFO: [Synth 8-638] synthesizing module 'xpm_cdc_handshake__parameterized2' [/home/joshbohde/xilinix/SDx/2016.3/Vivado/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:356]
+INFO: [Synth 8-256] done synthesizing module 'xpm_cdc_handshake__parameterized2' (4#1) [/home/joshbohde/xilinix/SDx/2016.3/Vivado/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv:356]
+INFO: [Synth 8-256] done synthesizing module 'axi_clock_converter_v2_1_9_lite_async__parameterized2' (4#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/cf3b/hdl/axi_clock_converter_v2_1_vl_rfs.v:514]
+INFO: [Synth 8-638] synthesizing module 'axi_infrastructure_v1_1_0_vector2axi' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7e3a/hdl/axi_infrastructure_v1_1_vl_rfs.v:474]
+INFO: [Synth 8-256] done synthesizing module 'axi_infrastructure_v1_1_0_vector2axi' (5#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7e3a/hdl/axi_infrastructure_v1_1_vl_rfs.v:474]
+INFO: [Synth 8-256] done synthesizing module 'axi_clock_converter_v2_1_9_axi_clock_converter' (6#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/cf3b/hdl/axi_clock_converter_v2_1_vl_rfs.v:642]
+INFO: [Synth 8-256] done synthesizing module 'xcl_design_clkconv_clkwiz_kernel_0' (7#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ip/xcl_design_clkconv_clkwiz_kernel_0/synth/xcl_design_clkconv_clkwiz_kernel_0.v:58]
+Finished RTL Elaboration : Time (s): cpu = 00:00:13 ; elapsed = 00:00:28 . Memory (MB): peak = 1519.555 ; gain = 608.617 ; free physical = 5471 ; free virtual = 7760
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:13 ; elapsed = 00:00:28 . Memory (MB): peak = 1519.555 ; gain = 608.617 ; free physical = 5469 ; free virtual = 7759
+INFO: [Device 21-403] Loading part xcku060-ffva1156-2-e
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1988.332 ; gain = 0.004 ; free physical = 4841 ; free virtual = 7432
+Finished Constraint Validation : Time (s): cpu = 00:00:22 ; elapsed = 00:00:38 . Memory (MB): peak = 1988.332 ; gain = 1077.395 ; free physical = 4807 ; free virtual = 7433
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:22 ; elapsed = 00:00:38 . Memory (MB): peak = 1988.332 ; gain = 1077.395 ; free physical = 4807 ; free virtual = 7434
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:22 ; elapsed = 00:00:39 . Memory (MB): peak = 1988.332 ; gain = 1077.395 ; free physical = 4806 ; free virtual = 7433
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:22 ; elapsed = 00:00:39 . Memory (MB): peak = 1988.332 ; gain = 1077.395 ; free physical = 4793 ; free virtual = 7426
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:23 ; elapsed = 00:00:39 . Memory (MB): peak = 1988.332 ; gain = 1077.395 ; free physical = 4783 ; free virtual = 7416
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:30 ; elapsed = 00:00:48 . Memory (MB): peak = 2129.332 ; gain = 1218.395 ; free physical = 4475 ; free virtual = 7176
+Finished Timing Optimization : Time (s): cpu = 00:00:30 ; elapsed = 00:00:48 . Memory (MB): peak = 2139.344 ; gain = 1228.406 ; free physical = 4461 ; free virtual = 7162
+Finished Technology Mapping : Time (s): cpu = 00:00:30 ; elapsed = 00:00:48 . Memory (MB): peak = 2149.359 ; gain = 1238.422 ; free physical = 4456 ; free virtual = 7157
+Finished IO Insertion : Time (s): cpu = 00:00:31 ; elapsed = 00:00:49 . Memory (MB): peak = 2149.363 ; gain = 1238.426 ; free physical = 4440 ; free virtual = 7145
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:31 ; elapsed = 00:00:49 . Memory (MB): peak = 2149.363 ; gain = 1238.426 ; free physical = 4440 ; free virtual = 7145
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:31 ; elapsed = 00:00:49 . Memory (MB): peak = 2149.363 ; gain = 1238.426 ; free physical = 4440 ; free virtual = 7145
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:31 ; elapsed = 00:00:49 . Memory (MB): peak = 2149.363 ; gain = 1238.426 ; free physical = 4440 ; free virtual = 7145
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:31 ; elapsed = 00:00:49 . Memory (MB): peak = 2149.363 ; gain = 1238.426 ; free physical = 4449 ; free virtual = 7151
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:31 ; elapsed = 00:00:49 . Memory (MB): peak = 2149.363 ; gain = 1238.426 ; free physical = 4449 ; free virtual = 7151
+
+Report Cell Usage: 
++------+-----+------+
+|      |Cell |Count |
++------+-----+------+
+|1     |LUT1 |     7|
+|2     |LUT2 |     5|
+|3     |LUT3 |    15|
+|4     |LUT4 |    15|
+|5     |LUT5 |    15|
+|6     |LUT6 |     5|
+|7     |FDRE |   270|
++------+-----+------+
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:31 ; elapsed = 00:00:49 . Memory (MB): peak = 2149.363 ; gain = 1238.426 ; free physical = 4449 ; free virtual = 7151
+synth_design: Time (s): cpu = 00:00:28 ; elapsed = 00:00:37 . Memory (MB): peak = 2346.055 ; gain = 1027.977 ; free physical = 4381 ; free virtual = 7083

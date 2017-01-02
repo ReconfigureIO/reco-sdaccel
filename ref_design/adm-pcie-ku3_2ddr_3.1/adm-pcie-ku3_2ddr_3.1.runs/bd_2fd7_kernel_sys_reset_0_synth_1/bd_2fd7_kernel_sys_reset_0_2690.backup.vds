@@ -1,0 +1,19 @@
+#-----------------------------------------------------------
+# Vivado v2016.3_sdx (64-bit)
+# SW Build 1721784 on Tue Nov 29 22:12:24 MST 2016
+# IP Build 1720686 on Mon Nov 28 12:39:17 MST 2016
+# Start of session at: Fri Dec 30 07:57:08 2016
+# Process ID: 2690
+# Current directory: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/bd_2fd7_kernel_sys_reset_0_synth_1
+# Command line: vivado -log bd_2fd7_kernel_sys_reset_0.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source bd_2fd7_kernel_sys_reset_0.tcl
+# Log file: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/bd_2fd7_kernel_sys_reset_0_synth_1/bd_2fd7_kernel_sys_reset_0.vds
+# Journal file: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/bd_2fd7_kernel_sys_reset_0_synth_1/vivado.jou
+#-----------------------------------------------------------
+Sourcing tcl script '/home/joshbohde/xilinix/SDx/2016.3/Vivado/scripts/init.tcl'
+16 Beta devices matching pattern found, 0 enabled.
+Loaded SDSoC Platform Tcl Library
+source bd_2fd7_kernel_sys_reset_0.tcl -notrace
+Starting RTL Elaboration : Time (s): cpu = 00:00:12 ; elapsed = 00:00:20 . Memory (MB): peak = 1393.086 ; gain = 482.141 ; free physical = 1644 ; free virtual = 7645
+ERROR: [Synth 8-439] module 'bd_2fd7_kernel_sys_reset_0' not found
+Finished RTL Elaboration : Time (s): cpu = 00:00:12 ; elapsed = 00:00:21 . Memory (MB): peak = 1433.555 ; gain = 522.609 ; free physical = 1899 ; free virtual = 7899
+ERROR: [Common 17-69] Command failed: Synthesis failed - please see the console or run log file for details

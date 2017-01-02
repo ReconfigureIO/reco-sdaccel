@@ -1,0 +1,11 @@
+===================================
+Configuration Memory information
+===================================
+File Format        MCS
+Interface          BPIX16
+Size               1024M
+Start Address      0x00000000
+End Address        0x3FFFFFFF
+
+Addr1         Addr2         Date                    File(s)
+0x06000000    0x06D6736B    Nov 17 12:37:06 2016    /group/syspro/users/jeffli/perforce/HEAD/data/sdaccel/board_support/xilinx/adm-pcie-ku3/2ddr-xpr/3.2/.Xil/Vivado-196092-cxsjl170066/dsa/xilinx_adm-pcie-ku3_2ddr-xpr_3_2.bit

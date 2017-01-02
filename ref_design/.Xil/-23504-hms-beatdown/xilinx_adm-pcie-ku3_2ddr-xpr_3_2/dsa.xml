@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root VersionMajor="1" VersionMinor="5">
+  <GenAppInfo Name="Vivado" Version="2016.3" CL="1711623" TimeStamp="Thu Nov 17 12:41:23 2016"/>
+  <DSA Vendor="xilinx" BoardId="adm-pcie-ku3" Name="2ddr-xpr" VersionMajor="3" VersionMinor="2" Description="This platform targets the AlphaData KU3 Board for Acceleration with Kintex UltraScale KU060 FPGA. This high-performance acceleration platform features two channels of DDR3-1600 SODIMM, the expanded partial reconfiguration flow for high fabric resource availability, and Xilinx DMA Subsystem for PCI Express with PCIe Gen3 x8 connectivity.">
+    <Host Architecture="x86_64" Interface="pcie"/>
+    <Build UsesPR="true" StaticSynthCheckpoint="false"/>
+    <Board Name="alpha-data.com:adm-pcie3-ku3:1.0" Vendor="alpha-data.com" Part="XCKU060-FFVA1156-2-E">
+      <Interfaces>
+        <Interface Id="int1" Name="PCIe" Type="gen3x8"/>
+      </Interfaces>
+      <Memories>
+        <Memory Name="expanded_region_memc_ddrmem" Type="ddr3" Size="8GB">
+          <Config>
+            <Param Name="AXI_ARBITRATION_SCHEME" Value="RD_PRI_REG"/>
+            <Param Name="BURST_LENGTH" Value="8"/>
+            <Param Name="C0.APP_ADDR_WIDTH" Value="30"/>
+            <Param Name="C0.APP_DATA_WIDTH" Value="512"/>
+            <Param Name="C0.ControllerType" Value="DDR3_SDRAM"/>
+            <Param Name="C0.DDR3_ADDR_WIDTH" Value="16"/>
+            <Param Name="C0.DDR3_AXI_ADDR_WIDTH" Value="33"/>
+            <Param Name="C0.DDR3_AXI_DATA_WIDTH" Value="512"/>
+            <Param Name="C0.DDR3_AXI_ID_WIDTH" Value="1"/>
+            <Param Name="C0.DDR3_AutoPrecharge" Value="false"/>
+            <Param Name="C0.DDR3_AxiNarrowBurst" Value="false"/>
+            <Param Name="C0.DDR3_BANK_GROUP_WIDTH" Value="0"/>
+            <Param Name="C0.DDR3_BANK_WIDTH" Value="3"/>
+            <Param Name="C0.DDR3_CL" Value="0"/>
+            <Param Name="C0.DDR3_COLUMN_WIDTH" Value="10"/>
+            <Param Name="C0.DDR3_CWL" Value="0"/>
+            <Param Name="C0.DDR3_Mem_Add_Map" Value="ROW_COLUMN_BANK"/>
+            <Param Name="C0.DDR3_Ordering" Value="Normal"/>
+            <Param Name="C0.DDR3_RANK_WIDTH" Value="2"/>
+            <Param Name="C0.DDR3_ROW_WIDTH" Value="16"/>
+            <Param Name="C0.DDR3_tCK" Value="1250"/>
+            <Param Name="C0.DDR3_tCKE" Value="0"/>
+            <Param Name="C0.DDR3_tFAW" Value="24"/>
+            <Param Name="C0.DDR3_tMRD" Value="1"/>
+            <Param Name="C0.DDR3_tRAS" Value="28"/>
+            <Param Name="C0.DDR3_tRCD" Value="11"/>
+            <Param Name="C0.DDR3_tREFI" Value="6240"/>
+            <Param Name="C0.DDR3_tRFC" Value="208"/>
+            <Param Name="C0.DDR3_tRP" Value="11"/>
+            <Param Name="C0.DDR3_tRRD" Value="5"/>
+            <Param Name="C0.DDR3_tRRD_L" Value=""/>
+            <Param Name="C0.DDR3_tRRD_S" Value=""/>
+            <Param Name="C0.DDR3_tRTP" Value="6"/>
+            <Param Name="C0.DDR3_tWR" Value="12"/>
+            <Param Name="C0.DDR3_tWTR" Value="6"/>
+            <Param Name="C0.DDR3_tWTR_L" Value=""/>
+            <Param Name="C0.DDR3_tWTR_S" Value=""/>
+            <Param Name="C0.DDR3_tXPR" Value="54"/>
+            <Param Name="C0.DDR3_tZQCS" Value="64"/>
+            <Param Name="C0.DDR3_tZQI" Value="0"/>
+            <Param Name="C0.DDR3_tZQINIT" Value="128"/>
+            <Param Name="CAS_LATENCY" Value="11"/>
+            <Param Name="CAS_WRITE_LATENCY" Value="8"/>
+            <Param Name="DATA_WIDTH" Value="72"/>
+            <Param Name="MEMORY_PART" Value="MT18KSF1G72HZ-1G6"/>
+            <Param Name="MEM_ADDR_MAP" Value="ROW_COLUMN_BANK"/>
+            <Param Name="TIMEPERIOD_PS" Value="1250"/>
+          </Config>
+        </Memory>
+        <Memory Name="expanded_region_memc_ddrmem_2" Type="ddr3" Size="8GB">
+          <Config>
+            <Param Name="AXI_ARBITRATION_SCHEME" Value="RD_PRI_REG"/>
+            <Param Name="BURST_LENGTH" Value="8"/>
+            <Param Name="C0.APP_ADDR_WIDTH" Value="30"/>
+            <Param Name="C0.APP_DATA_WIDTH" Value="512"/>
+            <Param Name="C0.ControllerType" Value="DDR3_SDRAM"/>
+            <Param Name="C0.DDR3_ADDR_WIDTH" Value="16"/>
+            <Param Name="C0.DDR3_AXI_ADDR_WIDTH" Value="33"/>
+            <Param Name="C0.DDR3_AXI_DATA_WIDTH" Value="512"/>
+            <Param Name="C0.DDR3_AXI_ID_WIDTH" Value="1"/>
+            <Param Name="C0.DDR3_AutoPrecharge" Value="false"/>
+            <Param Name="C0.DDR3_AxiNarrowBurst" Value="false"/>
+            <Param Name="C0.DDR3_BANK_GROUP_WIDTH" Value="0"/>
+            <Param Name="C0.DDR3_BANK_WIDTH" Value="3"/>
+            <Param Name="C0.DDR3_CL" Value="0"/>
+            <Param Name="C0.DDR3_COLUMN_WIDTH" Value="10"/>
+            <Param Name="C0.DDR3_CWL" Value="0"/>
+            <Param Name="C0.DDR3_Mem_Add_Map" Value="ROW_COLUMN_BANK"/>
+            <Param Name="C0.DDR3_Ordering" Value="Normal"/>
+            <Param Name="C0.DDR3_RANK_WIDTH" Value="2"/>
+            <Param Name="C0.DDR3_ROW_WIDTH" Value="16"/>
+            <Param Name="C0.DDR3_tCK" Value="1250"/>
+            <Param Name="C0.DDR3_tCKE" Value="0"/>
+            <Param Name="C0.DDR3_tFAW" Value="24"/>
+            <Param Name="C0.DDR3_tMRD" Value="1"/>
+            <Param Name="C0.DDR3_tRAS" Value="28"/>
+            <Param Name="C0.DDR3_tRCD" Value="11"/>
+            <Param Name="C0.DDR3_tREFI" Value="6240"/>
+            <Param Name="C0.DDR3_tRFC" Value="208"/>
+            <Param Name="C0.DDR3_tRP" Value="11"/>
+            <Param Name="C0.DDR3_tRRD" Value="5"/>
+            <Param Name="C0.DDR3_tRRD_L" Value=""/>
+            <Param Name="C0.DDR3_tRRD_S" Value=""/>
+            <Param Name="C0.DDR3_tRTP" Value="6"/>
+            <Param Name="C0.DDR3_tWR" Value="12"/>
+            <Param Name="C0.DDR3_tWTR" Value="6"/>
+            <Param Name="C0.DDR3_tWTR_L" Value=""/>
+            <Param Name="C0.DDR3_tWTR_S" Value=""/>
+            <Param Name="C0.DDR3_tXPR" Value="54"/>
+            <Param Name="C0.DDR3_tZQCS" Value="64"/>
+            <Param Name="C0.DDR3_tZQI" Value="0"/>
+            <Param Name="C0.DDR3_tZQINIT" Value="128"/>
+            <Param Name="CAS_LATENCY" Value="11"/>
+            <Param Name="CAS_WRITE_LATENCY" Value="8"/>
+            <Param Name="DATA_WIDTH" Value="72"/>
+            <Param Name="MEMORY_PART" Value="MT18KSF1G72HZ-1G6"/>
+            <Param Name="MEM_ADDR_MAP" Value="ROW_COLUMN_BANK"/>
+            <Param Name="TIMEPERIOD_PS" Value="1250"/>
+          </Config>
+        </Memory>
+      </Memories>
+      <Images>
+        <Img Type="HDPI" File="adm-pcie3-ku3_high.jpeg"/>
+        <Img Type="MDPI" File="adm-pcie3-ku3_med.jpeg"/>
+        <Img Type="LDPI" File="adm-pcie3-ku3_low.jpeg"/>
+      </Images>
+      <PCIeId Vendor="0x10EE" Device="0x8138" Subsystem="0x4232"/>
+    </Board>
+    <Devices>
+      <Device Name="fpga0" Type="8" FpgaDevice="kintexu:xcku060:ffva1156:-2:e">
+        <Core Name="OCL_REGION_0" Type="clc_region" ComputeUnits="16" VLNV="xilinx.com:ip:ocl_block:1.0" InstancePath="xcl_design_i/expanded_region/u_ocl_region" ParentRMInstancePath="xcl_design_i/expanded_region" ClockFreq="200000000">
+          <Config>
+            <Param Name="BOUNDARY_VERSION" Value="2"/>
+            <Param Name="C_BASEADDR" Value="0x00010000"/>
+            <Param Name="C_HIGHADDR" Value="0x0001FFFF"/>
+            <Param Name="Component_Name" Value="xcl_design_u_ocl_region_0"/>
+            <Param Name="EDK_IPTYPE" Value="PERIPHERAL"/>
+            <Param Name="ENABLE_ADVANCED_OPTIONS" Value="1"/>
+            <Param Name="ENABLE_PROFILING" Value="true"/>
+            <Param Name="ENABLE_SMARTCONNECT" Value="false"/>
+            <Param Name="HAS_BURST" Value="0"/>
+            <Param Name="HAS_CONTROL_CLOCK" Value="false"/>
+            <Param Name="HAS_INTERRUPT" Value="false"/>
+            <Param Name="HAS_KERNEL_CLOCK" Value="true"/>
+            <Param Name="HAS_KERNEL_CLOCK2" Value="false"/>
+            <Param Name="HAS_S_MEM" Value="false"/>
+            <Param Name="KERNEL_TYPE" Value="ADD_ONE"/>
+            <Param Name="KERNEL_VLNV" Value="none"/>
+            <Param Name="M00_AXIS_RX_TDATA_NUM_BYTES" Value="8"/>
+            <Param Name="M00_AXIS_RX_TUSER_WIDTH" Value="8"/>
+            <Param Name="M01_AXIS_RX_TDATA_NUM_BYTES" Value="8"/>
+            <Param Name="M01_AXIS_RX_TUSER_WIDTH" Value="8"/>
+            <Param Name="M_ADDR_WIDTH" Value="38"/>
+            <Param Name="M_DATA_WIDTH" Value="512"/>
+            <Param Name="M_HAS_REGSLICE" Value="4"/>
+            <Param Name="M_HAS_REGSLICE_MI" Value="0"/>
+            <Param Name="M_ID_WIDTH" Value="4"/>
+            <Param Name="NUM_KERNELS" Value="2"/>
+            <Param Name="NUM_MI" Value="2"/>
+            <Param Name="NUM_M_AXIS_RX" Value="0"/>
+            <Param Name="NUM_S_AXIS_TX" Value="0"/>
+            <Param Name="REGSLICE_CONFIG_DICT" Value="none"/>
+            <Param Name="S00_AXIS_TX_TDATA_NUM_BYTES" Value="8"/>
+            <Param Name="S00_AXIS_TX_TUSER_WIDTH" Value="8"/>
+            <Param Name="S01_AXIS_TX_TDATA_NUM_BYTES" Value="8"/>
+            <Param Name="S01_AXIS_TX_TUSER_WIDTH" Value="8"/>
+            <Param Name="SYNC_RESET" Value="true"/>
+            <Param Name="S_ADDR_WIDTH" Value="17"/>
+            <Param Name="S_DATA_WIDTH" Value="32"/>
+            <Param Name="S_HAS_REGSLICE" Value="4"/>
+            <Param Name="S_HAS_REGSLICE_SI" Value="0"/>
+            <Param Name="S_MEM_ADDR_WIDTH" Value="16"/>
+            <Param Name="S_MEM_DATA_WIDTH" Value="32"/>
+            <Param Name="S_MEM_ID_WIDTH" Value="1"/>
+            <Param Name="TIEOFF_KERNEL_RESET" Value="false"/>
+            <Param Name="USER_WIDTH" Value="0"/>
+            <Param Name="USE_BSCAN" Value="false"/>
+            <Param Name="USE_PR" Value="false"/>
+            <Param Name="USE_SYNTH" Value="false"/>
+          </Config>
+          <Port Name="M00_AXI" Type="addressable" Mode="master" Protocol="AXI4" Base="0x0" Range="0x0000000400000000" DataWidth="512" IdWidth="4" UserWidth="0" AddressWidth="38" MaxBurstLength="256" Frequency="200000000">
+            <AddressSegments>
+              <AddressSegment Name="M00_AXI_addr_seg_0" Base="0x00000000" Range="0x200000000" Slave="expanded_region_memc_ddrmem"/>
+              <AddressSegment Name="M00_AXI_addr_seg_1" Base="0x000200000000" Range="0x200000000" Slave="expanded_region_memc_ddrmem_2"/>
+            </AddressSegments>
+          </Port>
+          <Port Name="M01_AXI" Type="addressable" Mode="master" Protocol="AXI4" Base="0x0" Range="0x0000000400000000" DataWidth="512" IdWidth="4" UserWidth="0" AddressWidth="38" MaxBurstLength="256" Frequency="200000000">
+            <AddressSegments>
+              <AddressSegment Name="M01_AXI_addr_seg_0" Base="0x00000000" Range="0x200000000" Slave="expanded_region_memc_ddrmem"/>
+              <AddressSegment Name="M01_AXI_addr_seg_1" Base="0x000200000000" Range="0x200000000" Slave="expanded_region_memc_ddrmem_2"/>
+            </AddressSegments>
+          </Port>
+          <Port Name="S_AXI" Type="addressable" Mode="slave" Protocol="AXI4LITE" Base="0x00000000" Range="0x00010000" DataWidth="32" IdWidth="0" UserWidth="0" AddressWidth="17" MaxBurstLength="1" Frequency="200000000"/>
+          <Port Name="INTERCONNECT_CLK" Type="clk" Mode="input" Frequency="200000000"/>
+          <Port Name="INTERCONNECT_RESET" Type="rst" Mode="input"/>
+          <Port Name="KERNEL_CLK" Type="clk" Mode="input" Frequency="200000000"/>
+          <Port Name="KERNEL_RESET" Type="rst" Mode="input"/>
+          <AvailableResources LUT="234724" REG="549158" BRAM="966" DSP="2754"/>
+        </Core>
+      </Device>
+    </Devices>
+    <Files>
+      <File Type="CLEAR_BIT" Name="xilinx_adm-pcie-ku3_2ddr-xpr_3_2_pblock_u_ocl_region_partial_clear.bit"/>
+      <File Type="DCP" Name="xilinx_adm-pcie-ku3_2ddr-xpr_3_2.dcp"/>
+      <File Type="FULL_BIT" Name="xilinx_adm-pcie-ku3_2ddr-xpr_3_2.bit"/>
+      <File Type="MCS" Name="xilinx_adm-pcie-ku3_2ddr-xpr_3_2.mcs"/>
+      <File Type="PARTIAL_BIT" Name="xilinx_adm-pcie-ku3_2ddr-xpr_3_2_pblock_u_ocl_region_partial.bit"/>
+      <File Type="XDEF" Name="xilinx_adm-pcie-ku3_2ddr-xpr_3_2.xdef"/>
+    </Files>
+  </DSA>
+</Root>

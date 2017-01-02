@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRun Id="xcl_design_buf_refclk_bufg_0_synth_1" LaunchPart="xcku060-ffva1156-2-e" LaunchTime="1483106877">
+  <File Type="RDS-UTIL-PB" Name="xcl_design_buf_refclk_bufg_0_utilization_synth.pb"/>
+  <File Type="RDS-DCP" Name="xcl_design_buf_refclk_bufg_0.dcp"/>
+  <File Type="RDS-UTIL" Name="xcl_design_buf_refclk_bufg_0_utilization_synth.rpt"/>
+  <File Type="RDS-PROPCONSTRS" Name="xcl_design_buf_refclk_bufg_0_drc_synth.rpt"/>
+  <File Type="RDS-RDS" Name="xcl_design_buf_refclk_bufg_0.vds"/>
+  <File Type="VDS-TIMING-PB" Name="xcl_design_buf_refclk_bufg_0_timing_summary_synth.pb"/>
+  <File Type="PA-TCL" Name="xcl_design_buf_refclk_bufg_0.tcl"/>
+  <File Type="VDS-TIMINGSUMMARY" Name="xcl_design_buf_refclk_bufg_0_timing_summary_synth.rpt"/>
+  <FileSet Name="sources" Type="BlockSrcs" RelSrcDir="$PSRCDIR/xcl_design_buf_refclk_bufg_0">
+    <File Path="$PSRCDIR/sources_1/bd/xcl_design/ip/xcl_design_buf_refclk_bufg_0/xcl_design_buf_refclk_bufg_0.xci">
+      <FileInfo>
+        <Attr Name="Library" Val="xil_defaultlib"/>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../../../adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ip/xcl_design_buf_refclk_bufg_0/xcl_design_buf_refclk_bufg_0.xci"/>
+        <Attr Name="ImportTime" Val="0"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+        <Attr Name="ProcessingOrder" Val="EARLY"/>
+      </FileInfo>
+    </File>
+    <Config>
+      <Option Name="TopModule" Val="xcl_design_buf_refclk_bufg_0"/>
+      <Option Name="UseBlackboxStub" Val="1"/>
+    </Config>
+  </FileSet>
+  <FileSet Name="constrs_in" Type="BlockSrcs" RelSrcDir="$PSRCDIR/xcl_design_buf_refclk_bufg_0">
+    <File Path="$PSRCDIR/sources_1/bd/xcl_design/ip/xcl_design_buf_refclk_bufg_0/xcl_design_buf_refclk_bufg_0.xci">
+      <FileInfo>
+        <Attr Name="Library" Val="xil_defaultlib"/>
+        <Attr Name="ImportPath" Val="$PPRDIR/../../../../adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ip/xcl_design_buf_refclk_bufg_0/xcl_design_buf_refclk_bufg_0.xci"/>
+        <Attr Name="ImportTime" Val="0"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+        <Attr Name="ProcessingOrder" Val="EARLY"/>
+      </FileInfo>
+    </File>
+    <Config>
+      <Option Name="TopModule" Val="xcl_design_buf_refclk_bufg_0"/>
+      <Option Name="UseBlackboxStub" Val="1"/>
+    </Config>
+  </FileSet>
+  <Strategy Version="1" Minor="2">
+    <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2016"/>
+    <Step Id="synth_design"/>
+  </Strategy>
+</GenRun>

@@ -1,0 +1,46 @@
+#-----------------------------------------------------------
+# Vivado v2016.3_sdx (64-bit)
+# SW Build 1721784 on Tue Nov 29 22:12:24 MST 2016
+# IP Build 1720686 on Mon Nov 28 12:39:17 MST 2016
+# Start of session at: Fri Dec 30 08:11:33 2016
+# Process ID: 6380
+# Current directory: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/bd_2fd7_slave_bridge_0_synth_1
+# Command line: vivado -log bd_2fd7_slave_bridge_0.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source bd_2fd7_slave_bridge_0.tcl
+# Log file: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/bd_2fd7_slave_bridge_0_synth_1/bd_2fd7_slave_bridge_0.vds
+# Journal file: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/bd_2fd7_slave_bridge_0_synth_1/vivado.jou
+#-----------------------------------------------------------
+Sourcing tcl script '/home/joshbohde/xilinix/SDx/2016.3/Vivado/scripts/init.tcl'
+16 Beta devices matching pattern found, 0 enabled.
+Loaded SDSoC Platform Tcl Library
+source bd_2fd7_slave_bridge_0.tcl -notrace
+Starting RTL Elaboration : Time (s): cpu = 00:00:07 ; elapsed = 00:00:15 . Memory (MB): peak = 1395.082 ; gain = 484.141 ; free physical = 1009 ; free virtual = 7315
+INFO: [Synth 8-638] synthesizing module 'bd_2fd7_slave_bridge_0' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ip/xcl_design_u_ocl_region_0/bd_0/ip/ip_12/synth/bd_2fd7_slave_bridge_0.vhd:108]
+INFO: [Synth 8-638] synthesizing module 'axilite_bridge' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/b96d/hdl/axilite_bridge.vhd:73]
+INFO: [Synth 8-256] done synthesizing module 'axilite_bridge' (1#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/b96d/hdl/axilite_bridge.vhd:73]
+INFO: [Synth 8-256] done synthesizing module 'bd_2fd7_slave_bridge_0' (2#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ip/xcl_design_u_ocl_region_0/bd_0/ip/ip_12/synth/bd_2fd7_slave_bridge_0.vhd:108]
+Finished RTL Elaboration : Time (s): cpu = 00:00:08 ; elapsed = 00:00:16 . Memory (MB): peak = 1434.559 ; gain = 523.617 ; free physical = 962 ; free virtual = 7273
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:08 ; elapsed = 00:00:16 . Memory (MB): peak = 1434.559 ; gain = 523.617 ; free physical = 961 ; free virtual = 7272
+INFO: [Device 21-403] Loading part xcku060-ffva1156-2-e
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1883.461 ; gain = 0.000 ; free physical = 543 ; free virtual = 6904
+Finished Constraint Validation : Time (s): cpu = 00:00:16 ; elapsed = 00:00:25 . Memory (MB): peak = 1883.461 ; gain = 972.520 ; free physical = 514 ; free virtual = 6894
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:16 ; elapsed = 00:00:25 . Memory (MB): peak = 1883.461 ; gain = 972.520 ; free physical = 514 ; free virtual = 6894
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:16 ; elapsed = 00:00:25 . Memory (MB): peak = 1883.461 ; gain = 972.520 ; free physical = 513 ; free virtual = 6894
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:16 ; elapsed = 00:00:25 . Memory (MB): peak = 1883.461 ; gain = 972.520 ; free physical = 513 ; free virtual = 6894
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:16 ; elapsed = 00:00:25 . Memory (MB): peak = 1883.461 ; gain = 972.520 ; free physical = 512 ; free virtual = 6894
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:24 ; elapsed = 00:00:33 . Memory (MB): peak = 2102.691 ; gain = 1191.750 ; free physical = 193 ; free virtual = 6603
+Finished Timing Optimization : Time (s): cpu = 00:00:24 ; elapsed = 00:00:33 . Memory (MB): peak = 2102.691 ; gain = 1191.750 ; free physical = 193 ; free virtual = 6603
+Finished Technology Mapping : Time (s): cpu = 00:00:24 ; elapsed = 00:00:33 . Memory (MB): peak = 2112.715 ; gain = 1201.773 ; free physical = 199 ; free virtual = 6594
+Finished IO Insertion : Time (s): cpu = 00:00:24 ; elapsed = 00:00:33 . Memory (MB): peak = 2112.719 ; gain = 1201.777 ; free physical = 196 ; free virtual = 6593
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:24 ; elapsed = 00:00:33 . Memory (MB): peak = 2112.719 ; gain = 1201.777 ; free physical = 196 ; free virtual = 6593
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:24 ; elapsed = 00:00:33 . Memory (MB): peak = 2112.719 ; gain = 1201.777 ; free physical = 196 ; free virtual = 6593
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:24 ; elapsed = 00:00:33 . Memory (MB): peak = 2112.719 ; gain = 1201.777 ; free physical = 196 ; free virtual = 6593
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:24 ; elapsed = 00:00:33 . Memory (MB): peak = 2112.719 ; gain = 1201.777 ; free physical = 196 ; free virtual = 6593
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:24 ; elapsed = 00:00:33 . Memory (MB): peak = 2112.719 ; gain = 1201.777 ; free physical = 196 ; free virtual = 6593
+
+Report Cell Usage: 
++-+-----+------+
+| |Cell |Count |
++-+-----+------+
++-+-----+------+
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:24 ; elapsed = 00:00:33 . Memory (MB): peak = 2112.719 ; gain = 1201.777 ; free physical = 196 ; free virtual = 6593
+synth_design: Time (s): cpu = 00:00:22 ; elapsed = 00:00:27 . Memory (MB): peak = 2141.484 ; gain = 822.402 ; free physical = 187 ; free virtual = 6562

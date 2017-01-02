@@ -1,0 +1,61 @@
+{
+   guistr: "# # String gsaved with Nlview 6.6.5b  2016-09-06 bk=1.3687 VDI=39 GEI=35 GUI=JA:1.6
+#  -string -flagsOSRD
+preplace port ref_clk -pg 1 -y 140 -defaultsOSRD
+preplace port flash_OE_N -pg 1 -y 330 -defaultsOSRD
+preplace port flash_ADV_N -pg 1 -y 290 -defaultsOSRD
+preplace port perst_n -pg 1 -y 40 -defaultsOSRD
+preplace port led_0 -pg 1 -y 530 -defaultsOSRD
+preplace port c1_ddr3 -pg 1 -y 70 -defaultsOSRD
+preplace port c0_sys -pg 1 -y 0 -defaultsOSRD
+preplace port c0_ddr3 -pg 1 -y 90 -defaultsOSRD
+preplace port flash_WE_N -pg 1 -y 350 -defaultsOSRD
+preplace port c1_sys -pg 1 -y 20 -defaultsOSRD
+preplace port pcie_7x_mgt -pg 1 -y 10 -defaultsOSRD
+preplace portBus flash_DQ -pg 1 -y 310 -defaultsOSRD
+preplace portBus c0_ddr3_dm -pg 1 -y 230 -defaultsOSRD
+preplace portBus flash_A -pg 1 -y 270 -defaultsOSRD
+preplace portBus init_calib_complete -pg 1 -y 550 -defaultsOSRD
+preplace portBus c1_ddr3_dm -pg 1 -y 250 -defaultsOSRD
+preplace inst base_region -pg 1 -lvl 1 -y 240 -defaultsOSRD
+preplace inst expanded_region -pg 1 -lvl 2 -y 230 -defaultsOSRD
+preplace netloc base_region_interconnect_aresetn 1 1 1 N
+preplace netloc base_region_clk_out3 1 1 1 N
+preplace netloc base_region_locked 1 1 1 N
+preplace netloc expanded_region_M09_AXI 1 0 3 50 480 NJ 480 940
+preplace netloc base_region_axi_aclk 1 1 1 N
+preplace netloc c0_sys_1 1 0 2 NJ 0 440J
+preplace netloc ref_clk_1 1 0 1 NJ
+preplace netloc base_region_M_AXI1 1 1 1 N
+preplace netloc base_region_M_AXI 1 1 1 N
+preplace netloc expanded_region_Res 1 0 3 60 490 NJ 490 980
+preplace netloc base_region_M_AXI2 1 1 1 N
+preplace netloc base_region_M_AXI_LITE 1 1 1 N
+preplace netloc expanded_region_flash_A 1 2 1 NJ
+preplace netloc expanded_region_M06_AXI 1 0 3 80 440 NJ 440 920
+preplace netloc base_region_M_AXI3 1 1 1 N
+preplace netloc expanded_region_M00_AXI 1 0 3 20 450 NJ 450 970
+preplace netloc base_region_user_lnk_up 1 1 2 440J 530 NJ
+preplace netloc expanded_region_flash_OE_N 1 2 1 NJ
+preplace netloc expanded_region_M05_AXI 1 0 3 80 10 NJ 10 920
+preplace netloc expanded_region_interconnect_aresetn1 1 0 3 70 500 NJ 500 930
+preplace netloc expanded_region_dout 1 2 1 980
+preplace netloc c1_sys_1 1 0 2 NJ 20 470J
+preplace netloc expanded_region_M01_AXI 1 0 3 30 -10 NJ -10 940
+preplace netloc perst_n_1 1 0 2 10 40 450J
+preplace netloc base_region_pcie_mgt 1 1 2 460J 0 970J
+preplace netloc base_region_interconnect_aresetn1 1 1 1 N
+preplace netloc expanded_region_flash_WE_N 1 2 1 NJ
+preplace netloc expanded_region_C0_DDR3 1 2 1 NJ
+preplace netloc expanded_region_M07_AXI 1 0 3 30 460 NJ 460 960
+preplace netloc base_region_axi_aresetn 1 1 1 N
+preplace netloc Net 1 2 1 NJ
+preplace netloc expanded_region_flash_ADV_N 1 2 1 NJ
+preplace netloc expanded_region_C0_DDR4 1 2 1 NJ
+preplace netloc expanded_region_M08_AXI 1 0 3 40 470 NJ 470 950
+preplace netloc base_region_clk_out1 1 1 1 N
+preplace netloc base_region_clk_out2 1 1 1 N
+levelinfo -pg 1 -10 270 710 1020 -top -20 -bot 570
+",
+}
+0
