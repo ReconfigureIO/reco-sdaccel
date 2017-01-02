@@ -30,3 +30,20 @@ dist/${NAME}-${VERSION}.tar.gz: bundle dist
 clean:
 	rm -rf build
 	rm -rf dist
+
+update-changelog:
+	tail -n +3 RELEASE.md > next.md
+	echo "" >> next.md
+	cat CHANGELOG.md >> next.md
+	mv next.md CHANGELOG.md
+	@echo "$(NAME) $(NEXT_RELEASE)" > RELEASE.md
+	@echo "" >> RELEASE.md
+	@echo "# $(NAME) $(NEXT_RELEASE)" >> RELEASE.md
+	@echo "" >> RELEASE.md
+	@echo "## Features" >> RELEASE.md
+	@echo "" >> RELEASE.md
+	@echo "## Bugfixes" >> RELEASE.md
+
+release: dist/${NAME}-${VERSION}.tar.gz
+	aws s3 cp "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
+	hub release create -d -F "RELEASE.md" -a "dist/${NAME}-${VERSION}.tar.gz" "$(VERSION)"
