@@ -16,6 +16,8 @@ function connect {
     ADDRESS=$(echo "$CONNECTION_INFO" | jq -r ".address")
     PASS=$(echo "$CONNECTION_INFO" | jq -r ".password")
 
+    sleep 1m
+
     sshpass -p "$PASS" ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "nimbix@$ADDRESS"
     jarvice_cli shutdown -number "$NUMBER"
 }
