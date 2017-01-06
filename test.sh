@@ -9,9 +9,14 @@ usage: $0 <command>
 Where <command> is one of the following:
 
     shell   Spin up a temporary development shell in the Nimbix cloud
+    stop    Stop all running jobs
 
     help    Display this help output
 "
+}
+
+function stop {
+    jarvice_cli shutdown_all
 }
 
 function shell {
@@ -38,6 +43,9 @@ function main {
     case "$1" in
         "shell")
             shell "${@:2}"
+            ;;
+        "stop")
+            stop "${@:2}"
             ;;
         "help")
             help "$@"
