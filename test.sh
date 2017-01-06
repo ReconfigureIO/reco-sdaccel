@@ -1,8 +1,20 @@
 #!/bin/bash
 
-set -ex
+set -e
 
-function connect {
+function help {
+    echo "
+usage: $0 <command>
+
+Where <command> is one of the following:
+
+    shell   Spin up a temporary development shell in the Nimbix cloud
+
+    help    Display this help output
+"
+}
+
+function shell {
     JOB=$(jarvice_cli submit -j job-json.json)
     NUMBER=$(echo "$JOB" | jq -r ".number")
 
@@ -22,4 +34,21 @@ function connect {
     jarvice_cli shutdown -number "$NUMBER"
 }
 
-connect
+function main {
+    case "$1" in
+        "shell")
+            shell "${@:2}"
+            ;;
+        "help")
+            help "$@"
+            ;;
+
+        *)
+            echo "unrecognized command: $1";
+            help "$@"
+            exit 1
+            ;;
+        esac
+}
+
+main "$@"
