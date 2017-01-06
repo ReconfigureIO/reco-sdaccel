@@ -33,7 +33,7 @@ function shell {
     ADDRESS=$(echo "$CONNECTION_INFO" | jq -r ".address")
     PASS=$(echo "$CONNECTION_INFO" | jq -r ".password")
 
-    ansible localhost -m wait_for -a "host=$ADDRESS port=22 delay=60 timeout=320 state=started"
+    ansible localhost -m wait_for -a "host=$ADDRESS port=22 delay=0 timeout=300 state=started"
 
     sshpass -p "$PASS" ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "nimbix@$ADDRESS"
     jarvice_cli shutdown -number "$NUMBER"
