@@ -12,6 +12,7 @@ usage: $0 <command>
 Where <command> is one of the following:
 
     shell   Spin up a temporary development shell in the Nimbix cloud
+    run <path to script>  Spin up a single shot run of a script in the data partition.
     stop    Stop all running jobs
 
     help    Display this help output
@@ -42,10 +43,21 @@ function shell {
     jarvice_cli shutdown -number "$NUMBER"
 }
 
+function run {
+    JSON=$(jq ".application.parameters.command = \"$*\"" < "$DIR/job-batch.json")
+    JOB=$(jarvice_cli submit -j "$JSON")
+    NUMBER=$(echo "$JOB" | jq -r ".number")
+    jarvice_cli status -number "$NUMBER"
+    jarvice_cli tail -number "$NUMBER"
+}
+
 function main {
     case "$1" in
         "shell")
             shell "${@:2}"
+            ;;
+        "run")
+            run "${@:2}"
             ;;
         "stop")
             stop "${@:2}"
