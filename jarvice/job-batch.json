@@ -1,0 +1,29 @@
+{
+  "app": "jarvice-ubuntu",
+  "checkedout": false,
+  "machine": {
+    "nodes": "1",
+    "type": "n0"
+  },
+  "application": {
+    "geometry": "2542x1228",
+    "staging": false,
+    "command": "Batch",
+    "parameters": {
+      "command": "whoami"
+    },
+    "walltime": "1:00:00"
+  },
+  "user": {
+    "username": "reconfigureio",
+    "apikey": "cbe26de4b61a41d19700089ea948335057ca9072"
+  },
+  "vault": {
+    "readonly": false,
+    "password": "",
+    "force": false,
+    "name": "drop.jarvice.com",
+    "objects": []
+  },
+  "job_label": "reconfigure"
+}
