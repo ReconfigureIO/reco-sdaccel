@@ -2,6 +2,9 @@
 
 set -e
 
+export DIR
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 function help {
     echo "
 usage: $0 <command>
@@ -20,7 +23,7 @@ function stop {
 }
 
 function shell {
-    JOB=$(jarvice_cli submit -j job-json.json)
+    JOB=$(jarvice_cli submit -j "$DIR/job-json.json")
     NUMBER=$(echo "$JOB" | jq -r ".number")
 
     ERROR=dummy
