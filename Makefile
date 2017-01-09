@@ -13,25 +13,22 @@ PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 
 all: build/reco-sdaccel build/jarvice-tools
 
-package-reco: dist/reco-${NAME}-${VERSION}.tar.gz
+package: dist/reco-${NAME}-${VERSION}.tar.gz
 
-package-jarvice: dist/jarvice-${NAME}-${VERSION}.tar.gz
+package-jarvice: dist/${NAME}-${VERSION}-jarvice.tar.gz
 
 bundle-reco: build/reco-sdaccel
 
 bundle-jarvice: build/jarvice
 
 build-reco:
-	mkdir -p build-reco
+	mkdir -p build/reco
 
-dist-reco:
-	mkdir -p dist-reco
+dist:
+	mkdir -p dist
 
 build-jarvice:
-	mkdir -p build-jarvice
-
-dist-jarvice:
-	mkdir -p dist-jarvice
+	mkdir -p build/jarvice
 
 jarvice: 
 	cd jarvice
