@@ -1,18 +1,17 @@
 {
-  "app": "jarvice-ubuntu",
+  "app": "spenserg-sdx_dev-2016_3",
   "checkedout": false,
   "machine": {
     "nodes": "1",
-    "type": "n0"
+    "type": "n2"
   },
   "application": {
-    "geometry": "2542x1228",
+    "geometry": "1584x690",
     "staging": false,
-    "command": "Batch",
+    "command": "gui",
     "parameters": {
-      "command": "whoami"
-    },
-    "walltime": "1:00:00"
+      "command": "<template>"
+    }
   },
   "user": {
     "username": "reconfigureio",
@@ -24,6 +23,5 @@
     "force": false,
     "name": "drop.jarvice.com",
     "objects": []
-  },
-  "job_label": "reconfigure"
+  }
 }
