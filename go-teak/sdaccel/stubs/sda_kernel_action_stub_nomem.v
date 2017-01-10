@@ -11,12 +11,15 @@
 
 `timescale 1ns/1ps
 
+// The module name is common for different kernel action toplevel entities.
+// verilator lint_off DECLFILENAME
 module kernel_action_top_nomem
   (action_go_valid, action_go_holdoff, action_done_valid, action_done_stop, 
   s_axi_araddr, s_axi_arvalid, s_axi_arready, s_axi_rdata, s_axi_rresp, 
   s_axi_rvalid, s_axi_rready, s_axi_awaddr, s_axi_awvalid, s_axi_awready, 
   s_axi_wdata, s_axi_wstrb, s_axi_wvalid, s_axi_wready, s_axi_bresp, 
   s_axi_bvalid, s_axi_bready, clk, reset);
+// verilator lint_on DECLFILENAME
 
 // Action control signals.  
 input  action_go_valid;
@@ -24,7 +27,8 @@ output action_go_holdoff;
 output action_done_valid;
 input  action_done_stop;
 
-// AXI slave interface signals.
+// AXI slave interface signals are not used in the stub implementation.
+// verilator lint_off UNUSED
 input [31:0]  s_axi_araddr;
 input         s_axi_arvalid;
 output        s_axi_arready;
@@ -42,6 +46,7 @@ output        s_axi_wready;
 output [1:0]  s_axi_bresp;
 output        s_axi_bvalid;
 input         s_axi_bready;
+// verilator lint_on UNUSED
 
 // System level signals.
 input clk;

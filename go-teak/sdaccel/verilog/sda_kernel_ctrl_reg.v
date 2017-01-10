@@ -21,7 +21,7 @@
 
 `timescale 1ns/1ps
 
-module sdaKernelCtrlReg
+module sda_kernel_ctrl_reg
   (regReq, regAck, regWriteEn, regAddr, regWData, regRData, goValid, goHoldoff, 
   doneValid, doneStop, clk, srst);
         
@@ -30,13 +30,16 @@ parameter RegAddrWidth = 8;
 
 // Slave side simple register interface signals. Note that all outputs are 
 // driven low when inactive so that they can be ORed together with other 
-// register block implementations.
+// register block implementations. The full register interface is implemented
+// even though some of the register write bus is not used.
+// verilator lint_off UNUSED
 input                    regReq;
 output                   regAck;
 input                    regWriteEn;
 input [RegAddrWidth-1:0] regAddr;
 input [31:0]             regWData;
 output [31:0]            regRData;
+// verilator lint_on UNUSED
 
 // Specify action go SELF control handshake signals.
 output goValid;
@@ -75,7 +78,7 @@ reg       regAck_q;
 reg [2:0] regRData_q;
 
 // Miscellaneous signals.
-wire [31:0] zeros = 32'b0;
+wire [31:3] zeros = 29'b0;
 integer i;
 
 // Pipeline the register interface input signals.
@@ -183,7 +186,7 @@ begin
   if (srst)
   begin
     regAck_q <= 1'b0;
-    regRData_q <= 1'b0;
+    regRData_q <= 3'b0;
   end
   else
   begin

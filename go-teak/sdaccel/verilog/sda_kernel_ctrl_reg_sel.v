@@ -13,7 +13,7 @@
 
 `timescale 1ns/1ps
 
-module sdaKernelCtrlRegSel 
+module sda_kernel_ctrl_reg_sel 
   (sAxiAWValid, sAxiAWReady, sAxiAWAddr, sAxiWValid, sAxiWReady, sAxiWData, 
   sAxiWStrb, sAxiBValid, sAxiBReady, sAxiBResp, sAxiARValid, sAxiARReady, 
   sAxiARAddr, sAxiRValid, sAxiRReady, sAxiRData, sAxiRResp, mAxiAWValid, 
@@ -170,52 +170,52 @@ reg [31:0]             regWData_q;
 integer i;
 
 // Instantiate input registers for slave side AXI write address channel.
-sdaKernelCtrlRegSelAxiInputRegisterX1 #(AddrWidth) sAxiAWReg_u
+sda_kernel_ctrl_reg_sel_axi_inreg_x1 #(AddrWidth) sAxiAWReg_u
   (sAxiAWValid, sAxiAWReady, sAxiAWAddr, sAxiAWPending, sAxiAWClear, 
   sAxiAWAddrReg, clk, srst);
     
 // Instantiate input registers for slave side AXI data channel.
-sdaKernelCtrlRegSelAxiInputRegisterX2 #(32, 4) sAxiWReg_u
+sda_kernel_ctrl_reg_sel_axi_inreg_x2 #(32, 4) sAxiWReg_u
   (sAxiWValid, sAxiWReady, sAxiWData, sAxiWStrb, sAxiWPending, 
   sAxiWClear, sAxiWDataReg, sAxiWStrbReg, clk, srst);
   
 // Instantiate input registers for slave side AXI read address channel.
-sdaKernelCtrlRegSelAxiInputRegisterX1 #(AddrWidth) sAxiARReg_u
+sda_kernel_ctrl_reg_sel_axi_inreg_x1 #(AddrWidth) sAxiARReg_u
   (sAxiARValid, sAxiARReady, sAxiARAddr, sAxiARPending, sAxiARClear, 
   sAxiARAddrReg, clk, srst);
   
 // Instantiate input register for master side AXI write acknowledgement.
-sdaKernelCtrlRegSelAxiInputRegisterX1 #(2) mAxiBReg_u
+sda_kernel_ctrl_reg_sel_axi_inreg_x1 #(2) mAxiBReg_u
   (mAxiBValid, mAxiBReady, mAxiBResp, mAxiBPending, mAxiBClear, mAxiBRespReg, 
   clk, srst);
   
 // Instantiate input register for master side AXI read data channel.
-sdaKernelCtrlRegSelAxiInputRegisterX2 #(32, 2) mAxiRReg_u
+sda_kernel_ctrl_reg_sel_axi_inreg_x2 #(32, 2) mAxiRReg_u
   (mAxiRValid, mAxiRReady, mAxiRData, mAxiRResp, mAxiRPending, 
   mAxiRClear, mAxiRDataReg, mAxiRRespReg, clk, srst);
 
 // Instantate output register for master side AXI write address channel.
-sdaKernelCtrlRegSelAxiOutputRegisterX1 #(AddrWidth) mAxiAWReg_u
+sda_kernel_ctrl_reg_sel_axi_outreg_x1 #(AddrWidth) mAxiAWReg_u
   (mAxiAWPush, mAxiAWBlocked, mAxiAWAddrReg, mAxiAWValid, mAxiAWReady, 
   mAxiAWAddr, clk, srst);
 
 // Instantiate output register for master side AXI write data channel.
-sdaKernelCtrlRegSelAxiOutputRegisterX2 #(32, 4) mAxiWReg_u
+sda_kernel_ctrl_reg_sel_axi_outreg_x2 #(32, 4) mAxiWReg_u
   (mAxiWPush, mAxiWBlocked, mAxiWDataReg, mAxiWStrbReg, mAxiWValid, 
   mAxiWReady, mAxiWData, mAxiWStrb, clk, srst);
 
 // Instantiate output register for master side AXI read address channel.
-sdaKernelCtrlRegSelAxiOutputRegisterX1 #(AddrWidth) mAxiARReg_u
+sda_kernel_ctrl_reg_sel_axi_outreg_x1 #(AddrWidth) mAxiARReg_u
   (mAxiARPush, mAxiARBlocked, mAxiARAddrReg, mAxiARValid, mAxiARReady, 
   mAxiARAddr, clk, srst);
 
 // Instantiate output register for slave side AXI write acknowledgement.  
-sdaKernelCtrlRegSelAxiOutputRegisterX1 #(2) sAxiBReg_u
+sda_kernel_ctrl_reg_sel_axi_outreg_x1 #(2) sAxiBReg_u
   (sAxiBPush, sAxiBBlocked, sAxiBRespReg, sAxiBValid, sAxiBReady, sAxiBResp, 
   clk, srst);
 
 // Instantiate output register for slave side AXI read data channel.
-sdaKernelCtrlRegSelAxiOutputRegisterX2 #(32, 2) sAxiRReg_u
+sda_kernel_ctrl_reg_sel_axi_outreg_x2 #(32, 2) sAxiRReg_u
   (sAxiRPush, sAxiRBlocked, sAxiRDataReg, sAxiRRespReg, sAxiRValid, 
   sAxiRReady, sAxiRData, sAxiRResp, clk, srst);
 
@@ -436,7 +436,7 @@ endmodule
 //
 // Provides common implementation of single AXI data input register.
 //
-module sdaKernelCtrlRegSelAxiInputRegisterX1
+module sda_kernel_ctrl_reg_sel_axi_inreg_x1
   (axiValid, axiReady, axiDataIn, dataPending, dataClear, dataOut, clk, srst);
 
 // Specify the register data width.
@@ -495,7 +495,7 @@ endmodule
 //
 // Provides common implementation of dual AXI data input register.
 //
-module sdaKernelCtrlRegSelAxiInputRegisterX2
+module sda_kernel_ctrl_reg_sel_axi_inreg_x2
   (axiValid, axiReady, axiDataIn1, axiDataIn2, dataPending, dataClear, 
   dataOut1, dataOut2, clk, srst);
 
@@ -525,7 +525,7 @@ input srst;
 wire [DataWidth1+DataWidth2-1:0] dataOut;
 
 // Instantiate the single input register module.
-sdaKernelCtrlRegSelAxiInputRegisterX1 #(DataWidth1+DataWidth2) axiDataReg_u
+sda_kernel_ctrl_reg_sel_axi_inreg_x1 #(DataWidth1+DataWidth2) axiDataReg_u
   (axiValid, axiReady, {axiDataIn2, axiDataIn1}, dataPending, dataClear, 
   dataOut, clk, srst);
   
@@ -537,7 +537,7 @@ endmodule
 //
 // Provides common implementation of single AXI data output register.
 //
-module sdaKernelCtrlRegSelAxiOutputRegisterX1
+module sda_kernel_ctrl_reg_sel_axi_outreg_x1
   (dataPush, dataBlocked, dataIn, axiValid, axiReady, axiDataOut, clk, srst);
 
 // Specify the register data width.
@@ -592,7 +592,7 @@ endmodule
 //
 // Provides common implementation of dual AXI data output register.
 //
-module sdaKernelCtrlRegSelAxiOutputRegisterX2
+module sda_kernel_ctrl_reg_sel_axi_outreg_x2
   (dataPush, dataBlocked, dataIn1, dataIn2, axiValid, axiReady, axiDataOut1, 
   axiDataOut2, clk, srst);
 
@@ -622,7 +622,7 @@ input srst;
 wire [DataWidth1+DataWidth2-1:0] axiDataOut;
 
 // Instantiate the single output register module.
-sdaKernelCtrlRegSelAxiOutputRegisterX1 #(DataWidth1+DataWidth2) axiDataReg_u
+sda_kernel_ctrl_reg_sel_axi_outreg_x1 #(DataWidth1+DataWidth2) axiDataReg_u
   (dataPush, dataBlocked, {dataIn2, dataIn1}, axiValid, axiReady, 
   axiDataOut, clk, srst);
   
