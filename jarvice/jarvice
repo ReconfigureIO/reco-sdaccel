@@ -39,12 +39,18 @@ function shell {
 
     ansible localhost -m wait_for -a "host=$ADDRESS port=22 delay=0 timeout=300 state=started"
 
-    sshpass -p "$PASS" ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "nimbix@$ADDRESS"
+    sshpass -p "$PASS" ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "nimbix@$ADDRESS" || true
     jarvice_cli shutdown -number "$NUMBER"
 }
 
 function run {
-    JSON=$(jq ".application.parameters.command = \"$*\"" < "$DIR/job-batch.json")
+    source ~/.jarvice
+    JOB=$(uuidgen -t)
+
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse -f $1 -O job/$JOB/; quit"
+
+    JSON=$(jq ".application.parameters.command = \"/data/job/$JOB/$1\"" < "$DIR/job-batch.json")
+
     JOB=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB" | jq -r ".number")
     jarvice_cli status -number "$NUMBER"
