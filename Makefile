@@ -9,15 +9,15 @@ BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
 PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 
-.PHONY: all clean package/reco package/jarvice
+.PHONY: clean   
 
-all: build/reco-sdaccel build/jarvice-tools
+all: build/reco/reco-sdaccel build/jarvice/jarvice package/reco package/jarvice
 
-package: dist/${NAME}-${VERSION}.tar.gz
+package/reco: dist/${NAME}-${VERSION}.tar.gz
 
 package/jarvice: dist/${NAME}-${VERSION}-jarvice.tar.gz
 
-bundle/reco: build/reco-sdaccel
+bundle/reco: build/reco/reco-sdaccel
 
 bundle/jarvice: build/jarvice
 
@@ -27,23 +27,23 @@ build/reco:
 dist:
 	mkdir -p dist
 
-build-jarvice:
+build/jarvice:
 	mkdir -p build/jarvice
 
 jarvice: 
-	cd jarvice
-	cp ./* ../build-jarvice/
+	cp ./jarvice/* ./build/jarvice/
 
-build/reco-sdaccel: build/reco reco-sdaccel
-	cp reco-sdaccel build
+build/reco/reco-sdaccel: build/reco
+	cp reco-sdaccel ./build/reco
 
-build/jarvice-tools: build-jarvice jarvice
+build/jarvice/jarvice: build/jarvice jarvice/jarvice
+	cp jarvice/jarvice build/jarvice/
 
-dist/reco-${NAME}-${VERSION}.tar.gz: bundle-reco dist-reco
-	cd build && tar czf ../$@ *
+dist/${NAME}-${VERSION}.tar.gz: bundle/reco dist
+	cd build/reco && tar czf ../../$@ *
 
-dist/jarvice-${NAME}-${VERSION}.tar.gz: bundle-jarvice dist-jarvice
-	cd build && tar czf ../$@ *
+dist/${NAME}-${VERSION}-jarvice.tar.gz: bundle/jarvice dist
+	cd build/jarvice && tar czf ../../$@ *
 
 clean:
 	rm -rf build
