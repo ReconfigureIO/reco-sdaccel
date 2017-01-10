@@ -46,10 +46,11 @@ function shell {
 function run {
     source ~/.jarvice
     JOB=$(uuidgen -t)
+    FILENAME=$(basename $1)
 
     lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse -f $1 -O job/$JOB/; quit"
 
-    JSON=$(jq ".application.parameters.command = \"/data/job/$JOB/$1\"" < "$DIR/job-batch.json")
+    JSON=$(jq ".application.parameters.command = \"/data/job/$JOB/$FILENAME\"" < "$DIR/job-batch.json")
 
     JOB=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB" | jq -r ".number")
