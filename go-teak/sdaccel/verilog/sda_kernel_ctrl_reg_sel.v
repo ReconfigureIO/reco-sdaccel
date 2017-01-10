@@ -436,8 +436,10 @@ endmodule
 //
 // Provides common implementation of single AXI data input register.
 //
+// verilator lint_off DECLFILENAME
 module sda_kernel_ctrl_reg_sel_axi_inreg_x1
   (axiValid, axiReady, axiDataIn, dataPending, dataClear, dataOut, clk, srst);
+// verilator lint_on DECLFILENAME
 
 // Specify the register data width.
 parameter DataWidth = 16;
@@ -495,9 +497,11 @@ endmodule
 //
 // Provides common implementation of dual AXI data input register.
 //
+// verilator lint_off DECLFILENAME
 module sda_kernel_ctrl_reg_sel_axi_inreg_x2
   (axiValid, axiReady, axiDataIn1, axiDataIn2, dataPending, dataClear, 
   dataOut1, dataOut2, clk, srst);
+// verilator lint_on DECLFILENAME
 
 // Specify the first register data width.
 parameter DataWidth1 = 16;
@@ -537,8 +541,10 @@ endmodule
 //
 // Provides common implementation of single AXI data output register.
 //
+// verilator lint_off DECLFILENAME
 module sda_kernel_ctrl_reg_sel_axi_outreg_x1
   (dataPush, dataBlocked, dataIn, axiValid, axiReady, axiDataOut, clk, srst);
+// verilator lint_on DECLFILENAME
 
 // Specify the register data width.
 parameter DataWidth = 16;
@@ -592,10 +598,12 @@ endmodule
 //
 // Provides common implementation of dual AXI data output register.
 //
+// verilator lint_off DECLFILENAME
 module sda_kernel_ctrl_reg_sel_axi_outreg_x2
   (dataPush, dataBlocked, dataIn1, dataIn2, axiValid, axiReady, axiDataOut1, 
   axiDataOut2, clk, srst);
-
+// verilator lint_on DECLFILENAME
+  
 // Specify the first register data width.
 parameter DataWidth1 = 16;
 

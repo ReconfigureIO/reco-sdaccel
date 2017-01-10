@@ -127,7 +127,6 @@ input  ap_rst_n;
 output ap_interrupt;
 
 // Reset management signals.
-wire       ap_rst_done;
 wire [1:0] domain_reset;
 reg  [1:0] domain_ready;
 wire       action_reset;
@@ -175,7 +174,7 @@ wire action_done_valid;
 wire action_done_stop;
 
 // Miscellaneous signals.
-wire [`AXI_MASTER_DATA_WIDTH:0] zeros = `AXI_MASTER_DATA_WIDTH'b0;
+wire [`AXI_MASTER_DATA_WIDTH-1:0] zeros = `AXI_MASTER_DATA_WIDTH'b0;
 wire [31:0] m_axi_control_ext_AWADDR;
 wire [31:0] m_axi_control_ext_ARADDR;
 
@@ -211,7 +210,7 @@ assign ap_interrupt = 1'b0;
 // Instantiate the reset controller. Performs complete reset on the action
 // core before releasing the reset on the AXI slave interface.
 action_reset_handler #(15, 4, 2) resetHandler
-  (~ap_rst_n, ap_rst_done, domain_reset, domain_ready, ap_clk);
+  (~ap_rst_n, domain_reset, domain_ready, ap_clk);
 
 // Automatically generate the reset domain ready signals.
 always @(posedge ap_clk)
@@ -269,3 +268,4 @@ kernel_action_top_nomem kernelActionTop_u
   .s_axi_bready(m_axi_control_BREADY), .clk(ap_clk), .reset(action_reset));
 
 endmodule
+
