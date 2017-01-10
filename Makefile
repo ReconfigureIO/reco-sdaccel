@@ -9,7 +9,7 @@ BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
 PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 
-.PHONY: clean all bundle/reco bundle/jarvice
+.PHONY: clean all bundle/reco bundle/jarvice release update-changelog package/*
 
 all: package/reco package/jarvice
 
