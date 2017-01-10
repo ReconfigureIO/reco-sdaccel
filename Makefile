@@ -9,7 +9,7 @@ BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
 PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 
-.PHONY: clean   
+.PHONY: clean
 
 all: build/reco/reco-sdaccel build/jarvice/jarvice package/reco package/jarvice
 
@@ -30,11 +30,11 @@ dist:
 build/jarvice:
 	mkdir -p build/jarvice
 
-jarvice: 
-	cp ./jarvice/* ./build/jarvice/
+jarvice:
+	cp jarvice/* build/jarvice/
 
 build/reco/reco-sdaccel: build/reco
-	cp reco-sdaccel ./build/reco
+	cp reco-sdaccel build/reco
 
 build/jarvice/jarvice: build/jarvice jarvice/jarvice
 	cp jarvice/jarvice build/jarvice/
