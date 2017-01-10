@@ -12,7 +12,7 @@
 
 `timescale 1ns/1ps
 
-module actionResetHandler
+module action_reset_handler
   (donutRstReq, donutRstDone, domainRst, domainRdy, clk);
   
 // Specifies the number of clocks for initial reset duty cycle.

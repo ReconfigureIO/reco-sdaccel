@@ -44,7 +44,7 @@ module sda_kernel_wrapper_nomem
   m_axi_gmem_ARCACHE, m_axi_gmem_ARPROT, m_axi_gmem_ARQOS, 
   m_axi_gmem_ARVALID, m_axi_gmem_ARREADY, m_axi_gmem_RDATA,
   m_axi_gmem_RRESP, m_axi_gmem_RLAST, m_axi_gmem_RVALID, 
-  m_axi_gmem_RREADY, ap_clk, ap_rst_n, interrupt);
+  m_axi_gmem_RREADY, ap_clk, ap_rst_n, ap_interrupt);
   
 // Specifies the AXI slave write address signals.
 input [`AXI_SLAVE_ADDR_WIDTH-1:0] s_axi_control_AWADDR;
@@ -73,6 +73,8 @@ output [1:0]  s_axi_control_RRESP;
 output        s_axi_control_RVALID;
 input         s_axi_control_RREADY;
 
+// The AXI master interface is not used for the nomem wrapper.
+// verilator lint_off UNUSED
 // Specifies the AXI master write address signals.
 output [`AXI_MASTER_ADDR_WIDTH-1:0] m_axi_gmem_AWADDR;
 output [7:0]                        m_axi_gmem_AWLEN;
@@ -117,11 +119,12 @@ input [1:0]                        m_axi_gmem_RRESP;
 input                              m_axi_gmem_RLAST;
 input                              m_axi_gmem_RVALID;
 output                             m_axi_gmem_RREADY;
+// verilator lint_on UNUSED
 
 // Specifies the system level I/O signals.
 input  ap_clk;
 input  ap_rst_n;
-output interrupt;
+output ap_interrupt;
 
 // Reset management signals.
 wire       ap_rst_done;
@@ -172,7 +175,7 @@ wire action_done_valid;
 wire action_done_stop;
 
 // Miscellaneous signals.
-wire [1023:0] zeros = 1024'b0;
+wire [`AXI_MASTER_DATA_WIDTH:0] zeros = `AXI_MASTER_DATA_WIDTH'b0;
 wire [31:0] m_axi_control_ext_AWADDR;
 wire [31:0] m_axi_control_ext_ARADDR;
 
@@ -203,11 +206,11 @@ assign m_axi_gmem_ARPROT = zeros [2:0];
 assign m_axi_gmem_ARQOS = zeros [3:0];
 assign m_axi_gmem_ARVALID = 1'b0;
 assign m_axi_gmem_RREADY = 1'b1;
-assign interrupt = 1'b0;
+assign ap_interrupt = 1'b0;
 
 // Instantiate the reset controller. Performs complete reset on the action
 // core before releasing the reset on the AXI slave interface.
-actionResetHandler #(15, 4, 2) resetHandler
+action_reset_handler #(15, 4, 2) resetHandler
   (~ap_rst_n, ap_rst_done, domain_reset, domain_ready, ap_clk);
 
 // Automatically generate the reset domain ready signals.
@@ -223,7 +226,7 @@ assign action_reset = domain_reset [0];
 assign axi_reg_reset = domain_reset [1];
   
 // Instantiate the AXI slave register selection component.
-sdaKernelCtrlRegSel #(`AXI_SLAVE_ADDR_WIDTH, 1, 0) kernelCtrlRegSel
+sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 1, 0) kernelCtrlRegSel_u
   (s_axi_control_AWVALID, s_axi_control_AWREADY, s_axi_control_AWADDR, 
   s_axi_control_WVALID, s_axi_control_WREADY, s_axi_control_WDATA, 
   s_axi_control_WSTRB, s_axi_control_BVALID, s_axi_control_BREADY, 
@@ -239,7 +242,7 @@ sdaKernelCtrlRegSel #(`AXI_SLAVE_ADDR_WIDTH, 1, 0) kernelCtrlRegSel
   reg_rdata, ap_clk, axi_reg_reset);
   
 // Instantiate the kernel control register at slave address offset 0.
-sdaKernelCtrlReg #(1) kernelCtrlReg
+sda_kernel_ctrl_reg #(1) kernelCtrlReg_u
   (reg_req, reg_ack, reg_write_en, reg_addr, reg_wdata, reg_rdata, 
   action_go_valid, action_go_holdoff, action_done_valid, action_done_stop, 
   ap_clk, axi_reg_reset);
@@ -252,7 +255,7 @@ assign m_axi_control_ext_ARADDR =
   {zeros [31:`AXI_SLAVE_ADDR_WIDTH], m_axi_control_ARADDR};
   
 // Instantiate the simple generated action logic core.
-kernel_action_top_nomem kernel_action_top
+kernel_action_top_nomem kernelActionTop_u
   (.action_go_valid(action_go_valid), .action_go_holdoff(action_go_holdoff), 
   .action_done_valid(action_done_valid), .action_done_stop(action_done_stop), 
   .s_axi_araddr(m_axi_control_ext_ARADDR), .s_axi_arvalid(m_axi_control_ARVALID), 
