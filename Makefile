@@ -30,9 +30,6 @@ dist:
 build/jarvice:
 	mkdir -p build/jarvice
 
-jarvice:
-	cp jarvice/* build/jarvice/
-
 build/reco/reco-sdaccel: build/reco
 	cp reco-sdaccel build/reco
 
