@@ -15,7 +15,7 @@ all: package/reco package/jarvice
 
 package/reco: dist/${NAME}-${VERSION}.tar.gz
 
-package/jarvice: dist/${NAME}-${VERSION}-jarvice.tar.gz
+package/jarvice: dist/${NAME}-jarvice-${VERSION}.tar.gz
 
 bundle/reco: build/reco/reco-sdaccel
 
@@ -39,7 +39,7 @@ build/jarvice/jarvice: build/jarvice jarvice/jarvice
 dist/${NAME}-${VERSION}.tar.gz: bundle/reco dist
 	cd build/reco && tar czf ../../$@ *
 
-dist/${NAME}-${VERSION}-jarvice.tar.gz: bundle/jarvice dist
+dist/${NAME}-jarvice-${VERSION}.tar.gz: bundle/jarvice dist
 	cd build/jarvice && tar czf ../../$@ *
 
 clean:
@@ -59,6 +59,7 @@ update-changelog:
 	@echo "" >> RELEASE.md
 	@echo "## Bugfixes" >> RELEASE.md
 
-release: dist/${NAME}-${VERSION}.tar.gz
+release: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-jarvice-${VERSION}.tar.gz
 	aws s3 cp "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
-	hub release create -d -F "RELEASE.md" -a "dist/${NAME}-${VERSION}.tar.gz" "$(VERSION)"
+	aws s3 cp "dist/${NAME}-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-jarvice-$(VERSION).tar.gz"
+	hub release create -d -F "RELEASE.md" -a "dist/${NAME}-${VERSION}.tar.gz" "dist/${NAME}-jarvice-${VERSION}.tar.gz" "$(VERSION)"
