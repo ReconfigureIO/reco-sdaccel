@@ -18,7 +18,7 @@ echo "run hw sim"
 time make TARGETS=hw_emu check
 
 echo "build hw"
-time make TARGETS=hw all
+time make TARGETS=hw DEVICES="xilinx:adm-pcie-ku3:2ddr-xpr:3.2" all
 
 echo "copy to output to $DIR"
-cp hello xclbin/krnl_hello.hw.xilinx_xil-accel-rd-ku115_4ddr-xpr_3_2.xclbin "$DIR"
+cp -R hello xclbin "$DIR"
