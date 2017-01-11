@@ -13,6 +13,7 @@ Where <command> is one of the following:
 
     shell   Spin up a temporary development shell in the Nimbix cloud
     run <path to script>  Spin up a single shot run of a script in the data partition.
+    deploy <job number> <exectutable> Deploy an accelerated batch job to run on Nimbix
     stop    Stop all running jobs
 
     help    Display this help output
@@ -58,6 +59,15 @@ function run {
     jarvice_cli tail -number "$NUMBER"
 }
 
+function deploy {
+    JSON=$(jq ".application.parameters.executable = \"/job/$1/$2\"" < "$DIR/deploy.json")
+
+    JOB=$(jarvice_cli submit -j "$JSON")
+    NUMBER=$(echo "$JOB" | jq -r ".number")
+    jarvice_cli status -number "$NUMBER"
+    jarvice_cli tail -number "$NUMBER"
+}
+
 function main {
     case "$1" in
         "shell")
@@ -65,6 +75,9 @@ function main {
             ;;
         "run")
             run "${@:2}"
+            ;;
+        "deploy")
+            deploy "${@:2}"
             ;;
         "stop")
             stop "${@:2}"
