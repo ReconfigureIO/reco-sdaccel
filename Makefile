@@ -34,7 +34,7 @@ build/reco/reco-sdaccel: build/reco
 	cp reco-sdaccel build/reco
 
 build/jarvice/jarvice: build/jarvice jarvice/jarvice
-	cp jarvice/* build/jarvice/
+	cp -r jarvice/* build/jarvice/
 
 dist/${NAME}-${VERSION}.tar.gz: bundle/reco dist
 	cd build/reco && tar czf ../../$@ *
