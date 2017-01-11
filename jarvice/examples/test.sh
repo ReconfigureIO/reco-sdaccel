@@ -1,4 +1,7 @@
 #!/bin/bash
+export DIR
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 cd ~
 git clone https://github.com/Xilinx/SDAccel_Examples.git examples
 
@@ -15,4 +18,7 @@ echo "run hw sim"
 time make TARGETS=hw_emu check
 
 echo "build hw"
-time make TARGETS=hw check
+time make TARGETS=hw all
+
+echo "copy to output to $DIR"
+cp hello xclbin/krnl_hello.hw.xilinx_xil-accel-rd-ku115_4ddr-xpr_3_2.xclbin "$DIR"
