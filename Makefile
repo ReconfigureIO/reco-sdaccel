@@ -42,6 +42,7 @@ build/workflows:
 build/workflows/%: workflows/% build/workflows
 	cp $< $@
 	sed -i "1s;^;export VERSION=${VERSION}\n\n;" $@
+	chmod +x $@
 
 bundle/workflows: $(TARGETS)
 
@@ -64,8 +65,8 @@ clean:
 	rm -rf build dist
 
 deploy: bundle/workflows bundle/reco
-	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "mirror --reverse build/reco -O reco/${VERSION}/; quit"
-	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "mirror --reverse build/workflows -O workflows/${VERSION}/; quit"
+	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "mirror --reverse build/reco reco/${VERSION}; quit"
+	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "mirror --reverse build/workflows workflows/${VERSION}; quit"
 
 update-changelog:
 	tail -n +3 RELEASE.md > next.md
