@@ -9,6 +9,7 @@ node ("docker") {
 
         stage 'lint'
         sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-sdaccel'
+        sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck jarvice/jarvice'
 
         stage 'build'
         sh 'make'
