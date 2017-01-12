@@ -9,7 +9,10 @@ BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
 PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 
-.PHONY: clean all bundle/reco bundle/jarvice release update-changelog package/*
+USERNAME=reconfigureio
+API_KEY=cbe26de4b61a41d19700089ea948335057ca9072
+
+.PHONY: clean all bundle/reco bundle/jarvice bundle/workflows release update-changelog package/*
 
 all: package/reco package/jarvice
 
@@ -30,6 +33,18 @@ dist:
 build/jarvice:
 	mkdir -p build/jarvice
 
+WORKFLOW_SOURCES := $(shell find workflows -type f)
+TARGETS:= $(patsubst workflows/%,build/workflows/%,$(WORKFLOW_SOURCES))
+
+build/workflows:
+	mkdir -p build/workflows
+
+build/workflows/%: workflows/% build/workflows
+	cp $< $@
+	sed -i "1s;^;export VERSION=${VERSION}\n\n;" $@
+
+bundle/workflows: $(TARGETS)
+
 build/reco/reco-sdaccel: build/reco
 	cp reco-sdaccel build/reco
 
@@ -47,6 +62,10 @@ dist/${NAME}-jarvice-${VERSION}.tar.gz: bundle/jarvice dist
 
 clean:
 	rm -rf build dist
+
+deploy: bundle/workflows bundle/reco
+	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "mirror --reverse build/reco -O reco/${VERSION}/; quit"
+	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "mirror --reverse build/workflows -O workflows/${VERSION}/; quit"
 
 update-changelog:
 	tail -n +3 RELEASE.md > next.md
