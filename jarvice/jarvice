@@ -11,23 +11,44 @@ usage: $0 <command>
 
 Where <command> is one of the following:
 
-    shell   Spin up a temporary development shell in the Nimbix cloud
-    run <path to script>  Spin up a single shot run of a script in the data partition.
-    deploy <job number> <exectutable> Deploy an accelerated batch job to run on Nimbix
+    list                    Output current running jobs
+
+    shell                   Spin up & connect to a temporary development shell in the Nimbix cloud
+    run <path to script>    Spin up a single shot run of a script in the data partition.
+    ssh <job number>        Connect to a job over ssh
+
+    deploy <job number> <executable> Deploy an accelerated batch job to run on Nimbix
+
+
+    shutdown <job number> Stop a running job
     stop    Stop all running jobs
 
     help    Display this help output
 "
 }
 
+function shell {
+    NUMBER=$(run "$DIR/examples/sshd.sh")
+    ssh "$NUMBER"
+    shutdown "$NUMBER"
+}
+
 function stop {
     jarvice_cli shutdown_all
 }
 
-function shell {
-    JOB=$(jarvice_cli submit -j "$DIR/job-json.json")
-    NUMBER=$(echo "$JOB" | jq -r ".number")
+function shutdown {
+    jarvice_cli shutdown -number "$1"
+}
 
+function list {
+    JOBS=$(jarvice_cli jobs)
+    echo -e "number\tstarted\t\t\tstatus"
+    echo $JOBS | jq -r ".[] | values | [.job_number, (.job_start_time | todateiso8601), .job_status] | @tsv"
+}
+
+function ssh {
+    NUMBER="$1"
     ERROR=dummy
     while [ "$ERROR" != "null" ]
     do
@@ -38,10 +59,9 @@ function shell {
     ADDRESS=$(echo "$CONNECTION_INFO" | jq -r ".address")
     PASS=$(echo "$CONNECTION_INFO" | jq -r ".password")
 
-    ansible localhost -m wait_for -a "host=$ADDRESS port=22 delay=0 timeout=300 state=started"
+    ansible localhost -m wait_for -a "host=$ADDRESS port=22 delay=0 timeout=300 state=started" > /dev/null
 
     sshpass -p "$PASS" ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "nimbix@$ADDRESS" || true
-    jarvice_cli shutdown -number "$NUMBER"
 }
 
 function run {
@@ -50,14 +70,13 @@ function run {
     JOB=$(uuidgen -t)
     FILENAME=$(basename "$1")
 
-    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse -f $1 -O job/$JOB/; quit"
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse -f $1 -O job/$JOB/; quit" > /dev/null
 
-    JSON=$(jq ".application.parameters.executable = \"/job/$JOB/$FILENAME\"" < "$DIR/deploy.json")
+    JSON=$(jq ".application.parameters.command = \"/data/job/$JOB/$FILENAME\" | .job_label = \"$JOB\"" < "$DIR/batch.json")
 
     JOB=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB" | jq -r ".number")
-    jarvice_cli status -number "$NUMBER"
-    jarvice_cli tail -number "$NUMBER"
+    echo "$NUMBER"
 }
 
 function deploy {
@@ -65,8 +84,7 @@ function deploy {
 
     JOB=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB" | jq -r ".number")
-    jarvice_cli status -number "$NUMBER"
-    jarvice_cli tail -number "$NUMBER"
+    echo "$NUMBER"
 }
 
 function main {
@@ -76,6 +94,15 @@ function main {
             ;;
         "run")
             run "${@:2}"
+            ;;
+        "ssh")
+            ssh "${@:2}"
+            ;;
+        "list")
+            list "${@:2}"
+            ;;
+        "shutdown")
+            shutdown "${@:2}"
             ;;
         "deploy")
             deploy "${@:2}"
