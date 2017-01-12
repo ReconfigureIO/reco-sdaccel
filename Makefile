@@ -43,8 +43,7 @@ dist/${NAME}-jarvice-${VERSION}.tar.gz: bundle/jarvice dist
 	cd build/jarvice && tar czf ../../$@ *
 
 clean:
-	rm -rf build
-	rm -rf dist
+	rm -rf build dist
 
 update-changelog:
 	tail -n +3 RELEASE.md > next.md
