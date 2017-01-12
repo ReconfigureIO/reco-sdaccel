@@ -45,6 +45,7 @@ function shell {
 }
 
 function run {
+    # shellcheck source=/dev/null
     source ~/.jarvice
     JOB=$(uuidgen -t)
     FILENAME=$(basename "$1")
