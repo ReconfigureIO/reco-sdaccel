@@ -44,7 +44,7 @@ function shutdown {
 function list {
     JOBS=$(jarvice_cli jobs)
     echo -e "number\tstarted\t\t\tstatus"
-    echo $JOBS | jq -r ".[] | values | [.job_number, (.job_start_time | todateiso8601), .job_status] | @tsv"
+    echo "$JOBS" | jq -r ".[] | values | [.job_number, (.job_start_time | todateiso8601), .job_status] | @tsv"
 }
 
 function ssh {
