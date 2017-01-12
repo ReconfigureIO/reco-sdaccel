@@ -2,7 +2,7 @@ properties([buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '20'))])
 
 notifyStarted()
 
-node ("docker") {
+node ("docker && vivado-2015.4") {
     try {
         stage "checkout"
         checkout scm
@@ -13,6 +13,13 @@ node ("docker") {
         stage 'lint'
         sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-sdaccel'
         sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/sdaccel/stubs/*.v go-teak/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_nomem --report-unoptflat'
+
+        stage 'test'
+        withEnv(['XILINX_VIVADO=/opt/xilinx/Vivado/2015.4',
+                 'XILINXD_LICENSE_FILE=2100@jenkins.nerabus-infra.com',
+                 'PATH=/opt/xilinx/Vivado/2015.4/bin:$PATH']) {
+            sh './reco-sdaccel build go-teak/sdaccel/stubs/sda_kernel_action_stub_nomem.v'
+        }
 
         stage 'build'
         sh 'make clean package'
