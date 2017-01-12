@@ -7,8 +7,12 @@ node ("docker") {
         stage "checkout"
         checkout scm
 
+        stage 'build image'
+        sh 'docker build -t "verilator:latest" .'
+
         stage 'lint'
         sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-sdaccel'
+        sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/sdaccel/stubs/*.v go-teak/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_nomem --report-unoptflat'
 
         stage 'build'
         sh 'make clean package'
