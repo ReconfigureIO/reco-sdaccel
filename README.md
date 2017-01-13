@@ -33,3 +33,9 @@ The simulation executable of the host side code will be built & executed while l
 ### Clean
 
 This will remove everything under .reco-work
+
+## Jarvice
+
+Published versions of this is available on Jarvice. You can find the
+`reco-sdaccel` tool available under `/data/reco/$VERSION`, with a set of
+workflows in `/data/workflows/$VERSION`.
