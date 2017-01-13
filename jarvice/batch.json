@@ -1,0 +1,27 @@
+{
+  "app": "spenserg-sdx_dev-2016_3",
+  "checkedout": false,
+  "machine": {
+    "nodes": "1",
+    "type": "n2"
+  },
+  "application": {
+    "geometry": "1584x690",
+    "staging": false,
+    "command": "gui",
+    "parameters": {
+      "command": "<template>"
+    }
+  },
+  "user": {
+    "username": "reconfigureio",
+    "apikey": "cbe26de4b61a41d19700089ea948335057ca9072"
+  },
+  "vault": {
+    "readonly": false,
+    "password": "",
+    "force": false,
+    "name": "drop.jarvice.com",
+    "objects": []
+  }
+}
