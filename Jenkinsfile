@@ -19,12 +19,6 @@ node ("docker") {
         stage 'pre clean'
         sh 'make clean'
 
-        stage 'test'
-        withEnv(['VERSION=v0.1.0-pre']) {
-            sh "make VERSION=${env.VERSION} deploy"
-            sh 'NUMBER=$(./jarvice/jarvice workflow build.sh); ./jarvice/jarvice wait $NUMBER'
-        }
-
         stage 'build'
         sh 'make'
 
