@@ -2,8 +2,6 @@
 
 ## Installation
 
-## Docker
-
 ## Using
 
 ### Build
@@ -39,3 +37,17 @@ This will remove everything under .reco-work
 Published versions of this is available on Jarvice. You can find the
 `reco-sdaccel` tool available under `/data/reco/$VERSION`, with a set of
 workflows in `/data/workflows/$VERSION`.
+
+## Architecture
+
+### reco-sdaccel
+
+Command line tools for scripting eTeak & Vivado to build & simulate Go code.
+
+### workflows
+
+Scripts for end user workflows to be deployed to the Jarvice platform.
+
+### jarvice
+
+Command line tools for working with & deploying workflows on the Jarvice platform.
