@@ -15,13 +15,14 @@ Where <command> is one of the following:
 
     shell                   Spin up & connect to a temporary development shell in the Nimbix cloud
     run <path to script>    Spin up a single shot run of a script in the data partition.
+    workflow <name>         Run a single workflow that has been preuploaded.
     ssh <job number>        Connect to a job over ssh
 
     deploy <job number> <executable> Deploy an accelerated batch job to run on Nimbix
 
-
-    shutdown <job number> Stop a running job
-    stop    Stop all running jobs
+    wait <job number>       Wait for a running job to finish. Will fail if the job fails.
+    shutdown <job number>   Stop a running job
+    stop                    Stop all running jobs
 
     help    Display this help output
 "
@@ -79,6 +80,15 @@ function run {
     echo "$NUMBER"
 }
 
+function workflow {
+    WORKFLOW="$1"
+    JSON=$(jq ".application.parameters.command = \"/data/workflows/$VERSION/$WORKFLOW\"" < "$DIR/batch.json")
+
+    JOB=$(jarvice_cli submit -j "$JSON")
+    NUMBER=$(echo "$JOB" | jq -r ".number")
+    echo "$NUMBER"
+}
+
 function deploy {
     JSON=$(jq ".application.parameters.executable = \"/job/$1/$2\"" < "$DIR/deploy.json")
 
@@ -86,6 +96,18 @@ function deploy {
     NUMBER=$(echo "$JOB" | jq -r ".number")
     echo "$NUMBER"
 }
+
+function wait_for {
+    NUMBER="$1"
+    jarvice_cli wait_for -number "$NUMBER" > /dev/null
+    STATUS=$(jarvice_cli status -number "$NUMBER" | jq -r ".[\"$NUMBER\"].job_status")
+    jarvice_cli output -number "$NUMBER"
+    if [ "$STATUS" == "COMPLETED WITH ERROR" ]
+    then
+        exit 1;
+    fi
+}
+
 
 function main {
     case "$1" in
@@ -100,6 +122,12 @@ function main {
             ;;
         "list")
             list "${@:2}"
+            ;;
+        "workflow")
+            workflow "${@:2}"
+            ;;
+        "wait")
+            wait_for "${@:2}"
             ;;
         "shutdown")
             shutdown "${@:2}"
