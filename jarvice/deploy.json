@@ -1,0 +1,30 @@
+{
+  "app": "spenserg-sdx-2016_3",
+  "checkedout": false,
+  "machine": {
+    "nodes": "1",
+    "type": "nx1"
+  },
+  "application": {
+    "geometry": "2542x1228",
+    "staging": false,
+    "command": "batch",
+    "parameters": {
+      "executable": "/job/e5d15fcc-d829-11e6-bca2-843a4b0da254/hello",
+      "args": "",
+      "-dp": false,
+      "-tt": false
+    }
+  },
+  "user": {
+    "username": "reconfigureio",
+    "apikey": "cbe26de4b61a41d19700089ea948335057ca9072"
+  },
+  "vault": {
+    "readonly": false,
+    "password": "",
+    "force": false,
+    "name": "drop.jarvice.com",
+    "objects": []
+  }
+}
