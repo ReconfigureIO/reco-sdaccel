@@ -1,1 +1,2 @@
-"/data/reco/$VERSION/reco-sdaccel" help
+export PATH="/data/reco/$VERSION":$PATH
+reco-sdaccel help
