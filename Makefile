@@ -65,8 +65,7 @@ clean:
 	rm -rf build dist
 
 deploy: bundle/workflows bundle/reco
-	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse build/reco reco/${VERSION}; quit"
-	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "mirror --reverse build/workflows workflows/${VERSION}; quit"
+	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse build/reco reco/${VERSION}; mirror --reverse build/workflows workflows/${VERSION}; quit"
 
 update-changelog:
 	tail -n +3 RELEASE.md > next.md
