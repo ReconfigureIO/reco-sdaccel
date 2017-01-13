@@ -16,6 +16,8 @@ node ("docker") {
 
         sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/sdaccel/stubs/*.v go-teak/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_nomem --report-unoptflat'
 
+        stage 'pre clean'
+        sh 'make clean'
 
         stage 'build'
         sh 'make'

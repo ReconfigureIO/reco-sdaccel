@@ -3,10 +3,17 @@
 set -e
 set -o pipefail
 
+export DIR
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 export ROOT_DIR="$PWD"
 
 function build {
-    echo "build"
+    FULL_PATH=$(readlink -f "$1")
+
+    mkdir -p .reco-work/sdaccel/build
+    cd .reco-work/sdaccel/build
+    vivado -mode batch -source "$DIR/go-teak/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "$FULL_PATH" -wrapper_source_dir "$DIR/go-teak/sdaccel/verilog/" -vendor reco -library foo -name bar -version alpha
 }
 
 function simulate {
