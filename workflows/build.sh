@@ -7,5 +7,8 @@ export XILINXD_LICENSE_FILE=2100@l3976.local.nimbix.net
 export RECO_PATH="/data/reco/$VERSION"
 export PATH="$RECO_PATH:$XILINX_VIVADO/bin":$PATH
 
-cd "/tmp/"
+JOB=$(uuidgen -t)
+mkdir -p "/data/tests/$JOB"
+cd "/data/tests/$JOB"
+
 reco-sdaccel build "$RECO_PATH/go-teak/sdaccel/stubs/sda_kernel_action_stub_nomem.v"
