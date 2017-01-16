@@ -13,7 +13,7 @@ function build {
 
     mkdir -p .reco-work/sdaccel/build
     cd .reco-work/sdaccel/build
-    vivado -mode batch -source "$DIR/go-teak/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "$FULL_PATH" -wrapper_source_dir "$DIR/go-teak/sdaccel/verilog/" -vendor reco -library foo -name bar -version alpha
+    vivado -mode batch -source "$DIR/go-teak/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "$FULL_PATH" -wrapper_source_dir "$DIR/go-teak/sdaccel/verilog/" -vendor reconfigure.io -library reco-sdaccel -name stub -version 0.1
 }
 
 function simulate {
