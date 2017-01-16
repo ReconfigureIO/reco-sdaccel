@@ -5,7 +5,7 @@
 //
 
 //
-// Provides a 'stub' implementation of the simple kernel action logic. This 
+// Provides a 'stub' implementation of the simple kernel action logic. This
 // variant does not support access to the shared mamory area.
 //
 
@@ -13,15 +13,15 @@
 
 // The module name is common for different kernel action toplevel entities.
 // verilator lint_off DECLFILENAME
-module kernel_action_top_nomem
-  (action_go_valid, action_go_holdoff, action_done_valid, action_done_stop, 
-  s_axi_araddr, s_axi_arvalid, s_axi_arready, s_axi_rdata, s_axi_rresp, 
-  s_axi_rvalid, s_axi_rready, s_axi_awaddr, s_axi_awvalid, s_axi_awready, 
-  s_axi_wdata, s_axi_wstrb, s_axi_wvalid, s_axi_wready, s_axi_bresp, 
+module teak_action_top
+  (action_go_valid, action_go_holdoff, action_done_valid, action_done_stop,
+  s_axi_araddr, s_axi_arvalid, s_axi_arready, s_axi_rdata, s_axi_rresp,
+  s_axi_rvalid, s_axi_rready, s_axi_awaddr, s_axi_awvalid, s_axi_awready,
+  s_axi_wdata, s_axi_wstrb, s_axi_wvalid, s_axi_wready, s_axi_bresp,
   s_axi_bvalid, s_axi_bready, clk, reset);
 // verilator lint_on DECLFILENAME
 
-// Action control signals.  
+// Action control signals.
 input  action_go_valid;
 output action_go_holdoff;
 output action_done_valid;
@@ -60,7 +60,7 @@ reg s_axi_read_ready_q;
 reg s_axi_read_complete_q;
 reg s_axi_write_ready_q;
 reg s_axi_write_complete_q;
-  
+
 // Implement action start loopback signals.
 always @(posedge clk)
 begin
@@ -75,8 +75,8 @@ begin
   else if (action_go_valid)
   begin
     action_done_q <= 1'b1;
-  end  
-end     
+  end
+end
 
 assign action_go_holdoff = action_done_q;
 assign action_done_valid = action_done_q;
@@ -90,8 +90,8 @@ begin
     s_axi_read_complete_q <= 1'b0;
   end
   else if (s_axi_read_complete_q)
-  begin   
-    s_axi_read_complete_q <= ~s_axi_rready;         
+  begin
+    s_axi_read_complete_q <= ~s_axi_rready;
   end
   else if (s_axi_read_ready_q)
   begin
@@ -99,10 +99,10 @@ begin
     s_axi_read_complete_q <= 1'b1;
   end
   else
-  begin   
+  begin
     s_axi_read_ready_q <= s_axi_arvalid;
-  end  
-end       
+  end
+end
 
 assign s_axi_arready = s_axi_read_ready_q;
 assign s_axi_rdata = 32'b0;
@@ -129,7 +129,7 @@ begin
   else
   begin
     s_axi_write_ready_q <= s_axi_awvalid & s_axi_wvalid;
-  end  
+  end
 end
 
 assign s_axi_awready = s_axi_write_ready_q;
