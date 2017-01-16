@@ -44,6 +44,10 @@
 #   to access external memory and 'gmem' if the action code needs to access the 
 #   global memory area on the accelerator card. This option is not mandatory and 
 #   has the default value of 'nomem'.
+# -skip_resynthesis [0|1]
+#   This is a boolean flag which can be used to skip the synthesis phase of the 
+#   build process if a valid Verilog netlist is already present in the build
+#   directory. This option is not mandatory and has the default value of 0.
 #
 # The build script can be run from the command line using the Vivado batch mode
 # as follows, where <tcl_script_args> is replaced by the arguments specified 
@@ -52,9 +56,15 @@
 # > vivado -mode batch -source <this_script_name> -tclargs <tcl_script_args>
 #
 
+# Include synthesis and packaging functions.
+source [file join [file dirname [info script]] sda_kernel_synthesis.tcl] 
+source [file join [file dirname [info script]] sda_kernel_create_ip.tcl] 
+source [file join [file dirname [info script]] sda_kernel_packaging.tcl] 
+
 # Specify default parameter values.
 set actionMemType "nomem"
 set wrapperCodePath "verilog"
+set skipResynthesis 0
 
 #
 # Extract the TCL command line arguments.
@@ -95,7 +105,11 @@ while {$argIndex < $argc} {
     "-wrapper_source_dir" {
       set wrapperCodePath [lindex $argv $argIndex]          
       incr argIndex
-    }     
+    }
+    "-skip_resynthesis" {
+      set skipResynthesis [lindex $argv $argIndex]
+      incr argIndex
+    }
     default {
       puts "Invalid TCL batch script argument : $arg"
       exit -1
@@ -136,90 +150,41 @@ if {0 != [info exists buildDirPath]} {
     exit -1
   }
 }
-set buildDirPath [pwd]  
+set buildDirPath [pwd]
+set synDirPath [file join $buildDirPath syn]
+set ipDirPath [file join $buildDirPath ip]
 
 #
-# Load the file containing the generated action code.
+# Construct the unique module name.
 #
-if {0 == [info exists sourceFileName]} {
-  puts "Mandatory TCL batch script '-source' argument not present."
-  exit -1
+set moduleName [string map {. _} \
+  ${vendorName}_${libraryName}_${kernelName}_${versionNumber}]
+
+#
+# Run the synthesis phase if required. This will produce a single Verilog file 
+# in the build directory which contains all the HDL components of the SDAccel
+# kernel.
+#
+file mkdir $synDirPath
+set moduleFileName [file join $synDirPath "${moduleName}.v"]
+if {0 == $skipResynthesis || 0 == [file exists $moduleFileName]} { 
+  cd $synDirPath
+  sda_kernel_synthesis $sourceFileName $moduleName $actionMemType $wrapperCodePath
+  cd $buildDirPath
 }
-add_files -norecurse $sourceFileName
 
 #
-# Load the appropriate action code wrapper and utility modules.
+# Run the Vivado IP creation phase. This will package the synthesised SDAccel 
+# kernel code as a standard Vivado IP core.
 #
-switch $actionMemType {
-  "nomem" {
-    add_files -norecurse [file join $wrapperCodePath sda_kernel_wrapper_nomem.v]
-  }
-  "gmem" {
-    add_files -norecurse [file join $wrapperCodePath sda_kernel_wrapper_gmem.v]
-  }
-  default {
-    puts "Invalid TCL batch script 'mem_type' specified : $actionMemType."
-    exit -1
-  }
-}
-add_files -norecurse [file join $wrapperCodePath sda_kernel_ctrl_reg.v]
-add_files -norecurse [file join $wrapperCodePath sda_kernel_ctrl_reg_sel.v]
-add_files -norecurse [file join $wrapperCodePath action_reset_handler.v]
+file mkdir $ipDirPath
+file copy -force $moduleFileName $ipDirPath
+sda_kernel_create_ip $vendorName $libraryName $kernelName $versionNumber $ipDirPath
 
 #
-# Generate the synthesised netlist for the IP core.
+# Run the SDAccel packaging phase. This uses the previously generated Vivado IP
+# core to create an SDAccel kernel object.
 #
-synth_design \
-  -mode out_of_context \
-  -no_lc \
-  -keep_equivalent_registers \
-  -top [lindex [find_top] 0]
-
-#
-# Prefix all the module names with the unique kernel name string.
-#
-set moduleName "${vendorName}_${libraryName}_${kernelName}_${versionNumber}"
-regsub -all "\\." $moduleName "_" moduleName
-rename_ref -prefix_all "${moduleName}_"
-rename_ref -ref [lindex [find_top] 0] -to $moduleName
-
-#
-# Write out the Verilog netlist, with a renamed kernel toplevel module.
-#
-write_verilog -force "${moduleName}.v"
-
-#
-# Automatically infer the Vivado IP core from the generated Verilog file.
-#
-ipx::infer_core -verbose \
-  -set_current true \
-  -block_ip \
-  -vendor $vendorName \
-  -library $libraryName \
-  -name $kernelName \
-  -version $versionNumber \
-  -taxonomy /SDAccel/Kernel \
-  $buildDirPath
-ipx::sdaccel::check_ip
-
-#
-# TODO: these are dummy arguments.
-#
-ipx::sdaccel::set_arg_order test_arg1 test_arg2
-ipx::sdaccel::set_arg_info test_arg1 s_axi_control local 4 4
-ipx::sdaccel::set_arg_info test_arg2 s_axi_control local 8 4
-
-#
-# Write out the SDAccel kernel information file for the current IP core.
-#
-ipx::sdaccel::write_kernel_info
-
-#
-# Package the SDAccel kernel object files.
-#
-package_xo -verbose \
-  -kernel_name $moduleName \
-  -kernel_xml [file join $buildDirPath kernel_info.xml] \
-  -ip_directory $buildDirPath \
-  -xo_path [file join $buildDirPath $moduleName]
+sda_kernel_packaging $moduleName $vendorName $libraryName $kernelName \
+  $versionNumber $ipDirPath $buildDirPath
 
