@@ -42,12 +42,12 @@ workflows in `/data/workflows/$VERSION`.
 
 ### reco-sdaccel
 
-Command line tools for scripting eTeak & Vivado to build & simulate Go code.
+Command line tools using eTeak & Vivado to build & simulate Go code.
 
 ### workflows
 
-Scripts for end user workflows to be deployed to the Jarvice platform.
+Scripts for processing end user workflows before deployment.
 
 ### jarvice
 
-Command line tools for working with & deploying workflows on the Jarvice platform.
+Command line tools for deploying and managing workflows on the Jarvice platform.
