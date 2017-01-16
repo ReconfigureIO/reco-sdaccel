@@ -46,7 +46,7 @@ Command line tools using eTeak & Vivado to build & simulate Go code.
 
 ### workflows
 
-Scripts for processing end user workflows before deployment.
+Scripts and workflors to be run on top of the Jarvice platform.
 
 ### jarvice
 
