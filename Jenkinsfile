@@ -13,7 +13,7 @@ node ("docker") {
         stage 'lint'
         sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-sdaccel'
         sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck jarvice/jarvice'
-        sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_nomem --report-unoptflat'
+        sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_nomem --report-unoptflat'
 
         stage 'pre clean'
         sh 'make clean'
