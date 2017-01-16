@@ -14,6 +14,4 @@ func Top(
 	controlWriteAddr <-chan control.Addr,
 	controlWriteData <-chan control.WriteData,
 	controlResp chan<- control.Resp) {
-
-	return
 }
