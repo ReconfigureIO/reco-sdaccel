@@ -23,7 +23,6 @@ function test_go {
     pushd eTeak
     PATH="$DIR/eTeak/bin:$PATH" GOPATH="$DIR/go-teak" ./go-teak-sdaccel build "$FULL_PATH" -o "$ROOT_DIR/.reco-work/sdaccel/verilog/main.v"
     popd
-
 }
 
 function simulate {
