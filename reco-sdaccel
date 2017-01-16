@@ -16,6 +16,16 @@ function build {
     vivado -mode batch -source "$DIR/go-teak/sdaccel/src/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "$FULL_PATH" -wrapper_source_dir "$DIR/src/go-teak/sdaccel/verilog/" -vendor reconfigure.io -library reco-sdaccel -name stub -version 0.1
 }
 
+function test_go {
+    FULL_PATH=$(readlink -f "$1")
+
+    mkdir -p "$ROOT_DIR/.reco-work/sdaccel/verilog"
+    pushd eTeak
+    PATH="$DIR/eTeak/bin:$PATH" GOPATH="$DIR/go-teak" ./go-teak-sdaccel build "$FULL_PATH" -o "$ROOT_DIR/.reco-work/sdaccel/verilog/main.v"
+    popd
+
+}
+
 function simulate {
     echo "simulate"
 
@@ -32,6 +42,9 @@ function main {
             ;;
         "simulate")
             simulate "${@:2}"
+            ;;
+        "test-go")
+            test_go "${@:2}"
             ;;
         "clean")
             clean "${@:2}"

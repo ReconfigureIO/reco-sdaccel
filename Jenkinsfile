@@ -19,7 +19,12 @@ node ("docker") {
         stage 'pre clean'
         sh 'make clean'
 
-        stage 'test'
+        stage 'test go'
+        sh 'make eTeak/go-teak-sdaccel'
+        sh './reco-sdaccel test-go examples/noop/main.go'
+        sh 'docker run --rm -i -v $(pwd):/mnt verilator verilator -Wall --lint-only -I"$PWD/eTeak/verilog/SELF_files/" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_nomem --report-unoptflat'
+
+        stage 'test verilog'
         withEnv(['VERSION=v0.1.0-pre']) {
             sh "make VERSION=${env.VERSION} deploy"
             sh 'NUMBER=$(./jarvice/jarvice workflow build.sh); ./jarvice/jarvice wait $NUMBER'
