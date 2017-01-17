@@ -134,7 +134,10 @@ output                             m_axi_gmem_RREADY;
 // Specifies the system level I/O signals.
 input  ap_clk;
 input  ap_rst_n;
+
+// verilator lint_off SYMRSVDWORD 
 output interrupt;
+// verilator lint_on SYMRSVDWORD 
 
 // Reset management signals.
 wire [1:0] domain_reset;
