@@ -161,7 +161,7 @@ set ipDirPath [file join $buildDirPath ip]
 #
 # Construct the unique module name.
 #
-set moduleName [string map {. _} \
+set moduleName [string map {. _ - _} \
   ${vendorName}_${libraryName}_${kernelName}_${versionNumber}]
 
 #
