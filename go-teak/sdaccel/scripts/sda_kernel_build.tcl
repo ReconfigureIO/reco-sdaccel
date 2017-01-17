@@ -58,13 +58,17 @@
 
 # Include synthesis and packaging functions.
 source [file join [file dirname [info script]] sda_kernel_synthesis.tcl] 
-source [file join [file dirname [info script]] sda_kernel_create_ip.tcl] 
 source [file join [file dirname [info script]] sda_kernel_packaging.tcl] 
+source [file join [file dirname [info script]] sda_kernel_xilinx_utils.tcl] 
 
 # Specify default parameter values.
 set actionMemType "nomem"
 set wrapperCodePath "verilog"
 set skipResynthesis 0
+
+# Selects a generic Kintex Ultrascale part as the nominal target.
+set partName "xcku115-flvf1924-1-c"
+set partFamily "kintexu"
 
 #
 # Extract the TCL command line arguments.
@@ -166,10 +170,10 @@ set moduleName [string map {. _} \
 # kernel.
 #
 file mkdir $synDirPath
-set moduleFileName [file join $synDirPath "${moduleName}.v"]
-if {0 == $skipResynthesis || 0 == [file exists $moduleFileName]} { 
+set synFileName [file join $synDirPath "${moduleName}.v"]
+if {0 == $skipResynthesis || 0 == [file exists $synFileName]} { 
   cd $synDirPath
-  sda_kernel_synthesis $sourceFileName $moduleName $actionMemType $wrapperCodePath
+  sda_kernel_synthesis $sourceFileName $moduleName $actionMemType $wrapperCodePath $partName
   cd $buildDirPath
 }
 
@@ -177,9 +181,17 @@ if {0 == $skipResynthesis || 0 == [file exists $moduleFileName]} {
 # Run the Vivado IP creation phase. This will package the synthesised SDAccel 
 # kernel code as a standard Vivado IP core.
 #
-file mkdir $ipDirPath
-file copy -force $moduleFileName $ipDirPath
-sda_kernel_create_ip $vendorName $libraryName $kernelName $versionNumber $ipDirPath
+file delete -force $ipDirPath
+set verilogDirName [file join $ipDirPath "hdl" "verilog"]
+file mkdir $verilogDirName
+file copy -force $synFileName $verilogDirName     
+
+#
+# Run the standard Xilinx HLS IP packaging flow.
+#
+cd $ipDirPath
+configure_ip_core $moduleName $vendorName $libraryName $kernelName $versionNumber $partFamily
+cd $buildDirPath
 
 #
 # Run the SDAccel packaging phase. This uses the previously generated Vivado IP

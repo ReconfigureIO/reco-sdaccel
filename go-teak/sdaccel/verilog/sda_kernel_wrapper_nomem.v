@@ -20,10 +20,10 @@
 `define AXI_SLAVE_ADDR_WIDTH 6
 
 // Can be redefined on the synthesis command line.
-`define AXI_MASTER_ADDR_WIDTH 38
+`define AXI_MASTER_ADDR_WIDTH 64
 
 // Can be redefined on the synthesis command line.
-`define AXI_MASTER_DATA_WIDTH 512
+`define AXI_MASTER_DATA_WIDTH 32
 
 // Module name to be substituted in post-synthesis netlist.
 module sda_kernel_wrapper_nomem
@@ -33,18 +33,18 @@ module sda_kernel_wrapper_nomem
   s_axi_control_BREADY, s_axi_control_ARADDR, s_axi_control_ARVALID,
   s_axi_control_ARREADY, s_axi_control_RDATA, s_axi_control_RRESP,
   s_axi_control_RVALID, s_axi_control_RREADY, m_axi_gmem_AWADDR,
-  m_axi_gmem_AWLEN, m_axi_gmem_AWSIZE, m_axi_gmem_AWBURST,
-  m_axi_gmem_AWLOCK, m_axi_gmem_AWREGION, m_axi_gmem_AWCACHE,
-  m_axi_gmem_AWPROT, m_axi_gmem_AWQOS, m_axi_gmem_AWVALID,
-  m_axi_gmem_AWREADY, m_axi_gmem_WDATA, m_axi_gmem_WSTRB,
-  m_axi_gmem_WLAST, m_axi_gmem_WVALID, m_axi_gmem_WREADY,
-  m_axi_gmem_BRESP, m_axi_gmem_BVALID, m_axi_gmem_BREADY,
-  m_axi_gmem_ARADDR, m_axi_gmem_ARLEN, m_axi_gmem_ARSIZE, 
-  m_axi_gmem_ARBURST, m_axi_gmem_ARLOCK, m_axi_gmem_ARREGION,
-  m_axi_gmem_ARCACHE, m_axi_gmem_ARPROT, m_axi_gmem_ARQOS, 
-  m_axi_gmem_ARVALID, m_axi_gmem_ARREADY, m_axi_gmem_RDATA,
-  m_axi_gmem_RRESP, m_axi_gmem_RLAST, m_axi_gmem_RVALID, 
-  m_axi_gmem_RREADY, ap_clk, ap_rst_n, ap_interrupt);
+  m_axi_gmem_AWLEN, m_axi_gmem_AWSIZE, m_axi_gmem_AWBURST, m_axi_gmem_AWLOCK, 
+  m_axi_gmem_AWREGION, m_axi_gmem_AWCACHE, m_axi_gmem_AWPROT, m_axi_gmem_AWQOS, 
+  m_axi_gmem_AWID, m_axi_gmem_AWUSER, m_axi_gmem_AWVALID, m_axi_gmem_AWREADY, 
+  m_axi_gmem_WDATA, m_axi_gmem_WSTRB, m_axi_gmem_WLAST, m_axi_gmem_WID, 
+  m_axi_gmem_WUSER, m_axi_gmem_WVALID, m_axi_gmem_WREADY, m_axi_gmem_BRESP, 
+  m_axi_gmem_BID, m_axi_gmem_BUSER, m_axi_gmem_BVALID, m_axi_gmem_BREADY, 
+  m_axi_gmem_ARADDR, m_axi_gmem_ARLEN, m_axi_gmem_ARSIZE, m_axi_gmem_ARBURST, 
+  m_axi_gmem_ARLOCK, m_axi_gmem_ARREGION, m_axi_gmem_ARCACHE, m_axi_gmem_ARPROT, 
+  m_axi_gmem_ARQOS, m_axi_gmem_ARID, m_axi_gmem_ARUSER, m_axi_gmem_ARVALID, 
+  m_axi_gmem_ARREADY, m_axi_gmem_RDATA, m_axi_gmem_RRESP, m_axi_gmem_RLAST, 
+  m_axi_gmem_RID, m_axi_gmem_RUSER, m_axi_gmem_RVALID, m_axi_gmem_RREADY, 
+  ap_clk, ap_rst_n, interrupt);
   
 // Specifies the AXI slave write address signals.
 input [`AXI_SLAVE_ADDR_WIDTH-1:0] s_axi_control_AWADDR;
@@ -85,6 +85,8 @@ output [3:0]                        m_axi_gmem_AWREGION;
 output [3:0]                        m_axi_gmem_AWCACHE;
 output [2:0]                        m_axi_gmem_AWPROT;
 output [3:0]                        m_axi_gmem_AWQOS;
+output [0:0]                        m_axi_gmem_AWID;
+output [0:0]                        m_axi_gmem_AWUSER;
 output                              m_axi_gmem_AWVALID;
 input                               m_axi_gmem_AWREADY;
 
@@ -92,11 +94,15 @@ input                               m_axi_gmem_AWREADY;
 output [`AXI_MASTER_DATA_WIDTH-1:0]   m_axi_gmem_WDATA;
 output [`AXI_MASTER_DATA_WIDTH/8-1:0] m_axi_gmem_WSTRB;
 output                                m_axi_gmem_WLAST;
+output [0:0]                          m_axi_gmem_WID;
+output [0:0]                          m_axi_gmem_WUSER;
 output                                m_axi_gmem_WVALID;
 input                                 m_axi_gmem_WREADY;
 
 // Specifies the AXI master write response signals.
 input [1:0] m_axi_gmem_BRESP;
+input [0:0] m_axi_gmem_BID;
+input [0:0] m_axi_gmem_BUSER;
 input       m_axi_gmem_BVALID;
 output      m_axi_gmem_BREADY;
 
@@ -110,6 +116,8 @@ output [3:0]                        m_axi_gmem_ARREGION;
 output [3:0]                        m_axi_gmem_ARCACHE;
 output [2:0]                        m_axi_gmem_ARPROT;
 output [3:0]                        m_axi_gmem_ARQOS;
+output [0:0]                        m_axi_gmem_ARID;
+output [0:0]                        m_axi_gmem_ARUSER;
 output                              m_axi_gmem_ARVALID;
 input                               m_axi_gmem_ARREADY;
 
@@ -117,6 +125,8 @@ input                               m_axi_gmem_ARREADY;
 input [`AXI_MASTER_DATA_WIDTH-1:0] m_axi_gmem_RDATA;
 input [1:0]                        m_axi_gmem_RRESP;
 input                              m_axi_gmem_RLAST;
+input [0:0]                        m_axi_gmem_RID;
+input [0:0]                        m_axi_gmem_RUSER;
 input                              m_axi_gmem_RVALID;
 output                             m_axi_gmem_RREADY;
 // verilator lint_on UNUSED
@@ -124,7 +134,7 @@ output                             m_axi_gmem_RREADY;
 // Specifies the system level I/O signals.
 input  ap_clk;
 input  ap_rst_n;
-output ap_interrupt;
+output interrupt;
 
 // Reset management signals.
 wire [1:0] domain_reset;
@@ -174,7 +184,7 @@ wire action_done_valid;
 wire action_done_stop;
 
 // Miscellaneous signals.
-wire [`AXI_MASTER_DATA_WIDTH-1:0] zeros = `AXI_MASTER_DATA_WIDTH'b0;
+wire [`AXI_MASTER_ADDR_WIDTH-1:0] zeros = `AXI_MASTER_ADDR_WIDTH'b0;
 wire [31:0] m_axi_control_ext_AWADDR;
 wire [31:0] m_axi_control_ext_ARADDR;
 
@@ -188,10 +198,14 @@ assign m_axi_gmem_AWREGION = zeros [3:0];
 assign m_axi_gmem_AWCACHE = zeros [3:0];
 assign m_axi_gmem_AWPROT = zeros [2:0];
 assign m_axi_gmem_AWQOS = zeros [3:0];
+assign m_axi_gmem_AWID = zeros [0:0];
+assign m_axi_gmem_AWUSER = zeros [0:0];
 assign m_axi_gmem_AWVALID = 1'b0;
 assign m_axi_gmem_WDATA = zeros [`AXI_MASTER_DATA_WIDTH-1:0];
 assign m_axi_gmem_WSTRB = zeros [`AXI_MASTER_DATA_WIDTH/8-1:0];
 assign m_axi_gmem_WLAST = 1'b0;
+assign m_axi_gmem_WID = zeros [0:0];
+assign m_axi_gmem_WUSER = zeros [0:0];
 assign m_axi_gmem_WVALID = 1'b0;
 assign m_axi_gmem_BREADY = 1'b1;
 assign m_axi_gmem_ARADDR = zeros [`AXI_MASTER_ADDR_WIDTH-1:0];
@@ -203,9 +217,11 @@ assign m_axi_gmem_ARREGION = zeros [3:0];
 assign m_axi_gmem_ARCACHE = zeros [3:0];
 assign m_axi_gmem_ARPROT = zeros [2:0];
 assign m_axi_gmem_ARQOS = zeros [3:0];
+assign m_axi_gmem_ARID = zeros [0:0];
+assign m_axi_gmem_ARUSER = zeros [0:0];
 assign m_axi_gmem_ARVALID = 1'b0;
 assign m_axi_gmem_RREADY = 1'b1;
-assign ap_interrupt = 1'b0;
+assign interrupt = 1'b0;
 
 // Instantiate the reset controller. Performs complete reset on the action
 // core before releasing the reset on the AXI slave interface.
