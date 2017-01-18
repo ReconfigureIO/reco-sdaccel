@@ -11,11 +11,7 @@ export ROOT_DIR="$PWD"
 function build {
     FULL_PATH=$(readlink -f "$1")
 
-    mkdir -p .reco-work/sdaccel/build
-    mkdir -p .reco-work/sdaccel/dist/xclbin
-    cd .reco-work/sdaccel/build
-    vivado -mode batch -source "$DIR/go-teak/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "$FULL_PATH" -wrapper_source_dir "$DIR/go-teak/sdaccel/verilog/" -vendor reconfigure.io -library reco-sdaccel -name stub -version 0.1
-    xocc -j8 -O3 -t hw_emu --xdevice "xilinx:adm-pcie-ku3:2ddr-xpr:3.2" -l ./*.xo -o ../dist/xclbin/kernel_test.hw_emu.xilinx_adm-pcie-ku3_2ddr-xpr_3_2.xclbin
+    make -f "$DIR/reco-sdaccel.mk" TARGET=hw_emu INPUT_FILE="$FULL_PATH" kernel
 }
 
 function simulate {
@@ -24,7 +20,7 @@ function simulate {
 }
 
 function clean {
-    rm -rf "$ROOT_DIR/.reco-work"
+    make -f "$DIR/reco-sdaccel.mk" clean
 }
 
 function main {
