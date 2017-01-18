@@ -253,6 +253,8 @@ assign m_axi_control_ext_AWADDR =
 assign m_axi_control_ext_ARADDR =
   {zeros [31:`AXI_SLAVE_ADDR_WIDTH], m_axi_control_ARADDR};
 
+/* verilator lint_off PINMISSING */
+
 // Instantiate the simple generated action logic core.
 teak_action_top kernelActionTop_u
   (.go_0r(go_0r), .go_0a(go_0a),
@@ -266,5 +268,7 @@ teak_action_top kernelActionTop_u
   .s_axi_wvalid(m_axi_control_WVALID), .s_axi_wready(m_axi_control_WREADY),
   .s_axi_bresp(m_axi_control_BRESP), .s_axi_bvalid(m_axi_control_BVALID),
   .s_axi_bready(m_axi_control_BREADY), .clk(ap_clk), .reset(action_reset));
+
+/* verilator lint_on PINMISSING */
 
 endmodule
