@@ -7,9 +7,9 @@
 #
 # Implements SDAccel kernel packaging phase.
 #
-proc sda_kernel_packaging {moduleName vendorName libraryName kernelName 
+proc sda_kernel_packaging {moduleName vendorName libraryName kernelName
   versionNumber ipDirPath pkgDirPath} {
-          
+
 #
 # Open Kernel skeleton XML file and append common header fields.
 #
@@ -59,7 +59,7 @@ close $fileId
 #
 # Perform SDAccel kernel packaging.
 # TODO: Include valid argument fields.
-# TODO: If support for inter-kernel AXI stream pipes is required, the 
+# TODO: If support for inter-kernel AXI stream pipes is required, the
 # corresponding definitions need to be included here.
 #
 set kernelPackageName [file join $pkgDirPath "${moduleName}.xo"]
