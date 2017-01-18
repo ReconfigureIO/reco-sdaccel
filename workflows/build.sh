@@ -17,4 +17,4 @@ reco-sdaccel simulate
 cp /data/integration_test/hello .
 
 source /opt/Xilinx/SDx/2016.3/settings64.sh
-XCL_EMULATION_MODE=hw_emu XCLBIN_DIR=.reco-work/sdaccel/dist/xclbin timeout 5m ./hello
+XCL_EMULATION_MODE=hw_emu XCL_BINDIR=.reco-work/sdaccel/dist/xclbin timeout 5m ./hello
