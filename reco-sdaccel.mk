@@ -25,7 +25,7 @@ ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
 
 ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${XCLBIN_DIR} ${BUILD_DIR}/${XO_NAME}
-    xocc -j8 -O3 -t "${TARGET}" --xdevice "xilinx:adm-pcie-ku3:2ddr-xpr:3.2" -l "${BUILD_DIR}/${XO_NAME}" -o "${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin"
+	xocc -j8 -O3 -t "$(TARGET)" --xdevice 'xilinx:adm-pcie-ku3:2ddr-xpr:3.2' -l $< -o $@
 
 clean:
 	rm -rf "${ROOT_DIR}/.reco-work"
