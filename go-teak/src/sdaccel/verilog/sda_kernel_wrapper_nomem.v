@@ -168,10 +168,10 @@ wire [31:0] reg_wdata;
 wire [31:0] reg_rdata;
 
 // Action control signals.
-wire action_go_valid;
-wire action_go_holdoff;
-wire action_done_valid;
-wire action_done_stop;
+wire go_0r;
+wire go_0a;
+wire done_0r;
+wire done_0a;
 
 // Miscellaneous signals.
 wire [`AXI_MASTER_DATA_WIDTH-1:0] zeros = `AXI_MASTER_DATA_WIDTH'b0;
@@ -243,7 +243,7 @@ sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 1, 0) kernelCtrlRegSel_u
 // Instantiate the kernel control register at slave address offset 0.
 sda_kernel_ctrl_reg #(1) kernelCtrlReg_u
   (reg_req, reg_ack, reg_write_en, reg_addr, reg_wdata, reg_rdata,
-  action_go_valid, action_go_holdoff, action_done_valid, action_done_stop,
+  go_0r, go_0a, done_0r, done_0a,
   ap_clk, axi_reg_reset);
 
 // Extend the slave address bus widths to the standard 32 bit value for the
@@ -255,8 +255,8 @@ assign m_axi_control_ext_ARADDR =
 
 // Instantiate the simple generated action logic core.
 teak_action_top kernelActionTop_u
-  (.action_go_valid(action_go_valid), .action_go_holdoff(action_go_holdoff),
-  .action_done_valid(action_done_valid), .action_done_stop(action_done_stop),
+  (.go_0r(go_0r), .go_0a(go_0a),
+  .done_0r(done_0r), .done_0a(done_0a),
   .s_axi_araddr(m_axi_control_ext_ARADDR), .s_axi_arvalid(m_axi_control_ARVALID),
   .s_axi_arready(m_axi_control_ARREADY), .s_axi_rdata(m_axi_control_RDATA),
   .s_axi_rresp(m_axi_control_RRESP), .s_axi_rvalid(m_axi_control_RVALID),

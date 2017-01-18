@@ -14,7 +14,7 @@
 // The module name is common for different kernel action toplevel entities.
 // verilator lint_off DECLFILENAME
 module teak_action_top
-  (action_go_valid, action_go_holdoff, action_done_valid, action_done_stop,
+  (go_0r, go_0a, done_0r, done_0a,
   s_axi_araddr, s_axi_arvalid, s_axi_arready, s_axi_rdata, s_axi_rresp,
   s_axi_rvalid, s_axi_rready, s_axi_awaddr, s_axi_awvalid, s_axi_awready,
   s_axi_wdata, s_axi_wstrb, s_axi_wvalid, s_axi_wready, s_axi_bresp,
@@ -22,10 +22,10 @@ module teak_action_top
 // verilator lint_on DECLFILENAME
 
 // Action control signals.
-input  action_go_valid;
-output action_go_holdoff;
-output action_done_valid;
-input  action_done_stop;
+input  go_0r;
+output go_0a;
+output done_0r;
+input  done_0a;
 
 // AXI slave interface signals are not used in the stub implementation.
 // verilator lint_off UNUSED
@@ -70,16 +70,16 @@ begin
   end
   else if (action_done_q)
   begin
-    action_done_q <= action_done_stop;
+    action_done_q <= done_0a;
   end
-  else if (action_go_valid)
+  else if (go_0r)
   begin
     action_done_q <= 1'b1;
   end
 end
 
-assign action_go_holdoff = action_done_q;
-assign action_done_valid = action_done_q;
+assign go_0a = action_done_q;
+assign done_0r = action_done_q;
 
 // Implement AXI read control loopback.
 always @(posedge clk)
