@@ -27,13 +27,13 @@ ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
 
 ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME} ${XCLBIN_DIR}
-	xocc -j8 -O3 -t "${TARGET}" --xdevice '${DEVICE_FULL}' -l $< -o $@
+	xocc -j8 -O3 -t "${TARGET}" --xdevice ${DEVICE_FULL} -l $< -o $@
 
 ${SIM_DIR}:
 	mkdir -p "${SIM_DIR}"
 
 ${SIM_DIR}/emconfig.json: ${SIM_DIR}
-	XCL_EMULATION_MODE=${TARGET} emconfigutil --xdevice '${DEVICE_FULL}' --nd 1
+	XCL_EMULATION_MODE=${TARGET} emconfigutil --xdevice ${DEVICE_FULL} --nd 1
 
 sim: ${SIM_DIR}/emconfig.json
 
