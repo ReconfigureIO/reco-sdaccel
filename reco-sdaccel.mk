@@ -24,7 +24,7 @@ ${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE}
 ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
 
-${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${XCLBIN_DIR} ${BUILD_DIR}/${XO_NAME}
+${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME} ${XCLBIN_DIR}
 	xocc -j8 -O3 -t "${TARGET}" --xdevice 'xilinx:adm-pcie-ku3:2ddr-xpr:3.2' -l $< -o $@
 
 clean:
