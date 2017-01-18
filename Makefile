@@ -54,6 +54,8 @@ build/reco/go-teak: build/reco
 
 build/jarvice/jarvice: build/jarvice jarvice/jarvice
 	cp -r jarvice/* build/jarvice/
+	sed -i "2s;^;export VERSION=${VERSION}\n;" $@
+	chmod +x $@
 
 dist/${NAME}-${VERSION}.tar.gz: bundle/reco dist
 	cd build/reco && tar czf ../../$@ *
