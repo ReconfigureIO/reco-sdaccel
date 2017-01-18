@@ -12,3 +12,7 @@ mkdir -p "/data/tests/$JOB"
 cd "/data/tests/$JOB"
 
 reco-sdaccel build "$RECO_PATH/go-teak/sdaccel/stubs/sda_kernel_action_stub_nomem.v"
+reco-sdaccel simulate
+
+cp /data/integration_test/hello .
+XCLBIN_DIR=.reco-work/sdaccel/dist/xclbin timeout 5m ./hello

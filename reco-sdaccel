@@ -15,8 +15,7 @@ function build {
 }
 
 function simulate {
-    echo "simulate"
-
+    make -f "$DIR/reco-sdaccel.mk" TARGET=hw_emu sim
 }
 
 function clean {
