@@ -19,7 +19,7 @@ ${BUILD_DIR}:
 	mkdir -p "${BUILD_DIR}"
 
 ${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE}
-	vivado -mode batch -source "${DIR}/go-teak/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "${INPUT_FILE}" -wrapper_source_dir "${DIR}/go-teak/sdaccel/verilog/" -vendor reconfigure.io -library reco-sdaccel -name stub -version 0.1
+	cd "${BUILD_DIR}" && vivado -mode batch -source "${DIR}/go-teak/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "${INPUT_FILE}" -wrapper_source_dir "${DIR}/go-teak/sdaccel/verilog/" -vendor reconfigure.io -library reco-sdaccel -name stub -version 0.1
 
 ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
