@@ -8,7 +8,7 @@ node ("docker") {
         checkout scm
 
         stage 'build image'
-        sh 'docker build -t "verilator:latest" .'
+        sh 'docker build -t "verilator:latest" docker-verilator'
 
         stage 'lint'
         sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-sdaccel'
