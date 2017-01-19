@@ -21,7 +21,6 @@ if {0 == [info exists sourceFileName]} {
 }
 
 add_files -norecurse $sourceFileName
-add_files -norecurse $includeCodePath
 
 #
 # Generate the synthesised netlist for the IP core.
@@ -31,7 +30,8 @@ synth_design \
   -mode out_of_context \
   -no_lc \
   -keep_equivalent_registers \
-  -top [lindex [find_top] 0]
+  -top [lindex [find_top] 0] \
+  -include_dirs $includeCodePath
 
 #
 # Prefix all the module names with the unique kernel name string.
