@@ -13,13 +13,17 @@ node ("docker") {
         stage 'lint'
         sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-sdaccel'
         sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck jarvice/jarvice'
-
-        sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/sdaccel/stubs/*.v go-teak/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_nomem --report-unoptflat'
+        sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_nomem --report-unoptflat'
 
         stage 'pre clean'
         sh 'make clean'
 
-        stage 'test'
+        stage 'test go'
+        sh 'make eTeak/go-teak-sdaccel'
+        sh './reco-sdaccel test-go examples/noop/main.go'
+        sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I"eTeak/verilog/SELF_files/" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_nomem --report-unoptflat'
+
+        stage 'test verilog'
         withEnv(['VERSION=v0.1.0-pre']) {
             sh "make VERSION=${env.VERSION} deploy"
             sh 'NUMBER=$(./jarvice/jarvice workflow build.sh); ./jarvice/jarvice wait $NUMBER'

@@ -11,6 +11,7 @@ PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 
 USERNAME=reconfigureio
 API_KEY=cbe26de4b61a41d19700089ea948335057ca9072
+SDACCEL_WRAPPER_VERSION := PR-165
 
 .PHONY: clean all bundle/reco bundle/jarvice bundle/workflows release update-changelog package/*
 
@@ -67,10 +68,26 @@ dist/${NAME}-jarvice-${VERSION}.tar.gz: bundle/jarvice dist
 	cd build/jarvice && tar czf ../../$@ *
 
 clean:
-	rm -rf build dist
+	rm -rf build dist downloads eTeak
 
 deploy: bundle/workflows bundle/reco
 	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse build/reco reco/${VERSION}; mirror --reverse build/workflows workflows/${VERSION}; quit"
+
+downloads:
+	mkdir -p downloads
+
+downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz: downloads
+	aws s3 cp "s3://nerabus/eTeak/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz" $@
+	# So that it won't download again
+	touch $@
+
+eTeak:
+	mkdir -p eTeak
+
+eTeak/go-teak-sdaccel: eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz
+	tar -xf "downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz" -C eTeak
+	# So that it won't download again
+	touch $@
 
 update-changelog:
 	tail -n +3 RELEASE.md > next.md
