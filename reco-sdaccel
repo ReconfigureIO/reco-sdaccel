@@ -15,9 +15,7 @@ function build {
 }
 
 function test_go {
-    FULL_PATH=$(readlink -f "$1")
-
-    make -f "$DIR/reco-sdaccel.mk" INPUT_FILE="$FULL_PATH" verilog
+    make -f "$DIR/reco-sdaccel.mk" verilog
 }
 
 function simulate {
