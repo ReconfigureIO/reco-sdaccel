@@ -28,7 +28,7 @@ node ("docker") {
         stage 'test verilog'
         withEnv(['VERSION=v0.1.0-pre']) {
             sh "make VERSION=${env.VERSION} deploy"
-            sh 'NUMBER=$(./jarvice/jarvice workflow build.sh); ./jarvice/jarvice wait $NUMBER'
+            sh 'NUMBER=$(./jarvice/jarvice upload examples/noop); ./jarvice/jarvice wait $NUMBER'
         }
 
         stage 'build'
