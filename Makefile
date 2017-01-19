@@ -74,7 +74,7 @@ clean:
 	rm -rf build dist downloads eTeak
 
 deploy: bundle/workflows bundle/reco
-	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse build/reco reco/${VERSION}; mirror --reverse build/workflows workflows/${VERSION}; quit"
+	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse -P4 build/reco reco/${VERSION}; mirror --reverse -P4 build/workflows workflows/${VERSION}; quit"
 
 downloads:
 	mkdir -p downloads
