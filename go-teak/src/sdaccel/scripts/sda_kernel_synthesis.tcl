@@ -10,7 +10,7 @@
 #
 
 proc sda_kernel_synthesis {
-  sourceFileName moduleName actionMemType wrapperCodePath} {
+  sourceFileName moduleName actionMemType wrapperCodePath partName} {
         
 #
 # Load the file containing the generated action code.
@@ -44,6 +44,7 @@ add_files -norecurse [file join $wrapperCodePath action_reset_handler.v]
 # Generate the synthesised netlist for the IP core.
 #
 synth_design \
+  -part $partName \
   -mode out_of_context \
   -no_lc \
   -keep_equivalent_registers \
