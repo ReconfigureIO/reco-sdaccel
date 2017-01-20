@@ -128,7 +128,7 @@ cl_program xcl_import_source(xcl_world world, const char *krnl_file);
 cl_kernel xcl_get_kernel(cl_program program, const char *krnl_name);
 
 /* xcl_create_kernel
- * 
+ *
  * Description:
  *  Create kernel in program and return kernel object
  *
@@ -233,7 +233,7 @@ unsigned long xcl_run_kernel3d(xcl_world world, cl_kernel krnl,
  *   z     - number of threads in the z direction.
  *
  * Returns: No Return
- *    
+ *
  */
-void xcl_run_kernel3d_nb(xcl_world world, cl_kernel krnl, cl_event *evt = NULL,
-                               size_t x=1, size_t y=1, size_t z=1);
+void xcl_run_kernel3d_nb(xcl_world world, cl_kernel krnl, cl_event *evt,
+                               size_t x, size_t y, size_t z);
