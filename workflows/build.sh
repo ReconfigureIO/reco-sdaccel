@@ -11,4 +11,5 @@ JOB=$(uuidgen -t)
 mkdir -p "/data/tests/$JOB"
 cd "/data/tests/$JOB"
 
+reco-sdaccel cmds
 reco-sdaccel build "$RECO_PATH/go-teak/sdaccel/stubs/sda_kernel_action_stub_nomem.v"
