@@ -17,7 +17,7 @@ func main() {
 	source := []byte{5, 25}
 	buff.Write(source)
 
-	krnl.SetArg(0, buff)
+	krnl.SetMemoryArg(0, buff)
 
 	krnl.Run(1, 1, 1)
 }
