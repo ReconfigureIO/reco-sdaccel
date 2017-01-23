@@ -9,9 +9,8 @@ export RECO_PATH="/data/reco/$VERSION"
 export GOROOT="$RECO_PATH/go-root"
 export PATH="$GOROOT/bin:$XILINX_SDACCEL/bin:$RECO_PATH:$XILINX_VIVADO/bin":$PATH
 
-JOB=$(uuidgen -t)
-mkdir -p "/data/tests/$JOB"
-cd "/data/tests/$JOB"
+source /etc/JARVICE/jobinfo.sh
 
+cd "/data/job/$JOB_LABEL"
+reco-sdaccel build
 reco-sdaccel cmds
-reco-sdaccel build "$RECO_PATH/go-teak/sdaccel/stubs/sda_kernel_action_stub_nomem.v"

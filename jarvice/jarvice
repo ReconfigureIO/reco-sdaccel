@@ -18,11 +18,13 @@ Where <command> is one of the following:
     workflow <name>         Run a single workflow that has been preuploaded.
     ssh <job number>        Connect to a job over ssh
 
+    upload <path/to/folder> Upload a kernel folder (with a main.go) and turn it into an xclbin.
     deploy <job number> <executable> Deploy an accelerated batch job to run on Nimbix
 
     wait <job number>       Wait for a running job to finish. Will fail if the job fails.
     shutdown <job number>   Stop a running job
     stop                    Stop all running jobs
+
 
     help    Display this help output
 "
@@ -63,6 +65,19 @@ function ssh {
     ansible localhost -m wait_for -a "host=$ADDRESS port=22 delay=0 timeout=300 state=started" > /dev/null
 
     sshpass -p "$PASS" ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "nimbix@$ADDRESS" || true
+}
+
+function upload {
+    # shellcheck source=/dev/null
+    source ~/.jarvice
+    JOB=$(uuidgen -t)
+
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse --exclude .reco-work -P4 $1/ job/$JOB; quit" > /dev/null
+
+    JSON=$(jq ".application.parameters.command = \"/data/workflows/$VERSION/build.sh\" | .job_label = \"$JOB\"" < "$DIR/batch.json")
+    JOB=$(jarvice_cli submit -j "$JSON")
+    NUMBER=$(echo "$JOB" | jq -r ".number")
+    echo "$NUMBER"
 }
 
 function run {
@@ -128,6 +143,9 @@ function main {
             ;;
         "wait")
             wait_for "${@:2}"
+            ;;
+        "upload")
+            upload "${@:2}"
             ;;
         "shutdown")
             shutdown "${@:2}"

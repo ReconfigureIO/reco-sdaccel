@@ -9,18 +9,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export ROOT_DIR="$PWD"
 
 function build {
-    FULL_PATH=$(readlink -f "$1")
-
-    make -f "$DIR/reco-sdaccel.mk" TARGET=hw_emu INPUT_FILE="$FULL_PATH" kernel
+    make -f "$DIR/reco-sdaccel.mk" TARGET=hw_emu kernel
 }
 
 function test_go {
-    FULL_PATH=$(readlink -f "$1")
-
-    mkdir -p "$ROOT_DIR/.reco-work/sdaccel/verilog"
-    pushd eTeak
-    PATH="$DIR/eTeak/bin:$PATH" GOPATH="$DIR/go-teak" ./go-teak-sdaccel build "$FULL_PATH" -o "$ROOT_DIR/.reco-work/sdaccel/verilog/main.v"
-    popd
+    make -f "$DIR/reco-sdaccel.mk" verilog
 }
 
 function simulate {

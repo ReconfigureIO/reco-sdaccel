@@ -22,7 +22,7 @@ package/reco: dist/${NAME}-${VERSION}.tar.gz
 
 package/jarvice: dist/${NAME}-jarvice-${VERSION}.tar.gz
 
-bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak build/reco/go
+bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak build/reco/go build/reco/eTeak
 
 bundle/jarvice: build/jarvice/jarvice
 
@@ -53,6 +53,9 @@ build/reco/reco-sdaccel: build/reco
 
 build/reco/reco-sdaccel.mk: build/reco
 	cp reco-sdaccel.mk build/reco
+
+build/reco/eTeak: build/reco eTeak/go-teak-sdaccel
+	cp -R eTeak build/reco
 
 build/reco/go-teak: build/reco
 	cp -R go-teak build/reco
