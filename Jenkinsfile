@@ -2,7 +2,7 @@ properties([buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '20'))])
 
 notifyStarted()
 
-node ("docker") {
+node ("master") {
     try {
         stage "checkout"
         checkout scm
