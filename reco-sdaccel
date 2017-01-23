@@ -9,9 +9,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export ROOT_DIR="$PWD"
 
 function build {
-    FULL_PATH=$(readlink -f "$1")
+    make -f "$DIR/reco-sdaccel.mk" TARGET=hw_emu kernel
+}
 
-    make -f "$DIR/reco-sdaccel.mk" TARGET=hw_emu INPUT_FILE="$FULL_PATH" kernel
+function test_go {
+    make -f "$DIR/reco-sdaccel.mk" verilog
 }
 
 function simulate {
@@ -29,6 +31,9 @@ function main {
             ;;
         "simulate")
             simulate "${@:2}"
+            ;;
+        "test-go")
+            test_go "${@:2}"
             ;;
         "clean")
             clean "${@:2}"
