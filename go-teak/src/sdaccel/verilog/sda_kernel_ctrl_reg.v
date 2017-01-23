@@ -89,7 +89,7 @@ reg       regAck_q;
 reg [3:0] regRData_q;
 
 // Miscellaneous signals.
-wire [31:3] zeros = 29'b0;
+wire [31:4] zeros = 28'b0;
 integer i;
 
 // Pipeline the register interface input signals.
@@ -200,7 +200,7 @@ begin
   else
   begin
     regAck_d = 1'b0;
-    regRData_d = 3'b0;
+    regRData_d = 4'b0;
   end  
 end
 
@@ -210,7 +210,7 @@ begin
   if (srst)
   begin
     regAck_q <= 1'b0;
-    regRData_q <= 3'b0;
+    regRData_q <= 4'b0;
   end
   else
   begin
