@@ -21,7 +21,7 @@ package/reco: dist/${NAME}-${VERSION}.tar.gz
 
 package/jarvice: dist/${NAME}-jarvice-${VERSION}.tar.gz
 
-bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak
+bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak build/reco/eTeak
 
 bundle/jarvice: build/jarvice/jarvice
 
@@ -53,6 +53,9 @@ build/reco/reco-sdaccel: build/reco
 build/reco/reco-sdaccel.mk: build/reco
 	cp reco-sdaccel.mk build/reco
 
+build/reco/eTeak: build/reco eTeak/go-teak-sdaccel
+	cp -R eTeak build/reco
+
 build/reco/go-teak: build/reco
 	cp -R go-teak build/reco
 
@@ -71,7 +74,7 @@ clean:
 	rm -rf build dist downloads eTeak
 
 deploy: bundle/workflows bundle/reco
-	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse build/reco reco/${VERSION}; mirror --reverse build/workflows workflows/${VERSION}; quit"
+	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse -P4 build/reco reco/${VERSION}; mirror --reverse -P4 build/workflows workflows/${VERSION}; quit"
 
 downloads:
 	mkdir -p downloads
