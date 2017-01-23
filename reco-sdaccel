@@ -36,6 +36,9 @@ function main {
         "simulate")
             simulate "${@:2}"
             ;;
+        "image")
+            image "${@:2}"
+            ;;
         "test-go")
             test_go "${@:2}"
             ;;
