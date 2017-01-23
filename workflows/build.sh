@@ -10,3 +10,4 @@ source /etc/JARVICE/jobinfo.sh
 
 cd "/data/job/$JOB_LABEL"
 reco-sdaccel build
+reco-sdaccel image

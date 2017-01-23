@@ -12,13 +12,16 @@ function build {
     make -f "$DIR/reco-sdaccel.mk" TARGET=hw_emu kernel
 }
 
+function image {
+    make -f "$DIR/reco-sdaccel.mk" TARGET=hw kernel
+}
+
 function test_go {
     make -f "$DIR/reco-sdaccel.mk" verilog
 }
 
 function simulate {
     echo "simulate"
-
 }
 
 function clean {
