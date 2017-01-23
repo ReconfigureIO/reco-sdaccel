@@ -56,7 +56,7 @@ input          clk;
 input          srst;
 
 // Specify the register layout.
-parameter [RegAddrWidth-1:0]
+parameter [31:0]
   REG_ADDR_CTRL = 'h00,
   REG_ADDR_GIE = 'h04,
   REG_ADDR_IER = 'h08,
@@ -125,13 +125,15 @@ begin
   goValid_d = goValid_q;        
   
   // Clear the 'done' bit on reads.
-  if (regReq_q & ~regWriteEn_q & (regAddr_q == REG_ADDR_CTRL))
+  if (regReq_q & ~regWriteEn_q & 
+    (regAddr_q == REG_ADDR_CTRL[RegAddrWidth-1:0]))
   begin
       regBitDone_d = 1'b0;
   end     
   
   // Assert the 'start' bit on register write requests.
-  if (regReq_q & regWriteEn_q & (regAddr_q == REG_ADDR_CTRL) & regWData0_q)
+  if (regReq_q & regWriteEn_q & regWData0_q & 
+    (regAddr_q == REG_ADDR_CTRL[RegAddrWidth-1:0]))
   begin   
     regBitStart_d = 1'b1;        
   end  
@@ -189,7 +191,8 @@ assign doneStop = regBitIdle_q;
 always @(regReq_q, regAddr_q, regBitIdle_q, regBitDone_q, regBitStart_q,
   regBitReady_q)
 begin
-  if (regReq_q & (regAddr_q == REG_ADDR_CTRL))
+  if (regReq_q & 
+    (regAddr_q == REG_ADDR_CTRL[RegAddrWidth-1:0]))
   begin
     regAck_d = 1'b1;
     regRData_d = {regBitReady_q, regBitIdle_q, regBitDone_q, regBitStart_q};
