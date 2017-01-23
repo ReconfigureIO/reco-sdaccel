@@ -176,7 +176,7 @@ wire        m_axi_control_RREADY;
 wire        reg_req;
 wire        reg_ack;
 wire        reg_write_en;
-wire [0:0]  reg_addr;
+wire [3:0]  reg_addr;
 wire [31:0] reg_wdata;
 wire [31:0] reg_rdata;
 
@@ -224,7 +224,6 @@ assign m_axi_gmem_ARID = zeros [0:0];
 assign m_axi_gmem_ARUSER = zeros [0:0];
 assign m_axi_gmem_ARVALID = 1'b0;
 assign m_axi_gmem_RREADY = 1'b1;
-assign interrupt = 1'b0;
 
 // Instantiate the reset controller. Performs complete reset on the action
 // core before releasing the reset on the AXI slave interface.
@@ -244,7 +243,7 @@ assign action_reset = domain_reset [0];
 assign axi_reg_reset = domain_reset [1];
 
 // Instantiate the AXI slave register selection component.
-sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 1, 0) kernelCtrlRegSel_u
+sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 4, 15) kernelCtrlRegSel_u
   (s_axi_control_AWVALID, s_axi_control_AWREADY, s_axi_control_AWADDR,
   s_axi_control_WVALID, s_axi_control_WREADY, s_axi_control_WDATA,
   s_axi_control_WSTRB, s_axi_control_BVALID, s_axi_control_BREADY,
@@ -260,10 +259,9 @@ sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 1, 0) kernelCtrlRegSel_u
   reg_rdata, ap_clk, axi_reg_reset);
 
 // Instantiate the kernel control register at slave address offset 0.
-sda_kernel_ctrl_reg #(1) kernelCtrlReg_u
+sda_kernel_ctrl_reg #(4) kernelCtrlReg_u
   (reg_req, reg_ack, reg_write_en, reg_addr, reg_wdata, reg_rdata,
-  go_0r, go_0a, done_0r, done_0a,
-  ap_clk, axi_reg_reset);
+  go_0r, go_0a, done_0r, done_0a, interrupt, ap_clk, axi_reg_reset);
 
 // Extend the slave address bus widths to the standard 32 bit value for the
 // action logic core.
