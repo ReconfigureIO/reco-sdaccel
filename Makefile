@@ -80,8 +80,8 @@ dist/${NAME}-jarvice-${VERSION}.tar.gz: bundle/jarvice dist
 clean:
 	rm -rf build dist downloads eTeak
 
-deploy: bundle/workflows bundle/reco
-	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror -P10 --reverse build/reco reco/${VERSION}; mirror -P10 --reverse build/workflows workflows/${VERSION}; quit"
+deploy: dist/${NAME}-${VERSION}.tar.gz
+	./deploy.sh ${VERSION} ${PWD}/$<
 
 downloads:
 	mkdir -p downloads
