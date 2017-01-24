@@ -20,7 +20,8 @@ function simulate {
     CMD="$1"
     make -f "$DIR/reco-sdaccel.mk" TARGET=hw_emu sim cmds kernel
     export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
-    LD_LIBRARY_PATH=$XILINX_SDACCEL/runtime/lib/x86_64/:$LD_LIBRARY_PATH XCL_EMULATION_MODE=hw_emu "$CMD" "${@:2}"
+    source /opt/Xilinx/SDx/2016.3/settings64.sh
+    XCL_EMULATION_MODE=hw_emu "$CMD" "${@:2}"
 }
 
 function cmds {
