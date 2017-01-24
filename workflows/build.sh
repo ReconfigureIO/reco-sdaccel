@@ -11,4 +11,7 @@ source /etc/JARVICE/jobinfo.sh
 
 cd "/data/job/$JOB_LABEL"
 
-timeout 5m reco-sdaccel simulate test-noop
+cp /data/integration_test/hello .
+cp /data/integration_test/emconfig.json .
+
+timeout 5m reco-sdaccel simulate ./hello
