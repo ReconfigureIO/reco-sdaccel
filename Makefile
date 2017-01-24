@@ -12,6 +12,7 @@ PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 USERNAME=reconfigureio
 API_KEY=cbe26de4b61a41d19700089ea948335057ca9072
 SDACCEL_WRAPPER_VERSION := PR-165
+GO_VERSION := 1.7.4
 
 .PHONY: clean all bundle/reco bundle/jarvice bundle/workflows release update-changelog package/*
 
@@ -21,7 +22,7 @@ package/reco: dist/${NAME}-${VERSION}.tar.gz
 
 package/jarvice: dist/${NAME}-jarvice-${VERSION}.tar.gz
 
-bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak build/reco/eTeak
+bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak build/reco/go build/reco/eTeak
 
 bundle/jarvice: build/jarvice/jarvice
 
@@ -59,6 +60,9 @@ build/reco/eTeak: build/reco eTeak/go-teak-sdaccel
 build/reco/go-teak: build/reco
 	cp -R go-teak build/reco
 
+build/reco/go: build/reco
+	cp -R go build/reco
+
 build/jarvice/jarvice: build/jarvice jarvice/jarvice
 	cp -r jarvice/* build/jarvice/
 	sed -i "2s;^;export VERSION=${VERSION}\n;" $@
@@ -71,10 +75,10 @@ dist/${NAME}-jarvice-${VERSION}.tar.gz: bundle/jarvice dist
 	cd build/jarvice && tar czf ../../$@ *
 
 clean:
-	rm -rf build dist downloads eTeak
+	rm -rf build dist downloads eTeak go-root
 
 deploy: bundle/workflows bundle/reco
-	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse -P4 build/reco reco/${VERSION}; mirror --reverse -P4 build/workflows workflows/${VERSION}; quit"
+	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror -P10 --reverse build/reco reco/${VERSION}; mirror -P10 --reverse build/workflows workflows/${VERSION}; quit"
 
 downloads:
 	mkdir -p downloads
@@ -82,6 +86,15 @@ downloads:
 downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz: downloads
 	aws s3 cp "s3://nerabus/eTeak/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz" $@
 	# So that it won't download again
+	touch $@
+
+downloads/go-${GO_VERSION}.linux-amd64.tar.gz: downloads
+	wget -O $@ https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz
+	# So that it won't download again
+	touch $@
+
+go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz
+	tar -xvvf $<
 	touch $@
 
 eTeak:

@@ -12,7 +12,7 @@ DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_2"
 DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.2"
 TARGET := "hw_emu"
 
-.PHONY: kernel xo clean sim verilog
+.PHONY: kernel xo clean cmds sim verilog
 
 kernel: ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin
 
@@ -39,6 +39,18 @@ ${SIM_DIR}/emconfig.json: ${SIM_DIR}
 	XCL_EMULATION_MODE=${TARGET} emconfigutil --xdevice ${DEVICE_FULL} --nd 1
 
 sim: ${SIM_DIR}/emconfig.json
+
+
+${DIST_DIR}:
+	mkdir -p "${DIST_DIR}"
+
+${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR}
+	LIBRARY_PATH=${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH} CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ GOPATH="${DIR}/go" go build -o $@ $<
+
+CMD_SOURCES := $(shell find ${ROOT_DIR}/cmd/ -name main.go)
+CMD_TARGETS := $(patsubst ${ROOT_DIR}/cmd/%/main.go,${DIST_DIR}/%,$(CMD_SOURCES))
+
+cmds: $(CMD_TARGETS)
 
 ${VERILOG_DIR}:
 	mkdir -p ${VERILOG_DIR}
