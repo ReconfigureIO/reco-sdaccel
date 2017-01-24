@@ -1,0 +1,18 @@
+- name: wait for ssh
+  hosts: localhost
+  gather_facts: no
+
+  pre_tasks:
+    - wait_for: host="{{ variable_host }}" port=22 delay=0 timeout=320 state=started
+    - add_host:
+        name: "{{ variable_host }}"
+
+- name: deploy reco-sdaccel
+  hosts: "{{ variable_host }}"
+
+  tasks:
+    - name: make directpry
+      file: path="/data/reco/{{ version }}/" state=directory
+
+    - name: unpack reco-sdaccel
+      unarchive: src="{{ archive }}" dest="/data/reco/{{ version }}/"
