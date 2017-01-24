@@ -22,7 +22,7 @@ package/reco: dist/${NAME}-${VERSION}.tar.gz
 
 package/jarvice: dist/${NAME}-jarvice-${VERSION}.tar.gz
 
-bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak build/reco/go build/reco/eTeak build/reco/go-root
+bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak build/reco/go build/reco/eTeak build/reco/go-root bundle/reco/workflows build/reco/settings.sh
 
 bundle/jarvice: build/jarvice/jarvice
 
@@ -36,17 +36,20 @@ build/jarvice:
 	mkdir -p build/jarvice
 
 WORKFLOW_SOURCES := $(shell find workflows -type f)
-TARGETS:= $(patsubst workflows/%,build/workflows/%,$(WORKFLOW_SOURCES))
+TARGETS:= $(patsubst workflows/%,build/reco/workflows/%,$(WORKFLOW_SOURCES))
 
-build/workflows:
-	mkdir -p build/workflows
+build/reco/settings.sh: settings.sh build/reco
+	cp $< $@
 
-build/workflows/%: workflows/% build/workflows
+build/reco/workflows:
+	mkdir -p $@
+
+build/reco/workflows/%: workflows/% build/reco/workflows
 	cp $< $@
 	sed -i "1s;^;export VERSION=${VERSION}\n\n;" $@
 	chmod +x $@
 
-bundle/workflows: $(TARGETS)
+bundle/reco/workflows: $(TARGETS)
 
 build/reco/reco-sdaccel: build/reco
 	cp reco-sdaccel build/reco
