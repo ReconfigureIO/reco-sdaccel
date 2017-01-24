@@ -13,11 +13,4 @@ source /etc/JARVICE/jobinfo.sh
 
 cd "/data/job/$JOB_LABEL"
 
-reco-sdaccel build
-reco-sdaccel cmds
-reco-sdaccel simulate
-
-cd .reco-work/sdaccel/dist
-
-source /opt/Xilinx/SDx/2016.3/settings64.sh
-XCL_EMULATION_MODE=hw_emu timeout 5m ./test-noop
+timeout 5m reco-sdaccel simulate test-noop
