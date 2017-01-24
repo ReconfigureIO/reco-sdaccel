@@ -22,7 +22,7 @@ package/reco: dist/${NAME}-${VERSION}.tar.gz
 
 package/jarvice: dist/${NAME}-jarvice-${VERSION}.tar.gz
 
-bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak build/reco/go build/reco/eTeak
+bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak build/reco/go build/reco/eTeak build/reco/go-root
 
 bundle/jarvice: build/jarvice/jarvice
 
@@ -75,7 +75,7 @@ dist/${NAME}-jarvice-${VERSION}.tar.gz: bundle/jarvice dist
 	cd build/jarvice && tar czf ../../$@ *
 
 clean:
-	rm -rf build dist downloads eTeak go-root
+	rm -rf build dist downloads eTeak
 
 deploy: bundle/workflows bundle/reco
 	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror -P10 --reverse build/reco reco/${VERSION}; mirror -P10 --reverse build/workflows workflows/${VERSION}; quit"
@@ -93,9 +93,9 @@ downloads/go-${GO_VERSION}.linux-amd64.tar.gz: downloads
 	# So that it won't download again
 	touch $@
 
-go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz
-	tar -xvvf $<
-	touch $@
+build/reco/go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz build/reco
+	mkdir -p $@
+	tar -xf $< -C $@ --strip-components=1
 
 eTeak:
 	mkdir -p eTeak
