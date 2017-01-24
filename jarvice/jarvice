@@ -74,7 +74,7 @@ function upload {
 
     lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse --exclude .reco-work -P4 $1/ job/$JOB; quit" > /dev/null
 
-    JSON=$(jq ".application.parameters.command = \"/data/reco/workflows/$VERSION/build.sh\" | .job_label = \"$JOB\"" < "$DIR/batch.json")
+    JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/build.sh\" | .job_label = \"$JOB\"" < "$DIR/batch.json")
     JOB=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB" | jq -r ".number")
     echo "$NUMBER"
@@ -97,7 +97,7 @@ function run {
 
 function workflow {
     WORKFLOW="$1"
-    JSON=$(jq ".application.parameters.command = \"/data/reco/workflows/$VERSION/$WORKFLOW\"" < "$DIR/batch.json")
+    JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/$WORKFLOW\"" < "$DIR/batch.json")
 
     JOB=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB" | jq -r ".number")
