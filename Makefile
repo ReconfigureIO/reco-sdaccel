@@ -9,8 +9,6 @@ BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
 PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 
-USERNAME=reconfigureio
-API_KEY=cbe26de4b61a41d19700089ea948335057ca9072
 SDACCEL_WRAPPER_VERSION := v0.3.0
 GO_VERSION := 1.7.4
 
