@@ -9,9 +9,7 @@ BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
 PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 
-USERNAME=reconfigureio
-API_KEY=cbe26de4b61a41d19700089ea948335057ca9072
-SDACCEL_WRAPPER_VERSION := PR-165
+SDACCEL_WRAPPER_VERSION := v0.3.0
 GO_VERSION := 1.7.4
 
 .PHONY: clean all bundle/reco bundle/jarvice bundle/workflows release update-changelog package/*
@@ -22,7 +20,7 @@ package/reco: dist/${NAME}-${VERSION}.tar.gz
 
 package/jarvice: dist/${NAME}-jarvice-${VERSION}.tar.gz
 
-bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak build/reco/go build/reco/eTeak
+bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak build/reco/go build/reco/eTeak build/reco/go-root bundle/reco/workflows build/reco/settings.sh
 
 bundle/jarvice: build/jarvice/jarvice
 
@@ -36,17 +34,20 @@ build/jarvice:
 	mkdir -p build/jarvice
 
 WORKFLOW_SOURCES := $(shell find workflows -type f)
-TARGETS:= $(patsubst workflows/%,build/workflows/%,$(WORKFLOW_SOURCES))
+TARGETS:= $(patsubst workflows/%,build/reco/workflows/%,$(WORKFLOW_SOURCES))
 
-build/workflows:
-	mkdir -p build/workflows
+build/reco/settings.sh: settings.sh build/reco
+	cp $< $@
 
-build/workflows/%: workflows/% build/workflows
+build/reco/workflows:
+	mkdir -p $@
+
+build/reco/workflows/%: workflows/% build/reco/workflows
 	cp $< $@
 	sed -i "1s;^;export VERSION=${VERSION}\n\n;" $@
 	chmod +x $@
 
-bundle/workflows: $(TARGETS)
+bundle/reco/workflows: $(TARGETS)
 
 build/reco/reco-sdaccel: build/reco
 	cp reco-sdaccel build/reco
@@ -75,16 +76,16 @@ dist/${NAME}-jarvice-${VERSION}.tar.gz: bundle/jarvice dist
 	cd build/jarvice && tar czf ../../$@ *
 
 clean:
-	rm -rf build dist downloads eTeak go-root
+	rm -rf build dist downloads eTeak
 
-deploy: bundle/workflows bundle/reco
-	lftp "sftp://${USERNAME}:${API_KEY}@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror -P10 --reverse build/reco reco/${VERSION}; mirror -P10 --reverse build/workflows workflows/${VERSION}; quit"
+deploy: dist/${NAME}-${VERSION}.tar.gz
+	./deploy.sh ${VERSION} ${PWD}/$<
 
 downloads:
 	mkdir -p downloads
 
 downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz: downloads
-	aws s3 cp "s3://nerabus/eTeak/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz" $@
+	aws s3 cp "s3://nerabus/eTeak/releases/eTeak-${SDACCEL_WRAPPER_VERSION}-x86_64-unknown-linux-release.tar.gz" $@
 	# So that it won't download again
 	touch $@
 
@@ -93,9 +94,9 @@ downloads/go-${GO_VERSION}.linux-amd64.tar.gz: downloads
 	# So that it won't download again
 	touch $@
 
-go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz
-	tar -xvvf $<
-	touch $@
+build/reco/go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz build/reco
+	mkdir -p $@
+	tar -xf $< -C $@ --strip-components=1
 
 eTeak:
 	mkdir -p eTeak
