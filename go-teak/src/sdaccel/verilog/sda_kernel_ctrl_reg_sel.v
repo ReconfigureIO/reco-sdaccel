@@ -266,6 +266,7 @@ begin
           
     // In the idle state, wait until the AXI write or read address inputs are 
     // ready. Writes are prioritised over reads.
+    // verilator lint_off CMPCONST
     Idle : 
     begin
       if (sAxiAWPending)
@@ -283,6 +284,7 @@ begin
           axiState_d = AxiReadStart;
       end
     end
+    // verilator lint_on CMPCONST
     
     // Initiate read transactions on the local register interface.
     RegReadStart : 

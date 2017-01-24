@@ -176,7 +176,7 @@ wire        m_axi_control_RREADY;
 wire        reg_req;
 wire        reg_ack;
 wire        reg_write_en;
-wire [7:0]  reg_addr;
+wire [5:0]  reg_addr;
 wire [31:0] reg_wdata;
 wire [31:0] reg_rdata;
 
@@ -243,7 +243,7 @@ assign action_reset = domain_reset [0];
 assign axi_reg_reset = domain_reset [1];
 
 // Instantiate the AXI slave register selection component.
-sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 8, 63) kernelCtrlRegSel_u
+sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 6, 63) kernelCtrlRegSel_u
   (s_axi_control_AWVALID, s_axi_control_AWREADY, s_axi_control_AWADDR,
   s_axi_control_WVALID, s_axi_control_WREADY, s_axi_control_WDATA,
   s_axi_control_WSTRB, s_axi_control_BVALID, s_axi_control_BREADY,
@@ -259,7 +259,7 @@ sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 8, 63) kernelCtrlRegSel_u
   reg_rdata, ap_clk, axi_reg_reset);
 
 // Instantiate the kernel control register at slave address offset 0.
-sda_kernel_ctrl_reg #(8) kernelCtrlReg_u
+sda_kernel_ctrl_reg #(6) kernelCtrlReg_u
   (reg_req, reg_ack, reg_write_en, reg_addr, reg_wdata, reg_rdata,
   go_0r, go_0a, done_0r, done_0a, interrupt, ap_clk, axi_reg_reset);
 
