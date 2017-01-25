@@ -30,7 +30,7 @@ node ("docker") {
 
             sh "make VERSION=${env.VERSION} deploy"
             dir('examples/noop'){
-                sh '../../jarvice build'
+                sh '../../jarvice/jarvice build'
             }
         }
 
