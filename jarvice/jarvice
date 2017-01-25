@@ -109,11 +109,11 @@ function workflow {
 }
 
 function deploy {
-    JSON=$(jq ".application.parameters.executable = \"/job/$1/$2\"" < "$DIR/deploy.json")
+    JSON=$(jq ".application.parameters.executable = \"/job/$1/.reco-work/sdaccel/dist/$2\"" < "$DIR/deploy.json")
 
     JOB=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB" | jq -r ".number")
-    echo "$NUMBER"
+    wait_for "$NUMBER"
 }
 
 function wait_for {
