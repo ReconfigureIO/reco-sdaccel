@@ -8,9 +8,10 @@ XO_NAME := "reconfigure_io_reco_sdaccel_stub_0_1.xo"
 
 KERNEL_NAME := "kernel_test"
 DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_2"
+DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.2"
 TARGET := "hw_emu"
 
-.PHONY: kernel xo clean cmds verilog
+.PHONY: kernel xo clean cmds sim verilog
 
 kernel: ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin
 
@@ -28,8 +29,12 @@ ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
 
 ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME} ${XCLBIN_DIR}
-	xocc -j8 -O3 -t "${TARGET}" --xdevice 'xilinx:adm-pcie-ku3:2ddr-xpr:3.2' -l $< -o $@
+	xocc -j8 -O3 -t "${TARGET}" --xdevice ${DEVICE_FULL} -l $< -o $@
 
+${DIST_DIR}/emconfig.json: ${DIST_DIR}
+	cd ${DIST_DIR} && XCL_EMULATION_MODE=${TARGET} emconfigutil --xdevice ${DEVICE_FULL} --nd 1
+
+sim: ${DIST_DIR}/emconfig.json
 
 ${DIST_DIR}:
 	mkdir -p "${DIST_DIR}"
