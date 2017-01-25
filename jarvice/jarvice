@@ -78,8 +78,8 @@ function build {
     lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse --exclude .reco-work -P4 $PWD/ job/$JOB; quit" > /dev/null
 
     JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/build.sh\" | .job_label = \"$JOB\"" < "$DIR/batch.json")
-    JOB=$(jarvice_cli submit -j "$JSON")
-    NUMBER=$(echo "$JOB" | jq -r ".number")
+    JOB_DATA=$(jarvice_cli submit -j "$JSON")
+    NUMBER=$(echo "$JOB_DATA" | jq -r ".number")
     wait_for "$NUMBER"
     echo "$JOB"
 }
