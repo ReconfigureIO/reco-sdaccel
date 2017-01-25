@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"xcl"
 )
 
@@ -20,4 +21,5 @@ func main() {
 	krnl.SetMemoryArg(0, buff)
 
 	krnl.Run(1, 1, 1)
+	fmt.Println("job's done!")
 }
