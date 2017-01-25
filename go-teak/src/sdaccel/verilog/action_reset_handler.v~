@@ -53,7 +53,7 @@ reg sysResetDone_d;
 reg sysResetDone_q;
 
 // Implements a register with an explicit initialisation value, which will have
-// the effect of forcing a reset cycle immediately after loading the FPGA
+// the effect of holding the resets active immediately after loading the FPGA
 // netlist. Only works with devices that support bitstream initalisation.
 reg resetHandlerEnabled_q = 1'b0;
 
@@ -92,7 +92,7 @@ always @(domainRdy, resetCounter_q, resetState_q, readyState_q, sysResetDone_q)
 // reset sequencing.
 always @(posedge clk)
   begin
-    if (sysRstReq | ~resetHandlerEnabled_q)
+    if (sysRstReq)
     begin
       resetCounter_q <= ResetDutyCycle;
       resetState_q <= {(ResetDomains){1'b1}};;
