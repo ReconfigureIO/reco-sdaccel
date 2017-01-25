@@ -26,12 +26,11 @@ node ("docker") {
         }
 
         stage 'test verilog'
-        withEnv(["VERSION=${env.BRANCH_NAME}",
-                 "PATH=${env.PWD}/jarvice:${env.PATH}"]) {
+        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
 
             sh "make VERSION=${env.VERSION} deploy"
             dir('examples/noop'){
-                sh 'jarvice build'
+                sh '../../jarvice build'
             }
         }
 
