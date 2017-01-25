@@ -80,7 +80,7 @@ function build {
     JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/build.sh\" | .job_label = \"$JOB\"" < "$DIR/batch.json")
     JOB=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB" | jq -r ".number")
-    wait_for $NUMBER
+    wait_for "$NUMBER"
     echo "$JOB"
 }
 
