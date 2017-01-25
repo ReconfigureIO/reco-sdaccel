@@ -11,6 +11,10 @@ usage: $0 <command>
 
 Where <command> is one of the following:
 
+    Testing:
+
+    test <cmd>              Test the current kernel using a hardware simulator
+
     Building:
 
     build                   Build the project in the current folder.
@@ -87,6 +91,20 @@ function build {
     echo "$JOB"
 }
 
+function test-cmd {
+    # shellcheck source=/dev/null
+    source ~/.jarvice
+    JOB=$(uuidgen -t)
+
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse --exclude .reco-work -P4 $PWD/ job/$JOB; quit" > /dev/null
+
+    JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/simulate.sh\" | .job_label = \"JOB=$JOB CMD=$1\"" < "$DIR/batch.json")
+    JOB_DATA=$(jarvice_cli submit -j "$JSON")
+    NUMBER=$(echo "$JOB_DATA" | jq -r ".number")
+    wait_for "$NUMBER"
+    echo "$JOB"
+}
+
 function run-script {
     # shellcheck source=/dev/null
     source ~/.jarvice
@@ -133,6 +151,9 @@ function wait_for {
 
 function main {
     case "$1" in
+        "test")
+            test-cmd "${@:2}"
+            ;;
         "build")
             build "${@:2}"
             ;;

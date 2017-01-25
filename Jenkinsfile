@@ -30,7 +30,7 @@ node ("master") {
 
             sh "make VERSION=${env.VERSION} deploy"
             dir('examples/noop'){
-                sh '../../jarvice/jarvice build'
+                sh '../../jarvice/jarvice test test-noop'
             }
         }
 
