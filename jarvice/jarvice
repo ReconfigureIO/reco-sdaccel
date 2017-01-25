@@ -94,15 +94,15 @@ function build {
 function test-cmd {
     # shellcheck source=/dev/null
     source ~/.jarvice
-    JOB=$(uuidgen -t)
+    JOB=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
 
-    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse --exclude .reco-work -P4 $PWD/ job/$JOB; quit" > /dev/null
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse --exclude .reco-work -P4 $PWD/ tmp/tests/$JOB; quit" > /dev/null
 
     JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/simulate.sh\" | .job_label = \"JOB=$JOB CMD=$1\"" < "$DIR/batch.json")
     JOB_DATA=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB_DATA" | jq -r ".number")
     wait_for "$NUMBER"
-    echo "$JOB"
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "rm -rf tmp/tests/$JOB; quit" > /dev/null
 }
 
 function run-script {

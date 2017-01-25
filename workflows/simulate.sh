@@ -11,6 +11,6 @@ source /etc/JARVICE/jobinfo.sh
 
 eval "$JOB_LABEL"
 
-cd "/data/job/$JOB"
+cd "/data/tmp/tests/$JOB"
 
 timeout 5m reco-sdaccel simulate "$CMD"
