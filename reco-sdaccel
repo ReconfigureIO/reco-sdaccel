@@ -24,6 +24,10 @@ function simulate {
     echo "simulate"
 }
 
+function cmds {
+    make -f "$DIR/reco-sdaccel.mk" cmds
+}
+
 function clean {
     make -f "$DIR/reco-sdaccel.mk" clean
 }
@@ -38,6 +42,8 @@ function main {
             ;;
         "image")
             image "${@:2}"
+        "cmds")
+            cmds "${@:2}"
             ;;
         "test-go")
             test_go "${@:2}"
