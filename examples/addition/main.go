@@ -15,3 +15,8 @@ func Top(
 	controlWriteData <-chan control.WriteData,
 	controlResp chan<- control.Resp) {
 }
+
+func add(x int, y int) int {
+	return x + y
+}
+
