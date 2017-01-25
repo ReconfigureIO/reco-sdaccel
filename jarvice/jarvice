@@ -38,7 +38,7 @@ Where <command> is one of the following:
 }
 
 function shell {
-    NUMBER=$(run "$DIR/examples/sshd.sh")
+    NUMBER=$(run-script "$DIR/examples/sshd.sh")
     ssh "$NUMBER"
     shutdown "$NUMBER"
 }
