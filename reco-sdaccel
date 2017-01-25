@@ -17,8 +17,13 @@ function test_go {
 }
 
 function simulate {
-    echo "simulate"
+    CMD="$1"
+    make -f "$DIR/reco-sdaccel.mk" TARGET=hw_emu sim cmds kernel
+    export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
 
+    # shellcheck source=/dev/null
+    source /opt/Xilinx/SDx/2016.3/settings64.sh
+    XCL_EMULATION_MODE=hw_emu XCL_BINDIR="$PWD/.reco-work/sdaccel/dist/xclbin" "$CMD" "${@:2}"
 }
 
 function cmds {
