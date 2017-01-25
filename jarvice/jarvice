@@ -94,7 +94,7 @@ function build {
 function test-cmd {
     # shellcheck source=/dev/null
     source ~/.jarvice
-    JOB=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
+    JOB=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 16 | head -n 1)
 
     lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse --exclude .reco-work -P4 $PWD/ tmp/tests/$JOB; quit" > /dev/null
 
