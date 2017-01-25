@@ -42,6 +42,7 @@ function main {
             ;;
         "image")
             image "${@:2}"
+            ;;
         "cmds")
             cmds "${@:2}"
             ;;
