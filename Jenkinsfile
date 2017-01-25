@@ -26,9 +26,13 @@ node ("docker") {
         }
 
         stage 'test verilog'
-        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+        withEnv(["VERSION=${env.BRANCH_NAME}",
+                 "PATH={$env.PWD}/jarvice:{$env.PATH}"]) {
+
             sh "make VERSION=${env.VERSION} deploy"
-            sh 'NUMBER=$(./jarvice/jarvice upload examples/noop); ./jarvice/jarvice wait $NUMBER'
+            dir('examples/noop'){
+                sh 'jarvice build'
+            }
         }
 
         stage 'build'

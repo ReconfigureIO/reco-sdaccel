@@ -11,14 +11,14 @@ usage: $0 <command>
 
 Where <command> is one of the following:
 
-    list                    Output current running jobs
+    build                   Build the project in the current folder.
+    builds                  List previous builds
 
     shell                   Spin up & connect to a temporary development shell in the Nimbix cloud
     run <path to script>    Spin up a single shot run of a script in the data partition.
     workflow <name>         Run a single workflow that has been preuploaded.
     ssh <job number>        Connect to a job over ssh
 
-    upload <path/to/folder> Upload a kernel folder (with a main.go) and turn it into an xclbin.
     deploy <job number> <executable> Deploy an accelerated batch job to run on Nimbix
 
     wait <job number>       Wait for a running job to finish. Will fail if the job fails.
@@ -44,10 +44,13 @@ function shutdown {
     jarvice_cli shutdown -number "$1"
 }
 
-function list {
-    JOBS=$(jarvice_cli jobs)
-    echo -e "number\tstarted\t\t\tstatus"
-    echo "$JOBS" | jq -r ".[] | values | [.job_number, (.job_start_time | todateiso8601), .job_status] | @tsv"
+function builds {
+    # shellcheck source=/dev/null
+    source ~/.jarvice
+    JOBS=$(curl "https://api.jarvice.com/jarvice/jobs?username=$USERNAME&apikey=$API_KEY&completed=true")
+
+    echo -e "id\t\t\t\t\tstarted\t\t\tstatus"
+    echo "$JOBS" | jq -r ".[] | values | select(.job_api_submission.application.parameters.command == \"/data/workflows/$VERSION/build.sh\" ) | [.job_label, (.job_start_time | todateiso8601), .job_status] | @tsv"
 }
 
 function ssh {
@@ -67,17 +70,18 @@ function ssh {
     sshpass -p "$PASS" ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "nimbix@$ADDRESS" || true
 }
 
-function upload {
+function build {
     # shellcheck source=/dev/null
     source ~/.jarvice
     JOB=$(uuidgen -t)
 
-    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse --exclude .reco-work -P4 $1/ job/$JOB; quit" > /dev/null
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse --exclude .reco-work -P4 $PWD/ job/$JOB; quit" > /dev/null
 
     JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/build.sh\" | .job_label = \"$JOB\"" < "$DIR/batch.json")
     JOB=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB" | jq -r ".number")
-    echo "$NUMBER"
+    wait_for $NUMBER
+    echo "$JOB"
 }
 
 function run {
@@ -116,7 +120,7 @@ function wait_for {
     NUMBER="$1"
     jarvice_cli wait_for -number "$NUMBER" > /dev/null
     STATUS=$(jarvice_cli status -number "$NUMBER" | jq -r ".[\"$NUMBER\"].job_status")
-    jarvice_cli output -number "$NUMBER"
+    jarvice_cli output -number "$NUMBER" -lines 0
     if [ "$STATUS" == "COMPLETED WITH ERROR" ]
     then
         exit 1;
@@ -126,6 +130,12 @@ function wait_for {
 
 function main {
     case "$1" in
+        "build")
+            build "${@:2}"
+            ;;
+        "builds")
+            builds "${@:2}"
+            ;;
         "shell")
             shell "${@:2}"
             ;;
@@ -135,17 +145,11 @@ function main {
         "ssh")
             ssh "${@:2}"
             ;;
-        "list")
-            list "${@:2}"
-            ;;
         "workflow")
             workflow "${@:2}"
             ;;
         "wait")
             wait_for "${@:2}"
-            ;;
-        "upload")
-            upload "${@:2}"
             ;;
         "shutdown")
             shutdown "${@:2}"

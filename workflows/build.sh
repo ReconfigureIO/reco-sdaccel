@@ -10,6 +10,5 @@ source "/data/reco/$VERSION/settings.sh"
 source /etc/JARVICE/jobinfo.sh
 
 cd "/data/job/$JOB_LABEL"
-reco-sdaccel build
 reco-sdaccel cmds
 reco-sdaccel image
