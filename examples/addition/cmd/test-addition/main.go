@@ -15,7 +15,7 @@ func main() {
 	buff := world.Malloc(xcl.ReadOnly, 2)
 	defer buff.Free()
 
-	source := []byte{os.Args[1], os.Args[2]}
+	source := []byte{6, 36}
 	buff.Write(source)
 
 	krnl.SetMemoryArg(0, buff)
