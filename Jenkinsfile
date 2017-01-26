@@ -25,12 +25,30 @@ node ("master") {
             sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_nomem --report-unoptflat'
         }
 
-        stage 'test verilog'
+        stage 'test verilog noop'
         withEnv(["VERSION=${env.BRANCH_NAME}"]) {
 
             sh "make VERSION=${env.VERSION} deploy"
             dir('examples/noop'){
                 sh '../../jarvice/jarvice test test-noop'
+            }
+        }
+
+        stage 'test verilog addition'
+        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+
+            sh "make VERSION=${env.VERSION} deploy"
+            dir('examples/addition'){
+                sh '../../jarvice/jarvice test test-addition'
+            }
+        }
+
+        stage 'test verilog histogram'
+        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+
+            sh "make VERSION=${env.VERSION} deploy"
+            dir('examples/histogram'){
+                sh '../../jarvice/jarvice test test-histogram'
             }
         }
 
