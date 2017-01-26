@@ -33,20 +33,25 @@ node ("master") {
         }
 
         stage 'test verilog noop'
-        dir('examples/addition'){
-            sh '../../jarvice/jarvice test test-addition'
+        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+            dir('examples/addition'){
+                sh '../../jarvice/jarvice test test-addition'
+            }
         }
-        
 
         stage 'test verilog addition'
-        dir('examples/addition'){
-            sh '../../jarvice/jarvice test test-addition'
+        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+            dir('examples/addition'){
+                sh '../../jarvice/jarvice test test-addition'
+            }
         }
         
 
         stage 'test verilog histogram'
-        dir('examples/histogram'){
-            sh '../../jarvice/jarvice test test-histogram'
+        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+            dir('examples/histogram'){
+                sh '../../jarvice/jarvice test test-histogram'
+            }
         }
 
         stage 'build'
