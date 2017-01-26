@@ -7,8 +7,6 @@ export XILINX_VIVADO="$XILINX_SDACCEL/Vivado"
 export XILINXD_LICENSE_FILE=2100@l3976.local.nimbix.net
 source "/data/reco/$VERSION/settings.sh"
 
-source /etc/JARVICE/jobinfo.sh
-
 JOB="$1"
 
 cd "/data/tmp/tests/$JOB"
