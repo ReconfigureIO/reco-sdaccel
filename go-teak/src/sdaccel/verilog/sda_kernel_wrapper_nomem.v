@@ -178,7 +178,12 @@ wire        reg_ack;
 wire        reg_write_en;
 wire [5:0]  reg_addr;
 wire [31:0] reg_wdata;
+wire [3:0]  reg_wstrb;
 wire [31:0] reg_rdata;
+
+// Shared memory buffer base pointers.
+wire [63:0] param_buf_base;
+wire [63:0] print_buf_base;
 
 // Action control signals.
 wire go_0r;
@@ -256,12 +261,13 @@ sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 6, 63) kernelCtrlRegSel_u
   m_axi_control_ARVALID, m_axi_control_ARREADY, m_axi_control_ARADDR,
   m_axi_control_RVALID, m_axi_control_RREADY, m_axi_control_RDATA,
   m_axi_control_RRESP, reg_req, reg_ack, reg_write_en, reg_addr, reg_wdata,
-  reg_rdata, ap_clk, axi_reg_reset);
+  reg_wstrb, reg_rdata, ap_clk, axi_reg_reset);
 
 // Instantiate the kernel control register at slave address offset 0.
 sda_kernel_ctrl_reg #(6) kernelCtrlReg_u
-  (reg_req, reg_ack, reg_write_en, reg_addr, reg_wdata, reg_rdata,
-  go_0r, go_0a, done_0r, done_0a, interrupt, ap_clk, axi_reg_reset);
+  (reg_req, reg_ack, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata,
+  go_0r, go_0a, done_0r, done_0a, interrupt, param_buf_base, print_buf_base, 
+  ap_clk, axi_reg_reset);
 
 // Extend the slave address bus widths to the standard 32 bit value for the
 // action logic core.
@@ -274,8 +280,7 @@ assign m_axi_control_ext_ARADDR =
 
 // Instantiate the simple generated action logic core.
 teak_action_top kernelActionTop_u
-  (.go_0r(go_0r), .go_0a(go_0a),
-  .done_0r(done_0r), .done_0a(done_0a),
+  (.go_0r(go_0r), .go_0a(go_0a), .done_0r(done_0r), .done_0a(done_0a),
   .s_axi_araddr(m_axi_control_ext_ARADDR), .s_axi_arvalid(m_axi_control_ARVALID),
   .s_axi_arready(m_axi_control_ARREADY), .s_axi_rdata(m_axi_control_RDATA),
   .s_axi_rresp(m_axi_control_RRESP), .s_axi_rvalid(m_axi_control_RVALID),
