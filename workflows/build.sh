@@ -1,4 +1,4 @@
-set -ex
+set -e
 
 export LC_ALL=C
 export XILINX_SDACCEL=/opt/Xilinx/SDx/2016.3
