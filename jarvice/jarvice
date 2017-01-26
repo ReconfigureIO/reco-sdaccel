@@ -98,7 +98,7 @@ function test-cmd {
 
     lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse --exclude .reco-work -P4 $PWD/ tmp/tests/$JOB; quit" > /dev/null
 
-    JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/simulate.sh $*\" | .job_label = \"simulate:$JOB\"" < "$DIR/batch.json")
+    JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/simulate.sh $JOB $*\" | .job_label = \"simulate:$JOB\"" < "$DIR/batch.json")
     JOB_DATA=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB_DATA" | jq -r ".number")
     wait_for "$NUMBER"
