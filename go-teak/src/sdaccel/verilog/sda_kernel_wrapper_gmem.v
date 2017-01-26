@@ -184,7 +184,9 @@ wire [31:0] reg_rdata;
 
 // Shared memory buffer base pointers.
 wire [63:0] param_buf_base;
+// verilator lint_off UNUSED
 wire [63:0] print_buf_base;
+// verilator lint_on UNUSED
 
 // Action control signals.
 wire go_0r;
