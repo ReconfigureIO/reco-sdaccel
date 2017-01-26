@@ -9,7 +9,8 @@ source "/data/reco/$VERSION/settings.sh"
 
 source /etc/JARVICE/jobinfo.sh
 
-cd "/data/job/$JOB_LABEL"
+eval "$JOB_LABEL"
 
-reco-sdaccel cmds
-reco-sdaccel image
+cd "/data/tmp/tests/$JOB"
+
+timeout 5m reco-sdaccel simulate "$CMD"

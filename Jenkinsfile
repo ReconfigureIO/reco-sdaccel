@@ -27,8 +27,11 @@ node ("master") {
 
         stage 'test verilog'
         withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+
             sh "make VERSION=${env.VERSION} deploy"
-            sh 'NUMBER=$(./jarvice/jarvice upload examples/noop); ./jarvice/jarvice wait $NUMBER'
+            dir('examples/noop'){
+                sh '../../jarvice/jarvice test test-noop'
+            }
         }
 
         stage 'build'
