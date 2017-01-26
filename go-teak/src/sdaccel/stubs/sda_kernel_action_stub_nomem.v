@@ -13,7 +13,7 @@
 
 // The module name is common for different kernel action toplevel entities.
 // verilator lint_off DECLFILENAME
-module teak_action_top_nomem
+module teak_action_top
   (go_0r, go_0a, done_0r, done_0a,
   s_axi_araddr, s_axi_arvalid, s_axi_arready, s_axi_rdata, s_axi_rresp,
   s_axi_rvalid, s_axi_rready, s_axi_awaddr, s_axi_awvalid, s_axi_awready,
