@@ -24,11 +24,11 @@ module teak_action_top_gmem
   s_axi_rdata, s_axi_rresp, s_axi_rvalid, s_axi_rready, s_axi_awaddr,
   s_axi_awvalid, s_axi_awready, s_axi_wdata, s_axi_wstrb, s_axi_wvalid,
   s_axi_wready, s_axi_bresp, s_axi_bvalid, s_axi_bready, m_axi_gmem_awaddr,
-  m_axi_gmem_awlen, m_axi_gmem_awsize, m_axi_gmem_awburst, m_axi_gmem_awmtype,
+  m_axi_gmem_awlen, m_axi_gmem_awsize, m_axi_gmem_awburst, m_axi_gmem_awcache,
   m_axi_gmem_awvalid, m_axi_gmem_awready, m_axi_gmem_wdata, m_axi_gmem_wstrb,
   m_axi_gmem_wlast, m_axi_gmem_wvalid, m_axi_gmem_wready, m_axi_gmem_bresp,
   m_axi_gmem_bvalid, m_axi_gmem_bready, m_axi_gmem_araddr, m_axi_gmem_arlen,
-  m_axi_gmem_arsize, m_axi_gmem_arburst, m_axi_gmem_armtype, m_axi_gmem_arvalid,
+  m_axi_gmem_arsize, m_axi_gmem_arburst, m_axi_gmem_arcache, m_axi_gmem_arvalid,
   m_axi_gmem_arready, m_axi_gmem_rdata, m_axi_gmem_rresp, m_axi_gmem_rlast,
   m_axi_gmem_rvalid, m_axi_gmem_rready, param_buf_base, clk, reset);
 // verilator lint_on DECLFILENAME
@@ -67,7 +67,7 @@ output [`AXI_MASTER_ADDR_WIDTH-1:0] m_axi_gmem_awaddr;
 output [7:0]                        m_axi_gmem_awlen;
 output [2:0]                        m_axi_gmem_awsize;
 output [1:0]                        m_axi_gmem_awburst;
-output [1:0]                        m_axi_gmem_awmtype;
+output [3:0]                        m_axi_gmem_awcache;
 output                              m_axi_gmem_awvalid;
 input                               m_axi_gmem_awready;
 
@@ -88,7 +88,7 @@ output [`AXI_MASTER_ADDR_WIDTH-1:0] m_axi_gmem_araddr;
 output [7:0]                        m_axi_gmem_arlen;
 output [2:0]                        m_axi_gmem_arsize;
 output [1:0]                        m_axi_gmem_arburst;
-output [1:0]                        m_axi_gmem_armtype;
+output [3:0]                        m_axi_gmem_arcache;
 output                              m_axi_gmem_arvalid;
 input                               m_axi_gmem_arready;
 

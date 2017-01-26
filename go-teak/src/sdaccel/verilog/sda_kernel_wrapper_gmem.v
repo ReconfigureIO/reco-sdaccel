@@ -194,10 +194,6 @@ wire go_0a;
 wire done_0r;
 wire done_0a;
 
-// AXI master memory type signals (lower two bits of standard AXI cache).
-wire [1:0] m_axi_gmem_AWMTYPE;
-wire [1:0] m_axi_gmem_ARMTYPE;
-
 // Miscellaneous signals.
 wire [31:0] zeros = 32'b0;
 wire [31:0] m_axi_control_ext_AWADDR;
@@ -218,13 +214,6 @@ assign m_axi_gmem_ARQOS = 4'b0000;
 assign m_axi_gmem_ARREGION = 4'b0000;
 assign m_axi_gmem_ARID = 1'b0;
 assign m_axi_gmem_ARUSER = 1'b0;
-
-// No cache subsystem is implemented, so only the device and normal memory type
-// accesses are supported.
-assign m_axi_gmem_AWCACHE [3:2] = 2'b0;
-assign m_axi_gmem_AWCACHE [1:0] = m_axi_gmem_AWMTYPE;
-assign m_axi_gmem_ARCACHE [3:2] = 2'b0;
-assign m_axi_gmem_ARCACHE [1:0] = m_axi_gmem_ARMTYPE;
 
 // Instantiate the reset controller. Performs complete reset on the action
 // core before releasing the reset on the AXI slave interface.
@@ -272,8 +261,6 @@ assign m_axi_control_ext_AWADDR =
 assign m_axi_control_ext_ARADDR =
   {zeros [31:`AXI_SLAVE_ADDR_WIDTH], m_axi_control_ARADDR};
 
-/* verilator lint_off PINMISSING */
-
 // Instantiate the simple generated action logic core.
 teak_action_top_gmem kernelActionTop_u
   (.go_0r(go_0r), .go_0a(go_0a), .done_0r(done_0r), .done_0a(done_0a),
@@ -287,7 +274,7 @@ teak_action_top_gmem kernelActionTop_u
   .s_axi_bresp(m_axi_control_BRESP), .s_axi_bvalid(m_axi_control_BVALID),
   .s_axi_bready(m_axi_control_BREADY), .m_axi_gmem_awaddr(m_axi_gmem_AWADDR),
   .m_axi_gmem_awlen(m_axi_gmem_AWLEN), .m_axi_gmem_awsize(m_axi_gmem_AWSIZE),
-  .m_axi_gmem_awburst(m_axi_gmem_AWBURST), .m_axi_gmem_awmtype(m_axi_gmem_AWMTYPE),
+  .m_axi_gmem_awburst(m_axi_gmem_AWBURST), .m_axi_gmem_awcache(m_axi_gmem_AWCACHE),
   .m_axi_gmem_awvalid(m_axi_gmem_AWVALID), .m_axi_gmem_awready(m_axi_gmem_AWREADY),
   .m_axi_gmem_wdata(m_axi_gmem_WDATA), .m_axi_gmem_wstrb(m_axi_gmem_WSTRB),
   .m_axi_gmem_wlast(m_axi_gmem_WLAST), .m_axi_gmem_wvalid(m_axi_gmem_WVALID),
@@ -295,12 +282,10 @@ teak_action_top_gmem kernelActionTop_u
   .m_axi_gmem_bvalid(m_axi_gmem_BVALID), .m_axi_gmem_bready(m_axi_gmem_BREADY),
   .m_axi_gmem_araddr(m_axi_gmem_ARADDR), .m_axi_gmem_arlen(m_axi_gmem_ARLEN),
   .m_axi_gmem_arsize(m_axi_gmem_ARSIZE), .m_axi_gmem_arburst(m_axi_gmem_ARBURST),
-  .m_axi_gmem_armtype(m_axi_gmem_ARMTYPE), .m_axi_gmem_arvalid(m_axi_gmem_ARVALID),
+  .m_axi_gmem_arcache(m_axi_gmem_ARCACHE), .m_axi_gmem_arvalid(m_axi_gmem_ARVALID),
   .m_axi_gmem_arready(m_axi_gmem_ARREADY), .m_axi_gmem_rdata(m_axi_gmem_RDATA),
   .m_axi_gmem_rresp(m_axi_gmem_RRESP), .m_axi_gmem_rlast(m_axi_gmem_RLAST),
   .m_axi_gmem_rvalid(m_axi_gmem_RVALID), .m_axi_gmem_rready(m_axi_gmem_RREADY),
   .param_buf_base(param_buf_base), .clk(ap_clk), .reset(action_reset));
-
-/* verilator lint_on PINMISSING */
 
 endmodule
