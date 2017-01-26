@@ -25,6 +25,12 @@
 // Can be redefined on the synthesis command line.
 `define AXI_MASTER_DATA_WIDTH 32
 
+// Can be redefined on the synthesis command line.
+`define AXI_MASTER_ID_WIDTH 1
+
+// Can be redefined on the synthesis command line.
+`define AXI_MASTER_USER_WIDTH 1
+
 // Module name to be substituted in post-synthesis netlist.
 module sda_kernel_wrapper_gmem
   (s_axi_control_AWADDR, s_axi_control_AWVALID, s_axi_control_AWREADY,
@@ -78,7 +84,13 @@ output [`AXI_MASTER_ADDR_WIDTH-1:0] m_axi_gmem_AWADDR;
 output [7:0]                        m_axi_gmem_AWLEN;
 output [2:0]                        m_axi_gmem_AWSIZE;
 output [1:0]                        m_axi_gmem_AWBURST;
+output [1:0]                        m_axi_gmem_AWLOCK;
 output [3:0]                        m_axi_gmem_AWCACHE;
+output [2:0]                        m_axi_gmem_AWPROT;
+output [3:0]                        m_axi_gmem_AWQOS;
+output [3:0]                        m_axi_gmem_AWREGION;
+output [`AXI_MASTER_ID_WIDTH-1:0]   m_axi_gmem_AWID;
+output [`AXI_MASTER_USER_WIDTH-1:0] m_axi_gmem_AWUSER;
 output                              m_axi_gmem_AWVALID;
 input                               m_axi_gmem_AWREADY;
 
@@ -86,20 +98,30 @@ input                               m_axi_gmem_AWREADY;
 output [`AXI_MASTER_DATA_WIDTH-1:0]   m_axi_gmem_WDATA;
 output [`AXI_MASTER_DATA_WIDTH/8-1:0] m_axi_gmem_WSTRB;
 output                                m_axi_gmem_WLAST;
+output [`AXI_MASTER_ID_WIDTH-1:0]     m_axi_gmem_WID;
+output [`AXI_MASTER_USER_WIDTH-1:0]   m_axi_gmem_WUSER;
 output                                m_axi_gmem_WVALID;
 input                                 m_axi_gmem_WREADY;
 
 // Specifies the AXI master write response signals.
-input [1:0] m_axi_gmem_BRESP;
-input       m_axi_gmem_BVALID;
-output      m_axi_gmem_BREADY;
+input [1:0]                        m_axi_gmem_BRESP;
+input [`AXI_MASTER_ID_WIDTH-1:0]   m_axi_gmem_BID;
+input [`AXI_MASTER_USER_WIDTH-1:0] m_axi_gmem_BUSER;
+input                              m_axi_gmem_BVALID;
+output                             m_axi_gmem_BREADY;
 
 // Specifies the AXI master read address signals.
 output [`AXI_MASTER_ADDR_WIDTH-1:0] m_axi_gmem_ARADDR;
 output [7:0]                        m_axi_gmem_ARLEN;
 output [2:0]                        m_axi_gmem_ARSIZE;
 output [1:0]                        m_axi_gmem_ARBURST;
+output [1:0]                        m_axi_gmem_ARLOCK;
 output [3:0]                        m_axi_gmem_ARCACHE;
+output [2:0]                        m_axi_gmem_ARPROT;
+output [3:0]                        m_axi_gmem_ARQOS;
+output [3:0]                        m_axi_gmem_ARREGION;
+output [`AXI_MASTER_ID_WIDTH-1:0]   m_axi_gmem_ARID;
+output [`AXI_MASTER_USER_WIDTH-1:0] m_axi_gmem_ARUSER;
 output                              m_axi_gmem_ARVALID;
 input                               m_axi_gmem_ARREADY;
 
@@ -107,30 +129,10 @@ input                               m_axi_gmem_ARREADY;
 input [`AXI_MASTER_DATA_WIDTH-1:0] m_axi_gmem_RDATA;
 input [1:0]                        m_axi_gmem_RRESP;
 input                              m_axi_gmem_RLAST;
+input [`AXI_MASTER_ID_WIDTH-1:0]   m_axi_gmem_RID;
+input [`AXI_MASTER_USER_WIDTH-1:0] m_axi_gmem_RUSER;
 input                              m_axi_gmem_RVALID;
 output                             m_axi_gmem_RREADY;
-
-// Specifies the AXI master signals which are unused in this context.
-// verilator lint_off UNUSED
-output [1:0] m_axi_gmem_AWLOCK;
-output [2:0] m_axi_gmem_AWPROT;
-output [3:0] m_axi_gmem_AWQOS;
-output [3:0] m_axi_gmem_AWREGION;
-output [0:0] m_axi_gmem_AWID;
-output [0:0] m_axi_gmem_AWUSER;
-output [0:0] m_axi_gmem_WID;
-output [0:0] m_axi_gmem_WUSER;
-input [0:0]  m_axi_gmem_BID;
-input [0:0]  m_axi_gmem_BUSER;
-output [1:0] m_axi_gmem_ARLOCK;
-output [2:0] m_axi_gmem_ARPROT;
-output [3:0] m_axi_gmem_ARQOS;
-output [3:0] m_axi_gmem_ARREGION;
-output [0:0] m_axi_gmem_ARID;
-output [0:0] m_axi_gmem_ARUSER;
-input [0:0]  m_axi_gmem_RID;
-input [0:0]  m_axi_gmem_RUSER;
-// verilator lint_on UNUSED
 
 // Specifies the system level I/O signals.
 input  ap_clk;
@@ -148,6 +150,8 @@ wire       axi_reg_reset;
 
 // AXI control interface master write address signals.
 wire [`AXI_SLAVE_ADDR_WIDTH-1:0] m_axi_control_AWADDR;
+wire [3:0]                       m_axi_control_AWCACHE;
+wire [2:0]                       m_axi_control_AWPROT;
 wire                             m_axi_control_AWVALID;
 wire                             m_axi_control_AWREADY;
 
@@ -164,6 +168,8 @@ wire       m_axi_control_BREADY;
 
 // AXI control interface master read address signals.
 wire [`AXI_SLAVE_ADDR_WIDTH-1:0] m_axi_control_ARADDR;
+wire [3:0]                       m_axi_control_ARCACHE;
+wire [2:0]                       m_axi_control_ARPROT;
 wire                             m_axi_control_ARVALID;
 wire                             m_axi_control_ARREADY;
 
@@ -199,21 +205,15 @@ wire [31:0] zeros = 32'b0;
 wire [31:0] m_axi_control_ext_AWADDR;
 wire [31:0] m_axi_control_ext_ARADDR;
 
-// Tie off the fixed memory interface signals.
-assign m_axi_gmem_AWLOCK = 2'b00;
-assign m_axi_gmem_AWPROT = 3'b010;
-assign m_axi_gmem_AWQOS = 4'b0000;
-assign m_axi_gmem_AWREGION = 4'b0000;
-assign m_axi_gmem_AWID = 1'b0;
-assign m_axi_gmem_AWUSER = 1'b0;
-assign m_axi_gmem_WID = 1'b0;
-assign m_axi_gmem_WUSER = 1'b0;
-assign m_axi_gmem_ARLOCK = 2'b00;
-assign m_axi_gmem_ARPROT = 3'b010;
-assign m_axi_gmem_ARQOS = 4'b0000;
-assign m_axi_gmem_ARREGION = 4'b0000;
-assign m_axi_gmem_ARID = 1'b0;
-assign m_axi_gmem_ARUSER = 1'b0;
+// Tie off unused control interface signals.
+assign m_axi_control_AWCACHE = 4'b0000;
+assign m_axi_control_AWPROT = 3'b010;
+assign m_axi_control_ARCACHE = 4'b0000;
+assign m_axi_control_ARPROT = 3'b010;
+
+// Tie off upper bit of the lock signals for AXI3 backward compatibility.
+assign m_axi_gmem_AWLOCK[1] = 1'b0;
+assign m_axi_gmem_ARLOCK[1] = 1'b0;
 
 // Instantiate the reset controller. Performs complete reset on the action
 // core before releasing the reset on the AXI slave interface.
@@ -264,27 +264,38 @@ assign m_axi_control_ext_ARADDR =
 // Instantiate the simple generated action logic core.
 teak_action_top_gmem kernelActionTop_u
   (.go_0r(go_0r), .go_0a(go_0a), .done_0r(done_0r), .done_0a(done_0a),
-  .s_axi_araddr(m_axi_control_ext_ARADDR), .s_axi_arvalid(m_axi_control_ARVALID),
+  .s_axi_araddr(m_axi_control_ext_ARADDR), .s_axi_arcache(m_axi_control_ARCACHE),
+  .s_axi_arprot(m_axi_control_ARPROT), .s_axi_arvalid(m_axi_control_ARVALID),
   .s_axi_arready(m_axi_control_ARREADY), .s_axi_rdata(m_axi_control_RDATA),
   .s_axi_rresp(m_axi_control_RRESP), .s_axi_rvalid(m_axi_control_RVALID),
   .s_axi_rready(m_axi_control_RREADY), .s_axi_awaddr(m_axi_control_ext_AWADDR),
+  .s_axi_awcache(m_axi_control_AWCACHE), .s_axi_awprot(m_axi_control_AWPROT),
   .s_axi_awvalid(m_axi_control_AWVALID), .s_axi_awready(m_axi_control_AWREADY),
   .s_axi_wdata(m_axi_control_WDATA), .s_axi_wstrb(m_axi_control_WSTRB),
   .s_axi_wvalid(m_axi_control_WVALID), .s_axi_wready(m_axi_control_WREADY),
   .s_axi_bresp(m_axi_control_BRESP), .s_axi_bvalid(m_axi_control_BVALID),
   .s_axi_bready(m_axi_control_BREADY), .m_axi_gmem_awaddr(m_axi_gmem_AWADDR),
   .m_axi_gmem_awlen(m_axi_gmem_AWLEN), .m_axi_gmem_awsize(m_axi_gmem_AWSIZE),
-  .m_axi_gmem_awburst(m_axi_gmem_AWBURST), .m_axi_gmem_awcache(m_axi_gmem_AWCACHE),
+  .m_axi_gmem_awburst(m_axi_gmem_AWBURST), .m_axi_gmem_awlock(m_axi_gmem_AWLOCK[0]),
+  .m_axi_gmem_awcache(m_axi_gmem_AWCACHE), .m_axi_gmem_awprot(m_axi_gmem_AWPROT),
+  .m_axi_gmem_awqos(m_axi_gmem_AWQOS), .m_axi_gmem_awregion(m_axi_gmem_AWREGION),
+  .m_axi_gmem_awid(m_axi_gmem_AWID), .m_axi_gmem_awuser(m_axi_gmem_AWUSER),
   .m_axi_gmem_awvalid(m_axi_gmem_AWVALID), .m_axi_gmem_awready(m_axi_gmem_AWREADY),
   .m_axi_gmem_wdata(m_axi_gmem_WDATA), .m_axi_gmem_wstrb(m_axi_gmem_WSTRB),
-  .m_axi_gmem_wlast(m_axi_gmem_WLAST), .m_axi_gmem_wvalid(m_axi_gmem_WVALID),
+  .m_axi_gmem_wlast(m_axi_gmem_WLAST), .m_axi_gmem_wid(m_axi_gmem_WID),
+  .m_axi_gmem_wuser(m_axi_gmem_WUSER), .m_axi_gmem_wvalid(m_axi_gmem_WVALID),
   .m_axi_gmem_wready(m_axi_gmem_WREADY), .m_axi_gmem_bresp(m_axi_gmem_BRESP),
+  .m_axi_gmem_bid(m_axi_gmem_BID), .m_axi_gmem_buser(m_axi_gmem_BUSER),
   .m_axi_gmem_bvalid(m_axi_gmem_BVALID), .m_axi_gmem_bready(m_axi_gmem_BREADY),
   .m_axi_gmem_araddr(m_axi_gmem_ARADDR), .m_axi_gmem_arlen(m_axi_gmem_ARLEN),
   .m_axi_gmem_arsize(m_axi_gmem_ARSIZE), .m_axi_gmem_arburst(m_axi_gmem_ARBURST),
-  .m_axi_gmem_arcache(m_axi_gmem_ARCACHE), .m_axi_gmem_arvalid(m_axi_gmem_ARVALID),
+  .m_axi_gmem_arlock(m_axi_gmem_ARLOCK[0]), .m_axi_gmem_arcache(m_axi_gmem_ARCACHE),
+  .m_axi_gmem_arprot(m_axi_gmem_ARPROT), .m_axi_gmem_arqos(m_axi_gmem_ARQOS),
+  .m_axi_gmem_arregion(m_axi_gmem_ARREGION), .m_axi_gmem_arid(m_axi_gmem_ARID),
+  .m_axi_gmem_aruser(m_axi_gmem_ARUSER), .m_axi_gmem_arvalid(m_axi_gmem_ARVALID),
   .m_axi_gmem_arready(m_axi_gmem_ARREADY), .m_axi_gmem_rdata(m_axi_gmem_RDATA),
   .m_axi_gmem_rresp(m_axi_gmem_RRESP), .m_axi_gmem_rlast(m_axi_gmem_RLAST),
+  .m_axi_gmem_rid(m_axi_gmem_RID), .m_axi_gmem_ruser(m_axi_gmem_RUSER),
   .m_axi_gmem_rvalid(m_axi_gmem_RVALID), .m_axi_gmem_rready(m_axi_gmem_RREADY),
   .param_buf_base(param_buf_base), .clk(ap_clk), .reset(action_reset));
 
