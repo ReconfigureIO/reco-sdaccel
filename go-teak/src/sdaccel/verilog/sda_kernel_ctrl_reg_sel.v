@@ -20,7 +20,7 @@ module sda_kernel_ctrl_reg_sel
   mAxiAWReady, mAxiAWAddr, mAxiWValid, mAxiWReady, mAxiWData, mAxiWStrb, 
   mAxiBValid, mAxiBReady, mAxiBResp, mAxiARValid, mAxiARReady, mAxiARAddr, 
   mAxiRValid, mAxiRReady, mAxiRData, mAxiRResp, regReq, regAck, regWriteEn, 
-  regAddr, regWData, regRData, clk, srst);
+  regAddr, regWData, regWStrb, regRData, clk, srst);
 
 // Specifies the width of the AXI address bus.
 parameter AddrWidth = 16;
@@ -91,6 +91,7 @@ input                     regAck;
 output                    regWriteEn;
 output [RegAddrWidth-1:0] regAddr;
 output [31:0]             regWData;
+output [3:0]              regWStrb;
 input  [31:0]             regRData;
 
 // System level signals.
@@ -160,12 +161,14 @@ reg                    regReq_d;
 reg                    regWriteEn_d;
 reg [RegAddrWidth-1:0] regAddr_d;
 reg [31:0]             regWData_d;
+reg [3:0]              regWStrb_d;
 
 reg [3:0]              axiState_q;
 reg                    regReq_q;
 reg                    regWriteEn_q;
 reg [RegAddrWidth-1:0] regAddr_q;
 reg [31:0]             regWData_q;
+reg [3:0]              regWStrb_q;
 
 integer i;
 
@@ -226,11 +229,11 @@ assign mAxiWStrbReg = sAxiWStrbReg;
 assign mAxiARAddrReg = sAxiARAddrReg;
   
 // Implement combinatorial logic for selecting AXI transaction mode.
-always @(axiState_q, regReq_q, regWriteEn_q, regAddr_q, regWData_q, 
-  sAxiAWPending, sAxiAWAddrReg, sAxiWPending, sAxiWDataReg, sAxiBBlocked, 
-  sAxiARPending, sAxiARAddrReg, sAxiRBlocked, mAxiRPending, mAxiRDataReg, 
-  mAxiRRespReg, mAxiAWBlocked, mAxiWBlocked, mAxiBPending, mAxiARBlocked, 
-  mAxiBRespReg, regAck, regRData)
+always @(axiState_q, regReq_q, regWriteEn_q, regAddr_q, regWData_q, regWStrb_q,
+  sAxiAWPending, sAxiAWAddrReg, sAxiWPending, sAxiWDataReg, sAxiWStrbReg, 
+  sAxiBBlocked, sAxiARPending, sAxiARAddrReg, sAxiRBlocked, mAxiRPending, 
+  mAxiRDataReg, mAxiRRespReg, mAxiAWBlocked, mAxiWBlocked, mAxiBPending, 
+  mAxiARBlocked, mAxiBRespReg, regAck, regRData)
 begin
         
   // Preserve current state by default.
@@ -239,6 +242,7 @@ begin
   regWriteEn_d = regWriteEn_q;
   regAddr_d = regAddr_q;
   regWData_d = regWData_q;
+  regWStrb_d = regWStrb_q;
   
   // Set default read assignment to register inputs with AXI 'OKAY' response.
   sAxiRPush = 1'b0;
@@ -322,6 +326,7 @@ begin
         regWriteEn_d = 1'b1;
         regAddr_d = sAxiAWAddrReg [RegAddrWidth-1:0];
         regWData_d = sAxiWDataReg;
+        regWStrb_d = sAxiWStrbReg;
       end             
     end
     
@@ -415,8 +420,8 @@ begin
     regWriteEn_q <= 1'b0;
     for (i = 0; i < RegAddrWidth; i = i + 1)
       regAddr_q [i] <= 1'b0;
-    for (i = 0; i < 32; i = i + 1)
-      regWData_q [i] <= 1'b0;
+    regWData_q <= 32'b0;
+    regWStrb_q <= 4'b0;
   end     
   else
   begin
@@ -425,6 +430,7 @@ begin
     regWriteEn_q <= regWriteEn_d;
     regAddr_q <= regAddr_d;
     regWData_q <= regWData_d;
+    regWStrb_q <= regWStrb_d;
   end
 end     
 
@@ -432,6 +438,7 @@ assign regReq = regReq_q;
 assign regWriteEn = regWriteEn_q;
 assign regAddr = regAddr_q;
 assign regWData = regWData_q;
+assign regWStrb = regWStrb_q;
 
 endmodule
 
