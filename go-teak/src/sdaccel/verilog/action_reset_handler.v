@@ -90,7 +90,7 @@ always @(domainRdy, resetCounter_q, resetState_q, readyState_q, sysResetDone_q)
     
 // Implement sequential logic using reset request from Donut to restart the
 // reset sequencing.
-always @(posedge clk, posedge sysRstReq)
+always @(posedge clk)
   begin
     if (sysRstReq | ~resetHandlerEnabled_q)
     begin
