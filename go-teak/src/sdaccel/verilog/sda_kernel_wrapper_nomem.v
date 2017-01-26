@@ -147,6 +147,8 @@ wire       axi_reg_reset;
 
 // AXI control interface master write address signals.
 wire [`AXI_SLAVE_ADDR_WIDTH-1:0] m_axi_control_AWADDR;
+wire [3:0]                       m_axi_control_AWCACHE;
+wire [2:0]                       m_axi_control_AWPROT;
 wire                             m_axi_control_AWVALID;
 wire                             m_axi_control_AWREADY;
 
@@ -163,6 +165,8 @@ wire       m_axi_control_BREADY;
 
 // AXI control interface master read address signals.
 wire [`AXI_SLAVE_ADDR_WIDTH-1:0] m_axi_control_ARADDR;
+wire [3:0]                       m_axi_control_ARCACHE;
+wire [2:0]                       m_axi_control_ARPROT;
 wire                             m_axi_control_ARVALID;
 wire                             m_axi_control_ARREADY;
 
@@ -197,6 +201,12 @@ wire done_0a;
 wire [`AXI_MASTER_ADDR_WIDTH-1:0] zeros = `AXI_MASTER_ADDR_WIDTH'b0;
 wire [31:0] m_axi_control_ext_AWADDR;
 wire [31:0] m_axi_control_ext_ARADDR;
+
+// Tie off unused control interface signals.
+assign m_axi_control_AWCACHE = 4'b0000;
+assign m_axi_control_AWPROT = 3'b010;
+assign m_axi_control_ARCACHE = 4'b0000;
+assign m_axi_control_ARPROT = 3'b010;
 
 // Tie off the unused memory interface signals.
 assign m_axi_gmem_AWADDR = zeros [`AXI_MASTER_ADDR_WIDTH-1:0];
@@ -268,7 +278,7 @@ sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 6, 63) kernelCtrlRegSel_u
 // Instantiate the kernel control register at slave address offset 0.
 sda_kernel_ctrl_reg #(6) kernelCtrlReg_u
   (reg_req, reg_ack, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata,
-  go_0r, go_0a, done_0r, done_0a, interrupt, param_buf_base, print_buf_base, 
+  go_0r, go_0a, done_0r, done_0a, interrupt, param_buf_base, print_buf_base,
   ap_clk, axi_reg_reset);
 
 // Extend the slave address bus widths to the standard 32 bit value for the
@@ -278,21 +288,19 @@ assign m_axi_control_ext_AWADDR =
 assign m_axi_control_ext_ARADDR =
   {zeros [31:`AXI_SLAVE_ADDR_WIDTH], m_axi_control_ARADDR};
 
-/* verilator lint_off PINMISSING */
-
 // Instantiate the simple generated action logic core.
 teak_action_top kernelActionTop_u
   (.go_0r(go_0r), .go_0a(go_0a), .done_0r(done_0r), .done_0a(done_0a),
-  .s_axi_araddr(m_axi_control_ext_ARADDR), .s_axi_arvalid(m_axi_control_ARVALID),
+  .s_axi_araddr(m_axi_control_ext_ARADDR), .s_axi_arcache(m_axi_control_ARCACHE),
+  .s_axi_arprot(m_axi_control_ARPROT), .s_axi_arvalid(m_axi_control_ARVALID),
   .s_axi_arready(m_axi_control_ARREADY), .s_axi_rdata(m_axi_control_RDATA),
   .s_axi_rresp(m_axi_control_RRESP), .s_axi_rvalid(m_axi_control_RVALID),
   .s_axi_rready(m_axi_control_RREADY), .s_axi_awaddr(m_axi_control_ext_AWADDR),
+  .s_axi_awcache(m_axi_control_AWCACHE), .s_axi_awprot(m_axi_control_AWPROT),
   .s_axi_awvalid(m_axi_control_AWVALID), .s_axi_awready(m_axi_control_AWREADY),
   .s_axi_wdata(m_axi_control_WDATA), .s_axi_wstrb(m_axi_control_WSTRB),
   .s_axi_wvalid(m_axi_control_WVALID), .s_axi_wready(m_axi_control_WREADY),
   .s_axi_bresp(m_axi_control_BRESP), .s_axi_bvalid(m_axi_control_BVALID),
   .s_axi_bready(m_axi_control_BREADY), .clk(ap_clk), .reset(action_reset));
-
-/* verilator lint_on PINMISSING */
 
 endmodule
