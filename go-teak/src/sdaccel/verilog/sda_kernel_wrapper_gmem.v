@@ -275,7 +275,7 @@ assign m_axi_control_ext_ARADDR =
 /* verilator lint_off PINMISSING */
 
 // Instantiate the simple generated action logic core.
-teak_action_top kernelActionTop_u
+teak_action_top_gmem kernelActionTop_u
   (.go_0r(go_0r), .go_0a(go_0a), .done_0r(done_0r), .done_0a(done_0a),
   .s_axi_araddr(m_axi_control_ext_ARADDR), .s_axi_arvalid(m_axi_control_ARVALID),
   .s_axi_arready(m_axi_control_ARREADY), .s_axi_rdata(m_axi_control_RDATA),
