@@ -24,8 +24,8 @@
 `timescale 1ns/1ps
 
 module sda_kernel_ctrl_reg
-  (regReq, regAck, regWriteEn, regAddr, regWData, regRData, goValid, goHoldoff, 
-  doneValid, doneStop, kernelIntr, clk, srst);
+  (regReq, regAck, regWriteEn, regAddr, regWData, regWStrb, regRData, goValid, 
+  goHoldoff, doneValid, doneStop, kernelIntr, paramBufBase, printBufBase, clk, srst);
         
 // Specifies the width of the register address bus.
 parameter RegAddrWidth = 8;
@@ -40,6 +40,7 @@ output                   regAck;
 input                    regWriteEn;
 input [RegAddrWidth-1:0] regAddr;
 input [31:0]             regWData;
+input [3:0]              regWStrb;
 output [31:0]            regRData;
 // verilator lint_on UNUSED
 
@@ -52,22 +53,31 @@ input  doneValid;
 output doneStop;
 
 // System level signals.
-output         kernelIntr;
-input          clk;
-input          srst;
+output        kernelIntr;
+output [63:0] paramBufBase;
+output [63:0] printBufBase;
+input         clk;
+input         srst;
 
 // Specify the register layout.
 parameter [31:0]
   REG_ADDR_CTRL = 'h00,
   REG_ADDR_GIE = 'h04,
   REG_ADDR_IER = 'h08,
-  REG_ADDR_ISR = 'h0C;
+  REG_ADDR_ISR = 'h0C,
+  REG_ADDR_PRINT_BASE_L = 'h10,
+  REG_ADDR_PRINT_BASE_H = 'h14, 
+  REG_ADDR_PARAM_BASE_L = 'h1C,
+  REG_ADDR_PARAM_BASE_H = 'h20;
 
 // Pipeline the register interface input signals.
 reg                    regReq_q;
 reg                    regWriteEn_q;
 reg                    regWData0_q;
 reg                    regWData1_q;
+reg [31:0]             regWData_q;
+reg                    regWStrb0_q;
+reg [3:0]              regWStrb_q;
 reg [RegAddrWidth-1:0] regAddr_q;
 
 // Specify the control register bit signals.
@@ -99,6 +109,13 @@ reg isrBitReady_d;
 reg isrBitDone_q;
 reg isrBitReady_q;
 
+// Specify the parameter and print buffer base address register signals.
+reg [63:0] paramBufBase_d;
+reg [63:0] printBufBase_d;
+
+reg [63:0] paramBufBase_q;
+reg [63:0] printBufBase_q;
+
 // Specify the read pipeline signals.
 reg        regAck_d;
 reg [31:0] regRData_d;
@@ -108,7 +125,7 @@ reg [31:0] regRData_q;
 
 // Miscellaneous signals.
 wire [31:0] zeros = 32'b0;
-integer i;
+integer i, j;
 
 // Pipeline the register interface input signals.
 always @(posedge clk)
@@ -119,6 +136,9 @@ begin
     regWriteEn_q <= 1'b0;
     regWData0_q <= 1'b0;
     regWData1_q <= 1'b0;
+    regWData_q <= 32'b0;
+    regWStrb0_q <= 1'b0;
+    regWStrb_q <= 4'b0;
     for (i = 0; i < RegAddrWidth; i = i + 1)
       regAddr_q[i] <= 1'b0;
   end
@@ -128,13 +148,16 @@ begin
     regWriteEn_q <= regWriteEn;
     regWData0_q <= regWData[0];
     regWData1_q <= regWData[1];
+    regWData_q <= regWData;
+    regWStrb0_q <= regWStrb[0];
+    regWStrb_q <= regWStrb;
     regAddr_q <= regAddr;
   end
 end
 
 // Implement combinatorial logic for controlling register bit state.
 always @(ctrlBitStart_q, ctrlBitDone_q, ctrlBitIdle_q, ctrlBitReady_q, goValid_q, 
-  regReq_q, regWriteEn_q, regAddr_q, regWData0_q, goHoldoff, doneValid)
+  regReq_q, regWriteEn_q, regAddr_q, regWData0_q, regWStrb0_q, goHoldoff, doneValid)
 begin
 
   // Hold current state by default.
@@ -152,7 +175,7 @@ begin
   end     
   
   // Assert the 'start' bit on register write requests.
-  if (regReq_q & regWriteEn_q & regWData0_q & 
+  if (regReq_q & regWriteEn_q &regWStrb0_q & regWData0_q & 
     (regAddr_q == REG_ADDR_CTRL[RegAddrWidth-1:0]))
   begin   
     ctrlBitStart_d = 1'b1;        
@@ -209,7 +232,7 @@ assign doneStop = ctrlBitIdle_q;
 
 // Implement combinatorial logic for interrupt enable registers.
 always @(gieBitEnable_q, ierBitDoneEn_q, ierBitReadyEn_q, regReq_q, 
-  regWriteEn_q, regAddr_q, regWData0_q, regWData1_q)
+  regWriteEn_q, regAddr_q, regWData0_q, regWData1_q, regWStrb0_q)
 begin
         
   // Hold current state by default.
@@ -218,14 +241,14 @@ begin
   ierBitReadyEn_d = ierBitReadyEn_q;
 
   // Set the global interrupt enable register.
-  if (regReq_q & regWriteEn_q & 
+  if (regReq_q & regWriteEn_q & regWStrb0_q & 
     (regAddr_q == REG_ADDR_GIE[RegAddrWidth-1:0]))
   begin   
     gieBitEnable_d = regWData0_q;        
   end  
 
   // Set the IP core interrupt enable register.
-  if (regReq_q & regWriteEn_q & 
+  if (regReq_q & regWriteEn_q & regWStrb0_q & 
     (regAddr_q == REG_ADDR_IER[RegAddrWidth-1:0]))
   begin   
     ierBitDoneEn_d = regWData0_q;
@@ -238,8 +261,8 @@ end
 // by toggling them. However this matches the Xilinx implementation since it
 // may be a requirement for their closed source OpenCL software.
 always @(isrBitDone_q, isrBitReady_q, ierBitDoneEn_q, ierBitReadyEn_q,
-  regReq_q, regWriteEn_q, regAddr_q, regWData0_q, regWData1_q, ctrlBitDone_q, 
-  ctrlBitReady_q)
+  regReq_q, regWriteEn_q, regAddr_q, regWData0_q, regWData1_q, regWStrb0_q, 
+  ctrlBitDone_q, ctrlBitReady_q)
 begin
 
   // Hold current state by default.
@@ -247,7 +270,7 @@ begin
   isrBitReady_d = isrBitReady_q;
   
   // Toggle the ISR bits under software control.
-  if (regReq_q & regWriteEn_q & 
+  if (regReq_q & regWriteEn_q & regWStrb0_q & 
     (regAddr_q == REG_ADDR_ISR[RegAddrWidth-1:0]))
   begin
     isrBitDone_d = isrBitDone_d ^ regWData0_q;
@@ -285,10 +308,76 @@ begin
   end  
 end     
 
+// Implement combinatorial logic for parameter and print buffer base registers.
+always @(printBufBase_q, paramBufBase_q, regReq_q, regAddr_q, regWriteEn_q, 
+  regWData_q, regWStrb_q)
+begin	
+
+  // Hold current state by default.
+  printBufBase_d = printBufBase_q;
+  paramBufBase_d = paramBufBase_q;
+	
+  // Write to low order print buffer base register.
+  if (regReq_q & regWriteEn_q & 
+    (regAddr_q == REG_ADDR_PRINT_BASE_L[RegAddrWidth-1:0]))
+  begin
+    for (i = 0; i < 4; i = i + 1)
+      if (regWStrb_q[i])
+      	for (j = 0; j < 8; j = j + 1)      
+          printBufBase_d[8*i+j] = regWData_q[8*i+j];
+  end
+  
+  // Write to high order print buffer base register.
+  if (regReq_q & regWriteEn_q & 
+    (regAddr_q == REG_ADDR_PRINT_BASE_H[RegAddrWidth-1:0]))
+  begin
+    for (i = 0; i < 4; i = i + 1)
+      if (regWStrb_q[i])
+      	for (j = 0; j < 8; j = j + 1)      
+          printBufBase_d[8*i+j+32] = regWData_q[8*i+j];
+  end
+
+  // Write to low order parameter buffer base register.
+  if (regReq_q & regWriteEn_q & 
+    (regAddr_q == REG_ADDR_PARAM_BASE_L[RegAddrWidth-1:0]))
+  begin
+    for (i = 0; i < 4; i = i + 1)
+      if (regWStrb_q[i])
+      	for (j = 0; j < 8; j = j + 1)      
+          paramBufBase_d[8*i+j] = regWData_q[8*i+j];
+  end
+
+  // Write to high order parameter buffer base register.
+  if (regReq_q & regWriteEn_q & 
+    (regAddr_q == REG_ADDR_PARAM_BASE_H[RegAddrWidth-1:0]))
+  begin
+    for (i = 0; i < 4; i = i + 1)
+      if (regWStrb_q[i])
+      	for (j = 0; j < 8; j = j + 1)      
+          paramBufBase_d[8*i+j+32] = regWData_q[8*i+j];
+  end
+  
+end
+	
+// Implement sequential logic for parameter and print buffer base registers.
+always @(posedge clk)
+begin
+  if (srst)
+  begin
+    printBufBase_q <= 64'b0;
+    paramBufBase_q <= 64'b0;
+  end
+  else
+  begin
+    printBufBase_q <= printBufBase_d;
+    paramBufBase_q <= paramBufBase_d;
+  end	
+end	
+
 // Implement combinatorial read register.
 always @(regReq_q, regAddr_q, ctrlBitIdle_q, ctrlBitDone_q, ctrlBitStart_q,
   ctrlBitReady_q, gieBitEnable_q, ierBitDoneEn_q, ierBitReadyEn_q,
-  isrBitDone_q, isrBitReady_q, zeros)
+  isrBitDone_q, isrBitReady_q, printBufBase_q, paramBufBase_q, zeros)
 begin
   if (regReq_q)
   begin  
@@ -302,6 +391,14 @@ begin
       regRData_d = {zeros[31:2], ierBitReadyEn_q, ierBitDoneEn_q};
     else if (regAddr_q == REG_ADDR_ISR[RegAddrWidth-1:0])  
       regRData_d = {zeros[31:2], isrBitReady_q, isrBitDone_q};
+    else if (regAddr_q == REG_ADDR_PRINT_BASE_L[RegAddrWidth-1:0])
+      regRData_d = printBufBase_q[31:0];
+    else if (regAddr_q == REG_ADDR_PRINT_BASE_H[RegAddrWidth-1:0])
+      regRData_d = printBufBase_q[63:32];
+    else if (regAddr_q == REG_ADDR_PARAM_BASE_L[RegAddrWidth-1:0])   
+      regRData_d = paramBufBase_q[31:0];
+    else if (regAddr_q == REG_ADDR_PARAM_BASE_H[RegAddrWidth-1:0])   
+      regRData_d = paramBufBase_q[63:32];
     else
       regRData_d = zeros[31:0];     
   end
@@ -330,5 +427,7 @@ end
 assign regAck = regAck_q;
 assign regRData = regRData_q;
 assign kernelIntr = gieBitEnable_q & (isrBitDone_q | isrBitReady_q); 
+assign paramBufBase = paramBufBase_q;
+assign printBufBase = printBufBase_q;
 
 endmodule
