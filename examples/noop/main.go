@@ -5,6 +5,7 @@ import (
 	"sdaccel"
 
 	"sdaccel/control"
+	"sdaccel/memory"
 )
 
 // magic identifier for exporting
@@ -13,5 +14,11 @@ func Top(
 	controlReadData chan<- control.ReadData,
 	controlWriteAddr <-chan control.Addr,
 	controlWriteData <-chan control.WriteData,
-	controlResp chan<- control.Resp) {
+	controlResp chan<- control.Resp,
+
+	memReadAddr <-chan memory.Addr,
+	memReadData chan<- memory.ReadData,
+	memWriteAddr <-chan memory.Addr,
+	memWriteData <-chan memory.WriteData,
+	memResp chan<- memory.Resp) {
 }
