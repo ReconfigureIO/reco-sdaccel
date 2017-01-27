@@ -20,5 +20,5 @@ func Top(
 	memReadData chan<- memory.ReadData,
 	memWriteAddr <-chan memory.Addr,
 	memWriteData <-chan memory.WriteData,
-	memResp chan<- memory.Resp) {
+	memResp chan<- memory.Response) {
 }
