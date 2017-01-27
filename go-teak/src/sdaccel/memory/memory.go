@@ -14,39 +14,39 @@
 // adapter will be required to support concurrent memory accesses.
 //
 
-package aximaster
+package memory
 
 type Addr struct {
-        Id     bool
-        Addr   uint64
-        Len    byte
-        Size   [3]bool
-        Burst  [2]bool
-        Lock   bool
-        Cache  [4]bool
-        Prot   [3]bool
-        Region [4]bool
-        Qos    [4]bool
-        User   bool
+	Id     bool
+	Addr   uint64
+	Len    byte
+	Size   [3]bool
+	Burst  [2]bool
+	Lock   bool
+	Cache  [4]bool
+	Prot   [3]bool
+	Region [4]bool
+	Qos    [4]bool
+	User   bool
 }
 
 type ReadData struct {
-        Id   bool
-        Data uint32
-        Resp [2]bool
-        Last bool
-        User bool
+	Id   bool
+	Data uint32
+	Resp [2]bool
+	Last bool
+	User bool
 }
 
 type WriteData struct {
-        Data uint32
-        Strb [4]bool
-        Last bool
-        User bool
+	Data uint32
+	Strb [4]bool
+	Last bool
+	User bool
 }
 
 type Response struct {
-        Id   bool
-        Resp [2]bool
-        User bool
+	Id   bool
+	Resp [2]bool
+	User bool
 }
