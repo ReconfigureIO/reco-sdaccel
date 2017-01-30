@@ -7,7 +7,7 @@ import (
 	"sdaccel/control"
 )
 
-func add(x int, y int) int {
+func add(x uint32, y uint32) uint32 {
 	return x + y
 }
 
@@ -18,4 +18,16 @@ func Top(
 	controlWriteAddr <-chan control.Addr,
 	controlWriteData <-chan control.WriteData,
 	controlResp chan<- control.Resp) {
+
+	read := func(addr uint32) uint32 {
+		controlReadAddr <- control.Addr{
+			Addr:  addr,
+			Cache: [4]bool{false, false, false, false},
+			Prot:  [3]bool{false, false, false},
+		}
+		d := <-controlReadData
+		return d.Data
+	}
+
+	println(add(read(0), read(1)))
 }

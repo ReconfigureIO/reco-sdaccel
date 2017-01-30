@@ -81,6 +81,10 @@ func (kernel *Kernel) SetMemoryArg(index uint, mem *Memory) {
 	C.clSetKernelArg(kernel.kernel, C.cl_uint(index), C.sizeof_cl_mem, unsafe.Pointer(mem.mem))
 }
 
+func (kernel *Kernel) SetArg(index uint, val *uint32) {
+	C.clSetKernelArg(kernel.kernel, C.cl_uint(index), C.size_t(unsafe.SizeOf(*val)), unsafe.Pointer(val))
+}
+
 func (kernel *Kernel) Run(x, y, z uint) {
 	C.xcl_run_kernel3d(C.xcl_world(*kernel.program.world), kernel.kernel, C.size_t(x), C.size_t(y), C.size_t(z))
 }
