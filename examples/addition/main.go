@@ -7,6 +7,10 @@ import (
 	"sdaccel/control"
 )
 
+func add(x int, y int) int {
+	return x + y
+}
+
 // magic identifier for exporting
 func Top(
 	controlReadAddr <-chan control.Addr,
@@ -15,8 +19,3 @@ func Top(
 	controlWriteData <-chan control.WriteData,
 	controlResp chan<- control.Resp) {
 }
-
-func add(x int, y int) int {
-	return x + y
-}
-
