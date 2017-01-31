@@ -2,19 +2,15 @@ package main
 
 import (
 	// import the entire framework (including bundled verilog)
-	"sdaccel"
+	_ "sdaccel"
 
-	"sdaccel/control"
 	"sdaccel/memory"
 )
 
 // magic identifier for exporting
 func Top(
-	controlReadAddr <-chan control.Addr,
-	controlReadData chan<- control.ReadData,
-	controlWriteAddr <-chan control.Addr,
-	controlWriteData <-chan control.WriteData,
-	controlResp chan<- control.Resp,
+	controlAddr chan<- uint32,
+	controlData <-chan uint32,
 
 	memReadAddr <-chan memory.Addr,
 	memReadData chan<- memory.ReadData,
