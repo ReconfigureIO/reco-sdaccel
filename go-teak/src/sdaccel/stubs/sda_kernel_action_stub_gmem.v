@@ -41,7 +41,8 @@ module teak_action_top_gmem
   m_axi_gmem_arcache, m_axi_gmem_arprot, m_axi_gmem_arqos, m_axi_gmem_arregion,
   m_axi_gmem_aruser, m_axi_gmem_arid, m_axi_gmem_arvalid, m_axi_gmem_arready,
   m_axi_gmem_rdata, m_axi_gmem_rresp, m_axi_gmem_rlast, m_axi_gmem_ruser,
-  m_axi_gmem_rid, m_axi_gmem_rvalid, m_axi_gmem_rready, param_buf_base,
+  m_axi_gmem_rid, m_axi_gmem_rvalid, m_axi_gmem_rready, param_addr_0r,
+  param_addr, param_addr_0a, param_data_0r, param_data, param_data_0a, 
   clk, reset);
 // verilator lint_on DECLFILENAME
 
@@ -51,9 +52,23 @@ output go_0a;
 output done_0r;
 input  done_0a;
 
+// Parameter data access signals. Provides a SELF channel output for address
+// values and a SELF channel input for the corresponding data items read from
+// the parameter register file.
+// verilator lint_off UNUSED
+
+output        param_addr_0r;
+output [31:0] param_addr;
+input         param_addr_0a;
+
+input         param_data_0r;
+input [31:0]  param_data;
+output        param_data_0a;
+
+// verilator lint_on UNUSED
+
 // AXI interface signals are not used in the stub implementation.
 // verilator lint_off UNUSED
-input [63:0]  param_buf_base;
 
 // Specifies the AXI slave bus signals.
 input [31:0]  s_axi_araddr;
