@@ -2,9 +2,7 @@ package main
 
 import (
 	// import the entire framework (including bundled verilog)
-	"sdaccel"
-
-	"sdaccel/control"
+	_ "sdaccel"
 )
 
 func add(x uint32, y uint32) uint32 {
@@ -13,20 +11,12 @@ func add(x uint32, y uint32) uint32 {
 
 // magic identifier for exporting
 func Top(
-	controlReadAddr <-chan control.Addr,
-	controlReadData chan<- control.ReadData,
-	controlWriteAddr <-chan control.Addr,
-	controlWriteData <-chan control.WriteData,
-	controlResp chan<- control.Resp) {
+	controlAddr chan<- uint32,
+	controlData <-chan uint32) {
 
-	read := func(addr uint32) uint32 {
-		controlReadAddr <- control.Addr{
-			Addr:  addr,
-			Cache: [4]bool{false, false, false, false},
-			Prot:  [3]bool{false, false, false},
-		}
-		d := <-controlReadData
-		return d.Data
+	read := func(a uint32) uint32 {
+		controlAddr <- a
+		return <-controlData
 	}
 
 	println(add(read(0), read(1)))
