@@ -82,7 +82,7 @@ function build {
     source ~/.jarvice
     JOB=$(uuidgen -t)
 
-    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse --exclude .reco-work -P4 $PWD/ job/$JOB; quit" > /dev/null
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse --exclude .reco-work -P4 $PWD/ job/$JOB; quit" 1>&2
 
     JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/build.sh $JOB $*\" | .job_label = \"build:$JOB\"" < "$DIR/batch.json")
     JOB_DATA=$(jarvice_cli submit -j "$JSON")
@@ -96,7 +96,7 @@ function test-cmd {
     source ~/.jarvice
     JOB=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 16 | head -n 1)
 
-    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse --exclude .reco-work -P4 $PWD/ tmp/tests/$JOB; quit" > /dev/null
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse --exclude .reco-work -P4 $PWD/ tmp/tests/$JOB; quit" 1>&2
 
     JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/simulate.sh $JOB $*\" | .job_label = \"simulate:$JOB\"" < "$DIR/batch.json")
     JOB_DATA=$(jarvice_cli submit -j "$JSON")
@@ -111,7 +111,7 @@ function run-script {
     JOB=$(uuidgen -t)
     FILENAME=$(basename "$1")
 
-    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse -f $1 -O job/$JOB/; quit" > /dev/null
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse -f $1 -O job/$JOB/; quit" 1>&2
 
     JSON=$(jq ".application.parameters.command = \"/data/job/$JOB/$FILENAME\" | .job_label = \"$JOB\"" < "$DIR/batch.json")
 
