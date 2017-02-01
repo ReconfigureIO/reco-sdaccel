@@ -304,7 +304,7 @@ end
 // Implement combinatorial read register.
 always @(regReadReq_q, regWriteReq_q, regAddr_q, ctrlBitIdle_q, ctrlBitDone_q,
   ctrlBitStart_q, ctrlBitReady_q, gieBitEnable_q, ierBitDoneEn_q,
-  ierBitReadyEn_q, isrBitDone_q, isrBitReady_q, zeros)
+  ierBitReadyEn_q, isrBitDone_q, isrBitReady_q, zeros, regAddrTop)
 begin
 
   // Implement the read mux.

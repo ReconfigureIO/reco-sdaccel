@@ -235,7 +235,7 @@ always @(axiState_q, regReq_q, regWriteEn_q, regAddr_q, regWData_q, regWStrb_q,
   sAxiAWPending, sAxiAWAddrReg, sAxiWPending, sAxiWDataReg, sAxiWStrbReg,
   sAxiBBlocked, sAxiARPending, sAxiARAddrReg, sAxiRBlocked, mAxiRPending,
   mAxiRDataReg, mAxiRRespReg, mAxiAWBlocked, mAxiWBlocked, mAxiBPending,
-  mAxiARBlocked, mAxiBRespReg, regAck, regRData)
+  mAxiARBlocked, mAxiBRespReg, regAck, regRData, regAddrTop)
 begin
 
   // Preserve current state by default.

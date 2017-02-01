@@ -69,25 +69,27 @@ reg [31:0]             regReadData_q;
 reg [31:0]             regPipeData_q;
 
 // Pipelined parameter RAM access signals.
-wire        pramAddrValid;
-wire [31:0] pramAddr;
-wire        pramAddrStop;
-wire        pramDataValid;
-reg  [31:0] pramData;
-wire        pramDataStop;
-wire        pramReadStop;
-wire        pramPipeStop;
+reg        paramAddrValid_q;
+reg [31:0] paramAddr_q;
+reg        paramDataValid_q;
+reg [31:0] paramData_q;
+
+// Parameter RAM access backpressure signals.
+wire        pmAddrStop;
+wire        pmReadStop;
+wire        pmPipeStop;
 
 // Parameter RAM access pipeline.
-reg [RegAddrWidth-3:0] pramAddr_q;
-reg [1:0]              pramAddrAlign_q;
-reg                    pramAddrValid_q;
-reg [31:0]             pramReadData_q;
-reg [1:0]              pramReadAlign_q;
-reg                    pramReadValid_q;
-reg [31:0]             pramPipeData_q;
-reg [1:0]              pramPipeAlign_q;
-reg                    pramPipeValid_q;
+reg [RegAddrWidth-3:0] pmAddr_q;
+reg [1:0]              pmAddrAlign_q;
+reg                    pmAddrValid_q;
+reg [31:0]             pmReadData_q;
+reg [1:0]              pmReadAlign_q;
+reg                    pmReadValid_q;
+reg [31:0]             pmPipeData_q;
+reg [1:0]              pmPipeAlign_q;
+reg                    pmPipeValid_q;
+reg [31:0]             pmDataAligned;
 
 // Miscellaneous signals.
 wire [RegAddrWidth-1:0] regParamAddrBase = ParamAddrBase [RegAddrWidth-1:0];
@@ -151,21 +153,31 @@ end
 assign regAck = regAck_q;
 assign regRData = regRData_q;
 
-// Implement SELF input buffer for parameter address.
-selfW2R1Buffer #(32) paramAddrBuffer
-  (paramAddrValid, paramAddr, paramAddrStop, pramAddrValid, pramAddr,
-  pramAddrStop, clk, srst);
+// Implement pipelined parameter address inputs.
+always @(posedge clk)
+begin
+  if (srst)
+  begin
+    paramAddrValid_q <= 1'b0;
+    paramAddr_q <= 32'b0;
+  end
+  else if (paramAddrValid_q)
+  begin
+    paramAddrValid_q <= pmAddrStop;
+  end
+  else
+  begin
+    paramAddrValid_q <= paramAddrValid;
+    paramAddr_q <= paramAddr;
+  end
+end
 
-// Implement SELF output buffer for parameter data.
-selfW2R1Buffer #(32) paramDataBuffer
-  (pramDataValid, pramData, pramDataStop, paramDataValid, paramData,
-  paramDataStop, clk, srst);
+assign paramAddrStop = paramAddrValid_q;
 
 // Implement the parameter data RAM access backpressure signals.
-assign pramAddrStop = pramReadStop & pramAddrValid_q;
-assign pramReadStop = pramPipeStop & pramReadValid_q;
-assign pramPipeStop = pramDataStop & pramPipeValid_q;
-assign pramDataValid = pramPipeValid_q;
+assign pmAddrStop = pmReadStop & pmAddrValid_q;
+assign pmReadStop = pmPipeStop & pmReadValid_q;
+assign pmPipeStop = paramDataValid_q & pmPipeValid_q;
 
 // Implement parameter access input pipeline.
 always @(posedge clk)
@@ -173,37 +185,37 @@ begin
   if (srst)
   begin
     for (i = 0; i < RegAddrWidth-2; i = i + 1)
-      pramAddr_q[i] <= 1'b0;
-    pramAddrValid_q <= 1'b0;
-    pramReadValid_q <= 1'b0;
-    pramPipeValid_q <= 1'b0;
+      pmAddr_q[i] <= 1'b0;
+    pmAddrValid_q <= 1'b0;
+    pmReadValid_q <= 1'b0;
+    pmPipeValid_q <= 1'b0;
   end
   else
   begin
-    if (~pramAddrStop)
+    if (~pmAddrStop)
     begin
-      pramAddrValid_q <= pramAddrValid;
-      if ((pramAddr < ParamAddrBase) || (pramAddr > ParamAddrTop))
+      pmAddrValid_q <= paramAddrValid_q;
+      if ((paramAddr_q < ParamAddrBase) || (paramAddr_q > ParamAddrTop))
       begin
         for (i = 0; i < RegAddrWidth-2; i = i + 1)
-          pramAddr_q[i] <= 1'b0;
-        pramAddrAlign_q <= 2'b0;
+          pmAddr_q[i] <= 1'b0;
+        pmAddrAlign_q <= 2'b0;
       end
       else
       begin
-        pramAddr_q <= pramAddr[RegAddrWidth-1:2] - (ParamAddrBase/4);
-        pramAddrAlign_q <= pramAddr[1:0];
+        pmAddr_q <= paramAddr_q[RegAddrWidth-1:2] - (ParamAddrBase/4);
+        pmAddrAlign_q <= paramAddr_q[1:0];
       end
     end
-    if (~pramReadStop)
+    if (~pmReadStop)
     begin
-      pramReadValid_q <= pramAddrValid_q;
-      pramReadAlign_q <= pramAddrAlign_q;
+      pmReadValid_q <= pmAddrValid_q;
+      pmReadAlign_q <= pmAddrAlign_q;
     end
-    if (~pramPipeStop)
+    if (~pmPipeStop)
     begin
-      pramPipeValid_q <= pramReadValid_q;
-      pramPipeAlign_q <= pramReadAlign_q;
+      pmPipeValid_q <= pmReadValid_q;
+      pmPipeAlign_q <= pmReadAlign_q;
     end
   end
 end
@@ -212,24 +224,46 @@ end
 // parameter address to rotate the addressed byte into the LSB position. When
 // combined with a suitable type cast in the kernel code, this allows byte and
 // half word parameter values to be addressed on byte and half word boundaries.
-always @(pramPipeAlign_q, pramPipeData_q)
+always @(pmPipeAlign_q, pmPipeData_q)
 begin
-  case (pramPipeAlign_q)
-    2'b11 : pramData = {pramPipeData_q [23:0], pramPipeData_q [31:24]};
-    2'b10 : pramData = {pramPipeData_q [15:0], pramPipeData_q [31:16]};
-    2'b01 : pramData = {pramPipeData_q [7:0], pramPipeData_q [31:8]};
-    default: pramData = pramPipeData_q;
+  case (pmPipeAlign_q)
+    2'b11 : pmDataAligned = {pmPipeData_q [23:0], pmPipeData_q [31:24]};
+    2'b10 : pmDataAligned = {pmPipeData_q [15:0], pmPipeData_q [31:16]};
+    2'b01 : pmDataAligned = {pmPipeData_q [7:0], pmPipeData_q [31:8]};
+    default: pmDataAligned = pmPipeData_q;
   endcase
 end
+
+// Provide output pipeline register for read data.
+always @(posedge clk)
+begin
+  if (srst)
+  begin
+    paramDataValid_q <= 1'b0;
+    paramData_q <= 32'b0;
+  end
+  else if (paramDataValid_q)
+  begin
+    paramDataValid_q <= paramDataStop;
+  end
+  else
+  begin
+    paramDataValid_q <= pmPipeValid_q;
+    paramData_q <= pmDataAligned;
+  end
+end
+
+assign paramDataValid = paramDataValid_q;
+assign paramData = paramData_q;
 
 // Implement parameter RAM.
 always @(posedge clk)
 begin
 
   // SELF parameter pipeline is gated for backpressure.
-  if (~pramReadStop)
+  if (~pmReadStop)
   begin
-    pramReadData_q <= ramArray [pramAddr_q];
+    pmReadData_q <= ramArray [pmAddr_q];
   end
 
   // Register read pipeline is a single cycle delay.
@@ -254,9 +288,9 @@ always @(posedge clk)
 begin
 
   // SELF parameter pipeline is gated for backpressure.
-  if (~pramPipeStop)
+  if (~pmPipeStop)
   begin
-    pramPipeData_q <= pramReadData_q;
+    pmPipeData_q <= pmReadData_q;
   end
 
   // Register read pipeline is a single cycle delay.
