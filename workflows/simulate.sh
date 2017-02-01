@@ -8,7 +8,7 @@ export XILINXD_LICENSE_FILE=2100@l3976.local.nimbix.net
 source "/data/reco/$VERSION/settings.sh"
 
 JOB="$1"
-cd "/data/job/$JOB"
 
-reco-sdaccel cmds
-reco-sdaccel image
+cd "/data/tmp/tests/$JOB"
+
+timeout 5m reco-sdaccel simulate "${@:2}"

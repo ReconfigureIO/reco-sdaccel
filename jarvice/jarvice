@@ -11,27 +11,34 @@ usage: $0 <command>
 
 Where <command> is one of the following:
 
-    list                    Output current running jobs
+    Testing:
+
+    test <cmd>              Test the current kernel using a hardware simulator
+
+    Building:
+
+    build                   Build the project in the current folder.
+    builds                  List previous builds
+
+    Running builds:
+
+    run <build id> <cmd>    Deploy an accelerated batch job to run on Nimbix
+
+    Development tools:
 
     shell                   Spin up & connect to a temporary development shell in the Nimbix cloud
-    run <path to script>    Spin up a single shot run of a script in the data partition.
-    workflow <name>         Run a single workflow that has been preuploaded.
+    run-script <local script>    Spin up a single shot run of a script in the data partition.
     ssh <job number>        Connect to a job over ssh
 
-    upload <path/to/folder> Upload a kernel folder (with a main.go) and turn it into an xclbin.
-    deploy <job number> <executable> Deploy an accelerated batch job to run on Nimbix
-
-    wait <job number>       Wait for a running job to finish. Will fail if the job fails.
     shutdown <job number>   Stop a running job
     stop                    Stop all running jobs
-
 
     help    Display this help output
 "
 }
 
 function shell {
-    NUMBER=$(run "$DIR/examples/sshd.sh")
+    NUMBER=$(run-script "$DIR/examples/sshd.sh")
     ssh "$NUMBER"
     shutdown "$NUMBER"
 }
@@ -44,10 +51,13 @@ function shutdown {
     jarvice_cli shutdown -number "$1"
 }
 
-function list {
-    JOBS=$(jarvice_cli jobs)
-    echo -e "number\tstarted\t\t\tstatus"
-    echo "$JOBS" | jq -r ".[] | values | [.job_number, (.job_start_time | todateiso8601), .job_status] | @tsv"
+function builds {
+    # shellcheck source=/dev/null
+    source ~/.jarvice
+    JOBS=$(curl "https://api.jarvice.com/jarvice/jobs?username=$USERNAME&apikey=$API_KEY&completed=true")
+
+    echo -e "id\t\t\t\t\tstarted\t\t\tstatus"
+    echo "$JOBS" | jq -r ".[] | values | select(.job_api_submission.application.parameters.command == \"/data/workflows/$VERSION/build.sh\" ) | [.job_label, (.job_start_time | todateiso8601), .job_status] | @tsv"
 }
 
 function ssh {
@@ -67,26 +77,41 @@ function ssh {
     sshpass -p "$PASS" ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "nimbix@$ADDRESS" || true
 }
 
-function upload {
+function build {
     # shellcheck source=/dev/null
     source ~/.jarvice
     JOB=$(uuidgen -t)
 
-    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse --exclude .reco-work -P4 $1/ job/$JOB; quit" > /dev/null
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse --exclude .reco-work -P4 $PWD/ job/$JOB; quit" 1>&2
 
-    JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/build.sh\" | .job_label = \"$JOB\"" < "$DIR/batch.json")
-    JOB=$(jarvice_cli submit -j "$JSON")
-    NUMBER=$(echo "$JOB" | jq -r ".number")
-    echo "$NUMBER"
+    JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/build.sh $JOB $*\" | .job_label = \"build:$JOB\"" < "$DIR/batch.json")
+    JOB_DATA=$(jarvice_cli submit -j "$JSON")
+    NUMBER=$(echo "$JOB_DATA" | jq -r ".number")
+    wait_for "$NUMBER"
+    echo "$JOB"
 }
 
-function run {
+function test-cmd {
+    # shellcheck source=/dev/null
+    source ~/.jarvice
+    JOB=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 16 | head -n 1)
+
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse --exclude .reco-work -P4 $PWD/ tmp/tests/$JOB; quit" 1>&2
+
+    JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/simulate.sh $JOB $*\" | .job_label = \"simulate:$JOB\"" < "$DIR/batch.json")
+    JOB_DATA=$(jarvice_cli submit -j "$JSON")
+    NUMBER=$(echo "$JOB_DATA" | jq -r ".number")
+    wait_for "$NUMBER"
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; rm -rf tmp/tests/$JOB; quit" > /dev/null
+}
+
+function run-script {
     # shellcheck source=/dev/null
     source ~/.jarvice
     JOB=$(uuidgen -t)
     FILENAME=$(basename "$1")
 
-    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "mirror --reverse -f $1 -O job/$JOB/; quit" > /dev/null
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse -f $1 -O job/$JOB/; quit" 1>&2
 
     JSON=$(jq ".application.parameters.command = \"/data/job/$JOB/$FILENAME\" | .job_label = \"$JOB\"" < "$DIR/batch.json")
 
@@ -104,19 +129,19 @@ function workflow {
     echo "$NUMBER"
 }
 
-function deploy {
-    JSON=$(jq ".application.parameters.executable = \"/job/$1/$2\"" < "$DIR/deploy.json")
+function run {
+    JSON=$(jq ".application.parameters.executable = \"/job/$1/.reco-work/sdaccel/dist/$2\"" < "$DIR/deploy.json")
 
     JOB=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB" | jq -r ".number")
-    echo "$NUMBER"
+    wait_for "$NUMBER"
 }
 
 function wait_for {
     NUMBER="$1"
     jarvice_cli wait_for -number "$NUMBER" > /dev/null
     STATUS=$(jarvice_cli status -number "$NUMBER" | jq -r ".[\"$NUMBER\"].job_status")
-    jarvice_cli output -number "$NUMBER"
+    jarvice_cli output -number "$NUMBER" -lines 0
     if [ "$STATUS" == "COMPLETED WITH ERROR" ]
     then
         exit 1;
@@ -126,17 +151,23 @@ function wait_for {
 
 function main {
     case "$1" in
+        "test")
+            test-cmd "${@:2}"
+            ;;
+        "build")
+            build "${@:2}"
+            ;;
+        "builds")
+            builds "${@:2}"
+            ;;
         "shell")
             shell "${@:2}"
             ;;
-        "run")
-            run "${@:2}"
+        "run-script")
+            run-script "${@:2}"
             ;;
         "ssh")
             ssh "${@:2}"
-            ;;
-        "list")
-            list "${@:2}"
             ;;
         "workflow")
             workflow "${@:2}"
@@ -144,14 +175,11 @@ function main {
         "wait")
             wait_for "${@:2}"
             ;;
-        "upload")
-            upload "${@:2}"
-            ;;
         "shutdown")
             shutdown "${@:2}"
             ;;
-        "deploy")
-            deploy "${@:2}"
+        "run")
+            run "${@:2}"
             ;;
         "stop")
             stop "${@:2}"

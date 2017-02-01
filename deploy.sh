@@ -2,7 +2,7 @@
 
 set -e
 
-NUMBER=$(./jarvice/jarvice run jarvice/examples/sshd.sh)
+NUMBER=$(./jarvice/jarvice run-script jarvice/examples/sshd.sh)
 
 ERROR=dummy
 while [ "$ERROR" != "null" ]
