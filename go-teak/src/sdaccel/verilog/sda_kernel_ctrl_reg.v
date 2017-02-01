@@ -117,7 +117,7 @@ reg [31:0] regRData_q;
 // Miscellaneous signals.
 wire [31:0] zeros = 32'b0;
 wire [RegAddrWidth-1:0] regAddrTop = RegAddrTop [RegAddrWidth-1:0];
-integer i, j;
+integer i;
 
 // Implement pipeined register read interface signals. Assumes that there are
 // no back to back transactions, so we can use rising edge detection on the
