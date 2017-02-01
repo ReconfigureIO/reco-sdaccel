@@ -42,7 +42,7 @@ module teak_action_top_gmem
   m_axi_gmem_aruser, m_axi_gmem_arid, m_axi_gmem_arvalid, m_axi_gmem_arready,
   m_axi_gmem_rdata, m_axi_gmem_rresp, m_axi_gmem_rlast, m_axi_gmem_ruser,
   m_axi_gmem_rid, m_axi_gmem_rvalid, m_axi_gmem_rready, param_addr_0r,
-  param_addr, param_addr_0a, param_data_0r, param_data, param_data_0a, 
+  param_addr, param_addr_0a, param_data_0r, param_data, param_data_0a,
   clk, reset);
 // verilator lint_on DECLFILENAME
 
@@ -56,7 +56,6 @@ input  done_0a;
 // values and a SELF channel input for the corresponding data items read from
 // the parameter register file.
 // verilator lint_off UNUSED
-
 output        param_addr_0r;
 output [31:0] param_addr;
 input         param_addr_0a;
@@ -64,7 +63,6 @@ input         param_addr_0a;
 input         param_data_0r;
 input [31:0]  param_data;
 output        param_data_0a;
-
 // verilator lint_on UNUSED
 
 // AXI interface signals are not used in the stub implementation.

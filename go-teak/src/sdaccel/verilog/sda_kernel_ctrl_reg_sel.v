@@ -6,20 +6,20 @@
 
 //
 // Implementation of SDAccel kernel entity control register selection unit. It
-// maps the specified number of AXI slave interface registers at the start of 
+// maps the specified number of AXI slave interface registers at the start of
 // the AXI address space to simple wrapper control registers and then maps the
 // remaining locations to the AXI interface handler in the generated code.
 //
 
 `timescale 1ns/1ps
 
-module sda_kernel_ctrl_reg_sel 
-  (sAxiAWValid, sAxiAWReady, sAxiAWAddr, sAxiWValid, sAxiWReady, sAxiWData, 
-  sAxiWStrb, sAxiBValid, sAxiBReady, sAxiBResp, sAxiARValid, sAxiARReady, 
-  sAxiARAddr, sAxiRValid, sAxiRReady, sAxiRData, sAxiRResp, mAxiAWValid, 
-  mAxiAWReady, mAxiAWAddr, mAxiWValid, mAxiWReady, mAxiWData, mAxiWStrb, 
-  mAxiBValid, mAxiBReady, mAxiBResp, mAxiARValid, mAxiARReady, mAxiARAddr, 
-  mAxiRValid, mAxiRReady, mAxiRData, mAxiRResp, regReq, regAck, regWriteEn, 
+module sda_kernel_ctrl_reg_sel
+  (sAxiAWValid, sAxiAWReady, sAxiAWAddr, sAxiWValid, sAxiWReady, sAxiWData,
+  sAxiWStrb, sAxiBValid, sAxiBReady, sAxiBResp, sAxiARValid, sAxiARReady,
+  sAxiARAddr, sAxiRValid, sAxiRReady, sAxiRData, sAxiRResp, mAxiAWValid,
+  mAxiAWReady, mAxiAWAddr, mAxiWValid, mAxiWReady, mAxiWData, mAxiWStrb,
+  mAxiBValid, mAxiBReady, mAxiBResp, mAxiARValid, mAxiARReady, mAxiARAddr,
+  mAxiRValid, mAxiRReady, mAxiRData, mAxiRResp, regReq, regAck, regWriteEn,
   regAddr, regWData, regWStrb, regRData, clk, srst);
 
 // Specifies the width of the AXI address bus.
@@ -143,7 +143,7 @@ reg  [31:0] sAxiRDataReg;
 reg  [1:0]  sAxiRRespReg;
 
 // Specify the state space used to select the AXI transaction mode.
-parameter [3:0] 
+parameter [3:0]
   Idle = 0,
   RegReadStart = 1,
   RegReadActive = 2,
@@ -155,7 +155,7 @@ parameter [3:0]
   AxiWriteData = 8,
   AxiWriteActive = 9;
 
-// Specify AXI state machine registers. 
+// Specify AXI state machine registers.
 reg [3:0]              axiState_d;
 reg                    regReq_d;
 reg                    regWriteEn_d;
@@ -174,52 +174,52 @@ integer i;
 
 // Instantiate input registers for slave side AXI write address channel.
 sda_kernel_ctrl_reg_sel_axi_inreg_x1 #(AddrWidth) sAxiAWReg_u
-  (sAxiAWValid, sAxiAWReady, sAxiAWAddr, sAxiAWPending, sAxiAWClear, 
+  (sAxiAWValid, sAxiAWReady, sAxiAWAddr, sAxiAWPending, sAxiAWClear,
   sAxiAWAddrReg, clk, srst);
-    
+
 // Instantiate input registers for slave side AXI data channel.
 sda_kernel_ctrl_reg_sel_axi_inreg_x2 #(32, 4) sAxiWReg_u
-  (sAxiWValid, sAxiWReady, sAxiWData, sAxiWStrb, sAxiWPending, 
+  (sAxiWValid, sAxiWReady, sAxiWData, sAxiWStrb, sAxiWPending,
   sAxiWClear, sAxiWDataReg, sAxiWStrbReg, clk, srst);
-  
+
 // Instantiate input registers for slave side AXI read address channel.
 sda_kernel_ctrl_reg_sel_axi_inreg_x1 #(AddrWidth) sAxiARReg_u
-  (sAxiARValid, sAxiARReady, sAxiARAddr, sAxiARPending, sAxiARClear, 
+  (sAxiARValid, sAxiARReady, sAxiARAddr, sAxiARPending, sAxiARClear,
   sAxiARAddrReg, clk, srst);
-  
+
 // Instantiate input register for master side AXI write acknowledgement.
 sda_kernel_ctrl_reg_sel_axi_inreg_x1 #(2) mAxiBReg_u
-  (mAxiBValid, mAxiBReady, mAxiBResp, mAxiBPending, mAxiBClear, mAxiBRespReg, 
+  (mAxiBValid, mAxiBReady, mAxiBResp, mAxiBPending, mAxiBClear, mAxiBRespReg,
   clk, srst);
-  
+
 // Instantiate input register for master side AXI read data channel.
 sda_kernel_ctrl_reg_sel_axi_inreg_x2 #(32, 2) mAxiRReg_u
-  (mAxiRValid, mAxiRReady, mAxiRData, mAxiRResp, mAxiRPending, 
+  (mAxiRValid, mAxiRReady, mAxiRData, mAxiRResp, mAxiRPending,
   mAxiRClear, mAxiRDataReg, mAxiRRespReg, clk, srst);
 
 // Instantate output register for master side AXI write address channel.
 sda_kernel_ctrl_reg_sel_axi_outreg_x1 #(AddrWidth) mAxiAWReg_u
-  (mAxiAWPush, mAxiAWBlocked, mAxiAWAddrReg, mAxiAWValid, mAxiAWReady, 
+  (mAxiAWPush, mAxiAWBlocked, mAxiAWAddrReg, mAxiAWValid, mAxiAWReady,
   mAxiAWAddr, clk, srst);
 
 // Instantiate output register for master side AXI write data channel.
 sda_kernel_ctrl_reg_sel_axi_outreg_x2 #(32, 4) mAxiWReg_u
-  (mAxiWPush, mAxiWBlocked, mAxiWDataReg, mAxiWStrbReg, mAxiWValid, 
+  (mAxiWPush, mAxiWBlocked, mAxiWDataReg, mAxiWStrbReg, mAxiWValid,
   mAxiWReady, mAxiWData, mAxiWStrb, clk, srst);
 
 // Instantiate output register for master side AXI read address channel.
 sda_kernel_ctrl_reg_sel_axi_outreg_x1 #(AddrWidth) mAxiARReg_u
-  (mAxiARPush, mAxiARBlocked, mAxiARAddrReg, mAxiARValid, mAxiARReady, 
+  (mAxiARPush, mAxiARBlocked, mAxiARAddrReg, mAxiARValid, mAxiARReady,
   mAxiARAddr, clk, srst);
 
-// Instantiate output register for slave side AXI write acknowledgement.  
+// Instantiate output register for slave side AXI write acknowledgement.
 sda_kernel_ctrl_reg_sel_axi_outreg_x1 #(2) sAxiBReg_u
-  (sAxiBPush, sAxiBBlocked, sAxiBRespReg, sAxiBValid, sAxiBReady, sAxiBResp, 
+  (sAxiBPush, sAxiBBlocked, sAxiBRespReg, sAxiBValid, sAxiBReady, sAxiBResp,
   clk, srst);
 
 // Instantiate output register for slave side AXI read data channel.
 sda_kernel_ctrl_reg_sel_axi_outreg_x2 #(32, 2) sAxiRReg_u
-  (sAxiRPush, sAxiRBlocked, sAxiRDataReg, sAxiRRespReg, sAxiRValid, 
+  (sAxiRPush, sAxiRBlocked, sAxiRDataReg, sAxiRRespReg, sAxiRValid,
   sAxiRReady, sAxiRData, sAxiRResp, clk, srst);
 
 // Pass through AXI signals where possible.
@@ -227,15 +227,15 @@ assign mAxiAWAddrReg = sAxiAWAddrReg;
 assign mAxiWDataReg = sAxiWDataReg;
 assign mAxiWStrbReg = sAxiWStrbReg;
 assign mAxiARAddrReg = sAxiARAddrReg;
-  
+
 // Implement combinatorial logic for selecting AXI transaction mode.
 always @(axiState_q, regReq_q, regWriteEn_q, regAddr_q, regWData_q, regWStrb_q,
-  sAxiAWPending, sAxiAWAddrReg, sAxiWPending, sAxiWDataReg, sAxiWStrbReg, 
-  sAxiBBlocked, sAxiARPending, sAxiARAddrReg, sAxiRBlocked, mAxiRPending, 
-  mAxiRDataReg, mAxiRRespReg, mAxiAWBlocked, mAxiWBlocked, mAxiBPending, 
+  sAxiAWPending, sAxiAWAddrReg, sAxiWPending, sAxiWDataReg, sAxiWStrbReg,
+  sAxiBBlocked, sAxiARPending, sAxiARAddrReg, sAxiRBlocked, mAxiRPending,
+  mAxiRDataReg, mAxiRRespReg, mAxiAWBlocked, mAxiWBlocked, mAxiBPending,
   mAxiARBlocked, mAxiBRespReg, regAck, regRData)
 begin
-        
+
   // Preserve current state by default.
   axiState_d = axiState_q;
   regReq_d = regReq_q;
@@ -243,35 +243,35 @@ begin
   regAddr_d = regAddr_q;
   regWData_d = regWData_q;
   regWStrb_d = regWStrb_q;
-  
+
   // Set default read assignment to register inputs with AXI 'OKAY' response.
   sAxiRPush = 1'b0;
   sAxiRDataReg = regRData;
   sAxiRRespReg = 2'b0;
-  
+
   // Set default write status assigment to AXI 'OKAY' response.
   sAxiBPush = 1'b0;
   sAxiBRespReg = 2'b0;
-  
+
   // Disable AXI register clear strobes by default.
   sAxiAWClear = 1'b0;
   sAxiWClear = 1'b0;
   sAxiARClear = 1'b0;
   mAxiBClear = 1'b0;
   mAxiRClear = 1'b0;
-  
+
   // Disable AXI master push strobes by default.
   mAxiAWPush = 1'b0;
   mAxiWPush = 1'b0;
   mAxiARPush = 1'b0;
-  
-  // Implement state machine.   
+
+  // Implement state machine.
   case (axiState_q)
-          
-    // In the idle state, wait until the AXI write or read address inputs are 
+
+    // In the idle state, wait until the AXI write or read address inputs are
     // ready. Writes are prioritised over reads.
     // verilator lint_off CMPCONST
-    Idle : 
+    Idle :
     begin
       if (sAxiAWPending)
       begin
@@ -289,9 +289,9 @@ begin
       end
     end
     // verilator lint_on CMPCONST
-    
+
     // Initiate read transactions on the local register interface.
-    RegReadStart : 
+    RegReadStart :
     begin
       if (~sAxiRBlocked)
       begin
@@ -301,7 +301,7 @@ begin
         regAddr_d = sAxiARAddrReg [RegAddrWidth-1:0];
       end
     end
-    
+
     // Process active read requests.
     RegReadActive :
     begin
@@ -312,11 +312,10 @@ begin
         regWriteEn_d = 1'b0;
         sAxiRPush = 1'b1;
         sAxiARClear = 1'b1;
-      end             
+      end
     end
-    
+
     // Initiate write transactions to the local register interface.
-    // TODO: Do we want to use the 'strb' option in this context?
     RegWriteStart :
     begin
       if (sAxiWPending & ~sAxiBBlocked)
@@ -327,14 +326,14 @@ begin
         regAddr_d = sAxiAWAddrReg [RegAddrWidth-1:0];
         regWData_d = sAxiWDataReg;
         regWStrb_d = sAxiWStrbReg;
-      end             
+      end
     end
-    
+
     // Process active write requests.
     RegWriteActive :
     begin
       if (regAck)
-      begin           
+      begin
         axiState_d = Idle;
         regReq_d = 1'b0;
         regWriteEn_d = 1'b0;
@@ -343,7 +342,7 @@ begin
         sAxiWClear = 1'b1;
       end
     end
-    
+
     // Initiate read transaction on the AXI master side.
     AxiReadStart :
     begin
@@ -352,9 +351,9 @@ begin
         axiState_d = AxiReadActive;
         mAxiARPush = 1'b1;
         sAxiARClear = 1'b1;
-      end             
+      end
     end
-    
+
     // Complete read transaction from the AXI master side.
     AxiReadActive :
     begin
@@ -367,7 +366,7 @@ begin
         mAxiRClear = 1'b1;
       end
     end
-    
+
     // Initiate write transaction on the AXI master side.
     AxiWriteStart :
     begin
@@ -378,7 +377,7 @@ begin
         sAxiAWClear = 1'b1;
       end
     end
-    
+
     // Forward write data to the AXI master side.
     AxiWriteData :
     begin
@@ -389,7 +388,7 @@ begin
         sAxiWClear = 1'b1;
       end
     end
-    
+
     // Complete write transaction from the AXI master side.
     AxiWriteActive :
     begin
@@ -399,16 +398,16 @@ begin
         axiState_d = Idle;
         sAxiBPush = 1'b1;
         mAxiBClear = 1'b1;
-      end  
+      end
     end
-    
+
     // Map unknown states to Idle.
     default :
     begin
-      axiState_d = Idle;            
+      axiState_d = Idle;
     end
-  endcase         
-end     
+  endcase
+end
 
 // Implement sequential logic for AXI transaction state machine.
 always @(posedge clk)
@@ -422,7 +421,7 @@ begin
       regAddr_q [i] <= 1'b0;
     regWData_q <= 32'b0;
     regWStrb_q <= 4'b0;
-  end     
+  end
   else
   begin
     axiState_q <= axiState_d;
@@ -432,7 +431,7 @@ begin
     regWData_q <= regWData_d;
     regWStrb_q <= regWStrb_d;
   end
-end     
+end
 
 assign regReq = regReq_q;
 assign regWriteEn = regWriteEn_q;
@@ -452,7 +451,7 @@ module sda_kernel_ctrl_reg_sel_axi_inreg_x1
 
 // Specify the register data width.
 parameter DataWidth = 16;
-  
+
 // Specifies the AXI bus input signals.
 input                 axiValid;
 output                axiReady;
@@ -494,8 +493,8 @@ begin
     dataClear_q <= 1'b0;
     axiReady_q <= 1'b0;
     axiDataIn_q <= axiDataIn;
-  end     
-end     
+  end
+end
 
 assign axiReady = axiReady_q;
 assign dataPending = ~(dataClear_q | axiReady_q);
@@ -508,7 +507,7 @@ endmodule
 //
 // verilator lint_off DECLFILENAME
 module sda_kernel_ctrl_reg_sel_axi_inreg_x2
-  (axiValid, axiReady, axiDataIn1, axiDataIn2, dataPending, dataClear, 
+  (axiValid, axiReady, axiDataIn1, axiDataIn2, dataPending, dataClear,
   dataOut1, dataOut2, clk, srst);
 // verilator lint_on DECLFILENAME
 
@@ -539,9 +538,9 @@ wire [DataWidth1+DataWidth2-1:0] dataOut;
 
 // Instantiate the single input register module.
 sda_kernel_ctrl_reg_sel_axi_inreg_x1 #(DataWidth1+DataWidth2) axiDataReg_u
-  (axiValid, axiReady, {axiDataIn2, axiDataIn1}, dataPending, dataClear, 
+  (axiValid, axiReady, {axiDataIn2, axiDataIn1}, dataPending, dataClear,
   dataOut, clk, srst);
-  
+
 assign dataOut1 = dataOut [DataWidth1-1:0];
 assign dataOut2 = dataOut [DataWidth1+DataWidth2-1:DataWidth1];
 
@@ -557,7 +556,7 @@ module sda_kernel_ctrl_reg_sel_axi_outreg_x1
 
 // Specify the register data width.
 parameter DataWidth = 16;
-  
+
 // Specifies the data register interface signals.
 input                 dataPush;
 output                dataBlocked;
@@ -567,7 +566,7 @@ input [DataWidth-1:0] dataIn;
 output                 axiValid;
 input                  axiReady;
 output [DataWidth-1:0] axiDataOut;
-  
+
 // Specifies the system level signals.
 input clk;
 input srst;
@@ -586,16 +585,16 @@ begin
     dataReady_q <= 1'b0;
     for (i = 0; i < DataWidth; i = i + 1)
       dataReg_q [i] <= 1'b0;
-  end    
+  end
   else if (dataReady_q & axiReady)
-  begin   
+  begin
     dataReady_q <= 1'b0;
-  end  
+  end
   else if (dataPush)
-  begin   
+  begin
     dataReady_q <= 1'b1;
     dataReg_q <= dataIn;
-  end  
+  end
 end
 
 assign dataBlocked = dataReady_q;
@@ -609,10 +608,10 @@ endmodule
 //
 // verilator lint_off DECLFILENAME
 module sda_kernel_ctrl_reg_sel_axi_outreg_x2
-  (dataPush, dataBlocked, dataIn1, dataIn2, axiValid, axiReady, axiDataOut1, 
+  (dataPush, dataBlocked, dataIn1, dataIn2, axiValid, axiReady, axiDataOut1,
   axiDataOut2, clk, srst);
 // verilator lint_on DECLFILENAME
-  
+
 // Specify the first register data width.
 parameter DataWidth1 = 16;
 
@@ -640,9 +639,9 @@ wire [DataWidth1+DataWidth2-1:0] axiDataOut;
 
 // Instantiate the single output register module.
 sda_kernel_ctrl_reg_sel_axi_outreg_x1 #(DataWidth1+DataWidth2) axiDataReg_u
-  (dataPush, dataBlocked, {dataIn2, dataIn1}, axiValid, axiReady, 
+  (dataPush, dataBlocked, {dataIn2, dataIn1}, axiValid, axiReady,
   axiDataOut, clk, srst);
-  
+
 assign axiDataOut1 = axiDataOut [DataWidth1-1:0];
 assign axiDataOut2 = axiDataOut [DataWidth1+DataWidth2-1:DataWidth1];
 
