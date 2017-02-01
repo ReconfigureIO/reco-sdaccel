@@ -14,7 +14,7 @@ node ("master") {
         stage 'lint'
         sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-sdaccel'
         sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck jarvice/jarvice'
-        sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v $PWD/eTeak/verilog/SELF_files/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+        sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v -I $PWD/eTeak/verilog/SELF_files/ --top-module sda_kernel_wrapper_gmem --report-unoptflat'
 
         stage 'pre clean'
         sh 'make clean'
