@@ -21,10 +21,10 @@ parameter RegAddrWidth = 12;
 
 // Specifies the base address of the parameter block.
 // The default is to reserve space for 16 32-bit Verilog wrapper registers.
-parameter ParamAddrBase = 12'd64;
+parameter ParamAddrBase = 64;
 
 // Specifies the upper address of the parameter block.
-parameter ParamAddrTop = 12'd4095;
+parameter ParamAddrTop = 4095;
 
 // Slave side simple register interface signals. Note that all outputs are
 // driven low when inactive so that they can be ORed together with other
@@ -169,8 +169,7 @@ always @(posedge clk)
 begin
   if (srst)
   begin
-    for (i = 0; i < RegAddrWidth-2; i = i + 1)
-      pramAddr_q[i] <= 1'b0;
+    pramAddr_q <= 30'b0;
     pramAddrValid_q <= 1'b0;
     pramReadValid_q <= 1'b0;
     pramPipeValid_q <= 1'b0;
@@ -182,8 +181,7 @@ begin
       pramAddrValid_q <= pramAddrValid;
       if ((pramAddr < ParamAddrBase) || (pramAddr > ParamAddrTop))
       begin
-        for (i = 0; i < RegAddrWidth-2; i = i + 1)
-          pramAddr_q[i] <= 1'b0;
+        pramAddr_q <= 30'b0;
         pramAddrAlign_q <= 2'b0;
       end
       else
