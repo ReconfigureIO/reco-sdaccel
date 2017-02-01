@@ -34,6 +34,9 @@
 // Can be redefined on the synthesis command line.
 `define AXI_PARAM_MEM_ADDR_WIDTH 12
 
+// Can be redefined on the synthesis command line.
+`define AXI_PARAM_MEM_ADDR_TOP 12'd4095
+
 // Module name to be substituted in post-synthesis netlist.
 module sda_kernel_wrapper_gmem
   (s_axi_control_AWADDR, s_axi_control_AWVALID, s_axi_control_AWREADY,
@@ -243,7 +246,7 @@ assign axi_reg_reset = domain_reset [1];
 
 // Instantiate the AXI slave register selection component.
 sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, `AXI_PARAM_MEM_ADDR_WIDTH,
-  (1 << `AXI_PARAM_MEM_ADDR_WIDTH)-1) kernelCtrlRegSel_u
+  `AXI_PARAM_MEM_ADDR_TOP) kernelCtrlRegSel_u
   (s_axi_control_AWVALID, s_axi_control_AWREADY, s_axi_control_AWADDR,
   s_axi_control_WVALID, s_axi_control_WREADY, s_axi_control_WDATA,
   s_axi_control_WSTRB, s_axi_control_BVALID, s_axi_control_BREADY,
@@ -265,7 +268,7 @@ sda_kernel_ctrl_reg #(`AXI_PARAM_MEM_ADDR_WIDTH, 63) kernelCtrlReg_u
 
 // Instantiate the kernel parameter memory.
 sda_kernel_ctrl_param #(`AXI_PARAM_MEM_ADDR_WIDTH, 64,
-  (1 << `AXI_PARAM_MEM_ADDR_WIDTH)-1) kernelCtrlParam_u
+  `AXI_PARAM_MEM_ADDR_TOP) kernelCtrlParam_u
   (reg_req, reg_ack_1, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata_1,
   param_addr_valid, param_addr, param_addr_stop, param_data_valid, param_data,
   param_data_stop, ap_clk, axi_reg_reset);

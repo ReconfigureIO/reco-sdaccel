@@ -29,7 +29,7 @@ parameter AddrWidth = 16;
 parameter RegAddrWidth = 8;
 
 // Specify the upper address location which is mapped to the local register set.
-parameter RegAddrTop = 255;
+parameter RegAddrTop = 8'd255;
 
 // Slave side AXI write address channel signals.
 input                 sAxiAWValid;

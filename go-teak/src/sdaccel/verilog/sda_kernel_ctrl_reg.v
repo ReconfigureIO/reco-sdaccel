@@ -32,7 +32,7 @@ parameter RegAddrWidth = 8;
 
 // Specifies the upper address of the reserved address block.
 // The default is to reserve space for 16 32-bit Verilog wrapper registers.
-parameter RegAddrTop = 63;
+parameter RegAddrTop = 8'd63;
 
 // Slave side simple register interface signals. Note that all outputs are
 // driven low when inactive so that they can be ORed together with other
