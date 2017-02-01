@@ -17,7 +17,7 @@
 `timescale 1ns/1ps
 
 // Can be redefined on the synthesis command line.
-`define AXI_SLAVE_ADDR_WIDTH 6
+`define AXI_SLAVE_ADDR_WIDTH 16
 
 // Can be redefined on the synthesis command line.
 `define AXI_MASTER_ADDR_WIDTH 64
@@ -278,8 +278,7 @@ sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 6, 63) kernelCtrlRegSel_u
 // Instantiate the kernel control register at slave address offset 0.
 sda_kernel_ctrl_reg #(6) kernelCtrlReg_u
   (reg_req, reg_ack, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata,
-  go_0r, go_0a, done_0r, done_0a, interrupt, param_buf_base, print_buf_base,
-  ap_clk, axi_reg_reset);
+  go_0r, go_0a, done_0r, done_0a, interrupt, ap_clk, axi_reg_reset);
 
 // Extend the slave address bus widths to the standard 32 bit value for the
 // action logic core.
