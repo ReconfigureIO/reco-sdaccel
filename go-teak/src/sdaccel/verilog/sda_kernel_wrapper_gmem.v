@@ -301,7 +301,7 @@ teak_action_top_gmem kernelActionTop_u
   .m_axi_gmem_awid(m_axi_gmem_AWID), .m_axi_gmem_awuser(m_axi_gmem_AWUSER),
   .m_axi_gmem_awvalid(m_axi_gmem_AWVALID), .m_axi_gmem_awready(m_axi_gmem_AWREADY),
   .m_axi_gmem_wdata(m_axi_gmem_WDATA), .m_axi_gmem_wstrb(m_axi_gmem_WSTRB),
-  .m_axi_gmem_wlast(m_axi_gmem_WLAST), .m_axi_gmem_wid(m_axi_gmem_WID),
+  .m_axi_gmem_wlast(m_axi_gmem_WLAST), /* wid isn't in axi4 .m_axi_gmem_wid(m_axi_gmem_WID) , */
   .m_axi_gmem_wuser(m_axi_gmem_WUSER), .m_axi_gmem_wvalid(m_axi_gmem_WVALID),
   .m_axi_gmem_wready(m_axi_gmem_WREADY), .m_axi_gmem_bresp(m_axi_gmem_BRESP),
   .m_axi_gmem_bid(m_axi_gmem_BID), .m_axi_gmem_buser(m_axi_gmem_BUSER),
@@ -316,9 +316,9 @@ teak_action_top_gmem kernelActionTop_u
   .m_axi_gmem_rresp(m_axi_gmem_RRESP), .m_axi_gmem_rlast(m_axi_gmem_RLAST),
   .m_axi_gmem_rid(m_axi_gmem_RID), .m_axi_gmem_ruser(m_axi_gmem_RUSER),
   .m_axi_gmem_rvalid(m_axi_gmem_RVALID), .m_axi_gmem_rready(m_axi_gmem_RREADY),
-  .param_addr_0r(param_addr_valid), .param_addr(param_addr),
-  .param_addr_0a(param_addr_stop), .param_data_0r(param_data_valid),
-  .param_data(param_data), .param_data_0a(param_data_stop),
+  .paramaddr_0r0(param_addr_valid), .paramaddr_0D(param_addr),
+  .paramaddr_0a(param_addr_stop), .paramdata_0r0(param_data_valid),
+  .paramdata_0D(param_data), .paramdata_0a(param_data_stop),
   .clk(ap_clk), .reset(action_reset));
 
 endmodule

@@ -41,8 +41,8 @@ module teak_action_top_gmem
   m_axi_gmem_arcache, m_axi_gmem_arprot, m_axi_gmem_arqos, m_axi_gmem_arregion,
   m_axi_gmem_aruser, m_axi_gmem_arid, m_axi_gmem_arvalid, m_axi_gmem_arready,
   m_axi_gmem_rdata, m_axi_gmem_rresp, m_axi_gmem_rlast, m_axi_gmem_ruser,
-  m_axi_gmem_rid, m_axi_gmem_rvalid, m_axi_gmem_rready, param_addr_0r,
-  param_addr, param_addr_0a, param_data_0r, param_data, param_data_0a,
+  m_axi_gmem_rid, m_axi_gmem_rvalid, m_axi_gmem_rready, paramaddr_0r0,
+  paramaddr_0D, paramaddr_0a, paramdata_0r, paramdata_0D, paramdata_0a,
   clk, reset);
 // verilator lint_on DECLFILENAME
 
