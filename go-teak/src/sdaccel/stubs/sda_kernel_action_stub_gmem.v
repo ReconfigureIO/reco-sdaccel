@@ -41,7 +41,8 @@ module teak_action_top_gmem
   m_axi_gmem_arcache, m_axi_gmem_arprot, m_axi_gmem_arqos, m_axi_gmem_arregion,
   m_axi_gmem_aruser, m_axi_gmem_arid, m_axi_gmem_arvalid, m_axi_gmem_arready,
   m_axi_gmem_rdata, m_axi_gmem_rresp, m_axi_gmem_rlast, m_axi_gmem_ruser,
-  m_axi_gmem_rid, m_axi_gmem_rvalid, m_axi_gmem_rready, param_buf_base,
+  m_axi_gmem_rid, m_axi_gmem_rvalid, m_axi_gmem_rready, param_addr_0r,
+  param_addr, param_addr_0a, param_data_0r, param_data, param_data_0a,
   clk, reset);
 // verilator lint_on DECLFILENAME
 
@@ -51,9 +52,21 @@ output go_0a;
 output done_0r;
 input  done_0a;
 
+// Parameter data access signals. Provides a SELF channel output for address
+// values and a SELF channel input for the corresponding data items read from
+// the parameter register file.
+// verilator lint_off UNUSED
+output        param_addr_0r;
+output [31:0] param_addr;
+input         param_addr_0a;
+
+input         param_data_0r;
+input [31:0]  param_data;
+output        param_data_0a;
+// verilator lint_on UNUSED
+
 // AXI interface signals are not used in the stub implementation.
 // verilator lint_off UNUSED
-input [63:0]  param_buf_base;
 
 // Specifies the AXI slave bus signals.
 input [31:0]  s_axi_araddr;
@@ -222,5 +235,44 @@ assign s_axi_awready = s_axi_write_ready_q;
 assign s_axi_wready = s_axi_write_ready_q;
 assign s_axi_bresp = 2'b0;
 assign s_axi_bvalid = s_axi_write_complete_q;
+
+// Tie off unused parameter access signals.
+assign param_addr_0r = 1'b0;
+assign param_addr = 32'b0;
+assign param_data_0a = 1'b0;
+
+// Tie of unused AXI memory access signals.
+assign m_axi_gmem_awaddr = `AXI_MASTER_ADDR_WIDTH'b0;
+assign m_axi_gmem_awlen = 8'b0;
+assign m_axi_gmem_awsize = 3'b0;
+assign m_axi_gmem_awburst = 2'b0;
+assign m_axi_gmem_awlock = 1'b0;
+assign m_axi_gmem_awcache = 4'b0;
+assign m_axi_gmem_awprot = 3'b0;
+assign m_axi_gmem_awqos = 4'b0;
+assign m_axi_gmem_awregion = 4'b0;
+assign m_axi_gmem_awuser = `AXI_MASTER_USER_WIDTH'b0;
+assign m_axi_gmem_awid = `AXI_MASTER_ID_WIDTH'b0;
+assign m_axi_gmem_awvalid = 1'b0;
+assign m_axi_gmem_wdata = `AXI_MASTER_DATA_WIDTH'b0;
+assign m_axi_gmem_wstrb = 4'b0;
+assign m_axi_gmem_wlast = 1'b0;
+assign m_axi_gmem_wuser = `AXI_MASTER_USER_WIDTH'b0;
+assign m_axi_gmem_wid = `AXI_MASTER_ID_WIDTH'b0;
+assign m_axi_gmem_wvalid = 1'b0;
+assign m_axi_gmem_bready = 1'b0;
+assign m_axi_gmem_araddr = `AXI_MASTER_ADDR_WIDTH'b0;
+assign m_axi_gmem_arlen = 8'b0;
+assign m_axi_gmem_arsize = 3'b0;
+assign m_axi_gmem_arburst = 2'b0;
+assign m_axi_gmem_arlock = 1'b0;
+assign m_axi_gmem_arcache = 4'b0;
+assign m_axi_gmem_arprot = 3'b0;
+assign m_axi_gmem_arqos = 4'b0;
+assign m_axi_gmem_arregion = 4'b0;
+assign m_axi_gmem_aruser = `AXI_MASTER_USER_WIDTH'b0;
+assign m_axi_gmem_arid = `AXI_MASTER_ID_WIDTH'b0;
+assign m_axi_gmem_arvalid = 1'b0;
+assign m_axi_gmem_rready = 1'b0;
 
 endmodule

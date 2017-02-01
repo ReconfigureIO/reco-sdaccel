@@ -17,7 +17,7 @@
 `timescale 1ns/1ps
 
 // Can be redefined on the synthesis command line.
-`define AXI_SLAVE_ADDR_WIDTH 6
+`define AXI_SLAVE_ADDR_WIDTH 16
 
 // Can be redefined on the synthesis command line.
 `define AXI_MASTER_ADDR_WIDTH 64
@@ -30,6 +30,9 @@
 
 // Can be redefined on the synthesis command line.
 `define AXI_MASTER_USER_WIDTH 1
+
+// Can be redefined on the synthesis command line.
+`define AXI_PARAM_MEM_ADDR_WIDTH 12
 
 // Module name to be substituted in post-synthesis netlist.
 module sda_kernel_wrapper_gmem
@@ -180,19 +183,25 @@ wire        m_axi_control_RVALID;
 wire        m_axi_control_RREADY;
 
 // Wrapper control register interface signals.
-wire        reg_req;
-wire        reg_ack;
-wire        reg_write_en;
-wire [5:0]  reg_addr;
-wire [31:0] reg_wdata;
-wire [3:0]  reg_wstrb;
-wire [31:0] reg_rdata;
+wire                                 reg_req;
+wire                                 reg_ack;
+wire                                 reg_ack_0;
+wire                                 reg_ack_1;
+wire                                 reg_write_en;
+wire [`AXI_PARAM_MEM_ADDR_WIDTH-1:0] reg_addr;
+wire [31:0]                          reg_wdata;
+wire [3:0]                           reg_wstrb;
+wire [31:0]                          reg_rdata;
+wire [31:0]                          reg_rdata_0;
+wire [31:0]                          reg_rdata_1;
 
-// Shared memory buffer base pointers.
-wire [63:0] param_buf_base;
-// verilator lint_off UNUSED
-wire [63:0] print_buf_base;
-// verilator lint_on UNUSED
+// Kernel interface parameter access signals.
+wire        param_addr_valid;
+wire [31:0] param_addr;
+wire        param_addr_stop;
+wire        param_data_valid;
+wire [31:0] param_data;
+wire        param_data_stop;
 
 // Action control signals.
 wire go_0r;
@@ -233,7 +242,8 @@ assign action_reset = domain_reset [0];
 assign axi_reg_reset = domain_reset [1];
 
 // Instantiate the AXI slave register selection component.
-sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 6, 63) kernelCtrlRegSel_u
+sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, `AXI_PARAM_MEM_ADDR_WIDTH,
+  (1 << `AXI_PARAM_MEM_ADDR_WIDTH)-1) kernelCtrlRegSel_u
   (s_axi_control_AWVALID, s_axi_control_AWREADY, s_axi_control_AWADDR,
   s_axi_control_WVALID, s_axi_control_WREADY, s_axi_control_WDATA,
   s_axi_control_WSTRB, s_axi_control_BVALID, s_axi_control_BREADY,
@@ -248,11 +258,20 @@ sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, 6, 63) kernelCtrlRegSel_u
   m_axi_control_RRESP, reg_req, reg_ack, reg_write_en, reg_addr, reg_wdata,
   reg_wstrb, reg_rdata, ap_clk, axi_reg_reset);
 
-// Instantiate the kernel control register at slave address offset 0.
-sda_kernel_ctrl_reg #(6) kernelCtrlReg_u
-  (reg_req, reg_ack, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata,
-  go_0r, go_0a, done_0r, done_0a, interrupt, param_buf_base, print_buf_base,
-  ap_clk, axi_reg_reset);
+// Instantiate the kernel control registers at slave address offset 0.
+sda_kernel_ctrl_reg #(`AXI_PARAM_MEM_ADDR_WIDTH, 63) kernelCtrlReg_u
+  (reg_req, reg_ack_0, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata_0,
+  go_0r, go_0a, done_0r, done_0a, interrupt, ap_clk, axi_reg_reset);
+
+// Instantiate the kernel parameter memory.
+sda_kernel_ctrl_param #(`AXI_PARAM_MEM_ADDR_WIDTH, 64,
+  (1 << `AXI_PARAM_MEM_ADDR_WIDTH)-1) kernelCtrlParam_u
+  (reg_req, reg_ack_1, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata_1,
+  param_addr_valid, param_addr, param_addr_stop, param_data_valid, param_data,
+  param_data_stop, ap_clk, axi_reg_reset);
+
+assign reg_ack = reg_ack_0 | reg_ack_1;
+assign reg_rdata = reg_rdata_0 | reg_rdata_1 | zeros;
 
 // Extend the slave address bus widths to the standard 32 bit value for the
 // action logic core.
@@ -297,6 +316,9 @@ teak_action_top_gmem kernelActionTop_u
   .m_axi_gmem_rresp(m_axi_gmem_RRESP), .m_axi_gmem_rlast(m_axi_gmem_RLAST),
   .m_axi_gmem_rid(m_axi_gmem_RID), .m_axi_gmem_ruser(m_axi_gmem_RUSER),
   .m_axi_gmem_rvalid(m_axi_gmem_RVALID), .m_axi_gmem_rready(m_axi_gmem_RREADY),
-  .param_buf_base(param_buf_base), .clk(ap_clk), .reset(action_reset));
+  .param_addr_0r(param_addr_valid), .param_addr(param_addr),
+  .param_addr_0a(param_addr_stop), .param_data_0r(param_data_valid),
+  .param_data(param_data), .param_data_0a(param_data_stop),
+  .clk(ap_clk), .reset(action_reset));
 
 endmodule
