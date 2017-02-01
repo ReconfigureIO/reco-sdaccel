@@ -170,6 +170,8 @@ reg [RegAddrWidth-1:0] regAddr_q;
 reg [31:0]             regWData_q;
 reg [3:0]              regWStrb_q;
 
+// Miscellaneous signals.
+wire [AddrWidth-1:0] regAddrTop = RegAddrTop [AddrWidth-1:0];
 integer i;
 
 // Instantiate input registers for slave side AXI write address channel.
@@ -275,14 +277,14 @@ begin
     begin
       if (sAxiAWPending)
       begin
-        if (sAxiAWAddrReg <= RegAddrTop)
+        if (sAxiAWAddrReg <= regAddrTop)
           axiState_d = RegWriteStart;
         else
           axiState_d = AxiWriteStart;
       end
       else if (sAxiARPending)
       begin
-        if (sAxiARAddrReg <= RegAddrTop)
+        if (sAxiARAddrReg <= regAddrTop)
           axiState_d = RegReadStart;
         else
           axiState_d = AxiReadStart;

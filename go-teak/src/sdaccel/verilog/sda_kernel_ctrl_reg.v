@@ -116,6 +116,7 @@ reg [31:0] regRData_q;
 
 // Miscellaneous signals.
 wire [31:0] zeros = 32'b0;
+wire [RegAddrWidth-1:0] regAddrTop = RegAddrTop [RegAddrWidth-1:0];
 integer i, j;
 
 // Implement pipeined register read interface signals. Assumes that there are
@@ -327,7 +328,7 @@ begin
   end
 
   // Acknowledge all accesses to the reserved register set.
-  if (regAddr_q <= RegAddrTop)
+  if (regAddr_q <= regAddrTop)
     regAck_d = regReadReq_q | regWriteReq_q;
   else
     regAck_d = 1'b0;

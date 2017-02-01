@@ -89,6 +89,9 @@ reg [31:0]             pramPipeData_q;
 reg [1:0]              pramPipeAlign_q;
 reg                    pramPipeValid_q;
 
+// Miscellaneous signals.
+wire [RegAddrWidth-1:0] regParamAddrBase = ParamAddrBase [RegAddrWidth-1:0];
+wire [RegAddrWidth-1:0] regParamAddrTop = ParamAddrTop [RegAddrWidth-1:0];
 integer i;
 
 // Implement pipelined register input signals. Assumes that there are no back
@@ -110,7 +113,7 @@ begin
     regReq_q <= regReq;
     regWData_q <= regWData;
     regWStrb_q <= regWStrb;
-    if ((regAddr < ParamAddrBase) || (regAddr > ParamAddrTop))
+    if ((regAddr < regParamAddrBase) || (regAddr > regParamAddrTop))
     begin
       regReadReq_q <= 1'b0;
       regWriteReq_q <= 1'b0;
@@ -169,7 +172,8 @@ always @(posedge clk)
 begin
   if (srst)
   begin
-    pramAddr_q <= 30'b0;
+    for (i = 0; i < RegAddrWidth-2; i = i + 1)
+      pramAddr_q[i] <= 1'b0;
     pramAddrValid_q <= 1'b0;
     pramReadValid_q <= 1'b0;
     pramPipeValid_q <= 1'b0;
@@ -181,7 +185,8 @@ begin
       pramAddrValid_q <= pramAddrValid;
       if ((pramAddr < ParamAddrBase) || (pramAddr > ParamAddrTop))
       begin
-        pramAddr_q <= 30'b0;
+        for (i = 0; i < RegAddrWidth-2; i = i + 1)
+          pramAddr_q[i] <= 1'b0;
         pramAddrAlign_q <= 2'b0;
       end
       else
