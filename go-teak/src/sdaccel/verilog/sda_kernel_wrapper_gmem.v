@@ -271,7 +271,7 @@ sda_kernel_ctrl_param #(`AXI_PARAM_MEM_ADDR_WIDTH, 64,
   param_data_stop, ap_clk, axi_reg_reset);
 
 assign reg_ack = reg_ack_0 | reg_ack_1;
-assign reg_rdata = reg_rdata_0 | reg_rdata_1;
+assign reg_rdata = reg_rdata_0 | reg_rdata_1 | zeros;
 
 // Extend the slave address bus widths to the standard 32 bit value for the
 // action logic core.

@@ -236,4 +236,43 @@ assign s_axi_wready = s_axi_write_ready_q;
 assign s_axi_bresp = 2'b0;
 assign s_axi_bvalid = s_axi_write_complete_q;
 
+// Tie off unused parameter access signals.
+assign param_addr_0r = 1'b0;
+assign param_addr = 32'b0;
+assign param_data_0a = 1'b0;
+
+// Tie of unused AXI memory access signals.
+assign m_axi_gmem_awaddr = `AXI_MASTER_ADDR_WIDTH'b0;
+assign m_axi_gmem_awlen = 8'b0;
+assign m_axi_gmem_awsize = 3'b0;
+assign m_axi_gmem_awburst = 2'b0;
+assign m_axi_gmem_awlock = 1'b0;
+assign m_axi_gmem_awcache = 4'b0;
+assign m_axi_gmem_awprot = 3'b0;
+assign m_axi_gmem_awqos = 4'b0;
+assign m_axi_gmem_awregion = 4'b0;
+assign m_axi_gmem_awuser = `AXI_MASTER_USER_WIDTH'b0;
+assign m_axi_gmem_awid = `AXI_MASTER_ID_WIDTH'b0;
+assign m_axi_gmem_awvalid = 1'b0;
+assign m_axi_gmem_wdata = `AXI_MASTER_DATA_WIDTH'b0;
+assign m_axi_gmem_wstrb = 4'b0;
+assign m_axi_gmem_wlast = 1'b0;
+assign m_axi_gmem_wuser = `AXI_MASTER_USER_WIDTH'b0;
+assign m_axi_gmem_wid = `AXI_MASTER_ID_WIDTH'b0;
+assign m_axi_gmem_wvalid = 1'b0;
+assign m_axi_gmem_bready = 1'b0;
+assign m_axi_gmem_araddr = `AXI_MASTER_ADDR_WIDTH'b0;
+assign m_axi_gmem_arlen = 8'b0;
+assign m_axi_gmem_arsize = 3'b0;
+assign m_axi_gmem_arburst = 2'b0;
+assign m_axi_gmem_arlock = 1'b0;
+assign m_axi_gmem_arcache = 4'b0;
+assign m_axi_gmem_arprot = 3'b0;
+assign m_axi_gmem_arqos = 4'b0;
+assign m_axi_gmem_arregion = 4'b0;
+assign m_axi_gmem_aruser = `AXI_MASTER_USER_WIDTH'b0;
+assign m_axi_gmem_arid = `AXI_MASTER_ID_WIDTH'b0;
+assign m_axi_gmem_arvalid = 1'b0;
+assign m_axi_gmem_rready = 1'b0;
+
 endmodule

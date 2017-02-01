@@ -98,6 +98,7 @@ integer i;
 
 // Implement pipelined register input signals. Assumes that there are no back
 // to back transactions, so we can use rising edge detection on the request line.
+// verilator lint_off CMPCONST
 always @(posedge clk)
 begin
   if (srst)
@@ -130,6 +131,7 @@ begin
     end
   end
 end
+// verilator lint_on CMPCONST
 
 // Implement pipelined register output signals.
 always @(posedge clk)
