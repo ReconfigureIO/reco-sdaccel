@@ -34,7 +34,7 @@ module teak_action_top_gmem
   m_axi_gmem_awsize, m_axi_gmem_awburst, m_axi_gmem_awlock, m_axi_gmem_awcache,
   m_axi_gmem_awprot, m_axi_gmem_awqos, m_axi_gmem_awregion, m_axi_gmem_awuser,
   m_axi_gmem_awid, m_axi_gmem_awvalid, m_axi_gmem_awready, m_axi_gmem_wdata,
-  m_axi_gmem_wstrb, m_axi_gmem_wlast, m_axi_gmem_wuser, m_axi_gmem_wid,
+  m_axi_gmem_wstrb, m_axi_gmem_wlast, m_axi_gmem_wuser,
   m_axi_gmem_wvalid, m_axi_gmem_wready, m_axi_gmem_bresp, m_axi_gmem_buser,
   m_axi_gmem_bid, m_axi_gmem_bvalid, m_axi_gmem_bready, m_axi_gmem_araddr,
   m_axi_gmem_arlen, m_axi_gmem_arsize, m_axi_gmem_arburst, m_axi_gmem_arlock,
@@ -111,7 +111,6 @@ output [`AXI_MASTER_DATA_WIDTH-1:0]   m_axi_gmem_wdata;
 output [`AXI_MASTER_DATA_WIDTH/8-1:0] m_axi_gmem_wstrb;
 output                                m_axi_gmem_wlast;
 output [`AXI_MASTER_USER_WIDTH-1:0]   m_axi_gmem_wuser;
-output [`AXI_MASTER_ID_WIDTH-1:0]     m_axi_gmem_wid;
 output                                m_axi_gmem_wvalid;
 input                                 m_axi_gmem_wready;
 
@@ -237,9 +236,9 @@ assign s_axi_bresp = 2'b0;
 assign s_axi_bvalid = s_axi_write_complete_q;
 
 // Tie off unused parameter access signals.
-assign param_addr_0r = 1'b0;
-assign param_addr = 32'b0;
-assign param_data_0a = 1'b0;
+assign paramaddr_0r0 = 1'b0;
+assign paramaddr_0D = 32'b0;
+assign paramdata_0a = 1'b0;
 
 // Tie of unused AXI memory access signals.
 assign m_axi_gmem_awaddr = `AXI_MASTER_ADDR_WIDTH'b0;
@@ -258,7 +257,6 @@ assign m_axi_gmem_wdata = `AXI_MASTER_DATA_WIDTH'b0;
 assign m_axi_gmem_wstrb = 4'b0;
 assign m_axi_gmem_wlast = 1'b0;
 assign m_axi_gmem_wuser = `AXI_MASTER_USER_WIDTH'b0;
-assign m_axi_gmem_wid = `AXI_MASTER_ID_WIDTH'b0;
 assign m_axi_gmem_wvalid = 1'b0;
 assign m_axi_gmem_bready = 1'b0;
 assign m_axi_gmem_araddr = `AXI_MASTER_ADDR_WIDTH'b0;
