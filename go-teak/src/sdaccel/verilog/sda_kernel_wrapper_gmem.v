@@ -224,6 +224,9 @@ assign m_axi_control_ARPROT = 3'b010;
 assign m_axi_gmem_AWLOCK[1] = 1'b0;
 assign m_axi_gmem_ARLOCK[1] = 1'b0;
 
+// Tie off unused WID signal
+assign m_axi_gmem_WID = 1'0;
+
 // Instantiate the reset controller. Performs complete reset on the action
 // core before releasing the reset on the AXI slave interface.
 action_reset_handler #(15, 4, 2) resetHandler
