@@ -33,7 +33,7 @@ proc glob-r {{dir .}} {
 }
 
 #
-# Generates IP component which is consistent with the requirements for 
+# Generates IP component which is consistent with the requirements for
 # subsequent inclusion in an SDAccel build.
 #
 proc configure_ip_core {
@@ -60,15 +60,37 @@ set DocumentFiles [glob -nocomplain doc/*]
 set BDFiles [glob -nocomplain bd/*]
 set ConstraintFiles [glob -nocomplain constraints/*]
 set MiscFiles [glob -nocomplain misc/*]
+
+## TODO: The interface block hard-codes a lot of kernel I/O parameters. A more
+## flexible approach is required to support different I/O bus widths, etc.
 set Interfaces {
     s_axi_control {
         type "axi4lite"
         mode "slave"
         port_prefix "s_axi_control"
         param_prefix "C_S_AXI_CONTROL"
-        addr_bits "6"
-        port_width "AWADDR 6 WDATA 32 WSTRB 4 ARADDR 6 RDATA 32"
-        registers {{0x00 CTRL       RW   0x0 "Control signals" {{ 0 1 AP_START RW 0 "Control signal Register for 'ap_start'." } { 1 1 AP_DONE R 0 "Control signal Register for 'ap_done'." } { 2 1 AP_IDLE R 0 "Control signal Register for 'ap_idle'." } { 3 1 AP_READY R 0 "Control signal Register for 'ap_ready'." } { 4 3 RESERVED_1 R 0 "Reserved.  0s on read." } { 7 1 AUTO_RESTART RW 0 "Control signal Register for 'auto_restart'." } { 8 24 RESERVED_2 R 0 "Reserved.  0s on read." }}} {0x04 GIER       RW   0x0 "Global Interrupt Enable Register" {{ 0 1 Enable RW 0 "Master enable for the device interrupt output to the system interrupt controller: 0 = Disabled, 1 = Enabled" } { 1 31 RESERVED R 0 "Reserved.  0s on read." }} } {0x08 IP_IER     RW   0x0 "IP Interrupt Enable Register" {{ 0 1 CHAN0_INT_EN RW 0 "Enable Channel 0 (ap_done) Interrupt.  0 = Disabled, 1 = Enabled." } { 1 1 CHAN1_INT_EN RW 0 "Enable Channel 1 (ap_ready) Interrupt.  0 = Disabled, 1 = Enabled." } { 2 30 RESERVED R 0 "Reserved.  0s on read." }}} {0x0c IP_ISR     RW   0x0 "IP Interrupt Status Register" {{ 0 1 CHAN0_INT_ST RTOW 0 "Channel 0 (ap_done) Interrupt Status. 0 = No Channel 0 input interrupt, 1 = Channel 0 input interrup" } { 1 1 CHAN1_INT_ST RTOW 0 "Channel 1 (ap_ready) Interrupt Status. 0 = No Channel 1 input interrupt, 1 = Channel 1 input interrup" } { 2 30 RESERVED R 0 "Reserved.  0s on read." }}} {0x10 printf_buffer_1 W 0x0 "Data signal of printf_buffer" {{0 32 printf_buffer W 0 "Bit 31 to 0 Data signal of printf_buffer"}}} {0x14 printf_buffer_2 W 0x0 "Data signal of printf_buffer" {{0 32 printf_buffer W 0 "Bit 63 to 32 Data signal of printf_buffer"}}} {0x1c buf_r_1 W 0x0 "Data signal of buf_r" {{0 32 buf_r W 0 "Bit 31 to 0 Data signal of buf_r"}}} {0x20 buf_r_2 W 0x0 "Data signal of buf_r" {{0 32 buf_r W 0 "Bit 63 to 32 Data signal of buf_r"}}}}
+        addr_bits "16"
+        port_width "AWADDR 16 WDATA 32 WSTRB 4 ARADDR 16 RDATA 32"
+        registers {
+            {0x00 CTRL       RW   0x0 "Control signals" {
+                { 0 1 AP_START RW 0 "Control signal Register for 'ap_start'." }
+                { 1 1 AP_DONE R 0 "Control signal Register for 'ap_done'." }
+                { 2 1 AP_IDLE R 0 "Control signal Register for 'ap_idle'." }
+                { 3 1 AP_READY R 0 "Control signal Register for 'ap_ready'." }
+                { 4 3 RESERVED_1 R 0 "Reserved.  0s on read." }
+                { 7 1 AUTO_RESTART RW 0 "Control signal Register for 'auto_restart'." }
+                { 8 24 RESERVED_2 R 0 "Reserved.  0s on read." }}}
+            {0x04 GIER       RW   0x0 "Global Interrupt Enable Register" {
+                { 0 1 Enable RW 0 "Master enable for the device interrupt output to the system interrupt controller: 0 = Disabled, 1 = Enabled" }
+                { 1 31 RESERVED R 0 "Reserved.  0s on read." }} }
+            {0x08 IP_IER     RW   0x0 "IP Interrupt Enable Register" {
+                { 0 1 CHAN0_INT_EN RW 0 "Enable Channel 0 (ap_done) Interrupt.  0 = Disabled, 1 = Enabled." }
+                { 1 1 CHAN1_INT_EN RW 0 "Enable Channel 1 (ap_ready) Interrupt.  0 = Disabled, 1 = Enabled." }
+                { 2 30 RESERVED R 0 "Reserved.  0s on read." }}}
+            {0x0c IP_ISR     RW   0x0 "IP Interrupt Status Register" {
+                { 0 1 CHAN0_INT_ST RTOW 0 "Channel 0 (ap_done) Interrupt Status. 0 = No Channel 0 input interrupt, 1 = Channel 0 input interrup" }
+                { 1 1 CHAN1_INT_ST RTOW 0 "Channel 1 (ap_ready) Interrupt Status. 0 = No Channel 1 input interrupt, 1 = Channel 1 input interrup" }
+                { 2 30 RESERVED R 0 "Reserved.  0s on read." }}}}
         memories ""
         ctype {
             AWVALID {
@@ -133,8 +155,8 @@ set Interfaces {
             }
             AWADDR {
                 Type "integer unsigned"
-                Width "6"
-                Bits "6"
+                Width "16"
+                Bits "16"
             }
             WDATA {
                 Type "integer unsigned"
@@ -148,8 +170,8 @@ set Interfaces {
             }
             ARADDR {
                 Type "integer unsigned"
-                Width "6"
-                Bits "6"
+                Width "16"
+                Bits "16"
             }
             RDATA {
                 Type "integer unsigned"
@@ -641,7 +663,7 @@ proc add_user_parameter {core name display_name value format resolve_type args} 
     # {{{
     upvar user_parameter_order order
     incr order
-    
+
     set current_user_parameter [ipx::add_user_parameter $name $core]
     set_property order $order $current_user_parameter
     set_property value $value $current_user_parameter
@@ -791,16 +813,16 @@ proc set_dependent { name value obj } {
 
 proc set_access { access obj {is_field 0}} {
     # {{{
-  # read-only, write-only, read-write, writeOnce, read-writeOnce 
+  # read-only, write-only, read-write, writeOnce, read-writeOnce
   if        { $access eq "RW" } {
              set_property access "read-write" $obj
              if {$is_field} {
-               set_property modified_write_value modify $obj 
+               set_property modified_write_value modify $obj
              }
   } elseif { $access eq "R" } {
              set_property access "read-only" $obj
              if {$is_field} {
-               set_property read_action modify $obj 
+               set_property read_action modify $obj
              }
   } elseif { $access eq "W" } {
              set_property access "write-only" $obj
@@ -809,10 +831,10 @@ proc set_access { access obj {is_field 0}} {
   } elseif { $access eq "RWO" } {
              set_property access "read-writeOnce" $obj
   } elseif { $access eq "RTOW" } {
-             set_property access "read-only" $obj 
+             set_property access "read-only" $obj
              if {$is_field} {
-               set_property modified_write_value oneToToggle $obj 
-               set_property read_action modify $obj 
+               set_property modified_write_value oneToToggle $obj
+               set_property read_action modify $obj
              }
   } else {
     puts "Unmatched access type \"$access\""
@@ -823,13 +845,13 @@ proc set_access { access obj {is_field 0}} {
 
 proc add_registers {registers memory_map_name} {
     # {{{
-    set memory_maps [ ipx::get_memory_maps -quiet -of_objects [ ipx::current_core ] ] 
+    set memory_maps [ ipx::get_memory_maps -quiet -of_objects [ ipx::current_core ] ]
     if { $memory_maps eq "" } {
       set slaves_axi [ ipx::get_bus_interfaces -filter { ABSTRACTION_TYPE_NAME==aximm_rtl && interface_mode==slave } -of_objects [ ipx::current_core ] ]
-      set slave_axi [ lindex $slaves_axi 0  ] 
+      set slave_axi [ lindex $slaves_axi 0  ]
       set memory_map [ ipx::add_memory_map [ get_property name $slave_axi ] [ipx::current_core ] ]
       # and point back to this memory map
-      set_property  slave_memory_map_ref [get_property name $memory_map ] $slave_axi 
+      set_property  slave_memory_map_ref [get_property name $memory_map ] $slave_axi
     } else {
       foreach memory_map_item $memory_maps {
         set memory_map_item_name [get_property name $memory_map_item]
@@ -838,18 +860,18 @@ proc add_registers {registers memory_map_name} {
         }
       }
     }
-    
+
     set address_blocks [ ipx::get_address_blocks -quiet -of_objects $memory_map ]
     if { $address_blocks eq "" } {
       set address_block [ ipx::add_address_block [get_property name $memory_map ] $memory_map ]
-      set_property base_address 0 $address_block 
-      set_property range 4096 $address_block 
-      set_property width 8 $address_block 
+      set_property base_address 0 $address_block
+      set_property range 4096 $address_block
+      set_property width 8 $address_block
     } else {
       set address_block [ lindex $address_blocks 0 ]
     }
-    
-    
+
+
     foreach reg $registers {
       set offset [ lindex $reg 0 ]
       set name   [ lindex $reg 1 ]
@@ -857,29 +879,29 @@ proc add_registers {registers memory_map_name} {
       set reset_val [ lindex $reg 3 ]
       set descr  [ lindex $reg 4 ]
       set fields  [ lindex $reg 5 ]
-    
+
     #puts "Register line: [join $reg \"]"
-    
+
       # compare offset and address range, if offset > default address rang(64k), we should expand the address range
       set address_range  [get_property range $address_block]
       set offset_value [::math::bignum::tostr  [ ::math::bignum::fromstr $offset ] ]
       while {$address_range <= $offset_value} {
           set address_range [expr $address_range * 2]
       }
-    
+
       set_property range $address_range $address_block
       set ipx_reg [ ipx::add_register $name $address_block ]
-      set_property address_offset $offset_value $ipx_reg 
-      set_property size 32 $ipx_reg 
-      set_property size_format long $ipx_reg 
-      set_property reset_value  [::math::bignum::tostr [ ::math::bignum::fromstr $reset_val ] ] $ipx_reg 
-      set_property reset_value_format long $ipx_reg 
-      set_property description $descr $ipx_reg 
-      set_property display_name $name $ipx_reg 
-    
-      # read-only, write-only, read-write, writeOnce, read-writeOnce 
+      set_property address_offset $offset_value $ipx_reg
+      set_property size 32 $ipx_reg
+      set_property size_format long $ipx_reg
+      set_property reset_value  [::math::bignum::tostr [ ::math::bignum::fromstr $reset_val ] ] $ipx_reg
+      set_property reset_value_format long $ipx_reg
+      set_property description $descr $ipx_reg
+      set_property display_name $name $ipx_reg
+
+      # read-only, write-only, read-write, writeOnce, read-writeOnce
       set_access $access $ipx_reg
-    
+
       foreach field $fields {
     #puts "  field line: [join $field \"]"
          set offset [ lindex $field 0 ]
@@ -888,18 +910,18 @@ proc add_registers {registers memory_map_name} {
          set access [ lindex $field 3 ]
          set reset_value [ lindex $field 4 ]
          set description [ lindex $field 5 ]
-    
+
          set ipx_field [ ipx::add_field $name $ipx_reg ]
          set_property bit_offset $offset $ipx_field
-    
+
          set_dependent bit_width $width $ipx_field
          set_access $access $ipx_field 1
-    
-         #  set_property reset_value  [::math::bignum::tostr [ ::math::bignum::fromstr $offset ] ] $ipx_field 
-         # set_property reset_value_format long $ipx_field 
-         set_property description $description $ipx_field 
+
+         #  set_property reset_value  [::math::bignum::tostr [ ::math::bignum::fromstr $offset ] ] $ipx_field
+         # set_property reset_value_format long $ipx_field
+         set_property description $description $ipx_field
       }
-    
+
     }
 
     # }}}
@@ -907,13 +929,13 @@ proc add_registers {registers memory_map_name} {
 
 proc add_memories {memories memory_map_name} {
     # {{{
-    set memory_maps [ ipx::get_memory_maps -quiet -of_objects [ ipx::current_core ] ] 
+    set memory_maps [ ipx::get_memory_maps -quiet -of_objects [ ipx::current_core ] ]
     if { $memory_maps eq "" } {
       set slaves_axi [ ipx::get_bus_interfaces -filter { ABSTRACTION_TYPE_NAME==aximm_rtl && interface_mode==slave } -of_objects [ ipx::current_core ] ]
-      set slave_axi [ lindex $slaves_axi 0  ] 
+      set slave_axi [ lindex $slaves_axi 0  ]
       set memory_map [ ipx::add_memory_map [ get_property name $slave_axi ] [ipx::current_core ] ]
       # and point back to this memory map
-      set_property  slave_memory_map_ref [get_property name $memory_map ] $slave_axi 
+      set_property  slave_memory_map_ref [get_property name $memory_map ] $slave_axi
     } else {
       foreach memory_map_item $memory_maps {
         set memory_map_item_name [get_property name $memory_map_item]
@@ -926,14 +948,14 @@ proc add_memories {memories memory_map_name} {
     set address_blocks [ ipx::get_address_blocks -quiet -of_objects $memory_map ]
     if { $address_blocks eq "" } {
       set address_block [ ipx::add_address_block [get_property name $memory_map ] $memory_map ]
-      set_property base_address 0 $address_block 
-      set_property range 4096 $address_block 
-      set_property width 8 $address_block 
+      set_property base_address 0 $address_block
+      set_property range 4096 $address_block
+      set_property width 8 $address_block
     } else {
       set address_block [ lindex $address_blocks 0 ]
     }
-    
-    
+
+
     dict for {array_name details} $memories {
       dict with details {}
       set offset $base_address
@@ -941,7 +963,7 @@ proc add_memories {memories memory_map_name} {
       set access RW
       set reset_val 0
       set descr  "Memory $array_name"
-    
+
       # compare offset and address range, if offset > default address rang(64k), we should expand the address range
       set address_range  [get_property range $address_block]
       set offset_value [::math::bignum::tostr  [ ::math::bignum::fromstr $offset ] ]
@@ -949,18 +971,18 @@ proc add_memories {memories memory_map_name} {
       while {$address_range < $address_range_tmp} {
           set address_range [expr $address_range * 2]
       }
-    
+
       set_property range $address_range $address_block
       set ipx_reg [ ipx::add_register $name $address_block ]
-      set_property address_offset $offset_value $ipx_reg 
-      set_property size $range $ipx_reg 
-      set_property size_format long $ipx_reg 
-      set_property reset_value  [::math::bignum::tostr [ ::math::bignum::fromstr $reset_val ] ] $ipx_reg 
-      set_property reset_value_format long $ipx_reg 
-      set_property description $descr $ipx_reg 
-      set_property display_name $name $ipx_reg 
-    
-      # read-only, write-only, read-write, writeOnce, read-writeOnce 
+      set_property address_offset $offset_value $ipx_reg
+      set_property size $range $ipx_reg
+      set_property size_format long $ipx_reg
+      set_property reset_value  [::math::bignum::tostr [ ::math::bignum::fromstr $reset_val ] ] $ipx_reg
+      set_property reset_value_format long $ipx_reg
+      set_property description $descr $ipx_reg
+      set_property display_name $name $ipx_reg
+
+      # read-only, write-only, read-write, writeOnce, read-writeOnce
       set_access $access $ipx_reg
     }
     # }}}
@@ -1035,7 +1057,7 @@ if {$SubcoreFiles != ""} {
     }
 
     close_project
-    
+
     set IPs [lsort -u $IPs]
     set IPFiles [glob -nocomplain $ipdir/*]
 }
