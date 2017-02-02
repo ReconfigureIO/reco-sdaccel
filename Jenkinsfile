@@ -22,13 +22,16 @@ node ("master") {
         sh 'make eTeak/go-teak-sdaccel'
         dir('examples/noop'){
             sh './../../reco-sdaccel test-go'
-            sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_nomem --report-unoptflat'
+            sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
         }
 
         stage 'test verilog'
         withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+
             sh "make VERSION=${env.VERSION} deploy"
-            sh 'NUMBER=$(./jarvice/jarvice upload examples/noop); ./jarvice/jarvice wait $NUMBER'
+            dir('examples/noop'){
+                sh '../../jarvice/jarvice test test-noop'
+            }
         }
 
         stage 'build'

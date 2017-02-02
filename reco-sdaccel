@@ -12,6 +12,10 @@ function build {
     make -f "$DIR/reco-sdaccel.mk" TARGET=hw_emu kernel
 }
 
+function image {
+    make -f "$DIR/reco-sdaccel.mk" TARGET=hw kernel
+}
+
 function test_go {
     make -f "$DIR/reco-sdaccel.mk" verilog
 }
@@ -41,6 +45,9 @@ function main {
             ;;
         "simulate")
             simulate "${@:2}"
+            ;;
+        "image")
+            image "${@:2}"
             ;;
         "cmds")
             cmds "${@:2}"
