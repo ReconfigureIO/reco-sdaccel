@@ -37,7 +37,7 @@ synth_design \
 # Prefix all the module names with the unique kernel name string.
 #
 rename_ref -prefix_all "${moduleName}_"
-rename_ref -ref "${moduleName}_sda_kernel_wrapper_gmem" -to $moduleName
+rename_ref -ref [lindex [find_top] 0] -to $moduleName
 
 #
 # Write out the Verilog netlist, with a renamed kernel toplevel module.
