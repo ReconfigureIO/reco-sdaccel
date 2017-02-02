@@ -11,13 +11,8 @@ func main() {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_reco_sdaccel_stub_0_1")
 	defer krnl.Release()
 
-	buff := world.Malloc(xcl.ReadOnly, 2)
-	defer buff.Free()
-
-	source := []byte{6, 36}
-	buff.Write(source)
-
-	krnl.SetMemoryArg(0, buff)
+	krnl.SetArg(0, 1)
+	krnl.SetArg(1, 2)
 
 	krnl.Run(1, 1, 1)
 }
