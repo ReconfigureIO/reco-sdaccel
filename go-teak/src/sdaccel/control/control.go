@@ -32,8 +32,9 @@ type WriteData struct {
 	Strb [4]bool
 }
 
-// Responds to all simple AXI reads with zero value.
-func nullReadHandler(controlReadAddr <-chan Addr,
+// Goroutine to disable control bus read transactions. Should only be run
+// once for each control interface.
+func DisableReads(controlReadAddr <-chan Addr,
 	controlReadData chan<- ReadData) {
 	nullRead := ReadData{0, [2]bool{false, false}}
 	for {
@@ -42,8 +43,9 @@ func nullReadHandler(controlReadAddr <-chan Addr,
 	}
 }
 
-// Responds to all simple AXI writes with 'OK'.
-func nullWriteHandler(
+// Goroutine to disable control bus write transactions. Should only be run once
+// for each control interface.
+func DisableWrites(
 	controlWriteAddr <-chan Addr,
 	controlWriteData <-chan WriteData,
 	controlResp chan<- Resp) {
@@ -53,20 +55,4 @@ func nullWriteHandler(
 		<-controlWriteData
 		controlResp <- nullResp
 	}
-}
-
-// Disable control bus read transactions. Should only be called once for each
-// control interface.
-func DisableReads(controlReadAddr <-chan Addr,
-	controlReadData chan<- ReadData) {
-	go nullReadHandler(controlReadAddr, controlReadData)
-}
-
-// Disable control bus write transactions. Should only be called once for each
-// control interface.
-func DisableWrites(
-	controlWriteAddr <-chan Addr,
-	controlWriteData <-chan WriteData,
-	controlResp chan<- Resp) {
-	go nullWriteHandler(controlWriteAddr, controlWriteData, controlResp)
 }

@@ -28,6 +28,6 @@ func Top(
 	controlResp chan<- control.Resp) {
 
 	// Disable AXI-Lite control accesses.
-	control.DisableReads(controlReadAddr, controlReadData)
-	control.DisableWrites(controlWriteAddr, controlWriteData, controlResp)
+	go control.DisableReads(controlReadAddr, controlReadData)
+	go control.DisableWrites(controlWriteAddr, controlWriteData, controlResp)
 }
