@@ -32,22 +32,6 @@ type WriteData struct {
 	Strb [4]bool
 }
 
-// Disable control bus read transactions. Should only be called once for each
-// control interface.
-func DisableReads(controlReadAddr <-chan Addr,
-	controlReadData chan<- ReadData) {
-	go nullReadHandler(controlReadAddr, controlReadData)
-}
-
-// Disable control bus write transactions. Should only be called once for each
-// control interface.
-func DisableWrites(
-	controlWriteAddr <-chan Addr,
-	controlWriteData <-chan WriteData,
-	controlResp chan<- Resp) {
-	go nullWriteHandler(controlWriteAddr, controlWriteData, controlResp)
-}
-
 // Responds to all simple AXI reads with zero value.
 func nullReadHandler(controlReadAddr <-chan Addr,
 	controlReadData chan<- ReadData) {
@@ -69,4 +53,20 @@ func nullWriteHandler(
 		<-controlWriteData
 		controlResp <- nullResp
 	}
+}
+
+// Disable control bus read transactions. Should only be called once for each
+// control interface.
+func DisableReads(controlReadAddr <-chan Addr,
+	controlReadData chan<- ReadData) {
+	go nullReadHandler(controlReadAddr, controlReadData)
+}
+
+// Disable control bus write transactions. Should only be called once for each
+// control interface.
+func DisableWrites(
+	controlWriteAddr <-chan Addr,
+	controlWriteData <-chan WriteData,
+	controlResp chan<- Resp) {
+	go nullWriteHandler(controlWriteAddr, controlWriteData, controlResp)
 }
