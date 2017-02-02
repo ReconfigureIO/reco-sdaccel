@@ -23,7 +23,7 @@ ${BUILD_DIR}:
 	mkdir -p "${BUILD_DIR}"
 
 ${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v
-	cd "${BUILD_DIR}" && vivado -mode batch -source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" -vendor reconfigure.io -library reco-sdaccel -name stub -version 0.1
+	cd "${BUILD_DIR}" && vivado -notrace -mode batch -source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" -vendor reconfigure.io -library reco-sdaccel -name stub -version 0.1
 
 ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
