@@ -29,13 +29,13 @@ node ("master") {
         withEnv(["VERSION=${env.BRANCH_NAME}"]) {
 
             sh "make VERSION=${env.VERSION} deploy"
-            
+
         }
 
         stage 'test verilog noop'
         withEnv(["VERSION=${env.BRANCH_NAME}"]) {
-            dir('examples/addition'){
-                sh '../../jarvice/jarvice test test-addition'
+            dir('examples/noop'){
+                sh '../../jarvice/jarvice test test-noop'
             }
         }
 
@@ -45,7 +45,7 @@ node ("master") {
                 sh '../../jarvice/jarvice test test-addition'
             }
         }
-        
+
 
         stage 'test verilog histogram'
         withEnv(["VERSION=${env.BRANCH_NAME}"]) {
@@ -59,7 +59,7 @@ node ("master") {
             dir('examples/histogram-parallel'){
                 sh '../../jarvice/jarvice test test-histogram-parallel'
             }
-        }        
+        }
 
         stage 'build'
         sh 'make'
