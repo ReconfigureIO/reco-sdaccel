@@ -18,7 +18,7 @@ func Top(
 
 	memWriteAddr chan<- memory.Addr,
 	memWriteData chan<- memory.WriteData,
-	memResp <-chan memory.Response,
+	memWriteResp <-chan memory.Response,
 
 	controlReadAddr <-chan control.Addr,
 	controlReadData chan<- control.ReadData,
@@ -30,4 +30,8 @@ func Top(
 	// Disable AXI-Lite control accesses.
 	go control.DisableReads(controlReadAddr, controlReadData)
 	go control.DisableWrites(controlWriteAddr, controlWriteData, controlResp)
+	
+	// Disable AXI memory accesses.
+	go memory.DisableReads(memReadAddr, memReadData)
+	go memory.DisableWrites(memWriteAddr, memWriteData, memWriteResp)
 }

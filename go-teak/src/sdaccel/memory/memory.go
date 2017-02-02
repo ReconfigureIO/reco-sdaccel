@@ -16,6 +16,7 @@
 
 package memory
 
+// Specifies AXI memory address channel fields.
 type Addr struct {
 	Id     bool
 	Addr   uint64
@@ -30,6 +31,7 @@ type Addr struct {
 	User   bool
 }
 
+// Specifies AXI memory read data channel fields.
 type ReadData struct {
 	Id   bool
 	Data uint32
@@ -38,6 +40,7 @@ type ReadData struct {
 	User bool
 }
 
+// Specifies AXI memory write data channel fields.
 type WriteData struct {
 	Data uint32
 	Strb [4]bool
@@ -45,8 +48,42 @@ type WriteData struct {
 	User bool
 }
 
+// Specifies AXI memory write response channel fields.
 type Response struct {
 	Id   bool
 	Resp [2]bool
 	User bool
+}
+
+// Goroutine to disable memory bus read transactions. Should only be run
+// once for each memory interface.
+func DisableReads(memoryReadAddr chan<- Addr,
+	memoryReadData <-chan ReadData) {
+	nullReadAddr := Addr{false, 0, 0, [3]bool{false, false, false},
+		[2]bool{false, false}, false, [4]bool{false, false, false, false},
+		[3]bool{false, true, false}, [4]bool{false, false, false, false},
+		[4]bool{false, false, false, false}, false}
+	memoryReadAddr <- nullReadAddr
+	for {
+		<-memoryReadData
+	}
+}
+
+// Goroutine to disable memory bus write transactions. Should only be run once
+// for each memory interface.
+func DisableWrites(
+	memoryWriteAddr chan<- Addr,
+	memoryWriteData chan<- WriteData,
+	memoryWriteResp <-chan Response) {
+	nullWriteAddr := Addr{false, 0, 0, [3]bool{false, false, false},
+		[2]bool{false, false}, false, [4]bool{false, false, false, false},
+		[3]bool{false, true, false}, [4]bool{false, false, false, false},
+		[4]bool{false, false, false, false}, false}
+	nullWriteData := WriteData{0, [4]bool{false, false, false, false},
+		false, false}
+	memoryWriteAddr <- nullWriteAddr
+	memoryWriteData <- nullWriteData
+	for {
+		<-memoryWriteResp
+	}
 }
