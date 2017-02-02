@@ -30,14 +30,14 @@ synth_design \
   -mode out_of_context \
   -no_lc \
   -keep_equivalent_registers \
-  -top [lindex [find_top] 0] \
+  -top sda_kernel_wrapper_gmem \
   -include_dirs $includeCodePath
 
 #
 # Prefix all the module names with the unique kernel name string.
 #
 rename_ref -prefix_all "${moduleName}_"
-rename_ref -ref [lindex [find_top] 0] -to $moduleName
+rename_ref -ref "${moduleName}_sda_kernel_wrapper_gmem" -to $moduleName
 
 #
 # Write out the Verilog netlist, with a renamed kernel toplevel module.
