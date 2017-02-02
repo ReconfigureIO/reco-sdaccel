@@ -10,8 +10,8 @@ import (
 
 // magic identifier for exporting
 func Top(
-	controlAddr chan<- uint32,
-	controlData <-chan uint32,
+	paramAddr chan<- uint32,
+	paramData <-chan uint32,
 
 	memReadAddr chan<- memory.Addr,
 	memReadData <-chan memory.ReadData,
@@ -27,10 +27,13 @@ func Top(
 	controlWriteData <-chan control.WriteData,
 	controlResp chan<- control.Resp) {
 
+	// Disable parameter RAM accesses.
+	go control.DisableParams(paramAddr, paramData)
+
 	// Disable AXI-Lite control accesses.
 	go control.DisableReads(controlReadAddr, controlReadData)
 	go control.DisableWrites(controlWriteAddr, controlWriteData, controlResp)
-	
+
 	// Disable AXI memory accesses.
 	go memory.DisableReads(memReadAddr, memReadData)
 	go memory.DisableWrites(memWriteAddr, memWriteData, memWriteResp)

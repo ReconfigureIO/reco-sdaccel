@@ -56,3 +56,14 @@ func DisableWrites(
 		controlResp <- nullResp
 	}
 }
+
+// Goroutine to disable control bus parameter RAM accesses. Should only be run
+// once for each control interface.
+func DisableParams(
+	paramAddr chan<- uint32,
+	paramData <-chan uint32) {
+	paramAddr <- 0
+	for {
+		<-paramData
+	}
+}
