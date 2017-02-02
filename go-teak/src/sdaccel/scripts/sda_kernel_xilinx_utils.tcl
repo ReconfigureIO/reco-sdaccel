@@ -220,7 +220,7 @@ set Interfaces {
         port_prefix "m_axi_gmem"
         data_width "32"
         param_prefix "C_M_AXI_GMEM"
-        port_width "AWADDR 64 AWID 1 AWUSER 1 WDATA 32 WSTRB 4 WUSER 1 ARADDR 64 ARID 1 ARUSER 1 RDATA 32 RID 1 RUSER 1 BID 1 BUSER 1"
+        port_width "AWADDR 64 AWID 1 AWUSER 1 WDATA 32 WSTRB 4 WID 1 WUSER 1 ARADDR 64 ARID 1 ARUSER 1 RDATA 32 RID 1 RUSER 1 BID 1 BUSER 1"
         ctype {
             AWLEN {
                 Type "integer unsigned"
@@ -239,8 +239,8 @@ set Interfaces {
             }
             AWLOCK {
                 Type "integer unsigned"
-                Width "1"
-                Bits "1"
+                Width "2"
+                Bits "2"
             }
             AWREGION {
                 Type "integer unsigned"
@@ -319,8 +319,8 @@ set Interfaces {
             }
             ARLOCK {
                 Type "integer unsigned"
-                Width "1"
-                Bits "1"
+                Width "2"
+                Bits "2"
             }
             ARREGION {
                 Type "integer unsigned"
@@ -396,6 +396,11 @@ set Interfaces {
                 Type "integer unsigned"
                 Width "4"
                 Bits "4"
+            }
+            WID {
+                Type "integer unsigned"
+                Width "1"
+                Bits "1"
             }
             WUSER {
                 Type "integer unsigned"
