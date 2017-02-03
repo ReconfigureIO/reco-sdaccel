@@ -4,7 +4,7 @@ package xcl
 // #cgo LDFLAGS: -lxilinxopencl -llmx6.0
 // #include "xcl.h"
 //
-// typedef *cl_mem memP
+// typedef cl_mem* memP
 // memP memPointer(cl_mem m) {
 //   return &cl_mem;
 // }
