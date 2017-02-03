@@ -28,5 +28,8 @@ func main() {
 
 	var ret uint32
 	err := binary.Read(bytes.NewReader(resp), binary.LittleEndian, &ret)
+	if err != nil {
+		fmt.Println("binary.Read failed:", err)
+	}
 	fmt.Printf("%d\n", ret)
 }
