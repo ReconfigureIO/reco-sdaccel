@@ -16,7 +16,7 @@ func main() {
 
 	krnl.SetArg(0, 1)
 	krnl.SetArg(1, 2)
-	krnl.SetMemoryArg(3, buff)
+	krnl.SetMemoryArg(2, buff)
 
 	krnl.Run(1, 1, 1)
 }
