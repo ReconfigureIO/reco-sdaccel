@@ -39,8 +39,8 @@ func Top(
 		return <-controlData
 	}
 
-	val := read(0) + read(1)
-	addr := uint64(read(2))<<32 | uint64(read(3))
+	val := read(0x40) + read(0x44)
+	addr := uint64(read(0x4C))<<32 | uint64(read(0x48))
 
 	memWriteAddr <- memory.Addr{
 		Addr: addr,

@@ -8,7 +8,7 @@
 # Implements SDAccel kernel packaging phase.
 #
 proc sda_kernel_packaging {moduleName vendorName libraryName kernelName
-  versionNumber ipDirPath pkgDirPath} {
+  versionNumber argsFileName ipDirPath pkgDirPath} {
 
 #
 # Open Kernel skeleton XML file and append common header fields.
@@ -48,9 +48,14 @@ puts $fileId "        base=\"0x0\"/>"
 puts $fileId "    </ports>"
 
 #
-# Write common XML footer with no common arguments and close file.
+# Write common XML footer with parameter arguments and close file.
 #
 puts $fileId "    <args>"
+if {0 != [file exists $argsFileName]} {
+  set argsFileId [open $argsFileName "r"]
+  puts $fileId [read -nonewline $argsFileId]
+  close $argsFileId
+}
 puts $fileId "    </args>"
 puts $fileId "</kernel>"
 puts $fileId "</root>"
@@ -58,7 +63,6 @@ close $fileId
 
 #
 # Perform SDAccel kernel packaging.
-# TODO: Include valid argument fields.
 # TODO: If support for inter-kernel AXI stream pipes is required, the
 # corresponding definitions need to be included here.
 #

@@ -38,12 +38,13 @@
 # -build_dir <build_dir>
 #   This is a path to the netlist build directory, into which the output netlist
 #   will be placed. If not specified, the current directory will be used.
-# -mem_type [nomem|gmem]
-#   This is a string which specifies the memory access types supported by the
-#   generated action code. This may be 'nomem' if the action code does not need
-#   to access external memory and 'gmem' if the action code needs to access the
-#   global memory area on the accelerator card. This option is not mandatory and
-#   has the default value of 'nomem'.
+# -param_args_file <args_file>
+#   This specifies the parameter arguments definition file, which consists of
+#   an arbitrary list of kernel arguments of the form <arg name="foo" ...../>
+#   If not specified, the file 'param_args.xmldef' in the current working
+#   directory will be used instead. If no suitable parameter arguments file
+#   can be found, the kernel arguments section of the kernel.xml file will
+#   not be populated.
 # -skip_resynthesis [0|1]
 #   This is a boolean flag which can be used to skip the synthesis phase of the
 #   build process if a valid Verilog netlist is already present in the build
@@ -62,9 +63,9 @@ source [file join [file dirname [info script]] sda_kernel_packaging.tcl]
 source [file join [file dirname [info script]] sda_kernel_xilinx_utils.tcl]
 
 # Specify default parameter values.
-set actionMemType "nomem"
 set includeCodePath "verilog"
 set skipResynthesis 0
+set paramArgsFileName "param_args.xmldef"
 
 # Selects a generic Kintex Ultrascale part as the nominal target.
 set partName "xcku115-flvf1924-1-c"
@@ -98,16 +99,16 @@ while {$argIndex < $argc} {
       set buildDirPath [lindex $argv $argIndex]
       incr argIndex
     }
-    "-mem_type" {
-      set actionMemType [lindex $argv $argIndex]
-      incr argIndex
-    }
     "-action_source_file" {
       set sourceFileName [lindex $argv $argIndex]
       incr argIndex
     }
     "-include_source_dir" {
       set includeCodePath [lindex $argv $argIndex]
+      incr argIndex
+    }
+    "-param_args_file" {
+      set paramArgsFileName [lindex $argv $argIndex]
       incr argIndex
     }
     "-skip_resynthesis" {
@@ -173,7 +174,7 @@ file mkdir $synDirPath
 set synFileName [file join $synDirPath "${moduleName}.v"]
 if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
-  sda_kernel_synthesis $sourceFileName $moduleName $actionMemType $includeCodePath $partName
+  sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath $partName
   cd $buildDirPath
 }
 
@@ -198,4 +199,4 @@ cd $buildDirPath
 # core to create an SDAccel kernel object.
 #
 sda_kernel_packaging $moduleName $vendorName $libraryName $kernelName \
-  $versionNumber $ipDirPath $buildDirPath
+  $versionNumber $paramArgsFileName $ipDirPath $buildDirPath
