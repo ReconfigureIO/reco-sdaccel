@@ -33,7 +33,7 @@ func Top(
 
 	// Disable AXI memory accesses.
 	go memory.DisableReads(memReadAddr, memReadData)
-	go memory.DisableWrites(memWriteAddr, memWriteData, memWriteResp)
+	go memory.DisableWrites(memWriteAddr, memWriteData, memResp)
 
 	read := func(a uint32) uint32 {
 		controlAddr <- a
