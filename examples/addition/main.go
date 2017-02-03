@@ -33,6 +33,7 @@ func Top(
 
 	// Disable AXI memory accesses.
 	go memory.DisableReads(memReadAddr, memReadData)
+	go memory.DisableWrites(memWriteAddr, memWriteData, memWriteResp)
 
 	read := func(a uint32) uint32 {
 		controlAddr <- a
@@ -40,17 +41,17 @@ func Top(
 	}
 
 	val := read(0x40) + read(0x44)
-	addr := uint64(read(0x4C))<<32 | uint64(read(0x48))
+//	addr := uint64(read(0x4C))<<32 | uint64(read(0x48))
 
-	memWriteAddr <- memory.Addr{
-		Addr: addr,
-		Len:  1,
-	}
+//	memWriteAddr <- memory.Addr{
+//		Addr: addr,
+//		Len:  1,
+//	}
 
-	memWriteData <- memory.WriteData{
-		Data: val,
-		Strb: [4]bool{1, 1, 1, 1},
-	}
+//	memWriteData <- memory.WriteData{
+//		Data: val,
+//		Strb: [4]bool{1, 1, 1, 1},
+//	}
 
-	<-memResp
+//	<-memResp
 }
