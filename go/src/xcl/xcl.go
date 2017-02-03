@@ -3,12 +3,12 @@ package xcl
 // #cgo CFLAGS: -std=gnu99
 // #cgo LDFLAGS: -lxilinxopencl -llmx6.0
 // #include "xcl.h"
-
+//
 // typedef memP *cl_mem
 // memP memPointer(cl_mem m) {
 //   return &cl_mem;
 // }
-
+//
 import "C"
 
 import (
