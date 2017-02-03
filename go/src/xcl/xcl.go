@@ -78,7 +78,7 @@ func (mem *Memory) Write(bytes []byte) {
 }
 
 func (kernel *Kernel) SetMemoryArg(index uint, mem *Memory) {
-	C.clSetKernelArg(kernel.kernel, C.cl_uint(index), C.sizeof_cl_mem, unsafe.Pointer(&mem.mem))
+	C.clSetKernelArg(kernel.kernel, C.cl_uint(index), C.sizeof_cl_mem, unsafe.Pointer(mem.mem))
 }
 
 func (kernel *Kernel) SetArg(index uint, val uint32) {
