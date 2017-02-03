@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"xcl"
 )
@@ -23,5 +25,8 @@ func main() {
 
 	resp := make([]byte, 4)
 	buff.Read(resp)
-	fmt.Printf("%d\n", resp[3])
+
+	var ret uint32
+	err := binary.Read(bytes.NewReader(resp), binary.LittleEndian, &ret)
+	fmt.Printf("%d\n", ret)
 }
