@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"os"
 	"xcl"
 )
 
@@ -31,5 +32,8 @@ func main() {
 	if err != nil {
 		fmt.Println("binary.Read failed:", err)
 	}
-	fmt.Printf("%d\n", ret)
+
+	if ret != 3 {
+		os.exit(1)
+	}
 }
