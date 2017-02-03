@@ -34,6 +34,6 @@ func main() {
 	}
 
 	if ret != 3 {
-		os.exit(1)
+		os.Exit(1)
 	}
 }
