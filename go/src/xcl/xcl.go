@@ -3,6 +3,12 @@ package xcl
 // #cgo CFLAGS: -std=gnu99
 // #cgo LDFLAGS: -lxilinxopencl -llmx6.0
 // #include "xcl.h"
+
+// typedef memP *cl_mem
+// memP memPointer(cl_mem m) {
+//   return &cl_mem;
+// }
+
 import "C"
 
 import (
@@ -78,7 +84,7 @@ func (mem *Memory) Write(bytes []byte) {
 }
 
 func (kernel *Kernel) SetMemoryArg(index uint, mem *Memory) {
-	C.clSetKernelArg(kernel.kernel, C.cl_uint(index), C.sizeof_cl_mem, unsafe.Pointer(mem.mem))
+	C.clSetKernelArg(kernel.kernel, C.cl_uint(index), C.sizeof_cl_mem, unsafe.Pointer(C.memPointer(mem.mem)))
 }
 
 func (kernel *Kernel) SetArg(index uint, val uint32) {
