@@ -49,7 +49,8 @@ func Top(
 
 	memWriteData <- memory.WriteData{
 		Data: val,
-		Strb: [4]bool{1, 1, 1, 1},
+		Strb: [4]bool{true, true, true, true},
+		Last: true,
 	}
 
 	<-memResp

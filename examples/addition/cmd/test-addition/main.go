@@ -21,7 +21,7 @@ func main() {
 
 	krnl.Run(1, 1, 1)
 
-	resp := make([]byte, 1)
+	resp := make([]byte, 4)
 	buff.Read(resp)
-	fmt.Printf("%d\n", resp[0])
+	fmt.Printf("%d\n", resp[3])
 }
