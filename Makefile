@@ -57,6 +57,7 @@ build/reco/reco-sdaccel.mk: build/reco
 
 build/reco/eTeak: build/reco eTeak/go-teak-sdaccel
 	cp -R eTeak build/reco
+	touch $@
 
 build/reco/go-teak: build/reco
 	cp -R go-teak build/reco
@@ -97,6 +98,7 @@ downloads/go-${GO_VERSION}.linux-amd64.tar.gz: downloads
 build/reco/go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz build/reco
 	mkdir -p $@
 	tar -xf $< -C $@ --strip-components=1
+	touch $@
 
 eTeak:
 	mkdir -p eTeak
