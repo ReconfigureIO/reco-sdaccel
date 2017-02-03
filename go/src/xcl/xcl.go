@@ -82,6 +82,10 @@ func (mem *Memory) Write(bytes []byte) {
 	C.xcl_memcpy_to_device(C.xcl_world(*mem.world), mem.mem, p, C.size_t(len(bytes)))
 }
 
+func (mem *Memory) Read(bytes []byte) {
+	C.xcl_memcpy_from_device(C.xcl_world(*mem.world), unsafe.Pointer(&bytes[0]), mem.mem, C.size_t(cap(bytes)))
+}
+
 func (kernel *Kernel) SetMemoryArg(index uint, mem *Memory) {
 	C.setMemArg(kernel.kernel, C.cl_uint(index), mem.mem)
 }
