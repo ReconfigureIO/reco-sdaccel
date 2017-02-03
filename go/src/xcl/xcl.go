@@ -5,7 +5,7 @@ package xcl
 // #include "xcl.h"
 //
 // cl_int setMemArg(cl_kernel kernel, cl_uint arg_index, cl_mem m) {
-//    return clSetKernelArg(kernel, arg_index, sizeof(cl_mem), &m)
+//    return clSetKernelArg(kernel, arg_index, sizeof(cl_mem), &m);
 // }
 //
 import "C"
