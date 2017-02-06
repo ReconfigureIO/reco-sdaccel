@@ -4,50 +4,52 @@ notifyStarted()
 
 node ("master") {
     try {
-        stage "checkout"
-        checkout scm
-
-        stage 'build image'
-        sh 'docker build -t "verilator:latest" docker-verilator'
-
-        stage 'lint'
-        sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-sdaccel'
-        sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck jarvice/jarvice'
-        sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
-
-        stage 'pre clean'
-        sh 'make clean'
-
-        stage 'test go'
-        sh 'make eTeak/go-teak-sdaccel'
-        dir('examples/noop'){
-            sh './../../reco-sdaccel test-go'
-            sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+        stage "checkout" {
+            checkout scm
         }
 
-        stage 'deploy examples'
+        stage 'build image' {
+            sh 'docker build -t "verilator:latest" docker-verilator'
+        }
+
+        stage 'lint' {
+            sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-sdaccel'
+            sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck jarvice/jarvice'
+            sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+        }
+
+        stage 'pre clean' {
+            sh 'make clean'
+        }
+
+        stage 'test go' {
+            sh 'make eTeak/go-teak-sdaccel'
+            dir('examples/noop'){
+                sh './../../reco-sdaccel test-go'
+                sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+            }
+        }
+
         withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+            stage 'deploy examples' {
+                sh "make VERSION=${env.VERSION} deploy"
+            }
 
-            sh "make VERSION=${env.VERSION} deploy"
-
-        }
-
-
-        parallel noop: {
-            stage 'test verilog noop'
-            withEnv(["VERSION=${env.BRANCH_NAME}"]) {
-                dir('examples/noop'){
-                    sh '../../jarvice/jarvice test test-noop'
+            parallel noop: {
+                stage 'test verilog noop' {
+                    dir('examples/noop'){
+                        sh '../../jarvice/jarvice test test-noop'
+                    }
+                }
+            },
+            addition: {
+                stage 'test verilog addition' {
+                    dir('examples/addition'){
+                        sh '../../jarvice/jarvice test test-addition'
+                    }
                 }
             }
-        },
-        addition: {
-            stage 'test verilog addition'
-            withEnv(["VERSION=${env.BRANCH_NAME}"]) {
-                dir('examples/addition'){
-                    sh '../../jarvice/jarvice test test-addition'
-                }
-            }
+
         }
 
 //        stage 'test verilog histogram'
@@ -64,14 +66,17 @@ node ("master") {
 //            }
 //        }
 
-        stage 'build'
-        sh 'make'
+        stage 'build' {
+            sh 'make'
+        }
 
-        stage 'upload'
-        step([$class: 'S3BucketPublisher', dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'nerabus/reco-sdaccel', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "dist/*.tar.gz", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], profileName: 's3', userMetadata: []])
+        stage 'upload' {
+            step([$class: 'S3BucketPublisher', dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'nerabus/reco-sdaccel', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "dist/*.tar.gz", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], profileName: 's3', userMetadata: []])
+        }
 
-        stage 'clean'
-        sh 'make clean'
+        stage 'clean' {
+            sh 'make clean'
+        }
 
         notifySuccessful()
     } catch (e) {
