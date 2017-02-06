@@ -69,6 +69,11 @@ pipeline {
                     dir('examples/addition'){
                         sh '../../jarvice/jarvice test test-addition'
                     }
+                },
+                histogram: {
+                    dir('examples/histogram'){
+                        sh '../../jarvice/jarvice test test-histogram'
+                    }
                 }
             }
         }
