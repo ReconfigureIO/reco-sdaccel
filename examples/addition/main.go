@@ -31,6 +31,9 @@ func Top(
 	go control.DisableReads(controlReadAddr, controlReadData)
 	go control.DisableWrites(controlWriteAddr, controlWriteData, controlResp)
 
+	// Disable memory reads
+	go memory.DisableReads(memReadAddr, memReadData)
+
 	read := func(a uint32) uint32 {
 		controlAddr <- a
 		return <-controlData
