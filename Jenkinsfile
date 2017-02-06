@@ -36,17 +36,13 @@ node ("master") {
             }
 
             parallel noop: {
-                stage 'test verilog noop' {
-                    dir('examples/noop'){
-                        sh '../../jarvice/jarvice test test-noop'
-                    }
+                dir('examples/noop'){
+                    sh '../../jarvice/jarvice test test-noop'
                 }
             },
             addition: {
-                stage 'test verilog addition' {
-                    dir('examples/addition'){
-                        sh '../../jarvice/jarvice test test-addition'
-                    }
+                dir('examples/addition'){
+                    sh '../../jarvice/jarvice test test-addition'
                 }
             }
 
