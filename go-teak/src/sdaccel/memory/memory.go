@@ -87,3 +87,44 @@ func DisableWrites(
 		<-memoryWriteResp
 	}
 }
+
+func Write(
+	address uint64,
+	data uint32,
+	memoryWriteAddr chan<- Addr,
+	memoryWriteData chan<- WriteData,
+	memoryWriteResp <-chan Response) Response {
+
+	go func() {
+		memoryWriteAddr <- Addr{
+			Addr: address,
+			Prot: [3]bool{false, true, false},
+		}
+	}()
+
+	go func() {
+		memoryWriteData <- WriteData{
+			Data: data,
+			Strb: [4]bool{true, true, true, true},
+			Last: true,
+		}
+	}()
+
+	return <-memoryWriteResp
+}
+
+func Read(
+	address uint64,
+	memoryReadAddr chan<- Addr,
+	memoryReadData <-chan ReadData) uint32 {
+
+	go func() {
+		memoryReadAddr <- Addr{
+			Addr: address,
+			Prot: [3]bool{false, true, false},
+		}
+	}()
+
+	d := <-memoryReadData
+	return d.Data
+}

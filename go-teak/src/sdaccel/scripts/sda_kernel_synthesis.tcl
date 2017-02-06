@@ -10,7 +10,7 @@
 #
 
 proc sda_kernel_synthesis {
-  sourceFileName moduleName actionMemType includeCodePath partName} {
+  sourceFileName moduleName includeCodePath partName} {
 
 #
 # Load the file containing the generated action code.
@@ -30,7 +30,7 @@ synth_design \
   -mode out_of_context \
   -no_lc \
   -keep_equivalent_registers \
-  -top [lindex [find_top] 0] \
+  -top sda_kernel_wrapper_gmem \
   -include_dirs $includeCodePath
 
 #

@@ -3,6 +3,11 @@ package xcl
 // #cgo CFLAGS: -std=gnu99
 // #cgo LDFLAGS: -lxilinxopencl -llmx6.0
 // #include "xcl.h"
+//
+// cl_int setMemArg(cl_kernel kernel, cl_uint arg_index, cl_mem m) {
+//    return clSetKernelArg(kernel, arg_index, sizeof(cl_mem), &m);
+// }
+//
 import "C"
 
 import (
@@ -77,8 +82,16 @@ func (mem *Memory) Write(bytes []byte) {
 	C.xcl_memcpy_to_device(C.xcl_world(*mem.world), mem.mem, p, C.size_t(len(bytes)))
 }
 
+func (mem *Memory) Read(bytes []byte) {
+	C.xcl_memcpy_from_device(C.xcl_world(*mem.world), unsafe.Pointer(&bytes[0]), mem.mem, C.size_t(cap(bytes)))
+}
+
 func (kernel *Kernel) SetMemoryArg(index uint, mem *Memory) {
-	C.clSetKernelArg(kernel.kernel, C.cl_uint(index), C.sizeof_cl_mem, unsafe.Pointer(mem.mem))
+	C.setMemArg(kernel.kernel, C.cl_uint(index), mem.mem)
+}
+
+func (kernel *Kernel) SetArg(index uint, val uint32) {
+	C.clSetKernelArg(kernel.kernel, C.cl_uint(index), C.size_t(unsafe.Sizeof(&val)), unsafe.Pointer(&val))
 }
 
 func (kernel *Kernel) Run(x, y, z uint) {
