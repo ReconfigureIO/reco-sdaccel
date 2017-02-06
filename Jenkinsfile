@@ -1,5 +1,5 @@
 pipeline {
-    agent { label: "master" }
+    agent { label "master" }
     environment {
         VERSION = "${env.BRANCH_NAME}"
     }
@@ -17,58 +17,78 @@ pipeline {
     }
     stages {
         stage "notify" {
-            slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+            steps {
+                slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+            }
         }
 
         stage 'build image' {
-            sh 'docker build -t "verilator:latest" docker-verilator'
+            steps {
+                sh 'docker build -t "verilator:latest" docker-verilator'
+            }
         }
 
         stage 'lint' {
-            sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-sdaccel'
-            sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck jarvice/jarvice'
-            sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+            steps {
+                sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-sdaccel'
+                sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck jarvice/jarvice'
+                sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+            }
         }
 
         stage 'pre clean' {
-            sh 'make clean'
+            steps {
+                sh 'make clean'
+            }
         }
 
         stage 'test go' {
-            sh 'make eTeak/go-teak-sdaccel'
-            dir('examples/noop'){
-                sh './../../reco-sdaccel test-go'
-                sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+            steps {
+                sh 'make eTeak/go-teak-sdaccel'
+                dir('examples/noop'){
+                    sh './../../reco-sdaccel test-go'
+                    sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+                }
             }
         }
 
         stage 'deploy examples' {
-             sh "make VERSION=${env.VERSION} deploy"
+            steps {
+                sh "make VERSION=${env.VERSION} deploy"
+            }
         }
 
         stage 'test simulation' {
-            parallel noop: {
-                dir('examples/noop'){
-                    sh '../../jarvice/jarvice test test-noop'
-                }
-            },
-            addition: {
-                dir('examples/addition'){
-                    sh '../../jarvice/jarvice test test-addition'
+            steps {
+                parallel noop: {
+                    dir('examples/noop'){
+                        sh '../../jarvice/jarvice test test-noop'
+                    }
+                },
+                addition: {
+                    dir('examples/addition'){
+                        sh '../../jarvice/jarvice test test-addition'
+                    }
                 }
             }
         }
 
         stage 'build' {
-            sh 'make'
+            steps {
+                sh 'make'
+            }
         }
 
         stage 'upload' {
-            step([$class: 'S3BucketPublisher', dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'nerabus/reco-sdaccel', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "dist/*.tar.gz", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], profileName: 's3', userMetadata: []])
+            steps {
+                step([$class: 'S3BucketPublisher', dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'nerabus/reco-sdaccel', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "dist/*.tar.gz", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], profileName: 's3', userMetadata: []])
+            }
         }
 
         stage 'clean' {
-            sh 'make clean'
+            steps {
+                sh 'make clean'
+            }
         }
     }
 }
