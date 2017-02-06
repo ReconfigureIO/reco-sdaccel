@@ -47,19 +47,19 @@ node ("master") {
         }
 
 
-        stage 'test verilog histogram'
-        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
-            dir('examples/histogram'){
-                sh '../../jarvice/jarvice test test-histogram'
-            }
-        }
-
-        stage 'test verilog histogram-parallel'
-        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
-            dir('examples/histogram-parallel'){
-                sh '../../jarvice/jarvice test test-histogram-parallel'
-            }
-        }
+//        stage 'test verilog histogram'
+//        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+//            dir('examples/histogram'){
+//                sh '../../jarvice/jarvice test test-histogram'
+//            }
+//        }
+//
+//        stage 'test verilog histogram-parallel'
+//        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+//            dir('examples/histogram-parallel'){
+//                sh '../../jarvice/jarvice test test-histogram-parallel'
+//            }
+//        }
 
         stage 'build'
         sh 'make'
