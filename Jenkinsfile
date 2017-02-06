@@ -16,19 +16,19 @@ pipeline {
         }
     }
     stages {
-        stage "notify" {
+        stage("notify") {
             steps {
                 slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
             }
         }
 
-        stage 'build image' {
+        stage('build image') {
             steps {
                 sh 'docker build -t "verilator:latest" docker-verilator'
             }
         }
 
-        stage 'lint' {
+        stage('lint') {
             steps {
                 sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-sdaccel'
                 sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck jarvice/jarvice'
@@ -36,13 +36,13 @@ pipeline {
             }
         }
 
-        stage 'pre clean' {
+        stage('pre clean') {
             steps {
                 sh 'make clean'
             }
         }
 
-        stage 'test go' {
+        stage('test go') {
             steps {
                 sh 'make eTeak/go-teak-sdaccel'
                 dir('examples/noop'){
@@ -52,13 +52,13 @@ pipeline {
             }
         }
 
-        stage 'deploy examples' {
+        stage('deploy examples') {
             steps {
                 sh "make VERSION=${env.VERSION} deploy"
             }
         }
 
-        stage 'test simulation' {
+        stage('test simulation') {
             steps {
                 parallel noop: {
                     dir('examples/noop'){
@@ -73,19 +73,19 @@ pipeline {
             }
         }
 
-        stage 'build' {
+        stage('build') {
             steps {
                 sh 'make'
             }
         }
 
-        stage 'upload' {
+        stage('upload') {
             steps {
                 step([$class: 'S3BucketPublisher', dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'nerabus/reco-sdaccel', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "dist/*.tar.gz", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], profileName: 's3', userMetadata: []])
             }
         }
 
-        stage 'clean' {
+        stage('clean') {
             steps {
                 sh 'make clean'
             }
