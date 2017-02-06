@@ -1,9 +1,25 @@
-properties([buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '20'))])
+pipeline {
+    agent { label: "master" }
+    environment {
+        VERSION = "${env.BRANCH_NAME}"
+    }
+    options {
+        buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '20'))
+        disableConcurrentBuilds()
+    }
+    post {
+        failure {
+            slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        }
+        success {
+            slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        }
+    }
+    stages {
+        stage "notify" {
+            slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        }
 
-notifyStarted()
-
-node ("master") {
-    try {
         stage "checkout" {
             checkout scm
         }
@@ -30,11 +46,11 @@ node ("master") {
             }
         }
 
-        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
-            stage 'deploy examples' {
-                sh "make VERSION=${env.VERSION} deploy"
-            }
+        stage 'deploy examples' {
+             sh "make VERSION=${env.VERSION} deploy"
+        }
 
+        stage 'test simulation' {
             parallel noop: {
                 dir('examples/noop'){
                     sh '../../jarvice/jarvice test test-noop'
@@ -45,22 +61,7 @@ node ("master") {
                     sh '../../jarvice/jarvice test test-addition'
                 }
             }
-
         }
-
-//        stage 'test verilog histogram'
-//        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
-//            dir('examples/histogram'){
-//                sh '../../jarvice/jarvice test test-histogram'
-//            }
-//        }
-//
-//        stage 'test verilog histogram-parallel'
-//        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
-//            dir('examples/histogram-parallel'){
-//                sh '../../jarvice/jarvice test test-histogram-parallel'
-//            }
-//        }
 
         stage 'build' {
             sh 'make'
@@ -73,23 +74,5 @@ node ("master") {
         stage 'clean' {
             sh 'make clean'
         }
-
-        notifySuccessful()
-    } catch (e) {
-      currentBuild.result = "FAILED"
-      notifyFailed()
-      throw e
     }
-}
-
-def notifyStarted() {
-    slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
-}
-
-def notifySuccessful() {
-    slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
-}
-
-def notifyFailed() {
-  slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
 }
