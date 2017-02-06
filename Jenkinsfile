@@ -20,10 +20,6 @@ pipeline {
             slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         }
 
-        stage "checkout" {
-            checkout scm
-        }
-
         stage 'build image' {
             sh 'docker build -t "verilator:latest" docker-verilator'
         }
