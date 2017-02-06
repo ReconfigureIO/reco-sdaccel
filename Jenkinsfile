@@ -33,23 +33,22 @@ node ("master") {
         }
 
 
-        parallel
-            noop: {
-                stage 'test verilog noop'
-                withEnv(["VERSION=${env.BRANCH_NAME}"]) {
-                    dir('examples/noop'){
-                        sh '../../jarvice/jarvice test test-noop'
-                    }
-                }
-            },
-            addition: {
-                stage 'test verilog addition'
-                withEnv(["VERSION=${env.BRANCH_NAME}"]) {
-                    dir('examples/addition'){
-                        sh '../../jarvice/jarvice test test-addition'
-                    }
+        parallel noop: {
+            stage 'test verilog noop'
+            withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+                dir('examples/noop'){
+                    sh '../../jarvice/jarvice test test-noop'
                 }
             }
+        },
+        addition: {
+            stage 'test verilog addition'
+            withEnv(["VERSION=${env.BRANCH_NAME}"]) {
+                dir('examples/addition'){
+                    sh '../../jarvice/jarvice test test-addition'
+                }
+            }
+        }
 
 //        stage 'test verilog histogram'
 //        withEnv(["VERSION=${env.BRANCH_NAME}"]) {
