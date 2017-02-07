@@ -1,6 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
+	"fmt"
+	"os"
 	"xcl"
 )
 
@@ -11,13 +15,41 @@ func main() {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_reco_sdaccel_stub_0_1")
 	defer krnl.Release()
 
-	buff := world.Malloc(xcl.ReadOnly, 2)
+	buff := world.Malloc(xcl.ReadOnly, 16)
 	defer buff.Free()
 
-	source := []byte{5, 25}
-	buff.Write(source)
+	outputBuff := world.Malloc(xcl.ReadOnly, 32*512)
+	defer outputBuff.Free()
+
+	input := []uint32{10, 2 ^ 31}
+
+	inputBuff := new(bytes.Buffer)
+	binary.Write(inputBuff, binary.LittleEndian, &input)
+	buff.Write(inputBuff.Bytes())
 
 	krnl.SetMemoryArg(0, buff)
+	krnl.SetMemoryArg(1, outputBuff)
+	krnl.SetArg(2, 2)
 
 	krnl.Run(1, 1, 1)
+
+	resp := make([]byte, 512*32)
+	buff.Read(resp)
+
+	var ret [512]uint32
+	err := binary.Read(bytes.NewReader(resp), binary.LittleEndian, &ret)
+	if err != nil {
+		fmt.Println("binary.Read failed:", err)
+	}
+
+	sum := uint32(0)
+
+	for _, val := range ret {
+		sum += val
+	}
+
+	if sum != 2 {
+		os.Exit(1)
+	}
+
 }
