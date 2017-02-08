@@ -53,13 +53,9 @@ func Top(
 
 	for ; length > 0; length-- {
 		sample := memory.Read(inputData, memoryReadAddr, memoryReadData)
-		hist[sample>>(32-9)] += 1
+		memory.Write(outputData, sample, memWriteAddr, memWriteData, memResp)
 		inputData += 4
 
 	}
 
-	endAddr := outputData + (512 * 4)
-	for i := 0; i < 512; i++ {
-		memory.Write(outputData, histogram[i], memWriteAddr, memWriteData, memResp)
-	}
 }
