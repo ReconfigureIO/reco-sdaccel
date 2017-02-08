@@ -3,10 +3,17 @@ package main
 import (
 	// import the entire framework (including bundled verilog)
 	_ "sdaccel"
-
 	"sdaccel/control"
 	"sdaccel/memory"
 )
+
+const (
+	INPUT_INDEX  = 0x40
+	OUTPUT_INDEX = 0x48
+	LENGTH_INDEX = 0x48 + 8
+)
+
+type Histogram [512]uint32
 
 // magic identifier for exporting
 func Top(
@@ -27,20 +34,32 @@ func Top(
 	controlWriteData <-chan control.WriteData,
 	controlResp chan<- control.Resp) {
 
-	// Disable AXI-Lite control accesses.
-	go control.DisableReads(controlReadAddr, controlReadData)
-	go control.DisableWrites(controlWriteAddr, controlWriteData, controlResp)
-
-	// Disable memory reads
-	go memory.DisableReads(memReadAddr, memReadData)
-
-	read := func(a uint32) uint32 {
+	readParam := func(a uint32) uint32 {
 		controlAddr <- a
 		return <-controlData
 	}
 
-	val := read(0x40) + read(0x44)
-	addr := uint64(read(0x4C))<<32 | uint64(read(0x48))
+	readAddressParam := func(a uint32) uint64 {
+		return (uint64(readParam(a+4)) << 32) + uint64(readParam(a))
+	}
 
-	memory.Write(addr, val, memWriteAddr, memWriteData, memResp)
+	inputData := readAddressParam(INPUT_INDEX)
+	outputData := readAddressParam(OUTPUT_INDEX)
+
+	// how many samples are there? (uint32)
+	length := readParam(LENGTH_INDEX)
+
+	var histogram Histogram
+
+	for ; length > 0; length-- {
+		sample := memory.Read(inputData, memoryReadAddr, memoryReadData)
+		hist[sample>>(32-9)] += 1
+		inputData += 4
+
+	}
+
+	endAddr := outputData + (512 * 4)
+	for i := 0; i < 512; i++ {
+		memory.Write(outputData, histogram[i], memWriteAddr, memWriteData, memResp)
+	}
 }
