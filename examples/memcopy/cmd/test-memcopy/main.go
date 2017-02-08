@@ -30,11 +30,12 @@ func main() {
 
 	krnl.SetMemoryArg(0, inputBuff)
 	krnl.SetMemoryArg(1, outputBuff)
+	krnl.SetArg(2, 4)
 
 	krnl.Run(1, 1, 1)
 
 	resp := make([]byte, 4)
-	writeBuff.Read(resp)
+	outputBuff.Read(resp)
 
 	var ret uint32
 	err := binary.Read(bytes.NewReader(resp), binary.LittleEndian, &ret)
