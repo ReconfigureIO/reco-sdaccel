@@ -3,6 +3,8 @@ package main
 import (
 	// import the entire framework (including bundled verilog)
 	_ "sdaccel"
+	"sdaccel/control"
+	"sdaccel/memory"
 )
 
 const (
