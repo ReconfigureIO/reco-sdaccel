@@ -35,7 +35,7 @@ func main() {
 
 	krnl.Run(1, 1, 1)
 
-	resp := make([]byte, 4)
+	resp := make([]byte, 16)
 	outputBuff.Read(resp)
 
 	var ret [4]uint32
