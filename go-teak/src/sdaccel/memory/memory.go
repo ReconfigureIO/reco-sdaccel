@@ -19,7 +19,7 @@ package memory
 // Specifies AXI memory address channel fields.
 type Addr struct {
 	Id     bool
-	Addr   uint64
+	Addr   uintptr
 	Len    byte
 	Size   [3]bool
 	Burst  [2]bool
@@ -89,7 +89,7 @@ func DisableWrites(
 }
 
 func Write(
-	address uint64,
+	address uintptr,
 	data uint32,
 	memoryWriteAddr chan<- Addr,
 	memoryWriteData chan<- WriteData,
@@ -114,7 +114,7 @@ func Write(
 }
 
 func Read(
-	address uint64,
+	address uintptr,
 	memoryReadAddr chan<- Addr,
 	memoryReadData <-chan ReadData) uint32 {
 
