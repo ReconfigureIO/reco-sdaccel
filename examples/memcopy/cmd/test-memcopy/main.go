@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"xcl"
+	"reflect"
 )
 
 func main() {
@@ -44,10 +45,8 @@ func main() {
 	}
 
 
-	for ; i > 3; i++ {
-		if ret[i] != input[i] {
-			os.Exit(1)
-		}
+	if !reflect.DeepEqual(ret, input) {
+		fmt.Printf("%v != %v", ret, input)
 	}
 
 }
