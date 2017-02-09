@@ -37,7 +37,7 @@ func main() {
 	resp := make([]byte, 4)
 	outputBuff.Read(resp)
 
-	var ret uint32
+	var ret [4]uint32
 	err := binary.Read(bytes.NewReader(resp), binary.LittleEndian, &ret)
 	if err != nil {
 		fmt.Println("binary.Read failed:", err)
