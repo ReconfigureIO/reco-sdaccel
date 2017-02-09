@@ -15,10 +15,10 @@ func main() {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_reco_sdaccel_stub_0_1")
 	defer krnl.Release()
 
-	outputBuff := world.Malloc(xcl.WriteOnly, 4)
+	outputBuff := world.Malloc(xcl.WriteOnly, 16)
 	defer outputBuff.Free()
 
-	inputBuff := world.Malloc(xcl.readOnly, 4)
+	inputBuff := world.Malloc(xcl.readOnly, 16)
 	defer inputBuff.Free()
 
 	input := []uint32{4, 2 ^ 31}
