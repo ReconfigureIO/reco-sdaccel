@@ -13,8 +13,6 @@ const (
 	LENGTH_INDEX = 0x48 + 8
 )
 
-type Histogram [512]uint32
-
 // magic identifier for exporting
 func Top(
 	controlAddr chan<- uint32,
@@ -48,8 +46,6 @@ func Top(
 
 	// how many samples are there? (uint32)
 	length := readParam(LENGTH_INDEX)
-
-	var histogram Histogram
 
 	for ; length > 0; length-- {
 		sample := memory.Read(inputData, memoryReadAddr, memoryReadData)
