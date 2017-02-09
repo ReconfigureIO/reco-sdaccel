@@ -9,7 +9,7 @@ BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
 PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 
-SDACCEL_WRAPPER_VERSION := PR-178
+SDACCEL_WRAPPER_VERSION := v0.3.1-pre
 GO_VERSION := 1.7.4
 
 .PHONY: clean all bundle/reco bundle/jarvice bundle/workflows release update-changelog package/*
@@ -86,7 +86,7 @@ downloads:
 	mkdir -p downloads
 
 downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz: downloads
-	aws s3 cp "s3://nerabus/eTeak/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz" $@
+	aws s3 cp "s3://nerabus/eTeak/releases/eTeak-${SDACCEL_WRAPPER_VERSION}-x86_64-unknown-linux-release.tar.gz" $@
 	# So that it won't download again
 	touch $@
 
