@@ -6,8 +6,6 @@ import (
 	"sdaccel/memory"
 )
 
-type Histogram [512]uint32
-
 // magic identifier for exporting
 func Top(
 	inputData uintptr,
@@ -21,16 +19,18 @@ func Top(
 	memWriteData chan<- memory.WriteData,
 	memResp <-chan memory.Response) {
 
-	var histogram Histogram
-
+	// The host needs to provide the length we should read
 	for ; length > 0; length-- {
-		sample := memory.Read(inputData, memoryReadAddr, memoryReadData)
-		hist[sample>>(32-9)] += 1
-		inputData += 4
-	}
+		// First we'll read each sample
+		sample := memory.Read(inputData, memReadAddr, memReadData)
+		// If we think of external memory we are writing to as a [512]uint32, this would be the index we access
+		index := uintptr(sample >> (32 - 9))
+		// And this is that index as a pointer to external memory
+		outputPointer := outputData + (index * 4)
 
-	for i := 0; i < 512; i++ {
-		memory.Write(outputData, histogram[i], memWriteAddr, memWriteData, memResp)
-		outputData += 4
+		current := memory.Read(outputPointer, memReadAddr, memReadData)
+		memory.Write(outputPointer, current+1, memWriteAddr, memWriteData, memResp)
+
+		inputData += 4
 	}
 }
