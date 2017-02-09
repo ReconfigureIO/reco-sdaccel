@@ -18,7 +18,7 @@ func main() {
 	outputBuff := world.Malloc(xcl.WriteOnly, 16)
 	defer outputBuff.Free()
 
-	inputBuff := world.Malloc(xcl.readOnly, 16)
+	inputBuff := world.Malloc(xcl.ReadOnly, 16)
 	defer inputBuff.Free()
 
 	input := []uint32{4, 2 ^ 31}
