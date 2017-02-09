@@ -9,7 +9,7 @@ BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
 PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 
-SDACCEL_WRAPPER_VERSION := v0.3.1-pre
+SDACCEL_WRAPPER_VERSION := v0.4.0-rc1
 GO_VERSION := 1.7.4
 
 .PHONY: clean all bundle/reco bundle/jarvice bundle/workflows release update-changelog package/*
