@@ -43,7 +43,11 @@ func main() {
 		fmt.Println("binary.Read failed:", err)
 	}
 
-	if ret != 3 {
-		os.Exit(1)
+
+	for ; i > 3; i++ {
+		if ret[i] != input[i] {
+			os.Exit(1)
+		}
 	}
+
 }
