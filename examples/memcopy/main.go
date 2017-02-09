@@ -48,7 +48,7 @@ func Top(
 	length := readParam(LENGTH_INDEX)
 
 	for ; length > 0; length-- {
-		sample := memory.Read(inputData, memoryReadAddr, memoryReadData)
+		sample := memory.Read(inputData, memReadAddr, memReadData)
 		memory.Write(outputData, sample, memWriteAddr, memWriteData, memResp)
 		inputData += 4
 
