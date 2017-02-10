@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"log"
 	"os"
+	"reflect"
 	"xcl"
 )
 
@@ -45,24 +46,13 @@ func main() {
 		log.Fatal("binary.Read failed:", err)
 	}
 
-	sum := uint32(0)
+	var expected [512]uint32
 
-	for _, val := range ret {
-		sum += val
+	for _, val := range input {
+		expected[val>>(32-9)] += 1
 	}
 
-	if sum != 2 {
-		log.Fatalf("expected %d samples, found %d\n", 2, sum)
+	if !reflect.DeepEqual(expected, ret) {
+		log.Fatalf("%v != %v\n", ret, expected)
 	}
-
-	log.Printf("%v\n", ret)
-
-	if ret[0] != 1 {
-		log.Fatalf("ret[0] != %d\n", 1)
-	}
-
-	if ret[256] != 1 {
-		log.Fatalf("ret[256] != %d\n", 1)
-	}
-
 }
