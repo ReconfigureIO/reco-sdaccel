@@ -46,7 +46,7 @@ func main() {
 
 	sum := uint32(0)
 
-	for i, val := range ret {
+	for _, val := range ret {
 		sum += val
 	}
 
