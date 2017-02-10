@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
+	"log"
 	"os"
 	"xcl"
 )
@@ -42,7 +42,7 @@ func main() {
 	var ret [512]uint32
 	err := binary.Read(bytes.NewReader(resp), binary.LittleEndian, &ret)
 	if err != nil {
-		fmt.Println("binary.Read failed:", err)
+		log.Fatal("binary.Read failed:", err)
 	}
 
 	sum := uint32(0)
@@ -52,20 +52,17 @@ func main() {
 	}
 
 	if sum != 2 {
-		fmt.Printf("expected %d samples, found %d\n", 2, sum)
-		os.Exit(1)
+		log.Fatalf("expected %d samples, found %d\n", 2, sum)
 	}
 
-	fmt.Printf("%v\n", ret)
+	log.Printf("%v\n", ret)
 
 	if ret[0] != 1 {
-		fmt.Printf("ret[0] != %d\n", 1)
-		os.Exit(1)
+		log.Fatalf("ret[0] != %d\n", 1)
 	}
 
 	if ret[256] != 1 {
-		fmt.Printf("ret[256] != %d\n", 1)
-		os.Exit(1)
+		log.Fatalf("ret[256] != %d\n", 1)
 	}
 
 }
