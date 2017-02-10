@@ -18,12 +18,12 @@ func Top(
 	controlAddr chan<- uint32,
 	controlData <-chan uint32,
 
-	memReadAddr chan<- memory.Addr,
-	memReadData <-chan memory.ReadData,
+	// memReadAddr chan<- memory.Addr,
+	// memReadData <-chan memory.ReadData,
 
-	memWriteAddr chan<- memory.Addr,
-	memWriteData chan<- memory.WriteData,
-	memResp <-chan memory.Response,
+	// memWriteAddr chan<- memory.Addr,
+	// memWriteData chan<- memory.WriteData,
+	// memResp <-chan memory.Response,
 
 	controlReadAddr <-chan control.Addr,
 	controlReadData chan<- control.ReadData,
@@ -48,10 +48,17 @@ func Top(
 	length := readParam(LENGTH_INDEX)
 
 	for ; length > 0; length-- {
-		sample := memory.Read(inputData, memReadAddr, memReadData)
-		memory.Write(outputData, sample, memWriteAddr, memWriteData, memResp)
+		sample := memory.Read(inputData, controlReadAddr, controlReadData)
+		memory.Write(outputData, sample, controlWriteAddr, controlWriteData, controlResp)
 		inputData += 4
 
 	}
 
 }
+
+
+// func Top(
+// 	inputData uintptr,
+// 	outputData uintptr,
+// 	length uint32,
+//
