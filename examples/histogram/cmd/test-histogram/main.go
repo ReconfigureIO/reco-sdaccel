@@ -48,6 +48,7 @@ func main() {
 		sum += val
 	}
 
+	fmt.Printf("found %d samples\n", sum)
 	if sum != 2 {
 		os.Exit(1)
 	}

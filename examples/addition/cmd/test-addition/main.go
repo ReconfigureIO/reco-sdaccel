@@ -33,6 +33,7 @@ func main() {
 		fmt.Println("binary.Read failed:", err)
 	}
 
+	fmt.Printf("%d\n", ret)
 	if ret != 3 {
 		os.Exit(1)
 	}
