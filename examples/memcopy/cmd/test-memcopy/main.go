@@ -15,13 +15,16 @@ func main() {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_reco_sdaccel_stub_0_1")
 	defer krnl.Release()
 
-	outputBuff := world.Malloc(xcl.WriteOnly, 16)
+	input := []uint32{7, 2 ^ 31, 0, 1}
+	byteLength := uint(len(input) * 4)
+
+	outputBuff := world.Malloc(xcl.WriteOnly, byteLength)
 	defer outputBuff.Free()
 
-	inputBuff := world.Malloc(xcl.ReadOnly, 16)
+	inputBuff := world.Malloc(xcl.ReadOnly, byteLength)
 	defer inputBuff.Free()
 
-	input := []uint32{7, 2 ^ 31, 0, 1}
+
 
 	inToBytes := new(bytes.Buffer)
  	binary.Write(inToBytes, binary.LittleEndian, &input)
@@ -34,7 +37,7 @@ func main() {
 
 	krnl.Run(1, 1, 1)
 
-	resp := make([]byte, 16)
+	resp := make([]byte, byteLength)
 	outputBuff.Read(resp)
 
 	var ret [4]uint32
