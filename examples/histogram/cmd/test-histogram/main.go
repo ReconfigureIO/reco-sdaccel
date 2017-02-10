@@ -22,7 +22,7 @@ func main() {
 	outputBuff := world.Malloc(xcl.ReadWrite, uint(len(resp)))
 	defer outputBuff.Free()
 
-	input := []uint32{10, 2 ^ 31}
+	input := []uint32{10, 1 << 31}
 
 	inputBuff := new(bytes.Buffer)
 	binary.Write(inputBuff, binary.LittleEndian, &input)
