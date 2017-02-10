@@ -19,9 +19,6 @@ func Top(
 	memWriteData chan<- memory.WriteData,
 	memResp <-chan memory.Response) {
 
-	// how many samples are there? (uint32)
-	length := readParam(LENGTH_INDEX)
-
 	for ; length > 0; length-- {
 		sample := memory.Read(inputData, memReadAddr, memReadData)
 		memory.Write(outputData, sample, memWriteAddr, memWriteData, memResp)
