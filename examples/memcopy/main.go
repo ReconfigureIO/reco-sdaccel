@@ -23,6 +23,7 @@ func Top(
 		sample := memory.Read(inputData, memReadAddr, memReadData)
 		memory.Write(outputData, sample, memWriteAddr, memWriteData, memResp)
 		inputData += 4
+		outputData += 4
 
 	}
 
