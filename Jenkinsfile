@@ -74,6 +74,11 @@ pipeline {
                     dir('examples/histogram'){
                         sh '../../jarvice/jarvice test test-histogram'
                     }
+                },
+                memcopy: {
+                    dir('examples/memcopy'){
+                        sh '../../jarvice/jarvice test test-memcopy'
+                    }
                 }
             }
         }
