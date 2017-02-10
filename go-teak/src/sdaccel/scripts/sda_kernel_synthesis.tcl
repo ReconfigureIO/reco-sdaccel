@@ -33,6 +33,9 @@ synth_design \
   -top sda_kernel_wrapper_gmem \
   -include_dirs $includeCodePath
 
+check_timing
+report_timing_summary
+
 #
 # Prefix all the module names with the unique kernel name string.
 #
