@@ -56,6 +56,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	fmt.Printf("%v\n", ret)
+
 	if ret[0] != 1 {
 		fmt.Printf("ret[0] != %d\n", 1)
 		os.Exit(1)
