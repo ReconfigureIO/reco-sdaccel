@@ -24,11 +24,13 @@ func Top(
 		// First we'll read each sample
 		sample := memory.Read(inputData, memReadAddr, memReadData)
 		// If we think of external memory we are writing to as a [512]uint32, this would be the index we access
-		index := uintptr(sample >> (32 - 9))
+		index := sample >> (32 - 9)
+		pointerDiff := index << 2
 		// And this is that index as a pointer to external memory
-		outputPointer := outputData + (index << 2)
+		outputPointer := outputData + uintptr(pointerDiff)
 
 		current := memory.Read(outputPointer, memReadAddr, memReadData)
+
 		memory.Write(outputPointer, current+1, memWriteAddr, memWriteData, memResp)
 
 		inputData += 4
