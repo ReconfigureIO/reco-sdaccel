@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"log"
-	"os"
 	"reflect"
 	"xcl"
 )
