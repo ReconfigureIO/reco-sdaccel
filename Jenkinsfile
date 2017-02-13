@@ -60,12 +60,7 @@ pipeline {
 
         stage('test simulation') {
             steps {
-                parallel noop: {
-                    dir('examples/noop'){
-                        sh '../../jarvice/jarvice test test-noop'
-                    }
-                },
-                addition: {
+                parallel addition: {
                     dir('examples/addition'){
                         sh '../../jarvice/jarvice test test-addition'
                     }
@@ -89,12 +84,7 @@ pipeline {
                 expression { env.BRANCH_NAME == "PR-43" }
             }
             steps {
-                parallel noop: {
-                    dir('examples/noop'){
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-noop'
-                    }
-                },
-                addition: {
+                parallel addition: {
                     dir('examples/addition'){
                         sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-addition'
                     }
