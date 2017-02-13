@@ -7,6 +7,7 @@
   },
   "application": {
     "geometry": "1584x690",
+    "walltime": "2:00:00",
     "staging": false,
     "command": "gui",
     "parameters": {

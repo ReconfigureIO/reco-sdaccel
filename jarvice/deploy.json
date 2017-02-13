@@ -9,6 +9,7 @@
     "geometry": "2542x1228",
     "staging": false,
     "command": "batch",
+    "walltime": "2:00:00",
     "parameters": {
       "executable": "/job/e5d15fcc-d829-11e6-bca2-843a4b0da254/hello",
       "args": "",
