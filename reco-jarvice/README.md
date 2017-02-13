@@ -1,4 +1,4 @@
-# jarvice
+# reco-jarvice
 
 ## Installation
 
@@ -27,7 +27,7 @@ $ tree .
 ### Test
 
 ```
-jarvice test <command>
+reco-jarvice test <command>
 ```
 
 This will take package your project, upload it to a development
@@ -40,7 +40,7 @@ the exit code will match the exit code on the server.
 ### Build
 
 ```
-jarvice build
+reco-jarvice build
 ```
 
 This will take package your project, upload it to a development
@@ -55,7 +55,7 @@ If this succeeds, the output on stdout will be the identifier of a build.
 ### Builds
 
 ```
-jarvice builds
+reco-jarvice builds
 ```
 
 This will output a table of all builds.

@@ -7,12 +7,12 @@
     - add_host:
         name: "{{ variable_host }}"
 
-- name: deploy reco-sdaccel
+- name: deploy sdaccel-builder
   hosts: "{{ variable_host }}"
 
   tasks:
     - name: make directpry
       file: path="/data/reco/{{ version }}/" state=directory
 
-    - name: unpack reco-sdaccel
+    - name: unpack sdaccel-builder
       unarchive: src="{{ archive }}" dest="/data/reco/{{ version }}/"

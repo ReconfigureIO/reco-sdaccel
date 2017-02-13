@@ -10,5 +10,5 @@ source "/data/reco/$VERSION/settings.sh"
 JOB="$1"
 cd "/data/job/$JOB"
 
-reco-sdaccel cmds
-reco-sdaccel image
+sdaccel-builder cmds
+sdaccel-builder image

@@ -11,4 +11,4 @@ JOB="$1"
 
 cd "/data/tmp/tests/$JOB"
 
-timeout 30m reco-sdaccel simulate "${@:2}"
+timeout 30m sdaccel-builder simulate "${@:2}"

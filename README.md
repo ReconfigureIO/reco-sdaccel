@@ -1,4 +1,4 @@
-# reco-sdaccel
+# sdaccel-builder
 
 ## Installation
 
@@ -7,7 +7,7 @@
 ### Build
 
 ```
-reco-sdaccel build
+sdaccel-builder build
 ```
 
 This will take Go code at main.go, and bundle it into the sdaccel framework. It will include the eTeak specific Go files, but all other Go code will need to be on your $GOPATH already.
@@ -20,7 +20,7 @@ The results of the build will be available under .reco-work/sdaccel in the worki
 ### Simulate
 
 ```
-reco-sdaccel simulate path/to/host/code.go
+sdaccel-builder simulate path/to/host/code.go
 ```
 
 This will take the previously built Go code from the build stage, and simulate it.
@@ -32,15 +32,15 @@ The simulation executable of the host side code will be built & executed while l
 
 This will remove everything under .reco-work
 
-## Jarvice
+## Reco-Jarvice
 
 Published versions of this is available on Jarvice. You can find the
-`reco-sdaccel` tool available under `/data/reco/$VERSION`, with a set of
+`sdaccel-builder` tool available under `/data/reco/$VERSION`, with a set of
 workflows in `/data/workflows/$VERSION`.
 
 ## Architecture
 
-### reco-sdaccel
+### sdaccel-builder
 
 Command line tools using eTeak & Vivado to build & simulate Go code.
 
@@ -48,6 +48,6 @@ Command line tools using eTeak & Vivado to build & simulate Go code.
 
 Scripts and workflors to be run on top of the Jarvice platform.
 
-### jarvice
+### reco-jarvice
 
 Command line tools for deploying and managing workflows on the Jarvice platform.
