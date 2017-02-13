@@ -12,17 +12,17 @@ PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 SDACCEL_WRAPPER_VERSION := v0.4.0-rc1
 GO_VERSION := 1.7.4
 
-.PHONY: clean all bundle/reco bundle/jarvice bundle/workflows release update-changelog package/*
+.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/*
 
-all: package/reco package/jarvice
+all: package/reco package/reco-jarvice
 
 package/reco: dist/${NAME}-${VERSION}.tar.gz
 
-package/jarvice: dist/${NAME}-jarvice-${VERSION}.tar.gz
+package/reco-jarvice: dist/${NAME}-reco-jarvice-${VERSION}.tar.gz
 
 bundle/reco: build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco/go-teak build/reco/go build/reco/eTeak build/reco/go-root bundle/reco/workflows build/reco/settings.sh
 
-bundle/jarvice: build/jarvice/jarvice
+bundle/reco-jarvice: build/reco-jarvice/reco-jarvice
 
 build/reco:
 	mkdir -p build/reco
@@ -30,8 +30,8 @@ build/reco:
 dist:
 	mkdir -p dist
 
-build/jarvice:
-	mkdir -p build/jarvice
+build/reco-jarvice:
+	mkdir -p build/reco-jarvice
 
 WORKFLOW_SOURCES := $(shell find workflows -type f)
 TARGETS:= $(patsubst workflows/%,build/reco/workflows/%,$(WORKFLOW_SOURCES))
@@ -65,16 +65,16 @@ build/reco/go-teak: build/reco
 build/reco/go: build/reco
 	cp -R go build/reco
 
-build/jarvice/jarvice: build/jarvice jarvice/jarvice
-	cp -r jarvice/* build/jarvice/
+build/reco-jarvice/reco-jarvice: build/reco-jarvice reco-jarvice/reco-jarvice
+	cp -r reco-jarvice/* build/reco-jarvice/
 	sed -i "2s;^;export VERSION=${VERSION}\n;" $@
 	chmod +x $@
 
 dist/${NAME}-${VERSION}.tar.gz: bundle/reco dist
 	cd build/reco && tar czf ../../$@ *
 
-dist/${NAME}-jarvice-${VERSION}.tar.gz: bundle/jarvice dist
-	cd build/jarvice && tar czf ../../$@ *
+dist/${NAME}-reco-jarvice-${VERSION}.tar.gz: bundle/reco-jarvice dist
+	cd build/reco-jarvice && tar czf ../../$@ *
 
 clean:
 	rm -rf build dist downloads eTeak
@@ -121,7 +121,7 @@ update-changelog:
 	@echo "" >> RELEASE.md
 	@echo "## Bugfixes" >> RELEASE.md
 
-release: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-jarvice-${VERSION}.tar.gz
+release: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz
 	aws s3 cp "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
-	aws s3 cp "dist/${NAME}-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-jarvice-$(VERSION).tar.gz"
-	hub release create -d -F "RELEASE.md" -a "dist/${NAME}-${VERSION}.tar.gz" "dist/${NAME}-jarvice-${VERSION}.tar.gz" "$(VERSION)"
+	aws s3 cp "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
+	hub release create -d -F "RELEASE.md" -a "dist/${NAME}-${VERSION}.tar.gz" "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "$(VERSION)"

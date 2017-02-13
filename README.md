@@ -32,7 +32,7 @@ The simulation executable of the host side code will be built & executed while l
 
 This will remove everything under .reco-work
 
-## Jarvice
+## Reco-Jarvice
 
 Published versions of this is available on Jarvice. You can find the
 `sdaccel-builder` tool available under `/data/reco/$VERSION`, with a set of
@@ -48,6 +48,6 @@ Command line tools using eTeak & Vivado to build & simulate Go code.
 
 Scripts and workflors to be run on top of the Jarvice platform.
 
-### jarvice
+### reco-jarvice
 
 Command line tools for deploying and managing workflows on the Jarvice platform.

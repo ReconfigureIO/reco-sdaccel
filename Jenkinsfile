@@ -31,7 +31,7 @@ pipeline {
         stage('lint') {
             steps {
                 sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck sdaccel-builder'
-                sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck jarvice/jarvice'
+                sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-jarvice/reco-jarvice'
                 sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
             }
         }
@@ -62,22 +62,22 @@ pipeline {
             steps {
                 parallel noop: {
                     dir('examples/noop'){
-                        sh '../../jarvice/jarvice test test-noop'
+                        sh '../../reco-jarvice/reco-jarvice test test-noop'
                     }
                 },
                 addition: {
                     dir('examples/addition'){
-                        sh '../../jarvice/jarvice test test-addition'
+                        sh '../../reco-jarvice/reco-jarvice test test-addition'
                     }
                 },
                 histogram: {
                     dir('examples/histogram'){
-                        sh '../../jarvice/jarvice test test-histogram'
+                        sh '../../reco-jarvice/reco-jarvice test test-histogram'
                     }
                 },
                 memcopy: {
                     dir('examples/memcopy'){
-                        sh '../../jarvice/jarvice test test-memcopy'
+                        sh '../../reco-jarvice/reco-jarvice test test-memcopy'
                     }
                 }
             }
