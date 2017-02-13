@@ -1,6 +1,6 @@
-reco-sdaccel v0.1.0
+sdaccel-builder v0.1.0
 
-# reco-sdaccel v0.1.0
+# sdaccel-builder v0.1.0
 
 ## Features
 
