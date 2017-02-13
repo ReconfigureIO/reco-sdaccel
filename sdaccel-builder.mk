@@ -4,7 +4,7 @@ DIST_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist"
 XCLBIN_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin"
 VERILOG_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/verilog"
 
-XO_NAME := "reconfigure_io_reco_sdaccel_stub_0_1.xo"
+XO_NAME := "reconfigure_io_sdaccel_builder_stub_0_1.xo"
 
 KERNEL_NAME := "kernel_test"
 DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_2"
