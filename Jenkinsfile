@@ -83,6 +83,35 @@ pipeline {
             }
         }
 
+
+        stage('test hw builds') {
+            when {
+                expression { env.BRANCH_NAME == "PR-43" }
+            }
+            steps {
+                parallel noop: {
+                    dir('examples/noop'){
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-noop'
+                    }
+                },
+                addition: {
+                    dir('examples/addition'){
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-addition'
+                    }
+                },
+                histogram: {
+                    dir('examples/histogram'){
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram'
+                    }
+                },
+                memcopy: {
+                    dir('examples/memcopy'){
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy'
+                    }
+                }
+            }
+        }
+
         stage('build') {
             steps {
                 sh 'make'
