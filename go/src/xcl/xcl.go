@@ -3,6 +3,7 @@ package xcl
 // #cgo CFLAGS: -std=gnu99
 // #cgo LDFLAGS: -lxilinxopencl -llmx6.0
 // #include "xcl.h"
+// #include <stdlib.h>
 //
 // cl_int setMemArg(cl_kernel kernel, cl_uint arg_index, cl_mem m) {
 //    return clSetKernelArg(kernel, arg_index, sizeof(cl_mem), &m);
@@ -80,6 +81,7 @@ func (mem *Memory) Free() {
 func (mem *Memory) Write(bytes []byte) {
 	p := C.CBytes(bytes)
 	C.xcl_memcpy_to_device(C.xcl_world(*mem.world), mem.mem, p, C.size_t(len(bytes)))
+	C.free(p)
 }
 
 func (mem *Memory) Read(bytes []byte) {

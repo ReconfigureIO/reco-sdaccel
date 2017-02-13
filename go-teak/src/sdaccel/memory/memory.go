@@ -98,7 +98,7 @@ func Write(
 	go func() {
 		memoryWriteAddr <- Addr{
 			Addr: address,
-			Prot: [3]bool{false, true, false},
+			Size: [3]bool{false, true, false},
 		}
 	}()
 
@@ -121,7 +121,7 @@ func Read(
 	go func() {
 		memoryReadAddr <- Addr{
 			Addr: address,
-			Prot: [3]bool{false, true, false},
+			Size: [3]bool{false, true, false},
 		}
 	}()
 
