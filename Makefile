@@ -1,5 +1,5 @@
 # variable definitions
-NAME := reco-sdaccel
+NAME := sdaccel-builder
 DESC := build scripts for integrating eTeak & SDAccel
 PREFIX ?= usr/local
 VERSION := $(shell git describe --tags --always --dirty)
@@ -20,7 +20,7 @@ package/reco: dist/${NAME}-${VERSION}.tar.gz
 
 package/jarvice: dist/${NAME}-jarvice-${VERSION}.tar.gz
 
-bundle/reco: build/reco/reco-sdaccel build/reco/reco-sdaccel.mk build/reco/go-teak build/reco/go build/reco/eTeak build/reco/go-root bundle/reco/workflows build/reco/settings.sh
+bundle/reco: build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco/go-teak build/reco/go build/reco/eTeak build/reco/go-root bundle/reco/workflows build/reco/settings.sh
 
 bundle/jarvice: build/jarvice/jarvice
 
@@ -49,11 +49,11 @@ build/reco/workflows/%: workflows/% build/reco/workflows
 
 bundle/reco/workflows: $(TARGETS)
 
-build/reco/reco-sdaccel: build/reco
-	cp reco-sdaccel build/reco
+build/reco/sdaccel-builder: build/reco
+	cp sdaccel-builder build/reco
 
-build/reco/reco-sdaccel.mk: build/reco
-	cp reco-sdaccel.mk build/reco
+build/reco/sdaccel-builder.mk: build/reco
+	cp sdaccel-builder.mk build/reco
 
 build/reco/eTeak: build/reco eTeak/go-teak-sdaccel
 	cp -R eTeak build/reco
