@@ -60,8 +60,7 @@ pipeline {
 
         stage('test simulation') {
             steps {
-                parallel
-                histogram: {
+                parallel histogram: {
                     dir('examples/histogram'){
                         sh '../../reco-jarvice/reco-jarvice test test-histogram'
                     }
