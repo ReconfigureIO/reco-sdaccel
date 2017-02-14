@@ -57,6 +57,7 @@ if {0 != [file exists $argsFileName]} {
   close $argsFileId
 }
 puts $fileId "    </args>"
+puts $fileED "    <compileWorkGroupSize x=\"1\" y=\"1\" z=\"1\"/>"
 puts $fileId "</kernel>"
 puts $fileId "</root>"
 close $fileId
