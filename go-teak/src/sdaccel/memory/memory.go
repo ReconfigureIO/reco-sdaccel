@@ -99,6 +99,7 @@ func Write(
 		memoryWriteAddr <- Addr{
 			Addr: address,
 			Size: [3]bool{false, true, false},
+			Prot: [3]bool{false, true, false},
 		}
 	}()
 
@@ -122,6 +123,7 @@ func Read(
 		memoryReadAddr <- Addr{
 			Addr: address,
 			Size: [3]bool{false, true, false},
+			Prot: [3]bool{false, true, false},
 		}
 	}()
 
