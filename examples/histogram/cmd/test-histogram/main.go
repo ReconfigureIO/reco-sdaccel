@@ -12,8 +12,8 @@ import (
 
 const (
 	MAX_BIT_WIDTH       = 16
-	HISTOGRAM_BIT_WIDTH = 7
-	HISTOGRAM_WIDTH     = 1 << 7
+	HISTOGRAM_BIT_WIDTH = 9
+	HISTOGRAM_WIDTH     = 1 << 9
 )
 
 func main() {
