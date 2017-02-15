@@ -81,7 +81,7 @@ pipeline {
 
         stage('test hw builds') {
             when {
-                expression { env.BRANCH_NAME == "PR-43" }
+                expression { env.BRANCH_NAME == "master" }
             }
             steps {
                 parallel histogram: {
