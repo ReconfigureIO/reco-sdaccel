@@ -120,7 +120,7 @@ function workflow {
     # shellcheck source=/dev/null
     source ~/.jarvice
     WORKFLOW="$1"
-    JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/$WORKFLOW\"" < "$DIR/batch.json")
+    JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/$WORKFLOW\" | .user.username = \"$USERNAME\" | .user.apikey = \"$API_KEY\"" < "$DIR/batch.json")
 
     JOB=$(jarvice_cli submit -j "$JSON")
     NUMBER=$(echo "$JOB" | jq -r ".number")
