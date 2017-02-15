@@ -24,14 +24,7 @@ Where <command> is one of the following:
 
     run <build id> <cmd>    Deploy an accelerated batch job to run on Nimbix
 
-    Development tools:
-
-    shell                   Spin up & connect to a temporary development shell in the Nimbix cloud
-    run-script <local script>    Spin up a single shot run of a script in the data partition.
-    ssh <job number>        Connect to a job over ssh
-
-    shutdown <job number>   Stop a running job
-    stop                    Stop all running jobs
+    Other:
 
     help    Display this help output
 "
