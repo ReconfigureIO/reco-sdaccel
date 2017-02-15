@@ -18,8 +18,8 @@
     }
   },
   "user": {
-    "username": "reconfigureio",
-    "apikey": "cbe26de4b61a41d19700089ea948335057ca9072"
+    "username": "",
+    "apikey": ""
   },
   "vault": {
     "readonly": false,
