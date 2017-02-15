@@ -5,8 +5,15 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
+	"math/rand"
 	"reflect"
 	"xcl"
+)
+
+const (
+	MAX_BIT_WIDTH       = 16
+	HISTOGRAM_BIT_WIDTH = 7
+	HISTOGRAM_WIDTH     = 1 << 7
 )
 
 func main() {
@@ -16,13 +23,19 @@ func main() {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
 	defer krnl.Release()
 
-	input := []uint32{10, 1 << 31}
+	input := make([]uint32, 20)
+
+	// seed it with 20 random values, bound to 0 - 2**16
+	for i, _ := range input {
+		input[i] = uint32(uint16(rand.Uint32()))
+	}
+
 	inputByteLength := uint(4 * len(input))
 
 	buff := world.Malloc(xcl.ReadOnly, inputByteLength)
 	defer buff.Free()
 
-	resp := make([]byte, 4*512)
+	resp := make([]byte, 4*HISTOGRAM_WIDTH)
 	outputBuff := world.Malloc(xcl.ReadWrite, uint(len(resp)))
 	defer outputBuff.Free()
 
@@ -34,7 +47,7 @@ func main() {
 
 	krnl.SetMemoryArg(0, buff)
 	krnl.SetMemoryArg(1, outputBuff)
-	krnl.SetArg(2, 2)
+	krnl.SetArg(2, uint(len(input)))
 
 	krnl.Run(1, 1, 1)
 
@@ -46,10 +59,10 @@ func main() {
 		log.Fatal("binary.Read failed:", err)
 	}
 
-	var expected [512]uint32
+	var expected [HISTOGRAM_WIDTH]uint32
 
 	for _, val := range input {
-		expected[val>>(32-9)] += 1
+		expected[val>>(MAX_BIT_WIDTH-HISTOGRAM_BIT_WIDTH)] += 1
 	}
 
 	if !reflect.DeepEqual(expected, ret) {
@@ -57,7 +70,7 @@ func main() {
 	}
 
 	for i, val := range ret {
-		fmt.Printf("%d: %d\n", i<<(32-9), val)
+		fmt.Printf("%d: %d\n", i<<(MAX_BIT_WIDTH-HISTOGRAM_BIT_WIDTH), val)
 	}
 
 }
