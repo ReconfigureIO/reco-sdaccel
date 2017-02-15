@@ -47,7 +47,7 @@ func main() {
 
 	krnl.SetMemoryArg(0, buff)
 	krnl.SetMemoryArg(1, outputBuff)
-	krnl.SetArg(2, uint(len(input)))
+	krnl.SetArg(2, uint32(len(input)))
 
 	krnl.Run(1, 1, 1)
 
