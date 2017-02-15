@@ -60,26 +60,45 @@ pipeline {
 
         stage('test simulation') {
             steps {
-                parallel noop: {
-                    dir('examples/noop'){
-                        sh '../../reco-jarvice/reco-jarvice test test-noop'
-                    }
-                },
-                addition: {
-                    dir('examples/addition'){
-                        sh '../../reco-jarvice/reco-jarvice test test-addition'
-                    }
-                },
-                histogram: {
+                parallel histogram: {
                     dir('examples/histogram'){
                         sh '../../reco-jarvice/reco-jarvice test test-histogram'
                     }
-                },
-                memcopy: {
-                    dir('examples/memcopy'){
-                        sh '../../reco-jarvice/reco-jarvice test test-memcopy'
+                }
+//                addition: {
+//                    dir('examples/addition'){
+//                        sh '../../reco-jarvice/reco-jarvice test test-addition'
+//                    }
+//                }
+//                memcopy: {
+//                    dir('examples/memcopy'){
+//                        sh '../../reco-jarvice/reco-jarvice test test-memcopy'
+//                    }
+//                }
+            }
+        }
+
+
+        stage('test hw builds') {
+            when {
+                expression { env.BRANCH_NAME == "PR-43" }
+            }
+            steps {
+                parallel histogram: {
+                    dir('examples/histogram'){
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram'
                     }
                 }
+//                addition: {
+//                    dir('examples/addition'){
+//                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-addition'
+//                    }
+//                }
+//                memcopy: {
+//                    dir('examples/memcopy'){
+//                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy'
+//                    }
+//                }
             }
         }
 

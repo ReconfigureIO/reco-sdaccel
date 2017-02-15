@@ -141,7 +141,7 @@ function wait_for {
     NUMBER="$1"
     jarvice_cli wait_for -number "$NUMBER" > /dev/null
     STATUS=$(jarvice_cli status -number "$NUMBER" | jq -r ".[\"$NUMBER\"].job_status")
-    jarvice_cli output -number "$NUMBER" -lines 0
+    jarvice_cli output -number "$NUMBER" -lines 0 1>&2
     if [ "$STATUS" == "COMPLETED WITH ERROR" ]
     then
         exit 1;

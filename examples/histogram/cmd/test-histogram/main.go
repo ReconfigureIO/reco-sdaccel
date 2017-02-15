@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"log"
 	"reflect"
 	"xcl"
@@ -54,4 +55,9 @@ func main() {
 	if !reflect.DeepEqual(expected, ret) {
 		log.Fatalf("%v != %v\n", ret, expected)
 	}
+
+	for i, val := range ret {
+		fmt.Printf("%d: %d\n", i<<(32-9), val)
+	}
+
 }

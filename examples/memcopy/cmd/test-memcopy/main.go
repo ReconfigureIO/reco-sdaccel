@@ -50,7 +50,11 @@ func main() {
 			log.Fatal("binary.Read failed:", err)
 		}
 
-		return reflect.DeepEqual(ret, input)
+		if !reflect.DeepEqual(ret, input) {
+			log.Printf("%v != %v", ret, input)
+			return false
+		}
+		return true
 	}
 
 	if err := quick.Check(memcpy, &conf); err != nil {

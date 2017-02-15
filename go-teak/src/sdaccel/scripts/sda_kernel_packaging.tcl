@@ -35,7 +35,7 @@ puts $fileId "    workGroupSize=\"1\">"
 puts $fileId "    <ports>"
 puts $fileId "    <port name=\"m_axi_gmem\""
 puts $fileId "        mode=\"master\""
-puts $fileId "        range=\"0x100000000\""
+puts $fileId "        range=\"0xFFFFFFFF\""
 puts $fileId "        dataWidth=\"32\""
 puts $fileId "        portType=\"addressable\""
 puts $fileId "        base=\"0x0\"/>"
@@ -57,6 +57,7 @@ if {0 != [file exists $argsFileName]} {
   close $argsFileId
 }
 puts $fileId "    </args>"
+puts $fileId "    <compileWorkGroupSize x=\"1\" y=\"1\" z=\"1\"/>"
 puts $fileId "</kernel>"
 puts $fileId "</root>"
 close $fileId
