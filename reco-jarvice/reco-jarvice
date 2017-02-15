@@ -7,6 +7,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function help {
     echo "
+
+reco-jarvice $VERSION
+
 usage: $0 <command>
 
 Where <command> is one of the following:
@@ -141,6 +144,10 @@ function wait_for {
     fi
 }
 
+function version {
+    echo "$VERSION"
+}
+
 
 function main {
     case "$1" in
@@ -179,6 +186,9 @@ function main {
             ;;
         "help")
             help "$@"
+            ;;
+        "version")
+            version "$@"
             ;;
 
         *)
