@@ -12,7 +12,7 @@ PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 SDACCEL_WRAPPER_VERSION := v0.4.0-rc1
 GO_VERSION := 1.7.4
 
-.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/*
+.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all
 
 all: package/reco package/reco-jarvice
 
@@ -81,6 +81,10 @@ clean:
 
 deploy: dist/${NAME}-${VERSION}.tar.gz
 	./deploy.sh ${VERSION} ${PWD}/$<
+
+deploy-all: dist/${NAME}-${VERSION}.tar.gz
+	CONFIG_FILE=credentials/reco.sh ./deploy.sh ${VERSION} ${PWD}/$<
+	CONFIG_FILE=credentials/xilinx.sh ./deploy.sh ${VERSION} ${PWD}/$<
 
 downloads:
 	mkdir -p downloads
