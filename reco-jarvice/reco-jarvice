@@ -54,7 +54,7 @@ function builds {
     JOBS=$(curl "https://api.jarvice.com/jarvice/jobs?username=$USERNAME&apikey=$API_KEY&completed=true")
 
     echo -e "id\t\t\t\t\tstarted\t\t\tstatus"
-    echo "$JOBS" | jq -r ".[] | values | select(.job_api_submission.application.parameters.command == \"/data/workflows/$VERSION/build.sh\" ) | [.job_label, (.job_start_time | todateiso8601), .job_status] | @tsv"
+    echo "$JOBS" | jq -r ".[] | values | select(.job_api_submission.application.parameters.command | select(. != null) | test(\"^/data/reco/$VERSION/workflows/build.sh\") ) | [(.job_label | split(\":\") | .[1]), (.job_start_time | todateiso8601), .job_status] | @tsv" | sort -r -k2
 }
 
 function ssh {
