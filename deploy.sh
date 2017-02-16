@@ -8,7 +8,7 @@ ERROR=dummy
 while [ "$ERROR" != "null" ]
 do
     # shellcheck source=/dev/null
-    source "${CONFIG_FILE:-~/.jarvice}"
+    source "${CONFIG_FILE:-$HOME/.jarvice}"
 
     CONNECTION_INFO=$(jarvice_cli connect -username "$USERNAME" -apikey "$API_KEY" -number "$NUMBER")
     ERROR=$(echo "$CONNECTION_INFO" | jq -r ".error")

@@ -6,7 +6,7 @@ export DIR
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # shellcheck source=/dev/null
-source "${CONFIG_FILE:-~/.jarvice}"
+source "${CONFIG_FILE:-$HOME/.jarvice}"
 
 function help {
     echo "
