@@ -75,8 +75,8 @@ function ssh {
 }
 
 function workflowJSON {
-    ARGS="${@:3}"
-    jq ".application.parameters.command = \"bash -c 'mkdir /tmp/job && cd /tmp/job && tar -xf /data/sdaccel-builder-$VERSION.tar.gz && ./workflows/$1.sh $ARGS'\" | .job_label = \"$2\" | .user.username = \"$USERNAME\" | .user.apikey = \"$API_KEY\"" < "$DIR/batch.json"
+    ARGS=("${@:3}")
+    jq ".application.parameters.command = \"bash -c 'mkdir /tmp/job && cd /tmp/job && tar -xf /data/sdaccel-builder-$VERSION.tar.gz && ./workflows/$1.sh ${ARGS[*]}'\" | .job_label = \"$2\" | .user.username = \"$USERNAME\" | .user.apikey = \"$API_KEY\"" < "$DIR/batch.json"
 }
 
 function build {
