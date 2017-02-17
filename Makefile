@@ -83,8 +83,8 @@ deploy: dist/${NAME}-${VERSION}.tar.gz
 	./deploy.sh ${VERSION} ${PWD}/$<
 
 deploy-all: dist/${NAME}-${VERSION}.tar.gz
-	CONFIG_FILE=credentials/reco.sh ./deploy.sh ${VERSION} ${PWD}/$<
-	CONFIG_FILE=credentials/xilinx.sh ./deploy.sh ${VERSION} ${PWD}/$<
+	CONFIG_FILE=credentials/reco.sh ./deploy.sh ${PWD}/$<
+	CONFIG_FILE=credentials/xilinx.sh ./deploy.sh ${PWD}/$<
 
 downloads:
 	mkdir -p downloads
