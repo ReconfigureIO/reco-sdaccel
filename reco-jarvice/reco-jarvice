@@ -75,7 +75,8 @@ function ssh {
 }
 
 function workflowJSON {
-    jq ".application.parameters.command = \"bash -c 'mkdir /tmp/job && cd /tmp/job && tar -xf /data/sdaccel-builder-$VERSION.tar.gz && ./workflows/$1.sh ${@:3}'\" | .job_label = \"$2\" | .user.username = \"$USERNAME\" | .user.apikey = \"$API_KEY\"" < "$DIR/batch.json"
+    ARGS="${@:3}"
+    jq ".application.parameters.command = \"bash -c 'mkdir /tmp/job && cd /tmp/job && tar -xf /data/sdaccel-builder-$VERSION.tar.gz && ./workflows/$1.sh $ARGS'\" | .job_label = \"$2\" | .user.username = \"$USERNAME\" | .user.apikey = \"$API_KEY\"" < "$DIR/batch.json"
 }
 
 function build {
@@ -96,7 +97,6 @@ function test-cmd {
     lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse --exclude .reco-work -P4 $PWD/ tmp/tests/$JOB; quit" 1>&2
 
     JSON=$(workflowJSON "simulate" "simulate:$JOB" "$JOB $*")
-    echo $JSON
     JOB_DATA=$(jarvice_cli -username "$USERNAME" -apikey "$API_KEY" submit -j "$JSON")
     NUMBER=$(echo "$JOB_DATA" | jq -r ".number")
     wait_for "$NUMBER"
