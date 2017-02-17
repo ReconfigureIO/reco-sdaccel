@@ -53,12 +53,18 @@ pipeline {
         }
 
         stage('deploy examples') {
+            when {
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
+            }
             steps {
                 sh "make VERSION=${env.VERSION} deploy"
             }
         }
 
         stage('test simulation') {
+            when {
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
+            }
             steps {
                 parallel histogram: {
                     dir('examples/histogram'){
@@ -81,7 +87,7 @@ pipeline {
 
         stage('test hw builds') {
             when {
-                expression { env.BRANCH_NAME == "master" }
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
             }
             steps {
                 parallel histogram: {
@@ -109,6 +115,9 @@ pipeline {
         }
 
         stage('upload') {
+            when {
+                expression { env.BRANCH_NAME in ["master"] }
+            }
             steps {
                 step([$class: 'S3BucketPublisher', dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'nerabus/sdaccel-builder', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "dist/*.tar.gz", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], profileName: 's3', userMetadata: []])
             }
