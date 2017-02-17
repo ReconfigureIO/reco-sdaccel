@@ -80,11 +80,11 @@ clean:
 	rm -rf build dist downloads eTeak
 
 deploy: dist/${NAME}-${VERSION}.tar.gz
-	./deploy.sh ${VERSION} ${PWD}/$<
+	./deploy.sh $<
 
 deploy-all: dist/${NAME}-${VERSION}.tar.gz
-	CONFIG_FILE=credentials/reco.sh ./deploy.sh ${PWD}/$<
-	CONFIG_FILE=credentials/xilinx.sh ./deploy.sh ${PWD}/$<
+	CONFIG_FILE=credentials/reco.sh ./deploy.sh $<
+	CONFIG_FILE=credentials/xilinx.sh ./deploy.sh $<
 
 downloads:
 	mkdir -p downloads
