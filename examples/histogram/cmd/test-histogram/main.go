@@ -78,4 +78,9 @@ func main() {
 		fmt.Printf("%d: %d\n", i<<(MAX_BIT_WIDTH-HISTOGRAM_BIT_WIDTH), val)
 	}
 
+	for i := 0; i < len(val); i++ {
+		if val[i] > maxVal { maxVal = val[i]}
+		if val[i] < minVal { minVal = val[i]}
+	}
+
 }
