@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"reflect"
 	"xcl"
-    	"os/exec"
 )
 
 const (
@@ -16,6 +15,7 @@ const (
 	HISTOGRAM_BIT_WIDTH = 9
 	HISTOGRAM_WIDTH     = 1 << 9
 )
+
 
 func main() {
 	world := xcl.NewWorld()
@@ -73,7 +73,5 @@ func main() {
 	for i, val := range ret {
 		fmt.Printf("%d: %d\n", i<<(MAX_BIT_WIDTH-HISTOGRAM_BIT_WIDTH), val)
 	}
-
-	cmd := exec.Command("/bin/sh", "spark") //pass val to spark?
 
 }
