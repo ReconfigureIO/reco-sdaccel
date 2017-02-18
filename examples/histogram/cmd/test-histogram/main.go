@@ -86,4 +86,9 @@ func main() {
 	//U+9601 unicode for`▁`
 	divVal = ((maxVal - minVal))  / 9601
 	if divVal < 1 {divVal = 1}
+
+	for i := 0; i < len(val); i++ {
+		fmt.Printf("%s", ticks[((val[i] - minVal))/divVal])
+	}
+
 }
