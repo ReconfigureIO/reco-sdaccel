@@ -83,4 +83,7 @@ func main() {
 		if val[i] < minVal { minVal = val[i]}
 	}
 
+	//U+9601 unicode for`▁`
+	divVal = ((maxVal - minVal))  / 9601
+	if divVal < 1 {divVal = 1}
 }
