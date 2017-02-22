@@ -89,7 +89,7 @@ function build {
 function test-cmd {
     JOB=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 16 | head -n 1)
 
-    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; mirror --reverse --exclude .reco-work -P4 $PWD/ tmp/tests/$JOB; quit" 1>&2
+    lftp "sftp://$USERNAME:$API_KEY@drop.jarvice.com" -e "set sftp:auto-confirm yes; mkdir tmp/tests/$JOB; mirror --reverse --exclude .reco-work -P4 $PWD/ tmp/tests/$JOB; quit" 1>&2
 
     JSON=$(jq ".application.parameters.command = \"/data/reco/$VERSION/workflows/simulate.sh $JOB $*\" | .job_label = \"simulate:$JOB\" | .user.username = \"$USERNAME\" | .user.apikey = \"$API_KEY\"" < "$DIR/batch.json")
     JOB_DATA=$(jarvice_cli -username "$USERNAME" -apikey "$API_KEY" submit -j "$JSON")
