@@ -1,10 +1,9 @@
-sdaccel-builder v0.1.1
+sdaccel-builder v0.1.2
 
-# sdaccel-builder v0.1.1
+# sdaccel-builder v0.1.2
 
 ## Features
 
 ## Bugfixes
 
-   * Display builds that were being filtered
-   * Work with more Jarvice accounts
+    * Fix bug affecting some accounts where simulations would not build commands
