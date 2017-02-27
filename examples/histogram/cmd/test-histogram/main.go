@@ -78,17 +78,17 @@ func main() {
 		fmt.Printf("%d: %d\n", i<<(MAX_BIT_WIDTH-HISTOGRAM_BIT_WIDTH), val)
 	}
 
-	for i := 0; i < len(val); i++ {
-		if val[i] > maxVal { maxVal = val[i]}
-		if val[i] < minVal { minVal = val[i]}
+	for _, val := range ret {
+		if val > maxVal { maxVal = val}
+		if val < minVal { minVal = val}
 	}
 
 	//U+9601 unicode for`▁`
 	divVal = ((maxVal - minVal))  / 9601
 	if divVal < 1 {divVal = 1}
 
-	for i := 0; i < len(val); i++ {
-		fmt.Printf("%s", ticks[((val[i] - minVal))/divVal])
+	for _, val := range ret {
+		fmt.Printf("%s", ticks[((val - minVal))/divVal])
 	}
 
 }
