@@ -19,7 +19,7 @@ const (
 
 func main() {
 
-	var maxVal, minVal, divVal int32 = 0, 0xffff, 1 
+	var maxVal, minVal, divVal uint32 = 0, 0xffff, 1 
 	ticks := []string{`▁`,`▂`,`▃`,`▄`,`▅`,`▆`,`▇`,`█`}
 
 	world := xcl.NewWorld()
