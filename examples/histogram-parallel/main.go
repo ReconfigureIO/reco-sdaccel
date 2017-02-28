@@ -21,11 +21,11 @@ func Top(
 
 	//set up worker input and output channels, create worker for each pair
 	numberOfWorkers := 5
-	var workerinput [numberOfWorkers-1]chan int
-	var workeroutput [numberOfWorkers-1]chan int
+	var workerinput [numberOfWorkers - 1]chan int
+	var workeroutput [numberOfWorkers - 1]chan int
 	for i := range workerinput {
-   		workerinput[i] = make(chan uint32)
-   		workeroutput[i] = make(chan uint32)
+		workerinput[i] = make(chan uint32)
+		workeroutput[i] = make(chan uint32)
 		Worker(workerinput[i], workeroutput[i])
 	}
 	//trigger function to update bin values based on worker output
@@ -37,35 +37,39 @@ func Top(
 		sample := memory.Read(inputData, memReadAddr, memReadData)
 		//length modulo number of workers determines which worker to give sample to
 		workerNo = length % numberOfWorkers
-		workerinput[workerNo]<- sample
+		workerinput[workerNo] <- sample
 	}
 
+}
 
 func worker(chan input, chan output) {
 
 	for {
+		//try to read sample from input channel
 		sample, ok := <-input
-		if ok {//cut sample down to 9 MSBs to determine destination bin
+		if ok {
+			//cut sample down to 9 MSBs to determine destination bin
 			binNo := uint16(sample) >> (16 - 9)
-			output<- binNo
+			output <- binNo
 		}
 	}
 
 }
-
 
 func memUpdate() {
-
+	i := 0
 	for {
-		binNo, ok := <-workeroutput[current]
+		//try to read bin number from worker's output channel
+		binNo, ok := <-workeroutput[i]
 		if ok {
+			//multiply bin number by 4 to get the bin's memory address
 			binPtr := binNo << 2
+			//read current value of bin, increment, write back
 			current := memory.Read(binPtr, memReadAddr, memReadData)
 			memory.Write(binPtr, current+1, memWriteData, memWriteData, memResp)
-			current := current+1 % numberOfWorkers
+			//increment i without exceeding the number of workers so next loop will check next worker
+			i := (i + 1) % numberOfWorkers
 		}
 	}
 
-
 }
-
