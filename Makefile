@@ -18,7 +18,7 @@ all: package/reco package/reco-jarvice
 
 package/reco: dist/${NAME}-${VERSION}.tar.gz
 
-package/reco-jarvice: dist/${NAME}-reco-jarvice-${VERSION}.tar.gz
+package/reco-jarvice: dist/${NAME}-deploy-${VERSION}.tar.gz
 
 bundle/reco: build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco/go-teak build/reco/go build/reco/eTeak build/reco/go-root bundle/reco/workflows build/reco/settings.sh
 
@@ -29,6 +29,9 @@ build/reco:
 
 dist:
 	mkdir -p dist
+
+build/deploy:
+	mkdir -p build/deploy
 
 build/reco-jarvice:
 	mkdir -p build/reco-jarvice
@@ -70,25 +73,28 @@ build/reco-jarvice/reco-jarvice: build/reco-jarvice reco-jarvice/reco-jarvice
 	sed -i "2s;^;export VERSION=${VERSION}\n;" $@
 	chmod +x $@
 
+# deployment bundle for Jarvice
+build/deploy/${NAME}-${VERSION}.tar.gz: bundle/reco build/deploy
+	cd build/reco && tar czf ../../$@ *
+
+build/deploy/${VERSION}/workflows: bundle/reco/workflows build/deploy
+	mkdir -p $@
+	cp build/reco/workflows/* $@
+
 dist/${NAME}-${VERSION}.tar.gz: bundle/reco dist
 	cd build/reco && tar czf ../../$@ *
+
+dist/${NAME}-deploy-${VERSION}.tar.gz: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows dist
+	cd build/deploy && tar czf ../../$@ *
 
 dist/${NAME}-reco-jarvice-${VERSION}.tar.gz: bundle/reco-jarvice dist
 	cd build/reco-jarvice && tar czf ../../$@ *
 
-dist/${VERSION}/workflows: bundle/reco/workflows
-	mkdir -p $@
-	cp build/reco/workflows/* $@
-
 clean:
 	rm -rf build dist downloads eTeak
 
-deploy: dist/${NAME}-${VERSION}.tar.gz dist/${VERSION}/workflows
+deploy: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows
 	./deploy.sh $<
-
-deploy-all: dist/${NAME}-${VERSION}.tar.gz dist/${VERSION}/workflows
-	CONFIG_FILE=credentials/reco.sh ./deploy.sh $<
-	CONFIG_FILE=credentials/xilinx.sh ./deploy.sh $<
 
 downloads:
 	mkdir -p downloads
