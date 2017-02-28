@@ -20,8 +20,9 @@ func Top(
 	memResp <-chan memory.Response) {
 
 	//set up worker input and output channels, create worker for each pair
-	var workerinput [1]chan int
-	var workeroutput [1]chan int
+	numberOfWorkers := 5
+	var workerinput [numberOfWorkers-1]chan int
+	var workeroutput [numberOfWorkers-1]chan int
 	for i := range workerinput {
    		workerinput[i] = make(chan uint32)
    		workeroutput[i] = make(chan uint32)
@@ -35,7 +36,7 @@ func Top(
 		// First we'll read each sample
 		sample := memory.Read(inputData, memReadAddr, memReadData)
 		//length modulo number of workers determines which worker to give sample to
-		workerNo = length % 1
+		workerNo = length % numberOfWorkers
 		workerinput[workerNo]<- sample
 	}
 
@@ -43,24 +44,27 @@ func Top(
 func worker(chan input, chan output) {
 
 	for {
-		sample := <-input
-		//cut sample down to 9 MSBs to determine destination bin
-		binNo := uint16(sample) >> (16 - 9)
-		output<- binNo
+		sample, ok := <-input
+		if ok {//cut sample down to 9 MSBs to determine destination bin
+			binNo := uint16(sample) >> (16 - 9)
+			output<- binNo
+		}
 	}
 
 }
 
 
-	func memUpdate() {
+func memUpdate() {
 
-		for {
-			binNo := <-workeroutput[current]
+	for {
+		binNo, ok := <-workeroutput[current]
+		if ok {
 			binPtr := binNo << 2
 			current := memory.Read(binPtr, memReadAddr, memReadData)
 			memory.Write(binPtr, current+1, memWriteData, memWriteData, memResp)
-			current := current+1
+			current := current+1 % numberOfWorkers
 		}
+	}
 
 
 }
