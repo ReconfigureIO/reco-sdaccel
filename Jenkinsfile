@@ -113,7 +113,7 @@ pipeline {
 
         stage('build') {
             steps {
-                sh 'make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION}'
+                sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION}"
             }
         }
 
