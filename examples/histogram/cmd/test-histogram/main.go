@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/binary"
 	"fmt"
 	"log"
@@ -30,18 +29,14 @@ func main() {
 		input[i] = uint32(uint16(rand.Uint32()))
 	}
 
-	inputByteLength := uint(4 * len(input))
-
-	buff := world.Malloc(xcl.ReadOnly, inputByteLength)
+	buff := world.Malloc(xcl.ReadOnly, binary.Size(input))
 	defer buff.Free()
 
 	resp := make([]byte, 4*HISTOGRAM_WIDTH)
-	outputBuff := world.Malloc(xcl.ReadWrite, uint(len(resp)))
+	outputBuff := world.Malloc(xcl.ReadWrite, binary.Size(resp))
 	defer outputBuff.Free()
 
-	inputBuff := new(bytes.Buffer)
-	binary.Write(inputBuff, binary.LittleEndian, &input)
-	buff.Write(inputBuff.Bytes())
+	binary.Write(inputBuff.Writer(), binary.LittleEndian, &input)
 
 	outputBuff.Write(resp)
 
@@ -51,10 +46,8 @@ func main() {
 
 	krnl.Run(1, 1, 1)
 
-	outputBuff.Read(resp)
-
 	var ret [512]uint32
-	err := binary.Read(bytes.NewReader(resp), binary.LittleEndian, &ret)
+	err := binary.Read(outputBuff.Reader(), binary.LittleEndian, &ret)
 	if err != nil {
 		log.Fatal("binary.Read failed:", err)
 	}
