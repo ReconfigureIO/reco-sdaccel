@@ -1,5 +1,8 @@
 pipeline {
     agent { label "master" }
+    parameters {
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.4.0')
+    }
     environment {
         VERSION = "${env.BRANCH_NAME}"
     }
@@ -44,7 +47,7 @@ pipeline {
 
         stage('test go') {
             steps {
-                sh 'make eTeak/go-teak-sdaccel'
+                sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} eTeak/go-teak-sdaccel"
                 dir('examples/noop'){
                     sh './../../sdaccel-builder test-go'
                     sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
@@ -57,7 +60,7 @@ pipeline {
                 expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
             }
             steps {
-                sh "make VERSION=${env.VERSION} deploy"
+                sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} deploy"
             }
         }
 
@@ -110,7 +113,7 @@ pipeline {
 
         stage('build') {
             steps {
-                sh 'make'
+                sh 'make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION}'
             }
         }
 
