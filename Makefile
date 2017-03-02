@@ -128,9 +128,9 @@ update-changelog:
 	echo "" >> next.md
 	cat CHANGELOG.md >> next.md
 	mv next.md CHANGELOG.md
-	@echo "$(NAME) $VERSION" > RELEASE.md
+	@echo "$(NAME) \$VERSION" > RELEASE.md
 	@echo "" >> RELEASE.md
-	@echo "# $(NAME) $VERSION" >> RELEASE.md
+	@echo "# $(NAME) \$VERSION" >> RELEASE.md
 	@echo "" >> RELEASE.md
 	@echo "## Features" >> RELEASE.md
 	@echo "" >> RELEASE.md
