@@ -123,19 +123,23 @@ eTeak/go-teak-sdaccel: eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x8
 	touch $@
 
 update-changelog:
+	sed -i "s/\$VERSION/$(VERSION)/" RELEASE.md
 	tail -n +3 RELEASE.md > next.md
 	echo "" >> next.md
 	cat CHANGELOG.md >> next.md
 	mv next.md CHANGELOG.md
-	@echo "$(NAME) $(NEXT_RELEASE)" > RELEASE.md
+	@echo "$(NAME) $VERSION" > RELEASE.md
 	@echo "" >> RELEASE.md
-	@echo "# $(NAME) $(NEXT_RELEASE)" >> RELEASE.md
+	@echo "# $(NAME) $VERSION" >> RELEASE.md
 	@echo "" >> RELEASE.md
 	@echo "## Features" >> RELEASE.md
 	@echo "" >> RELEASE.md
 	@echo "## Bugfixes" >> RELEASE.md
 
 release: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz
+	sed "s/\$VERSION/$(VERSION)/" RELEASE.md > RELEASE_NOTES.md
 	aws s3 cp "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
+	aws s3 cp "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
 	aws s3 cp "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
-	hub release create -d -F "RELEASE.md" -a "dist/${NAME}-${VERSION}.tar.gz" "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "$(VERSION)"
+	hub release create -d -F "RELEASE_NOTES.md" -a "dist/${NAME}-${VERSION}.tar.gz" "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "dist/${NAME}-deploy-${VERSION}.tar.gz" "$(VERSION)"
+	rm RELEASE_NOTES.md

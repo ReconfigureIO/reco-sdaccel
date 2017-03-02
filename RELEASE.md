@@ -1,9 +1,11 @@
-sdaccel-builder v0.1.2
+sdaccel-builder $VERSION
 
-# sdaccel-builder v0.1.2
+# sdaccel-builder $VERSION
 
 ## Features
 
+    * Update compiler to v0.5.0
+
 ## Bugfixes
 
-    * Fix bug affecting some accounts where simulations would not build commands
+    * Fix reliability of build process by reducing network calls
