@@ -1,11 +1,7 @@
-sdaccel-builder $VERSION
+sdaccel-builder ERSION
 
-# sdaccel-builder $VERSION
+# sdaccel-builder ERSION
 
 ## Features
 
-    * Update compiler to v0.5.0
-
 ## Bugfixes
-
-    * Fix reliability of build process by reducing network calls

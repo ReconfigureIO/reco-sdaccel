@@ -1,3 +1,13 @@
+# sdaccel-builder $Vjosh-test
+
+## Features
+
+    * Update compiler to v0.5.0
+
+## Bugfixes
+
+    * Fix reliability of build process by reducing network calls
+
 # sdaccel-builder v0.1.1
 
 ## Features
