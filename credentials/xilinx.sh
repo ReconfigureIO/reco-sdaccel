@@ -1,2 +1,0 @@
-USERNAME=reco_xilinx_demo
-API_KEY=ced398d489f44016a3d35c4526a0fef5c582cdb0
