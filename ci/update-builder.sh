@@ -1,4 +1,5 @@
 #!/bin/bash
+set -ex
 VERSION="$1"
 BRANCH=bump/update-sdaccel-to-$VERSION
 git checkout -b "$BRANCH"

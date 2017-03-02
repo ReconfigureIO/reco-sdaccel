@@ -1,4 +1,6 @@
 #!/bin/bash
+set -ex
+VERSION="$1"
 git tag "$VERSION"
 git push --tags
 make release
