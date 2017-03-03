@@ -26,7 +26,7 @@
 // The module name is common for different kernel action toplevel entities.
 // verilator lint_off DECLFILENAME
 module teak_action_top_gmem
-  (go_0r, go_0a, done_0r, done_0a, s_axi_araddr, s_axi_arcache, s_axi_arprot,
+  (go_0Ready, go_0Stop, done_0Ready, done_0Stop, s_axi_araddr, s_axi_arcache, s_axi_arprot,
   s_axi_arvalid, s_axi_arready, s_axi_rdata, s_axi_rresp, s_axi_rvalid,
   s_axi_rready, s_axi_awaddr, s_axi_awcache, s_axi_awprot, s_axi_awvalid,
   s_axi_awready, s_axi_wdata, s_axi_wstrb, s_axi_wvalid, s_axi_wready,
@@ -41,28 +41,28 @@ module teak_action_top_gmem
   m_axi_gmem_arcache, m_axi_gmem_arprot, m_axi_gmem_arqos, m_axi_gmem_arregion,
   m_axi_gmem_aruser, m_axi_gmem_arid, m_axi_gmem_arvalid, m_axi_gmem_arready,
   m_axi_gmem_rdata, m_axi_gmem_rresp, m_axi_gmem_rlast, m_axi_gmem_ruser,
-  m_axi_gmem_rid, m_axi_gmem_rvalid, m_axi_gmem_rready, paramaddr_0r0,
-  paramaddr_0D, paramaddr_0a, paramdata_0r0, paramdata_0D, paramdata_0a,
+  m_axi_gmem_rid, m_axi_gmem_rvalid, m_axi_gmem_rready, paramaddr_0Ready,
+  paramaddr_0D, paramaddr_0Stop, paramdata_0Ready, paramdata_0D, paramdata_0Stop,
   clk, reset);
 // verilator lint_on DECLFILENAME
 
 // Action control signals.
-input  go_0r;
-output go_0a;
-output done_0r;
-input  done_0a;
+input  go_0Ready;
+output go_0Stop;
+output done_0Ready;
+input  done_0Stop;
 
 // Parameter data access signals. Provides a SELF channel output for address
 // values and a SELF channel input for the corresponding data items read from
 // the parameter register file.
 // verilator lint_off UNUSED
-output        paramaddr_0r0;
+output        paramaddr_0Ready;
 output [31:0] paramaddr_0D;
-input         paramaddr_0a;
+input         paramaddr_0Stop;
 
-input         paramdata_0r0;
+input         paramdata_0Ready;
 input [31:0]  paramdata_0D;
-output        paramdata_0a;
+output        paramdata_0Stop;
 // verilator lint_on UNUSED
 
 // AXI interface signals are not used in the stub implementation.
@@ -168,16 +168,16 @@ begin
   end
   else if (action_done_q)
   begin
-    action_done_q <= done_0a;
+    action_done_q <= done_0Stop;
   end
-  else if (go_0r)
+  else if (go_0Ready)
   begin
     action_done_q <= 1'b1;
   end
 end
 
-assign go_0a = action_done_q;
-assign done_0r = action_done_q;
+assign go_0Stop = action_done_q;
+assign done_0Ready = action_done_q;
 
 // Implement AXI read control loopback.
 always @(posedge clk)
@@ -236,9 +236,9 @@ assign s_axi_bresp = 2'b0;
 assign s_axi_bvalid = s_axi_write_complete_q;
 
 // Tie off unused parameter access signals.
-assign paramaddr_0r0 = 1'b0;
+assign paramaddr_0Ready = 1'b0;
 assign paramaddr_0D = 32'b0;
-assign paramdata_0a = 1'b0;
+assign paramdata_0Stop = 1'b0;
 
 // Tie of unused AXI memory access signals.
 assign m_axi_gmem_awaddr = `AXI_MASTER_ADDR_WIDTH'b0;
