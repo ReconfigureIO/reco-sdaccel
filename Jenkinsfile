@@ -1,7 +1,7 @@
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.5.0')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.5.1')
     }
     environment {
         VERSION = "${env.BRANCH_NAME}"
