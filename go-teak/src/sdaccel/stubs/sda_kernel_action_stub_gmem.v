@@ -42,7 +42,7 @@ module teak_action_top_gmem
   m_axi_gmem_aruser, m_axi_gmem_arid, m_axi_gmem_arvalid, m_axi_gmem_arready,
   m_axi_gmem_rdata, m_axi_gmem_rresp, m_axi_gmem_rlast, m_axi_gmem_ruser,
   m_axi_gmem_rid, m_axi_gmem_rvalid, m_axi_gmem_rready, paramaddr_0Ready,
-  paramaddr_0D, paramaddr_0Stop, paramdata_0Ready, paramdata_0D, paramdata_0Stop,
+  paramaddr_0Data, paramaddr_0Stop, paramdata_0Ready, paramdata_0Data, paramdata_0Stop,
   clk, reset);
 // verilator lint_on DECLFILENAME
 
@@ -57,11 +57,11 @@ input  done_0Stop;
 // the parameter register file.
 // verilator lint_off UNUSED
 output        paramaddr_0Ready;
-output [31:0] paramaddr_0D;
+output [31:0] paramaddr_0Data;
 input         paramaddr_0Stop;
 
 input         paramdata_0Ready;
-input [31:0]  paramdata_0D;
+input [31:0]  paramdata_0Data;
 output        paramdata_0Stop;
 // verilator lint_on UNUSED
 
@@ -237,7 +237,7 @@ assign s_axi_bvalid = s_axi_write_complete_q;
 
 // Tie off unused parameter access signals.
 assign paramaddr_0Ready = 1'b0;
-assign paramaddr_0D = 32'b0;
+assign paramaddr_0Data = 32'b0;
 assign paramdata_0Stop = 1'b0;
 
 // Tie of unused AXI memory access signals.
