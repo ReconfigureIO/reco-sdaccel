@@ -1,7 +1,9 @@
-sdaccel-builder \ERSION
+sdaccel-builder $VERSION
 
-# sdaccel-builder \ERSION
+# sdaccel-builder $VERSION
 
 ## Features
 
 ## Bugfixes
+
+* Fix compatibility for latest compiler.
