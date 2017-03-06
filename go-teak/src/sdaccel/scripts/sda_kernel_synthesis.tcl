@@ -23,11 +23,6 @@ if {0 == [info exists sourceFileName]} {
 add_files -norecurse $sourceFileName
 
 #
-# Set keep_hierarchy no for all functions
-#
-set_property keep_hierarchy no [get_cells teak_*]
-
-#
 # Generate the synthesised netlist for the IP core.
 #
 
@@ -37,8 +32,7 @@ synth_design \
   -no_lc \
   -keep_equivalent_registers \
   -top sda_kernel_wrapper_gmem \
-  -include_dirs $includeCodePath \
-
+  -include_dirs $includeCodePath
 #
 # Prefix all the module names with the unique kernel name string.
 #
