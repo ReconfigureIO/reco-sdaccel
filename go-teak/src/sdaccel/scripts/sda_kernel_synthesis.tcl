@@ -31,7 +31,8 @@ synth_design \
   -no_lc \
   -keep_equivalent_registers \
   -top sda_kernel_wrapper_gmem \
-  -include_dirs $includeCodePath
+  -include_dirs $includeCodePath \
+  -flatten_hierarchy full
 
 #
 # Prefix all the module names with the unique kernel name string.
