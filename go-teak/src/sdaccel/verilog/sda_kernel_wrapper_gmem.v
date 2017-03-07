@@ -204,10 +204,10 @@ wire [31:0] param_data;
 wire        param_data_stop;
 
 // Action control signals.
-wire go_0r;
-wire go_0a;
-wire done_0r;
-wire done_0a;
+wire go_0Ready;
+wire go_0Stop;
+wire done_0Ready;
+wire done_0Stop;
 
 // Miscellaneous signals.
 wire [31:0] zeros = 32'b0;
@@ -264,7 +264,7 @@ sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, `AXI_PARAM_MEM_ADDR_WIDTH,
 // Instantiate the kernel control registers at slave address offset 0.
 sda_kernel_ctrl_reg #(`AXI_PARAM_MEM_ADDR_WIDTH, 63) kernelCtrlReg_u
   (reg_req, reg_ack_0, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata_0,
-  go_0r, go_0a, done_0r, done_0a, interrupt, ap_clk, axi_reg_reset);
+  go_0Ready, go_0Stop, done_0Ready, done_0Stop, interrupt, ap_clk, axi_reg_reset);
 
 // Instantiate the kernel parameter memory.
 sda_kernel_ctrl_param #(`AXI_PARAM_MEM_ADDR_WIDTH, 64,
@@ -285,7 +285,7 @@ assign m_axi_control_ext_ARADDR =
 
 // Instantiate the simple generated action logic core.
 teak_action_top_gmem kernelActionTop_u
-  (.go_0r(go_0r), .go_0a(go_0a), .done_0r(done_0r), .done_0a(done_0a),
+  (.go_0Ready(go_0Ready), .go_0Stop(go_0Stop), .done_0Ready(done_0Ready), .done_0Stop(done_0Stop),
   .s_axi_araddr(m_axi_control_ext_ARADDR), .s_axi_arcache(m_axi_control_ARCACHE),
   .s_axi_arprot(m_axi_control_ARPROT), .s_axi_arvalid(m_axi_control_ARVALID),
   .s_axi_arready(m_axi_control_ARREADY), .s_axi_rdata(m_axi_control_RDATA),
@@ -319,9 +319,9 @@ teak_action_top_gmem kernelActionTop_u
   .m_axi_gmem_rresp(m_axi_gmem_RRESP), .m_axi_gmem_rlast(m_axi_gmem_RLAST),
   .m_axi_gmem_rid(m_axi_gmem_RID), .m_axi_gmem_ruser(m_axi_gmem_RUSER),
   .m_axi_gmem_rvalid(m_axi_gmem_RVALID), .m_axi_gmem_rready(m_axi_gmem_RREADY),
-  .paramaddr_0r0(param_addr_valid), .paramaddr_0D(param_addr),
-  .paramaddr_0a(param_addr_stop), .paramdata_0r0(param_data_valid),
-  .paramdata_0D(param_data), .paramdata_0a(param_data_stop),
+  .paramaddr_0Ready(param_addr_valid), .paramaddr_0Data(param_addr),
+  .paramaddr_0Stop(param_addr_stop), .paramdata_0Ready(param_data_valid),
+  .paramdata_0Data(param_data), .paramdata_0Stop(param_data_stop),
   .clk(ap_clk), .reset(action_reset));
 
 endmodule

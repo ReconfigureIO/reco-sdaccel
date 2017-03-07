@@ -1,7 +1,7 @@
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.5.0')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.5.1')
     }
     environment {
         VERSION = "${env.BRANCH_NAME}"
@@ -74,11 +74,11 @@ pipeline {
                         sh '../../reco-jarvice/reco-jarvice test test-histogram'
                     }
                 },
-                addition: {
-                    dir('examples/addition'){
-                        sh '../../reco-jarvice/reco-jarvice test test-addition'
-                    }
-                },
+//                addition: {
+//                    dir('examples/addition'){
+//                        sh '../../reco-jarvice/reco-jarvice test test-addition'
+//                    }
+//                },
                 memcopy: {
                     dir('examples/memcopy'){
                         sh '../../reco-jarvice/reco-jarvice test test-memcopy'
@@ -98,11 +98,11 @@ pipeline {
                         sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram'
                     }
                 },
-                addition: {
-                    dir('examples/addition'){
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-addition'
-                    }
-                },
+//                addition: {
+//                    dir('examples/addition'){
+//                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-addition'
+//                    }
+//                },
                 memcopy: {
                     dir('examples/memcopy'){
                         sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy'
