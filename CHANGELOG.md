@@ -1,3 +1,11 @@
+# sdaccel-builder v0.2.1
+
+## Features
+
+## Bugfixes
+
+* Fix compatibility for latest compiler.
+
 # sdaccel-builder v0.2.0-dirty
 
 ## Features
