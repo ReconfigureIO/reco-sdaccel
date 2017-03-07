@@ -25,6 +25,7 @@ add_files -norecurse $sourceFileName
 #
 # Generate the synthesised netlist for the IP core.
 #
+
 synth_design \
   -part $partName \
   -mode out_of_context \
@@ -32,7 +33,6 @@ synth_design \
   -keep_equivalent_registers \
   -top sda_kernel_wrapper_gmem \
   -include_dirs $includeCodePath
-
 #
 # Prefix all the module names with the unique kernel name string.
 #

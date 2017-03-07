@@ -9,7 +9,7 @@ BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
 PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
 
-SDACCEL_WRAPPER_VERSION := v0.4.0
+SDACCEL_WRAPPER_VERSION := v0.5.1
 GO_VERSION := 1.7.4
 
 .PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all
@@ -18,7 +18,7 @@ all: package/reco package/reco-jarvice
 
 package/reco: dist/${NAME}-${VERSION}.tar.gz
 
-package/reco-jarvice: dist/${NAME}-reco-jarvice-${VERSION}.tar.gz
+package/reco-jarvice: dist/${NAME}-deploy-${VERSION}.tar.gz
 
 bundle/reco: build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco/go-teak build/reco/go build/reco/eTeak build/reco/go-root bundle/reco/workflows build/reco/settings.sh
 
@@ -29,6 +29,9 @@ build/reco:
 
 dist:
 	mkdir -p dist
+
+build/deploy:
+	mkdir -p build/deploy
 
 build/reco-jarvice:
 	mkdir -p build/reco-jarvice
@@ -70,8 +73,19 @@ build/reco-jarvice/reco-jarvice: build/reco-jarvice reco-jarvice/reco-jarvice
 	sed -i "2s;^;export VERSION=${VERSION}\n;" $@
 	chmod +x $@
 
+# deployment bundle for Jarvice
+build/deploy/${NAME}-${VERSION}.tar.gz: bundle/reco build/deploy
+	cd build/reco && tar czf ../../$@ *
+
+build/deploy/${VERSION}/workflows: bundle/reco/workflows build/deploy
+	mkdir -p $@
+	cp build/reco/workflows/* $@
+
 dist/${NAME}-${VERSION}.tar.gz: bundle/reco dist
 	cd build/reco && tar czf ../../$@ *
+
+dist/${NAME}-deploy-${VERSION}.tar.gz: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows dist
+	cd build/deploy && tar czf ../../$@ *
 
 dist/${NAME}-reco-jarvice-${VERSION}.tar.gz: bundle/reco-jarvice dist
 	cd build/reco-jarvice && tar czf ../../$@ *
@@ -79,12 +93,8 @@ dist/${NAME}-reco-jarvice-${VERSION}.tar.gz: bundle/reco-jarvice dist
 clean:
 	rm -rf build dist downloads eTeak
 
-deploy: dist/${NAME}-${VERSION}.tar.gz
-	./deploy.sh ${VERSION} ${PWD}/$<
-
-deploy-all: dist/${NAME}-${VERSION}.tar.gz
-	CONFIG_FILE=credentials/reco.sh ./deploy.sh ${VERSION} ${PWD}/$<
-	CONFIG_FILE=credentials/xilinx.sh ./deploy.sh ${VERSION} ${PWD}/$<
+deploy: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows
+	./deploy.sh $<
 
 downloads:
 	mkdir -p downloads
@@ -113,19 +123,23 @@ eTeak/go-teak-sdaccel: eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x8
 	touch $@
 
 update-changelog:
+	sed -i 's/$$VERSION/$(VERSION)/' RELEASE.md
 	tail -n +3 RELEASE.md > next.md
 	echo "" >> next.md
 	cat CHANGELOG.md >> next.md
 	mv next.md CHANGELOG.md
-	@echo "$(NAME) $(NEXT_RELEASE)" > RELEASE.md
+	@echo '$(NAME) $$VERSION' > RELEASE.md
 	@echo "" >> RELEASE.md
-	@echo "# $(NAME) $(NEXT_RELEASE)" >> RELEASE.md
+	@echo '# $(NAME) $$VERSION' >> RELEASE.md
 	@echo "" >> RELEASE.md
 	@echo "## Features" >> RELEASE.md
 	@echo "" >> RELEASE.md
 	@echo "## Bugfixes" >> RELEASE.md
 
-release: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz
+release: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz dist/${NAME}-deploy-${VERSION}.tar.gz
+	sed 's/$$VERSION/$(VERSION)/' RELEASE.md > RELEASE_NOTES.md
 	aws s3 cp "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
+	aws s3 cp "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
 	aws s3 cp "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
-	hub release create -d -F "RELEASE.md" -a "dist/${NAME}-${VERSION}.tar.gz" "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "$(VERSION)"
+	hub release create -d -F "RELEASE_NOTES.md" -a "dist/${NAME}-${VERSION}.tar.gz" -a "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" -a "dist/${NAME}-deploy-${VERSION}.tar.gz" "$(VERSION)"
+	rm RELEASE_NOTES.md

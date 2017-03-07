@@ -23,10 +23,8 @@ func Top(
 	for ; length > 0; length-- {
 		// First we'll read each sample
 		sample := memory.Read(inputData, memReadAddr, memReadData)
-		// If we think of external memory we are writing to as a [512]uint32, this would be the index we access
-		index := uint16(sample) >> (16 - 9)
-		pointerDiff := index << 2
-		// And this is that index as a pointer to external memory
+		// If we think of external memory we are writing to as a [512]uint32, this would be the index we access, with an extra 2 bits to make it a pointer
+		pointerDiff := (uint16(sample) >> (16 - 9)) << 2
 		outputPointer := outputData + uintptr(pointerDiff)
 
 		current := memory.Read(outputPointer, memReadAddr, memReadData)

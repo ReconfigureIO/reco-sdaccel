@@ -59,11 +59,8 @@ type Response struct {
 // once for each memory interface.
 func DisableReads(memoryReadAddr chan<- Addr,
 	memoryReadData <-chan ReadData) {
-	nullReadAddr := Addr{false, 0, 0, [3]bool{false, false, false},
-		[2]bool{false, false}, false, [4]bool{false, false, false, false},
-		[3]bool{false, true, false}, [4]bool{false, false, false, false},
-		[4]bool{false, false, false, false}, false}
-	memoryReadAddr <- nullReadAddr
+
+	memoryReadAddr <- Addr{}
 	for {
 		<-memoryReadData
 	}
@@ -75,14 +72,9 @@ func DisableWrites(
 	memoryWriteAddr chan<- Addr,
 	memoryWriteData chan<- WriteData,
 	memoryWriteResp <-chan Response) {
-	nullWriteAddr := Addr{false, 0, 0, [3]bool{false, false, false},
-		[2]bool{false, false}, false, [4]bool{false, false, false, false},
-		[3]bool{false, true, false}, [4]bool{false, false, false, false},
-		[4]bool{false, false, false, false}, false}
-	nullWriteData := WriteData{0, [4]bool{false, false, false, false},
-		false, false}
-	memoryWriteAddr <- nullWriteAddr
-	memoryWriteData <- nullWriteData
+
+	memoryWriteAddr <- Addr{}
+	memoryWriteData <- WriteData{}
 	for {
 		<-memoryWriteResp
 	}
