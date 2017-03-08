@@ -83,7 +83,12 @@ pipeline {
                     dir('examples/memcopy'){
                         sh '../../reco-jarvice/reco-jarvice test test-memcopy'
                     }
-                }
+                },
+                "parallel histogram": {
+                    dir('examples/histogram-parallel'){
+                        sh '../../reco-jarvice/reco-jarvice test test-histogram-parallel'
+                    }
+                },
             }
         }
 
