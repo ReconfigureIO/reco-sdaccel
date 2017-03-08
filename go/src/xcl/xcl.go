@@ -142,8 +142,8 @@ func (writer *MemoryWriter) Write(bytes []byte) (n int, err error) {
 	p := C.CBytes(bytes[0:toWrite])
 
 	ret := C.clEnqueueWriteBuffer(
-		C.xcl_world(*writer.mem.world).command_queue,
-		writer.mem.mem,
+		C.xcl_world(*writer.memory.world).command_queue,
+		writer.memory.mem,
 		C.CL_TRUE,
 		C.size_t(writer.offset), C.size_t(toWrite), p, C.cl_uint(0), nil, nil)
 
@@ -178,8 +178,8 @@ func (reader *MemoryReader) Read(bytes []byte) (n int, err error) {
 	p := unsafe.Pointer(&bytes[0])
 
 	ret := C.clEnqueueReadBuffer(
-		C.xcl_world(*writer.mem.world).command_queue,
-		writer.mem.mem,
+		C.xcl_world(*reader.memory.world).command_queue,
+		reader.memory.mem,
 		C.CL_TRUE,
 		C.size_t(reader.offset), C.size_t(toRead), p, C.cl_uint(0), nil, nil)
 
