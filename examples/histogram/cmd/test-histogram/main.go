@@ -29,14 +29,14 @@ func main() {
 		input[i] = uint32(uint16(rand.Uint32()))
 	}
 
-	buff := world.Malloc(xcl.ReadOnly, binary.Size(input))
+	buff := world.Malloc(xcl.ReadOnly, uint(binary.Size(input)))
 	defer buff.Free()
 
 	resp := make([]byte, 4*HISTOGRAM_WIDTH)
-	outputBuff := world.Malloc(xcl.ReadWrite, binary.Size(resp))
+	outputBuff := world.Malloc(xcl.ReadWrite, uint(binary.Size(resp)))
 	defer outputBuff.Free()
 
-	binary.Write(inputBuff.Writer(), binary.LittleEndian, &input)
+	binary.Write(buff.Writer(), binary.LittleEndian, &input)
 
 	outputBuff.Write(resp)
 
