@@ -1,5 +1,8 @@
 pipeline {
     agent { label "master" }
+    parameters {
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.5.1')
+    }
     environment {
         VERSION = "${env.BRANCH_NAME}"
     }
@@ -44,7 +47,7 @@ pipeline {
 
         stage('test go') {
             steps {
-                sh 'make eTeak/go-teak-sdaccel'
+                sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} eTeak/go-teak-sdaccel"
                 dir('examples/noop'){
                     sh './../../sdaccel-builder test-go'
                     sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
@@ -57,7 +60,7 @@ pipeline {
                 expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
             }
             steps {
-                sh "make VERSION=${env.VERSION} deploy"
+                sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} deploy"
             }
         }
 
@@ -70,17 +73,17 @@ pipeline {
                     dir('examples/histogram'){
                         sh '../../reco-jarvice/reco-jarvice test test-histogram'
                     }
-                }
+                },
 //                addition: {
 //                    dir('examples/addition'){
 //                        sh '../../reco-jarvice/reco-jarvice test test-addition'
 //                    }
-//                }
-//                memcopy: {
-//                    dir('examples/memcopy'){
-//                        sh '../../reco-jarvice/reco-jarvice test test-memcopy'
-//                    }
-//                }
+//                },
+                memcopy: {
+                    dir('examples/memcopy'){
+                        sh '../../reco-jarvice/reco-jarvice test test-memcopy'
+                    }
+                }
             }
         }
 
@@ -94,23 +97,23 @@ pipeline {
                     dir('examples/histogram'){
                         sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram'
                     }
-                }
+                },
 //                addition: {
 //                    dir('examples/addition'){
 //                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-addition'
 //                    }
-//                }
-//                memcopy: {
-//                    dir('examples/memcopy'){
-//                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy'
-//                    }
-//                }
+//                },
+                memcopy: {
+                    dir('examples/memcopy'){
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy'
+                    }
+                }
             }
         }
 
         stage('build') {
             steps {
-                sh 'make'
+                sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION}"
             }
         }
 

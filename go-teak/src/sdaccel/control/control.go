@@ -36,10 +36,9 @@ type WriteData struct {
 // once for each control interface.
 func DisableReads(controlReadAddr <-chan Addr,
 	controlReadData chan<- ReadData) {
-	nullRead := ReadData{0, [2]bool{false, false}}
 	for {
 		<-controlReadAddr
-		controlReadData <- nullRead
+		controlReadData <- ReadData{}
 	}
 }
 
@@ -49,11 +48,11 @@ func DisableWrites(
 	controlWriteAddr <-chan Addr,
 	controlWriteData <-chan WriteData,
 	controlResp chan<- Resp) {
-	nullResp := Resp{false, false}
+
 	for {
 		<-controlWriteAddr
 		<-controlWriteData
-		controlResp <- nullResp
+		controlResp <- Resp{}
 	}
 }
 

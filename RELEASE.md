@@ -1,10 +1,7 @@
-sdaccel-builder v0.1.1
+sdaccel-builder $VERSION
 
-# sdaccel-builder v0.1.1
+# sdaccel-builder $VERSION
 
 ## Features
 
 ## Bugfixes
-
-   * Display builds that were being filtered
-   * Work with more Jarvice accounts
