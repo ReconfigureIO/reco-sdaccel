@@ -15,6 +15,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"unsafe"
 )
 
@@ -37,14 +38,14 @@ type Memory struct {
 }
 
 type MemoryWriter struct {
-	left   *uint
-	offset *uint
+	left   uint
+	offset uint
 	memory *Memory
 }
 
 type MemoryReader struct {
-	left   *uint
-	offset *uint
+	left   uint
+	offset uint
 	memory *Memory
 }
 
@@ -95,8 +96,7 @@ func (mem *Memory) Free() {
 }
 
 func (mem *Memory) Writer() *MemoryWriter {
-	size := mem.size
-	return &MemoryWriter{&size, 0, mem}
+	return &MemoryWriter{mem.size, 0, mem}
 }
 
 func ErrorCode(code C.cl_int) error {
@@ -142,16 +142,23 @@ func (writer *MemoryWriter) Write(bytes []byte) (n int, err error) {
 	p := C.CBytes(bytes[0:toWrite])
 
 	ret := C.clEnqueueWriteBuffer(
-		C.xcl_world(*mem.world).command_queue,
-		mem.mem,
+		C.xcl_world(*writer.mem.world).command_queue,
+		writer.mem.mem,
 		C.CL_TRUE,
 		C.size_t(writer.offset), C.size_t(toWrite), p, C.cl_uint(0), nil, nil)
 
-	err := ErrorCode(ret)
+	err = ErrorCode(ret)
 	C.free(p)
 	writer.left -= toWrite
 	writer.offset += toWrite
 	return int(toWrite), err
+}
+
+func (mem *Memory) Write(bytes []byte) {
+	_, err := mem.Writer().Write(bytes)
+	if err != nil {
+		log.Fatalf("Unhandled error in Write %v. Use the Writer interface to handle this\n", err)
+	}
 }
 
 func (mem *Memory) Reader() *MemoryReader {
@@ -171,15 +178,22 @@ func (reader *MemoryReader) Read(bytes []byte) (n int, err error) {
 	p := unsafe.Pointer(&bytes[0])
 
 	ret := C.clEnqueueReadBuffer(
-		C.xcl_world(*mem.world).command_queue,
-		mem.mem,
+		C.xcl_world(*writer.mem.world).command_queue,
+		writer.mem.mem,
 		C.CL_TRUE,
 		C.size_t(reader.offset), C.size_t(toRead), p, C.cl_uint(0), nil, nil)
 
-	err := ErrorCode(ret)
+	err = ErrorCode(ret)
 	reader.left -= toRead
 	reader.offset += toRead
 	return int(toRead), err
+}
+
+func (mem *Memory) Read(bytes []byte) {
+	_, err := mem.Reader().Read(bytes)
+	if err != nil && err != io.EOF {
+		log.Fatalf("Unhandled error in Read %v. Use the Reader interface to handle this\n", err)
+	}
 }
 
 func (kernel *Kernel) SetMemoryArg(index uint, mem *Memory) {
