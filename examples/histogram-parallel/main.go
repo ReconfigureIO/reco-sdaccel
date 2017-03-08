@@ -19,57 +19,48 @@ func Top(
 	memWriteData chan<- memory.WriteData,
 	memResp <-chan memory.Response) {
 
-	//set up worker input and output channels, create worker for each pair
-	numberOfWorkers := 5
-	var workerinput [numberOfWorkers - 1]chan int
-	var workeroutput [numberOfWorkers - 1]chan int
-	for i := range workerinput {
-		workerinput[i] = make(chan uint32)
-		workeroutput[i] = make(chan uint32)
-		Worker(workerinput[i], workeroutput[i])
-	}
-	//trigger function to update bin values based on worker output
-	memUpdate()
+	readChan := make(chan uintptr)
+	readRespChan := make(chan uint32)
 
-	// The host needs to provide the length we should read
-	for ; length > 0; length-- {
-		// First we'll read each sample
-		sample := memory.Read(inputData, memReadAddr, memReadData)
-		//length modulo number of workers determines which worker to give sample to
-		workerNo = length % numberOfWorkers
-		workerinput[workerNo] <- sample
-	}
+	incrChan := make(chan uintptr)
+	incrResp := make(chan uint32)
 
-}
-
-func worker(chan input, chan output) {
-
-	for {
-		//try to read sample from input channel
-		sample, ok := <-input
-		if ok {
-			//cut sample down to 9 MSBs to determine destination bin
-			binNo := uint16(sample) >> (16 - 9)
-			output <- binNo
+	// handle memory reading & writing
+	go func() {
+		for {
+			select {
+			case addr := <-readChan:
+				readRespChan := memory.Read(addr, memReadAddr, memReadData)
+			case addr := <-incrChan:
+				current := memory.Read(outputPointer, memReadAddr, memReadData)
+				memory.Write(outputPointer, current+1, memWriteAddr, memWriteData, memResp)
+				incrResp <- current + 1
+			}
 		}
-	}
+	}()
 
-}
-
-func memUpdate() {
-	i := 0
-	for {
-		//try to read bin number from worker's output channel
-		binNo, ok := <-workeroutput[i]
-		if ok {
-			//multiply bin number by 4 to get the bin's memory address
-			binPtr := binNo << 2
-			//read current value of bin, increment, write back
-			current := memory.Read(binPtr, memReadAddr, memReadData)
-			memory.Write(binPtr, current+1, memWriteData, memWriteData, memResp)
-			//increment i without exceeding the number of workers so next loop will check next worker
-			i := (i + 1) % numberOfWorkers
+	// queue up all read operations
+	go func() {
+		for i := length; i > 0; i-- {
+			readChan <- inputData
+			inputData += 4
 		}
-	}
+	}()
 
+	// for every read response, queue up the increment operations
+	go func() {
+		for i := length; i > 0; i-- {
+			sample := <-readRespChan
+			// If we think of external memory we are writing to as a [512]uint32, this would be the index we access
+			index := uint16(sample) >> (16 - 9)
+			pointerDiff := index << 2
+			// And this is that index as a pointer to external memory
+			incrChan <- outputData + uintptr(pointerDiff)
+		}
+	}()
+
+	// drain all the increment operations
+	for i := length; i > 0; i-- {
+		<-incrResp
+	}
 }
