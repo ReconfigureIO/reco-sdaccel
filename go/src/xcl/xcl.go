@@ -162,8 +162,7 @@ func (mem *Memory) Write(bytes []byte) {
 }
 
 func (mem *Memory) Reader() *MemoryReader {
-	size := mem.size
-	return &MemoryReader{&size, 0, mem}
+	return &MemoryReader{mem.size, 0, mem}
 }
 
 func (reader *MemoryReader) Read(bytes []byte) (n int, err error) {
