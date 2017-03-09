@@ -31,7 +31,9 @@ function parse_yaml {
    set -e
 }
 
-eval "$(parse_yaml 'reco.yml' 'reco_')"
+if [ -e 'reco.yml' ]; then
+   eval "$(parse_yaml 'reco.yml' 'reco_')"
+fi
 
 function build {
     make -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" kernel
