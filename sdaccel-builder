@@ -8,12 +8,33 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 export ROOT_DIR="$PWD"
 
+function parse_yaml {
+    set +x
+    local prefix=$2
+    local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+    sed -ne "s|^\($s\):|\1|" \
+        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+        awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) > 0) {
+         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+      }
+   }'
+   set -x
+}
+
+parse_yaml "$PWD/reco.yml" "reco"
+
 function build {
-    make -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu kernel
+    make -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" kernel
 }
 
 function image {
-    make -f "$DIR/sdaccel-builder.mk" TARGET=hw kernel
+    make -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" kernel
 }
 
 function test_go {
@@ -22,7 +43,7 @@ function test_go {
 
 function simulate {
     CMD="$1"
-    make -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu sim cmds kernel
+    make -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" sim cmds kernel
     export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
 
     # shellcheck source=/dev/null

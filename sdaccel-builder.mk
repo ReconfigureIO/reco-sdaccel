@@ -10,6 +10,13 @@ KERNEL_NAME := "kernel_test"
 DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_2"
 DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.2"
 TARGET := "hw_emu"
+OPTIMIZE := "no"
+
+ifeq ($(OPTIMIZE), "yes")
+	GO_TEAK_FLAGS := "-O "
+else
+	GO_TEAK_FLAGS := ""
+endif
 
 .PHONY: kernel xo clean cmds sim verilog
 
@@ -54,7 +61,7 @@ VERILOG_SOURCES := $(shell find ${DIR}/eTeak/verilog/SELF_files/ -type f)
 INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/includes/%,$(VERILOG_SOURCES))
 
 ${VERILOG_DIR}/main.v: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR}
-	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak ./go-teak-sdaccel build $< -o $@
+	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak ./go-teak-sdaccel build $(GO_TEAK_FLAGS) $< -o $@
 
 ${VERILOG_DIR}/includes: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/includes
