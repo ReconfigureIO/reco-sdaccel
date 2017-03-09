@@ -15,7 +15,7 @@ OPTIMIZE := "no"
 ifeq ($(OPTIMIZE), "yes")
 	GO_TEAK_FLAGS := "-O "
 else
-	GO_TEAK_FLAGS := ""
+	GO_TEAK_FLAGS :=
 endif
 
 .PHONY: kernel xo clean cmds sim verilog
