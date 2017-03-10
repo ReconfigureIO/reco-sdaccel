@@ -2,7 +2,12 @@
 
 ## Features
 
+* Bump compiler to v0.6.0
+* Add `MemoryReader` & `MemoryWriter` to `xcl` with corresponding `io.Reader` & `io.Writer` instances.
+
 ## Bugfixes
+
+* Fix possible segfaults in `xcl`.
 
 # sdaccel-builder v0.2.1
 
@@ -45,4 +50,3 @@
    * Include `reco-jarvice` tool for deploying workloads on https://xilinx-cloud.jarvice.com
 
 ## Bugfixes
-
