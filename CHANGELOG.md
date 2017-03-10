@@ -1,3 +1,9 @@
+# sdaccel-builder v0.3.0
+
+## Features
+
+## Bugfixes
+
 # sdaccel-builder v0.2.1
 
 ## Features
