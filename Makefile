@@ -8,11 +8,13 @@ BUILDDATE := $(shell date -u +"%B %d, %Y")
 BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
 PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
+DOCKER_NAME := "$(NAME)"
+DOCKER_REMOTE := "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/$(NAME)"
 
 SDACCEL_WRAPPER_VERSION := v0.6.0
 GO_VERSION := 1.7.4
 
-.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all
+.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image
 
 all: package/reco package/reco-jarvice
 
@@ -122,6 +124,9 @@ eTeak/go-teak-sdaccel: eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x8
 	# So that it won't download again
 	touch $@
 
+docker-image: bundle/reco
+	docker build -t "$(NAME):latest" .
+
 update-changelog:
 	sed -i 's/$$VERSION/$(VERSION)/' RELEASE.md
 	tail -n +3 RELEASE.md > next.md
@@ -136,10 +141,13 @@ update-changelog:
 	@echo "" >> RELEASE.md
 	@echo "## Bugfixes" >> RELEASE.md
 
-release: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz dist/${NAME}-deploy-${VERSION}.tar.gz
+release: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz dist/${NAME}-deploy-${VERSION}.tar.gz docker-image
 	sed 's/$$VERSION/$(VERSION)/' RELEASE.md > RELEASE_NOTES.md
 	aws s3 cp "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
 	aws s3 cp "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
 	aws s3 cp "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
+	docker tag "sdaccel-builder:latest" "${DOCKER_REMOTE}:${VERSION}"
+	$(aws ecr get-login --region us-east-1)
+	docker push "${DOCKER_REMOTE}:${VERSION}"
 	hub release create -d -F "RELEASE_NOTES.md" -a "dist/${NAME}-${VERSION}.tar.gz" -a "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" -a "dist/${NAME}-deploy-${VERSION}.tar.gz" "$(VERSION)"
 	rm RELEASE_NOTES.md
