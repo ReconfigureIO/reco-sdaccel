@@ -125,7 +125,7 @@ eTeak/go-teak-sdaccel: eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x8
 	touch $@
 
 docker-image: bundle/reco
-	docker build -t "$(NAME):latest" .
+	docker build -t $(DOCKER_NAME):latest .
 
 update-changelog:
 	sed -i 's/$$VERSION/$(VERSION)/' RELEASE.md
@@ -146,8 +146,8 @@ release: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar
 	aws s3 cp "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
 	aws s3 cp "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
 	aws s3 cp "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
-	docker tag "sdaccel-builder:latest" "${DOCKER_REMOTE}:${VERSION}"
+	docker tag $(DOCKER_NAME):latest ${DOCKER_REMOTE}:${VERSION}
 	$(aws ecr get-login --region us-east-1)
-	docker push "${DOCKER_REMOTE}:${VERSION}"
+	docker push ${DOCKER_REMOTE}:${VERSION}
 	hub release create -d -F "RELEASE_NOTES.md" -a "dist/${NAME}-${VERSION}.tar.gz" -a "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" -a "dist/${NAME}-deploy-${VERSION}.tar.gz" "$(VERSION)"
 	rm RELEASE_NOTES.md
