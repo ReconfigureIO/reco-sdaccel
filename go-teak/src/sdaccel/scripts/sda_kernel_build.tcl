@@ -61,7 +61,7 @@
 #
 
 # Disable multithreading.
-set_param general.maxThreads 1
+set_param general.maxThreads 4
 set maxSynthesisThreads [get_param general.maxThreads]
 puts "Using $maxSynthesisThreads CPU thread(s) for Vivado synthesis"
 
