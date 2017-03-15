@@ -1,5 +1,5 @@
 
-BUILD_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/build"
+BUILD_DIR := "/tmp/.reco-work/sdaccel/build"
 DIST_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist"
 XCLBIN_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin"
 VERILOG_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/verilog"
