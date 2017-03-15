@@ -65,6 +65,9 @@ set_param general.maxThreads 1
 set maxSynthesisThreads [get_param general.maxThreads]
 puts "Using $maxSynthesisThreads CPU thread(s) for Vivado synthesis"
 
+# Disable verbose info messages.
+set_msg_config -id "Synth 8-3333" -suppress
+
 # Include synthesis and packaging functions.
 source [file join [file dirname [info script]] sda_kernel_synthesis.tcl]
 source [file join [file dirname [info script]] sda_kernel_packaging.tcl]
