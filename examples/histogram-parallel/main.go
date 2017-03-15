@@ -28,12 +28,14 @@ func Top(
 	// handle memory reading & writing
 	go func() {
 		for {
+			var addr uintptr
+
 			select {
-			case addr := <-readChan:
+			case addr = <-readChan:
 				readRespChan := memory.Read(addr, memReadAddr, memReadData)
-			case addr := <-incrChan:
-				current := memory.Read(outputPointer, memReadAddr, memReadData)
-				memory.Write(outputPointer, current+1, memWriteAddr, memWriteData, memResp)
+			case addr = <-incrChan:
+				current := memory.Read(addr, memReadAddr, memReadData)
+				memory.Write(addr, current+1, memWriteAddr, memWriteData, memResp)
 				incrResp <- current + 1
 			}
 		}
