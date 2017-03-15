@@ -88,7 +88,7 @@ pipeline {
                     dir('examples/histogram-parallel'){
                         sh '../../reco-jarvice/reco-jarvice test test-histogram-parallel'
                     }
-                },
+                }
             }
         }
 
