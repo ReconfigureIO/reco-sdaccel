@@ -60,6 +60,11 @@
 # > vivado -mode batch -source <this_script_name> -tclargs <tcl_script_args>
 #
 
+# Disable multithreading.
+set_param general.maxThreads 1
+set maxSynthesisThreads [get_param general.maxThreads]
+puts "Using $maxSynthesisThreads CPU thread(s) for Vivado synthesis"
+
 # Include synthesis and packaging functions.
 source [file join [file dirname [info script]] sda_kernel_synthesis.tcl]
 source [file join [file dirname [info script]] sda_kernel_packaging.tcl]
