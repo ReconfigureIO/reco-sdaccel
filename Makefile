@@ -101,12 +101,12 @@ deploy: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows
 downloads:
 	mkdir -p downloads
 
-downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz: downloads
+downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz: | downloads
 	aws s3 cp "s3://nerabus/eTeak/releases/eTeak-${SDACCEL_WRAPPER_VERSION}-x86_64-unknown-linux-release.tar.gz" $@
 	# So that it won't download again
 	touch $@
 
-downloads/go-${GO_VERSION}.linux-amd64.tar.gz: downloads
+downloads/go-${GO_VERSION}.linux-amd64.tar.gz: | downloads
 	wget -O $@ https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz
 	# So that it won't download again
 	touch $@
@@ -119,7 +119,7 @@ build/reco/go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz build/reco
 eTeak:
 	mkdir -p eTeak
 
-eTeak/go-teak-sdaccel: eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz
+eTeak/go-teak-sdaccel: | eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz
 	tar -xf "downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz" -C eTeak
 	# So that it won't download again
 	touch $@
