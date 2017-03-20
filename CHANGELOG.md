@@ -1,3 +1,11 @@
+# sdaccel-builder v0.4.0
+
+## Features
+
+* Bump compiler to v0.7.0
+
+## Bugfixes
+
 # sdaccel-builder v0.3.0
 
 ## Features
