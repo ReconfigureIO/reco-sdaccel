@@ -1,5 +1,5 @@
 
-BUILD_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/build"
+BUILD_DIR := "/tmp/.reco-work/sdaccel/build"
 DIST_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist"
 XCLBIN_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin"
 VERILOG_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/verilog"
@@ -10,6 +10,7 @@ KERNEL_NAME := "kernel_test"
 DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_2"
 DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.2"
 TARGET := "hw_emu"
+<<<<<<< HEAD
 OPTIMIZE := "no"
 
 ifeq ($(OPTIMIZE), "yes")
@@ -17,6 +18,10 @@ ifeq ($(OPTIMIZE), "yes")
 else
 	GO_TEAK_FLAGS :=
 endif
+=======
+PART := "xcku115-flvf1924-1-c"
+PART_FAMILY := "kintexu"
+>>>>>>> origin/master
 
 .PHONY: kernel xo clean cmds sim verilog
 
@@ -30,7 +35,7 @@ ${BUILD_DIR}:
 	mkdir -p "${BUILD_DIR}"
 
 ${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v
-	cd "${BUILD_DIR}" && vivado -notrace -mode batch -source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" -param_args_file "${VERILOG_DIR}/main.v.xmldef" -vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1
+	cd "${BUILD_DIR}" && vivado -notrace -mode batch -source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" -param_args_file "${VERILOG_DIR}/main.v.xmldef" -vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part ${PART} -part_family ${PART_FAMILY}
 
 ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
