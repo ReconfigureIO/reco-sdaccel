@@ -10,7 +10,6 @@ KERNEL_NAME := "kernel_test"
 DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_2"
 DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.2"
 TARGET := "hw_emu"
-<<<<<<< HEAD
 OPTIMIZE := "no"
 
 ifeq ($(OPTIMIZE), "yes")
@@ -18,10 +17,9 @@ ifeq ($(OPTIMIZE), "yes")
 else
 	GO_TEAK_FLAGS :=
 endif
-=======
+
 PART := "xcku115-flvf1924-1-c"
 PART_FAMILY := "kintexu"
->>>>>>> origin/master
 
 .PHONY: kernel xo clean cmds sim verilog
 
