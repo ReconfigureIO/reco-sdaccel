@@ -8,11 +8,13 @@ BUILDDATE := $(shell date -u +"%B %d, %Y")
 BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
 PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
+DOCKER_NAME := "$(NAME)"
+DOCKER_REMOTE := "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/$(NAME)"
 
 SDACCEL_WRAPPER_VERSION := v0.7.0
 GO_VERSION := 1.7.4
 
-.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all
+.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload
 
 all: package/reco package/reco-jarvice
 
@@ -99,12 +101,12 @@ deploy: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows
 downloads:
 	mkdir -p downloads
 
-downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz: downloads
+downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz: | downloads
 	aws s3 cp "s3://nerabus/eTeak/releases/eTeak-${SDACCEL_WRAPPER_VERSION}-x86_64-unknown-linux-release.tar.gz" $@
 	# So that it won't download again
 	touch $@
 
-downloads/go-${GO_VERSION}.linux-amd64.tar.gz: downloads
+downloads/go-${GO_VERSION}.linux-amd64.tar.gz: | downloads
 	wget -O $@ https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz
 	# So that it won't download again
 	touch $@
@@ -117,7 +119,7 @@ build/reco/go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz build/reco
 eTeak:
 	mkdir -p eTeak
 
-eTeak/go-teak-sdaccel: eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz
+eTeak/go-teak-sdaccel: | eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz
 	tar -xf "downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz" -C eTeak
 	# So that it won't download again
 	touch $@
@@ -136,10 +138,18 @@ update-changelog:
 	@echo "" >> RELEASE.md
 	@echo "## Bugfixes" >> RELEASE.md
 
-release: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz dist/${NAME}-deploy-${VERSION}.tar.gz
-	sed 's/$$VERSION/$(VERSION)/' RELEASE.md > RELEASE_NOTES.md
+docker-image: bundle/reco
+	docker build -t $(DOCKER_NAME):latest .
+
+upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz dist/${NAME}-deploy-${VERSION}.tar.gz docker-image
 	aws s3 cp "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
 	aws s3 cp "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
 	aws s3 cp "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
+	docker tag $(DOCKER_NAME):latest ${DOCKER_REMOTE}:${VERSION}
+	$(aws ecr get-login --region us-east-1)
+	docker push ${DOCKER_REMOTE}:${VERSION}
+
+release: upload
+	sed 's/$$VERSION/$(VERSION)/' RELEASE.md > RELEASE_NOTES.md
 	hub release create -d -F "RELEASE_NOTES.md" -a "dist/${NAME}-${VERSION}.tar.gz" -a "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" -a "dist/${NAME}-deploy-${VERSION}.tar.gz" "$(VERSION)"
 	rm RELEASE_NOTES.md
