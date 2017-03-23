@@ -1,5 +1,5 @@
 
-BUILD_DIR := "/tmp/.reco-work/sdaccel/build"
+BUILD_DIR := "/tmp/workspace/.reco-work/sdaccel/build"
 DIST_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist"
 XCLBIN_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin"
 VERILOG_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/verilog"
@@ -10,6 +10,16 @@ KERNEL_NAME := "kernel_test"
 DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_2"
 DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.2"
 TARGET := "hw_emu"
+OPTIMIZE := "no"
+
+ifeq ($(OPTIMIZE), "yes")
+	GO_TEAK_FLAGS := "-O "
+else
+	GO_TEAK_FLAGS :=
+endif
+
+PART := "xcku115-flvf1924-1-c"
+PART_FAMILY := "kintexu"
 
 .PHONY: kernel xo clean cmds sim verilog
 
@@ -20,16 +30,16 @@ xo: ${BUILD_DIR}/${XO_NAME}
 verilog: ${VERILOG_DIR}/main.v ${VERILOG_DIR}/includes
 
 ${BUILD_DIR}:
-	mkdir -p "${BUILD_DIR}"
+	mkdir -p ${BUILD_DIR}
 
 ${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v
-	cd "${BUILD_DIR}" && vivado -notrace -mode batch -source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" -param_args_file "${VERILOG_DIR}/main.v.xmldef" -vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1
+	cd ${BUILD_DIR} && vivado -notrace -mode batch -source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" -param_args_file "${VERILOG_DIR}/main.v.xmldef" -vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part ${PART} -part_family ${PART_FAMILY}
 
 ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
 
 ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME} ${XCLBIN_DIR}
-	xocc -j8 -O3 -t "${TARGET}" --xdevice ${DEVICE_FULL} -l $< -o $@ -r estimate
+	cd ${BUILD_DIR} && xocc -j8 -O3 -t "${TARGET}" --xdevice ${DEVICE_FULL} -l $< -o $@ -r estimate
 
 ${DIST_DIR}/emconfig.json: ${DIST_DIR}
 	cd ${DIST_DIR} && XCL_EMULATION_MODE=${TARGET} emconfigutil --xdevice ${DEVICE_FULL} --nd 1
@@ -54,7 +64,7 @@ VERILOG_SOURCES := $(shell find ${DIR}/eTeak/verilog/SELF_files/ -type f)
 INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/includes/%,$(VERILOG_SOURCES))
 
 ${VERILOG_DIR}/main.v: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR}
-	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak ./go-teak-sdaccel build $< -o $@
+	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak ./go-teak-sdaccel build $(GO_TEAK_FLAGS) $< -o $@
 
 ${VERILOG_DIR}/includes: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/includes

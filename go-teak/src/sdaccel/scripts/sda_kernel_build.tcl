@@ -52,6 +52,12 @@
 #   This is a boolean flag which can be used to skip the synthesis phase of the
 #   build process if a valid Verilog netlist is already present in the build
 #   directory. This option is not mandatory and has the default value of 0.
+# -part <part_name>
+#   The part to synthesize for. If not provided, defaults to
+#   "xcku115-flvf1924-1-c"
+# -part_family <part_family>
+#   The part family to synthesize for. If not provided, defaults to
+#   "kintexu"
 #
 # The build script can be run from the command line using the Vivado batch mode
 # as follows, where <tcl_script_args> is replaced by the arguments specified
@@ -59,6 +65,14 @@
 #
 # > vivado -mode batch -source <this_script_name> -tclargs <tcl_script_args>
 #
+
+# Disable multithreading.
+set_param general.maxThreads 4
+set maxSynthesisThreads [get_param general.maxThreads]
+puts "Using $maxSynthesisThreads CPU thread(s) for Vivado synthesis"
+
+# Disable verbose info messages.
+set_msg_config -id "Synth 8-3333" -suppress
 
 # Include synthesis and packaging functions.
 source [file join [file dirname [info script]] sda_kernel_synthesis.tcl]
@@ -120,6 +134,14 @@ while {$argIndex < $argc} {
     }
     "-skip_resynthesis" {
       set skipResynthesis [lindex $argv $argIndex]
+      incr argIndex
+    }
+    "-part" {
+      set partName [lindex $argv $argIndex]
+      incr argIndex
+    }
+    "-part_family" {
+      set partFamily [lindex $argv $argIndex]
       incr argIndex
     }
     default {
