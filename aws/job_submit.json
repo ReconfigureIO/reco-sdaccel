@@ -1,0 +1,23 @@
+{
+    "jobName": "example",
+    "jobQueue": "build-jobs",
+    "jobDefinition": "sdaccel-builder-build",
+    "containerOverrides": {
+        "command": [
+            "bash",
+            "-c",
+            "export PATH=/opt/Xilinx/Vivado/2016.3/bin:$PATH && apt-get update && apt-get install -y git && git clone https://github.com/ReconfigureIO/examples.git && cd examples/addition && /opt/sdaccel-builder/sdaccel-builder build"
+        ],
+        "environment": [
+            {
+                "name": "PART",
+                "value": "xcvu9p-flgb2104-2-i-es1"
+            },
+            {
+                "name": "PART_FAMILY",
+                "value": "virtexuplus"
+            }
+        ]
+
+    }
+}

@@ -1,50 +1,53 @@
 {
-  "jobDefinitionName": "sdaccel-builder:build",
-  "type": "container",
-  "containerProperties": {
-    "image": "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/sdaccel-builder:v0.3.0",
-    "vcpus": 8,
-    "memory": 16000,
-    "command": [
-      "/opt/sdaccel-builder/sdaccel-builder build"
-    ],
-    "volumes": [
-        {
-            "host": {
-                "sourcePath": "/opt/Xilinx"
+    "jobDefinitionName": "sdaccel-builder-build",
+    "type": "container",
+    "parameters": {},
+    "containerProperties": {
+        "image": "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/sdaccel-builder:master",
+        "vcpus": 8,
+        "memory": 16000,
+        "command": [
+            "bash",
+            "-c",
+            "\"export PATH=$XILINX_VIVADO/bin:$PATH && apt-get update && apt-get install -y git && git clone https://github.com/ReconfigureIO/examples.git && cd examples/addition && /opt/sdaccel-builder/sdaccel-builder build\""
+        ],
+        "volumes": [
+            {
+                "host": {
+                    "sourcePath": "/opt/Xilinx"
+                },
+                "name": "xilinx"
             },
-            "name": "xilinx"
-        },
-        {
-            "host": {
-                "sourcePath": "/home/centos/src/license"
+            {
+                "host": {
+                    "sourcePath": "/home/centos/src/license"
+                },
+                "name": "license"
+            }
+        ],
+        "environment": [
+            {
+                "name": "XILINXD_LICENSE_FILE",
+                "value": "/opt/xilinx-license/XilinxAWS.lic"
             },
-            "name": "license"
-        }
-
-    ],
-    "environment": [
-      {
-        "name": "XILINXD_LICENSE_FILE",
-        "value": "/opt/xilinx-license/XilinxAWS.lic"
-      },
-      {
-        "name": "XILINX_VIVADO",
-        "value": "/opt/Xilinx/Vivado/2016.3"
-      }
-    ],
-    "mountPoints": [
-      {
-        "sourceVolume": "xilinx",
-        "containerPath": "/opt/Xilinx"
-      },
-      {
-        "sourceVolume": "license",
-        "containerPath": "/opt/xilinx-license"
-      }
-    ],
-    "readonlyRootFilesystem": false,
-    "privileged": false,
-    "ulimits": []
-  }
+            {
+                "name": "XILINX_VIVADO",
+                "value": "/opt/Xilinx/Vivado/2016.3"
+            }
+        ],
+        "mountPoints": [
+            {
+                "sourceVolume": "xilinx",
+                "containerPath": "/opt/Xilinx"
+            },
+            {
+                "sourceVolume": "license",
+                "containerPath": "/opt/xilinx-license"
+            }
+        ],
+        "readonlyRootFilesystem": false,
+        "privileged": false,
+        "ulimits": [],
+        "user": "root"
+    }
 }
