@@ -1,0 +1,46 @@
+#-----------------------------------------------------------
+# Vivado v2016.3_sdx (64-bit)
+# SW Build 1721784 on Tue Nov 29 22:12:24 MST 2016
+# IP Build 1720686 on Mon Nov 28 12:39:17 MST 2016
+# Start of session at: Fri Dec 30 08:21:07 2016
+# Process ID: 9353
+# Current directory: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/xcl_design_const_gnd_3_0_synth_1
+# Command line: vivado -log xcl_design_const_gnd_3_0.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source xcl_design_const_gnd_3_0.tcl
+# Log file: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/xcl_design_const_gnd_3_0_synth_1/xcl_design_const_gnd_3_0.vds
+# Journal file: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/xcl_design_const_gnd_3_0_synth_1/vivado.jou
+#-----------------------------------------------------------
+Sourcing tcl script '/home/joshbohde/xilinix/SDx/2016.3/Vivado/scripts/init.tcl'
+16 Beta devices matching pattern found, 0 enabled.
+Loaded SDSoC Platform Tcl Library
+source xcl_design_const_gnd_3_0.tcl -notrace
+Starting RTL Elaboration : Time (s): cpu = 00:00:07 ; elapsed = 00:00:15 . Memory (MB): peak = 1395.078 ; gain = 484.141 ; free physical = 871 ; free virtual = 7434
+INFO: [Synth 8-638] synthesizing module 'xcl_design_const_gnd_3_0' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ip/xcl_design_const_gnd_3_0/sim/xcl_design_const_gnd_3_0.v:56]
+INFO: [Synth 8-638] synthesizing module 'xlconstant' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/e147/xlconstant.v:23]
+INFO: [Synth 8-256] done synthesizing module 'xlconstant' (1#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/e147/xlconstant.v:23]
+INFO: [Synth 8-256] done synthesizing module 'xcl_design_const_gnd_3_0' (2#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ip/xcl_design_const_gnd_3_0/sim/xcl_design_const_gnd_3_0.v:56]
+Finished RTL Elaboration : Time (s): cpu = 00:00:08 ; elapsed = 00:00:16 . Memory (MB): peak = 1435.555 ; gain = 524.617 ; free physical = 827 ; free virtual = 7393
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:08 ; elapsed = 00:00:16 . Memory (MB): peak = 1435.555 ; gain = 524.617 ; free physical = 827 ; free virtual = 7393
+INFO: [Device 21-403] Loading part xcku060-ffva1156-2-e
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 1878.344 ; gain = 0.996 ; free physical = 432 ; free virtual = 7029
+Finished Constraint Validation : Time (s): cpu = 00:00:17 ; elapsed = 00:00:26 . Memory (MB): peak = 1878.344 ; gain = 967.406 ; free physical = 397 ; free virtual = 7016
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:17 ; elapsed = 00:00:26 . Memory (MB): peak = 1878.344 ; gain = 967.406 ; free physical = 397 ; free virtual = 7016
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:17 ; elapsed = 00:00:26 . Memory (MB): peak = 1878.344 ; gain = 967.406 ; free physical = 397 ; free virtual = 7016
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:17 ; elapsed = 00:00:26 . Memory (MB): peak = 1878.344 ; gain = 967.406 ; free physical = 397 ; free virtual = 7016
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:17 ; elapsed = 00:00:26 . Memory (MB): peak = 1878.344 ; gain = 967.406 ; free physical = 396 ; free virtual = 7015
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:24 ; elapsed = 00:00:33 . Memory (MB): peak = 2102.586 ; gain = 1191.648 ; free physical = 160 ; free virtual = 6758
+Finished Timing Optimization : Time (s): cpu = 00:00:25 ; elapsed = 00:00:33 . Memory (MB): peak = 2102.586 ; gain = 1191.648 ; free physical = 159 ; free virtual = 6758
+Finished Technology Mapping : Time (s): cpu = 00:00:25 ; elapsed = 00:00:34 . Memory (MB): peak = 2112.609 ; gain = 1201.672 ; free physical = 167 ; free virtual = 6753
+Finished IO Insertion : Time (s): cpu = 00:00:25 ; elapsed = 00:00:34 . Memory (MB): peak = 2112.613 ; gain = 1201.676 ; free physical = 166 ; free virtual = 6753
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:25 ; elapsed = 00:00:34 . Memory (MB): peak = 2112.613 ; gain = 1201.676 ; free physical = 166 ; free virtual = 6753
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:25 ; elapsed = 00:00:34 . Memory (MB): peak = 2112.613 ; gain = 1201.676 ; free physical = 166 ; free virtual = 6753
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:25 ; elapsed = 00:00:34 . Memory (MB): peak = 2112.613 ; gain = 1201.676 ; free physical = 166 ; free virtual = 6753
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:25 ; elapsed = 00:00:34 . Memory (MB): peak = 2112.613 ; gain = 1201.676 ; free physical = 166 ; free virtual = 6753
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:25 ; elapsed = 00:00:34 . Memory (MB): peak = 2112.613 ; gain = 1201.676 ; free physical = 166 ; free virtual = 6753
+
+Report Cell Usage: 
++-+-----+------+
+| |Cell |Count |
++-+-----+------+
++-+-----+------+
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:25 ; elapsed = 00:00:34 . Memory (MB): peak = 2112.613 ; gain = 1201.676 ; free physical = 166 ; free virtual = 6753
+synth_design: Time (s): cpu = 00:00:22 ; elapsed = 00:00:28 . Memory (MB): peak = 2149.379 ; gain = 830.301 ; free physical = 154 ; free virtual = 6723

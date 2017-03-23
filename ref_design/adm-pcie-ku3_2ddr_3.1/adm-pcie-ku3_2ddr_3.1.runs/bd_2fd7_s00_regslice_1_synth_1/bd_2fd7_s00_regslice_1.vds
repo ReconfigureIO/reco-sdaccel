@@ -1,0 +1,16 @@
+#-----------------------------------------------------------
+# Vivado v2016.3_sdx (64-bit)
+# SW Build 1721784 on Tue Nov 29 22:12:24 MST 2016
+# IP Build 1720686 on Mon Nov 28 12:39:17 MST 2016
+# Start of session at: Fri Dec 30 08:13:55 2016
+# Process ID: 7055
+# Current directory: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/bd_2fd7_s00_regslice_1_synth_1
+# Command line: vivado -log bd_2fd7_s00_regslice_1.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source bd_2fd7_s00_regslice_1.tcl
+# Log file: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/bd_2fd7_s00_regslice_1_synth_1/bd_2fd7_s00_regslice_1.vds
+# Journal file: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/bd_2fd7_s00_regslice_1_synth_1/vivado.jou
+#-----------------------------------------------------------
+Sourcing tcl script '/home/joshbohde/xilinix/SDx/2016.3/Vivado/scripts/init.tcl'
+16 Beta devices matching pattern found, 0 enabled.
+Loaded SDSoC Platform Tcl Library
+source bd_2fd7_s00_regslice_1.tcl -notrace
+INFO: [IP_Flow 19-4838] Using cached IP synthesis design for IP bd_2fd7_s00_regslice_1, cache-ID = 03cb1e5ada55378a.

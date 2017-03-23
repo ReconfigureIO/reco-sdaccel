@@ -1,0 +1,63 @@
+#-----------------------------------------------------------
+# Vivado v2016.3_sdx (64-bit)
+# SW Build 1721784 on Tue Nov 29 22:12:24 MST 2016
+# IP Build 1720686 on Mon Nov 28 12:39:17 MST 2016
+# Start of session at: Fri Dec 30 08:39:35 2016
+# Process ID: 13801
+# Current directory: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/xcl_design_regslice_data_0_synth_1
+# Command line: vivado -log xcl_design_regslice_data_0.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source xcl_design_regslice_data_0.tcl
+# Log file: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/xcl_design_regslice_data_0_synth_1/xcl_design_regslice_data_0.vds
+# Journal file: /home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.runs/xcl_design_regslice_data_0_synth_1/vivado.jou
+#-----------------------------------------------------------
+Sourcing tcl script '/home/joshbohde/xilinix/SDx/2016.3/Vivado/scripts/init.tcl'
+16 Beta devices matching pattern found, 0 enabled.
+Loaded SDSoC Platform Tcl Library
+source xcl_design_regslice_data_0.tcl -notrace
+Starting RTL Elaboration : Time (s): cpu = 00:00:07 ; elapsed = 00:00:15 . Memory (MB): peak = 1397.082 ; gain = 486.141 ; free physical = 4736 ; free virtual = 7682
+INFO: [Synth 8-638] synthesizing module 'xcl_design_regslice_data_0' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ip/xcl_design_regslice_data_0/synth/xcl_design_regslice_data_0.v:58]
+INFO: [Synth 8-638] synthesizing module 'axi_register_slice_v2_1_10_axi_register_slice' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7efe/hdl/axi_register_slice_v2_1_vl_rfs.v:791]
+INFO: [Synth 8-638] synthesizing module 'axi_infrastructure_v1_1_0_axi2vector' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7e3a/hdl/axi_infrastructure_v1_1_vl_rfs.v:60]
+INFO: [Synth 8-256] done synthesizing module 'axi_infrastructure_v1_1_0_axi2vector' (1#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7e3a/hdl/axi_infrastructure_v1_1_vl_rfs.v:60]
+INFO: [Synth 8-638] synthesizing module 'axi_register_slice_v2_1_10_axic_register_slice' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7efe/hdl/axi_register_slice_v2_1_vl_rfs.v:85]
+INFO: [Synth 8-256] done synthesizing module 'axi_register_slice_v2_1_10_axic_register_slice' (2#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7efe/hdl/axi_register_slice_v2_1_vl_rfs.v:85]
+INFO: [Synth 8-638] synthesizing module 'axi_register_slice_v2_1_10_axic_register_slice__parameterized0' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7efe/hdl/axi_register_slice_v2_1_vl_rfs.v:85]
+INFO: [Synth 8-256] done synthesizing module 'axi_register_slice_v2_1_10_axic_register_slice__parameterized0' (2#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7efe/hdl/axi_register_slice_v2_1_vl_rfs.v:85]
+INFO: [Synth 8-638] synthesizing module 'axi_register_slice_v2_1_10_axic_register_slice__parameterized1' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7efe/hdl/axi_register_slice_v2_1_vl_rfs.v:85]
+INFO: [Synth 8-256] done synthesizing module 'axi_register_slice_v2_1_10_axic_register_slice__parameterized1' (2#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7efe/hdl/axi_register_slice_v2_1_vl_rfs.v:85]
+INFO: [Synth 8-638] synthesizing module 'axi_register_slice_v2_1_10_axic_register_slice__parameterized2' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7efe/hdl/axi_register_slice_v2_1_vl_rfs.v:85]
+INFO: [Synth 8-256] done synthesizing module 'axi_register_slice_v2_1_10_axic_register_slice__parameterized2' (2#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7efe/hdl/axi_register_slice_v2_1_vl_rfs.v:85]
+INFO: [Synth 8-638] synthesizing module 'axi_infrastructure_v1_1_0_vector2axi' [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7e3a/hdl/axi_infrastructure_v1_1_vl_rfs.v:474]
+INFO: [Synth 8-256] done synthesizing module 'axi_infrastructure_v1_1_0_vector2axi' (3#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7e3a/hdl/axi_infrastructure_v1_1_vl_rfs.v:474]
+INFO: [Synth 8-256] done synthesizing module 'axi_register_slice_v2_1_10_axi_register_slice' (4#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ipshared/7efe/hdl/axi_register_slice_v2_1_vl_rfs.v:791]
+INFO: [Synth 8-256] done synthesizing module 'xcl_design_regslice_data_0' (5#1) [/home/joshbohde/code/nerabus/refdesign_test/adm-pcie-ku3_2ddr_3.1/adm-pcie-ku3_2ddr_3.1.srcs/sources_1/bd/xcl_design/ip/xcl_design_regslice_data_0/synth/xcl_design_regslice_data_0.v:58]
+Finished RTL Elaboration : Time (s): cpu = 00:00:08 ; elapsed = 00:00:16 . Memory (MB): peak = 1436.559 ; gain = 525.617 ; free physical = 4694 ; free virtual = 7640
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:08 ; elapsed = 00:00:16 . Memory (MB): peak = 1436.559 ; gain = 525.617 ; free physical = 4693 ; free virtual = 7639
+INFO: [Device 21-403] Loading part xcku060-ffva1156-2-e
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.14 ; elapsed = 00:00:00.10 . Memory (MB): peak = 1992.367 ; gain = 0.004 ; free physical = 4217 ; free virtual = 7164
+Finished Constraint Validation : Time (s): cpu = 00:00:18 ; elapsed = 00:00:26 . Memory (MB): peak = 1992.367 ; gain = 1081.426 ; free physical = 4214 ; free virtual = 7161
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:18 ; elapsed = 00:00:26 . Memory (MB): peak = 1992.367 ; gain = 1081.426 ; free physical = 4214 ; free virtual = 7161
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:18 ; elapsed = 00:00:26 . Memory (MB): peak = 1992.367 ; gain = 1081.426 ; free physical = 4214 ; free virtual = 7161
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:18 ; elapsed = 00:00:26 . Memory (MB): peak = 1992.367 ; gain = 1081.426 ; free physical = 4215 ; free virtual = 7161
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:19 ; elapsed = 00:00:27 . Memory (MB): peak = 1992.367 ; gain = 1081.426 ; free physical = 4214 ; free virtual = 7160
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:26 ; elapsed = 00:00:35 . Memory (MB): peak = 2133.367 ; gain = 1222.426 ; free physical = 4023 ; free virtual = 6969
+Finished Timing Optimization : Time (s): cpu = 00:00:27 ; elapsed = 00:00:35 . Memory (MB): peak = 2149.379 ; gain = 1238.438 ; free physical = 4008 ; free virtual = 6954
+Finished Technology Mapping : Time (s): cpu = 00:00:27 ; elapsed = 00:00:36 . Memory (MB): peak = 2180.652 ; gain = 1269.711 ; free physical = 3974 ; free virtual = 6920
+Finished IO Insertion : Time (s): cpu = 00:00:28 ; elapsed = 00:00:37 . Memory (MB): peak = 2180.656 ; gain = 1269.715 ; free physical = 3974 ; free virtual = 6920
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:28 ; elapsed = 00:00:37 . Memory (MB): peak = 2180.656 ; gain = 1269.715 ; free physical = 3974 ; free virtual = 6920
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:28 ; elapsed = 00:00:37 . Memory (MB): peak = 2180.656 ; gain = 1269.715 ; free physical = 3974 ; free virtual = 6920
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:28 ; elapsed = 00:00:37 . Memory (MB): peak = 2180.656 ; gain = 1269.715 ; free physical = 3973 ; free virtual = 6919
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:28 ; elapsed = 00:00:37 . Memory (MB): peak = 2180.656 ; gain = 1269.715 ; free physical = 3973 ; free virtual = 6920
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:28 ; elapsed = 00:00:37 . Memory (MB): peak = 2180.656 ; gain = 1269.715 ; free physical = 3973 ; free virtual = 6920
+
+Report Cell Usage: 
++------+-----+------+
+|      |Cell |Count |
++------+-----+------+
+|1     |LUT1 |     6|
+|2     |LUT2 |     2|
+|3     |LUT3 |  1099|
+|4     |LUT4 |     7|
+|5     |FDRE |  2352|
++------+-----+------+
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:28 ; elapsed = 00:00:37 . Memory (MB): peak = 2180.656 ; gain = 1269.715 ; free physical = 3973 ; free virtual = 6920
+synth_design: Time (s): cpu = 00:00:26 ; elapsed = 00:00:32 . Memory (MB): peak = 2227.672 ; gain = 909.590 ; free physical = 3960 ; free virtual = 6907

@@ -1,0 +1,34 @@
+README file for refdesign_xilinx_adm-pcie-ku3_2ddr_3_0
+(c) Copyright 2016 Xilinx, Inc. All rights reserved.
+
+The OpenCL platform model defines the logical representation of all hardware capable of executing an OpenCL program.
+The platform is a logical abstraction model for the hardware executing the OpenCL application code. SDAccel projects
+are compiled against a target platform. A platform is the combination of board and infrastructure components on which
+the kernels of an application will be executed. The refdesign_xilinx_adm-pcie-ku3_2ddr_3_1 is targeted to Kintex
+UltraScale KU060 on the Alpha Data ADM-PCIE-KU3 board. Applications compiled for the refdesign_xilinx_adm-pcie-ku3_2ddr_3_1
+platform name can only be executed on the Alpha Data ADM-PCIE-KU3 board.
+
+Contents of refdesign_xilinx_adm-pcie-ku3_2ddr_3_1.tar.gz
+---------------------------------------------------------
+- bringup_tests_2016_2.tar                      An archive of hardware bringup tests; see "Hardware bringup tests" below
+- common/                                       Contains various code and IP automatically used by the Vivado project
+- README                                        This file
+- refdesign_xilinx_adm-pcie-ku3_2ddr_3_1.pdf    Description of the reference design block diagram and addressing
+- refdesign_xilinx_adm-pcie-ku3_2ddr_3_1.zip    The reference design archived Vivado project
+- run_refdesign.tcl                             A Tcl script to build the reference design and generate .dsa output from within the project; see "Building the reference design" below
+
+Building the reference design
+-----------------------------
+From the directory containing this README file extracted from refdesign_xilinx_adm-pcie-ku3_2ddr_3_1.tar.gz:
+- Unzip the extracted refdesign_xilinx_adm-pcie-ku3_2ddr_3_1.zip file
+- Execute "vivado" from the Vivado installation provided with SDAccel 2016.2
+- From Vivado, open the project adm-pcie-ku3_2ddr/adm-pcie-ku3_2ddr.xpr. The filemgmt 56-2 warning can be ignored; it will be corrected by the next step.
+- From the Vivado Tcl Console, enter "source run_refdesign.tcl"
+- The design will be built and the .dsa output will be created after some time
+
+Hardware bringup tests
+----------------------
+From the directory containing this README file extracted from refdesign_xilinx_adm-pcie-ku3_2ddr_3_1.tar.gz:
+- Create a new working directory, copy the provided bringup_tests_2016_2.tar file to it, and change to that directory
+- Extract the provided bringup_tests_2016_2.tar file
+- Refer to the extracted lowlevel/README file for further instructions

@@ -1,0 +1,1 @@
+add_cells_to_pblock pblock_ddrmem [get_cells [list xcl_design_i/expanded_region/memory/ddrmem]] -clear_locs
