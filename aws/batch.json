@@ -3,13 +3,12 @@
     "type": "container",
     "parameters": {},
     "containerProperties": {
-        "image": "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/sdaccel-builder:master",
+        "image": "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/sdaccel-builder:josh-test",
         "vcpus": 8,
         "memory": 16000,
+        "jobRoleArn": "arn:aws:iam::398048034572:role/batch-builder",
         "command": [
-            "bash",
-            "-c",
-            "\"export PATH=$XILINX_VIVADO/bin:$PATH && apt-get update && apt-get install -y git && git clone https://github.com/ReconfigureIO/examples.git && cd examples/addition && /opt/sdaccel-builder/sdaccel-builder build\""
+            "/opt/build.sh"
         ],
         "volumes": [
             {
