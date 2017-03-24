@@ -54,10 +54,10 @@ build/reco/workflows/%: workflows/% build/reco/workflows
 
 bundle/reco/workflows: $(TARGETS)
 
-build/reco/sdaccel-builder: build/reco
+build/reco/sdaccel-builder: sdaccel-builder | build/reco
 	cp sdaccel-builder build/reco
 
-build/reco/sdaccel-builder.mk: build/reco
+build/reco/sdaccel-builder.mk: sdaccel-builder.mk | build/reco
 	cp sdaccel-builder.mk build/reco
 
 build/reco/eTeak: build/reco eTeak/go-teak-sdaccel
