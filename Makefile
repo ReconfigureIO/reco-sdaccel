@@ -54,10 +54,10 @@ build/reco/workflows/%: workflows/% build/reco/workflows
 
 bundle/reco/workflows: $(TARGETS)
 
-build/reco/sdaccel-builder: build/reco
+build/reco/sdaccel-builder: sdaccel-builder | build/reco
 	cp sdaccel-builder build/reco
 
-build/reco/sdaccel-builder.mk: build/reco
+build/reco/sdaccel-builder.mk: sdaccel-builder.mk | build/reco
 	cp sdaccel-builder.mk build/reco
 
 build/reco/eTeak: build/reco eTeak/go-teak-sdaccel
@@ -146,7 +146,7 @@ upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.
 	aws s3 cp "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
 	aws s3 cp "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
 	docker tag $(DOCKER_NAME):latest ${DOCKER_REMOTE}:${VERSION}
-	$(aws ecr get-login --region us-east-1)
+	$$(aws ecr get-login --region us-east-1)
 	docker push ${DOCKER_REMOTE}:${VERSION}
 
 release: upload
