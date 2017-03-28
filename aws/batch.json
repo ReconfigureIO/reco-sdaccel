@@ -32,6 +32,10 @@
             {
                 "name": "XILINX_VIVADO",
                 "value": "/opt/Xilinx/Vivado/2016.3"
+            },
+            {
+                "name": "XILINX_SDX",
+                "value": "/opt/Xilinx/SDx/2016.4"
             }
         ],
         "mountPoints": [
