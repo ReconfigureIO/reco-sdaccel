@@ -7,7 +7,7 @@ export DIR
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 export ROOT_DIR="$PWD"
-reco_optimize="no"
+reco_optimize="yes"
 
 function parse_yaml {
     local prefix="$2"
