@@ -29,7 +29,7 @@ func Top(
 		index := uint16(sample) >> (16 - 9)
 
 		// And increment the value in that bin
-		histogram[index] += 1
+		histogram[uint(index)] += 1
 
 		inputData += 4
 	}
