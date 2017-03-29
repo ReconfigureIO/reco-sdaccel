@@ -100,8 +100,8 @@ pipeline {
             }
             steps {
                 parallel histogram: {
-                    dir('examples/histogram'){
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram'
+                    dir('examples/histogram') {
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../reco-jarvice/reco-jarvice run $NUMBER bench-histogram'
                     }
                 },
 //                addition: {
@@ -111,7 +111,7 @@ pipeline {
 //                },
                 memcopy: {
                     dir('examples/memcopy'){
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy'
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy && ../../reco-jarvice/reco-jarvice run $NUMBER bench-memcopy'
                     }
                 }
             }
