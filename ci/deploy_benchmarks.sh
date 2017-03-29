@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 mkdir -p benchmarks/repository
 # Upload local logs
 aws s3 sync benchmarks/logs s3://nerabus/reco-sdaccel/benchmarks/
