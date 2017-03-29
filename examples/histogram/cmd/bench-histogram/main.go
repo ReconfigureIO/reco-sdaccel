@@ -2,10 +2,7 @@ package main
 
 import (
 	"encoding/binary"
-	"fmt"
-	"log"
 	"math/rand"
-	"reflect"
 	"xcl"
 	"testing"
 )
@@ -56,25 +53,4 @@ func doit(B *testing.B) {
 	B.StartTimer()
 	krnl.Run(1, 1, 1)
 	B.StopTimer()
-
-	var ret [512]uint32
-	err := binary.Read(outputBuff.Reader(), binary.LittleEndian, &ret)
-	if err != nil {
-		log.Fatal("binary.Read failed:", err)
-	}
-
-	var expected [HISTOGRAM_WIDTH]uint32
-
-	for _, val := range input {
-		expected[val>>(MAX_BIT_WIDTH-HISTOGRAM_BIT_WIDTH)] += 1
-	}
-
-	if !reflect.DeepEqual(expected, ret) {
-		log.Fatalf("%v != %v\n", ret, expected)
-	}
-
-	for i, val := range ret {
-		fmt.Printf("%d: %d\n", i<<(MAX_BIT_WIDTH-HISTOGRAM_BIT_WIDTH), val)
-	}
-
 }
