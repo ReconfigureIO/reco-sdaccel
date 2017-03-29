@@ -84,6 +84,11 @@ pipeline {
                     dir('examples/memcopy'){
                         sh '../../reco-jarvice/reco-jarvice test test-memcopy'
                     }
+                },
+                "histogram-array": {
+                    dir('examples/histogram-array'){
+                        sh '../../reco-jarvice/reco-jarvice test test-histogram'
+                    }
                 }
             }
         }
