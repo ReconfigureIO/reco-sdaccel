@@ -106,7 +106,7 @@ pipeline {
 //                },
                 memcopy: {
                     dir('examples/memcopy'){
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy'
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy && ../../reco-jarvice/reco-jarvice run $NUMBER bench-memcopy'
                     }
                 }
             }
