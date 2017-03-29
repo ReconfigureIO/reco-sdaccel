@@ -94,9 +94,8 @@ pipeline {
             }
             steps {
                 parallel histogram: {
-                    dir('examples/histogram'){
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram'
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER bench-histogram'
+                    dir('examples/histogram') {
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../reco-jarvice/reco-jarvice run $NUMBER bench-histogram'
                     }
                 },
 //                addition: {
