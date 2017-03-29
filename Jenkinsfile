@@ -1,7 +1,8 @@
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.5.1')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.7.0')
+        booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
     }
     environment {
         VERSION = "${env.BRANCH_NAME}"
@@ -124,10 +125,10 @@ pipeline {
 
         stage('upload') {
             when {
-                expression { env.BRANCH_NAME in ["master"] }
+                expression { env.BRANCH_NAME in ["master"] && env.UPLOAD}
             }
             steps {
-                step([$class: 'S3BucketPublisher', dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'nerabus/sdaccel-builder', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: false, noUploadOnFailure: true, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "dist/*.tar.gz", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], profileName: 's3', userMetadata: []])
+                sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} upload"
             }
         }
 
