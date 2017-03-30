@@ -84,6 +84,11 @@ pipeline {
                     dir('examples/memcopy'){
                         sh '../../reco-jarvice/reco-jarvice test test-memcopy'
                     }
+                },
+                "parallel histogram": {
+                    dir('examples/histogram-parallel'){
+                        sh '../../reco-jarvice/reco-jarvice test test-histogram'
+                    }
                 }
             }
         }
@@ -107,6 +112,11 @@ pipeline {
                 memcopy: {
                     dir('examples/memcopy'){
                         sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy && ../../reco-jarvice/reco-jarvice run $NUMBER bench-memcopy'
+                    }
+                },
+                "parallel histogram": {
+                    dir('examples/histogram-parallel') {
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../reco-jarvice/reco-jarvice run $NUMBER bench-histogram'
                     }
                 }
             }
