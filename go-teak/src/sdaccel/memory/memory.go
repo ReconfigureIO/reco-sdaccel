@@ -153,7 +153,7 @@ func ReadBurst(
 			dataStream <- d.Data
 		}
 		burst -= uint32(burstSize)
-		address += uintptr(burstSize << 2)
+		address += uintptr(burstSize) << 2
 	}
 }
 
@@ -193,6 +193,6 @@ func WriteBurst(
 		}()
 		<-memoryWriteResp
 		burst -= uint32(burstSize)
-		address += uintptr(burstSize << 2)
+		address += uintptr(burstSize) << 2
 	}
 }
