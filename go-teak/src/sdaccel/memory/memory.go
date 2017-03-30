@@ -187,7 +187,7 @@ func WriteBurst(
 				memoryWriteData <- WriteData{
 					Data: d,
 					Strb: [4]bool{true, true, true, true},
-					Last: i == burstSize,
+					Last: i == (burstSize - 1),
 				}
 			}
 		}()
