@@ -15,7 +15,29 @@ const (
 	HISTOGRAM_WIDTH     = 1 << 9
 )
 
+func printHistogram(a []uint32) {
+
+        var maxVal, minVal, divVal uint32 = 0, 0xffff, 1 
+        ticks := []string{`▁`,`▂`,`▃`,`▄`,`▅`,`▆`,`▇`,`█`}
+
+        for _, val := range a{
+                if val > maxVal { maxVal = val}
+                if val < minVal { minVal = val}
+        }
+
+        //U+9601 unicode for`▁`
+        divVal = ((maxVal - minVal))  / 9601
+        if divVal < 1 {divVal = 1}
+
+        for _, val := range a{
+                fmt.Printf("%s", ticks[((val - minVal))/divVal])
+        }
+
+}
+
+
 func main() {
+
 	world := xcl.NewWorld()
 	defer world.Release()
 
@@ -65,5 +87,8 @@ func main() {
 	for i, val := range ret {
 		fmt.Printf("%d: %d\n", i<<(MAX_BIT_WIDTH-HISTOGRAM_BIT_WIDTH), val)
 	}
+
+	//TODO put this under a flag
+	printHistogram(ret)
 
 }
