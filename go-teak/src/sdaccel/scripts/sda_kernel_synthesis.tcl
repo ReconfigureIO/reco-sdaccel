@@ -25,12 +25,10 @@ add_files -norecurse $sourceFileName
 #
 # Generate the synthesised netlist for the IP core.
 #
-
-set_msg_config -id {[Synth 8-3352]} -new_severity error
-
 synth_design \
   -part $partName \
   -mode out_of_context \
+  -directive runtimeoptimized \
   -no_lc \
   -keep_equivalent_registers \
   -top sda_kernel_wrapper_gmem \
