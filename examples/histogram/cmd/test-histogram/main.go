@@ -51,6 +51,9 @@ func main() {
 	// write our input to the kernel at the memory we've previously allocated
 	binary.Write(buff.Writer(), binary.LittleEndian, &input)
 
+	// zero out output buffer
+	binary.Write(outputBuff.Writer(), binary.LittleEndian, &output)
+
 	// Pass the pointer to the input memory on the FPGA as the first argument
 	krnl.SetMemoryArg(0, buff)
 	// Pass the pointer to the output memory on the FPGA as the second argument
