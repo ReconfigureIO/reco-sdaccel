@@ -11,10 +11,17 @@ import (
 
 func main() {
 	bm := testing.Benchmark(doit)
-	println(bm.String())
+	print("runtime/memcopy;")
+	println(bm.NsPerOp())
+	print("allocs/memcopy;")
+	println(bm.AllocsPerOp())
+	print("bytes/memcopy;")
+	println(bm.AllocedBytesPerOp())
+
 }
 
 func doit(B *testing.B) {
+	B.SetBytes(int64(4 * B.N))
 	B.ReportAllocs()
 	B.StopTimer()
 	world := xcl.NewWorld()
