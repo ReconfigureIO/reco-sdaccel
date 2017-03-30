@@ -91,8 +91,8 @@ func Write(
 		memoryWriteAddr <- Addr{
 			Addr:  address,
 			Size:  [3]bool{false, true, false},
-			Cache: [4]bool{false, false, true, true},
-			Burst: [2]bool{false, true},
+			Cache: [4]bool{true, true, false, false},
+			Burst: [2]bool{true, false},
 		}
 	}()
 
@@ -116,8 +116,8 @@ func Read(
 		memoryReadAddr <- Addr{
 			Addr:  address,
 			Size:  [3]bool{false, true, false},
-			Cache: [4]bool{false, false, true, true},
-			Burst: [2]bool{false, true},
+			Cache: [4]bool{true, true, false, false},
+			Burst: [2]bool{true, false},
 		}
 	}()
 
@@ -144,8 +144,8 @@ func ReadBurst(
 				Addr:  address,
 				Len:   burstSize - 1,
 				Size:  [3]bool{false, true, false},
-				Cache: [4]bool{false, false, true, true},
-				Burst: [2]bool{false, true},
+				Cache: [4]bool{true, true, false, false},
+				Burst: [2]bool{true, false},
 			}
 		}()
 		for i := byte(0); i < burstSize; i++ {
@@ -178,7 +178,7 @@ func WriteBurst(
 				Len:   burstSize - 1,
 				Size:  [3]bool{false, true, false},
 				Cache: [4]bool{false, false, true, false},
-				Burst: [2]bool{false, true},
+				Burst: [2]bool{true, false},
 			}
 		}()
 		go func() {
