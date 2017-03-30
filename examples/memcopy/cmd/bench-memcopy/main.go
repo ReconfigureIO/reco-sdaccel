@@ -17,7 +17,6 @@ func main() {
 	println(bm.AllocsPerOp())
 	print("bytes/memcopy;")
 	println(bm.AllocedBytesPerOp())
-
 }
 
 func doit(B *testing.B) {

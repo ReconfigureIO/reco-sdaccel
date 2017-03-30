@@ -15,10 +15,16 @@ const (
 
 func main() {
 	bm := testing.Benchmark(doit)
-	println(bm.String())
+	print("runtime/histogram;")
+	println(bm.NsPerOp())
+	print("allocs/histogram;")
+	println(bm.AllocsPerOp())
+	print("bytes/histogram;")
+	println(bm.AllocedBytesPerOp())
 }
 
 func doit(B *testing.B) {
+	B.SetBytes(int64(B.N))
 	B.ReportAllocs()
 	B.StopTimer()
 	world := xcl.NewWorld()
