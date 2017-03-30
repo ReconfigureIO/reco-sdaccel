@@ -177,7 +177,7 @@ func WriteBurst(
 				Addr:  address,
 				Len:   burstSize - 1,
 				Size:  [3]bool{false, true, false},
-				Cache: [4]bool{false, false, true, false},
+				Cache: [4]bool{true, true, false, false},
 				Burst: [2]bool{true, false},
 			}
 		}()
