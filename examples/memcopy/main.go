@@ -19,12 +19,7 @@ func Top(
 	memWriteData chan<- memory.WriteData,
 	memResp <-chan memory.Response) {
 
-	for ; length > 0; length-- {
-		sample := memory.Read(inputData, memReadAddr, memReadData)
-		memory.Write(outputData, sample, memWriteAddr, memWriteData, memResp)
-		inputData += 4
-		outputData += 4
-
-	}
-
+	data := make(chan uint32)
+	go memory.ReadBurst(inputData, length, data, memReadAddr, memReadData)
+	memory.WriteBurst(outputData, length, data, memWriteAddr, memWriteData, memResp)
 }

@@ -124,3 +124,75 @@ func Read(
 	d := <-memoryReadData
 	return d.Data
 }
+
+func ReadBurst(
+	address uintptr,
+	burst uint32,
+	dataStream chan<- uint32,
+	memoryReadAddr chan<- Addr,
+	memoryReadData <-chan ReadData) {
+
+	for burst > 0 {
+		burstSize := byte(128)
+
+		if burst < uint32(burstSize) {
+			burstSize = byte(burst)
+		}
+
+		go func() {
+			memoryReadAddr <- Addr{
+				Addr:  address,
+				Len:   burstSize - 1,
+				Size:  [3]bool{false, true, false},
+				Cache: [4]bool{false, false, true, true},
+				Burst: [2]bool{false, true},
+			}
+		}()
+		for i := byte(0); i < burstSize; i++ {
+			d := <-memoryReadData
+			dataStream <- d.Data
+		}
+		burst -= uint32(burstSize)
+		address += uintptr(burstSize << 2)
+	}
+}
+
+func WriteBurst(
+	address uintptr,
+	burst uint32,
+	dataStream <-chan uint32,
+	memoryWriteAddr chan<- Addr,
+	memoryWriteData chan<- WriteData,
+	memoryWriteResp <-chan Response) {
+
+	for burst > 0 {
+		burstSize := byte(128)
+
+		if burst < uint32(burstSize) {
+			burstSize = byte(burst)
+		}
+
+		go func() {
+			memoryWriteAddr <- Addr{
+				Addr:  address,
+				Len:   burstSize - 1,
+				Size:  [3]bool{false, true, false},
+				Cache: [4]bool{false, false, true, true},
+				Burst: [2]bool{false, true},
+			}
+		}()
+		go func() {
+			for i := byte(0); i < burstSize; i++ {
+				d := <-dataStream
+				memoryWriteData <- WriteData{
+					Data: d,
+					Strb: [4]bool{true, true, true, true},
+					Last: i == burstSize,
+				}
+			}
+		}()
+		<-memoryWriteResp
+		burst -= uint32(burstSize)
+		address += uintptr(burstSize << 2)
+	}
+}
