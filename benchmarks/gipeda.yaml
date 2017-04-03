@@ -1,0 +1,19 @@
+title: reco-sdaccel
+diffLink: "http://github.com/ReconfigureIO/reco-sdaccel/compare/{{rev}}...{{base}}"
+revisionInfo: '<a href="https://github.com/ReconfigureIO/reco-sdaccel/commit/{{rev}}">View Diff</a>'
+limitRecent: 20
+start: 82267b0414252532613626c631b8e1b545a3ed29
+interestingTags: "*"
+
+benchmarks:
+  - match: "*"
+    smallerIsBetter: False
+    threshold: 1
+    type: integral
+    group: (ungrouped)
+  - match: "loc/*"
+    unit: lines of code
+    group: Lines of Code
+  - match: comment-rate
+    unit: percentags
+    group: Code quality
