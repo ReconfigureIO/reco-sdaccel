@@ -2,14 +2,11 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-EXAMPLE=$1
-SHA=$2
+NUMBER=$1
+EXAMPLE=$2
+SHA=$3
 
-cd examples/$1
+cd "examples/$EXAMPLE"
 
-mkdir -p benchmarks/logs
-../../reco-jarvice/reco-jarvice test bench-$1 > benchmarks/logs/$EXAMPLE-$SHA.log
-
-
-# BENCHMARKS=$(grep -A50 '\+ exec' /tmp/log | tail -n +2)
-# echo $BENCHMARKS
+mkdir -p ../../bench_tmp
+../../reco-jarvice/reco-jarvice run "$NUMBER" "bench-$EXAMPLE" 2>&1 | tee "../../bench_tmp/$EXAMPLE-$SHA.log"
