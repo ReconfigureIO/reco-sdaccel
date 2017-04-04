@@ -123,9 +123,12 @@ pipeline {
         }
 
 	stage('upload benchmarks') {
-	    // steps {
-	    //   sh('ci/deploy_benchmarks.sh')
-	    // }
+	    when {
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
+            }
+	    steps {
+	        sh('ci/deploy_benchmarks.sh')
+	    }
 	}
 
         stage('build') {
