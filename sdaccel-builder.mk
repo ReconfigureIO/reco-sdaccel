@@ -7,8 +7,8 @@ VERILOG_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/verilog"
 XO_NAME := "reconfigure_io_sdaccel_builder_stub_0_1.xo"
 
 KERNEL_NAME := "kernel_test"
-DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_2"
-DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.2"
+DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_3"
+DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.3"
 TARGET := "hw_emu"
 OPTIMIZE := "no"
 
