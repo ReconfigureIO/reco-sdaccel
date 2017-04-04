@@ -15,11 +15,11 @@ const (
 
 func main() {
 	bm := testing.Benchmark(doit)
-	print("runtime/histogram;")
+	print("runtime/parallelhistogram;")
 	println(bm.NsPerOp())
-	print("allocs/histogram;")
+	print("allocs/parallelhistogram;")
 	println(bm.AllocsPerOp())
-	print("bytes/histogram;")
+	print("bytes/parallelhistogram;")
 	println(bm.AllocedBytesPerOp())
 }
 
