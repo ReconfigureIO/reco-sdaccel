@@ -123,9 +123,9 @@ pipeline {
         }
 
 	stage('upload benchmarks') {
-	    steps {
-	      sh('ci/deploy_benchmarks.sh')
-	    }
+	    // steps {
+	    //   sh('ci/deploy_benchmarks.sh')
+	    // }
 	}
 
         stage('build') {
