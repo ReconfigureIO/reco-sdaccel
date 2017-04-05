@@ -51,3 +51,7 @@ Scripts and workflors to be run on top of the Jarvice platform.
 ### reco-jarvice
 
 Command line tools for deploying and managing workflows on the Jarvice platform.
+
+## Benchmarking
+
+To benchmark a commit, dump logs to `benchmarks/logs/<commit>.log`, and run `./ci/deploy_benchmarks.sh`
