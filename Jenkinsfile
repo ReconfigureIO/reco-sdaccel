@@ -1,7 +1,7 @@
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.7.0')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.8.0')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
     }
     environment {
@@ -84,6 +84,11 @@ pipeline {
                     dir('examples/memcopy'){
                         sh '../../reco-jarvice/reco-jarvice test test-memcopy'
                     }
+                },
+                "parallel histogram": {
+                    dir('examples/histogram-parallel'){
+                        sh '../../reco-jarvice/reco-jarvice test test-histogram'
+                    }
                 }
             }
         }
@@ -95,8 +100,8 @@ pipeline {
             }
             steps {
                 parallel histogram: {
-                    dir('examples/histogram'){
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram'
+                    dir('examples/histogram') {
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
                     }
                 },
 //                addition: {
@@ -106,11 +111,25 @@ pipeline {
 //                },
                 memcopy: {
                     dir('examples/memcopy'){
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy'
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy && ../../ci/run-benchmark.sh $NUMBER memcopy "`git rev-parse HEAD`"'
+                    }
+                },
+                "parallel histogram": {
+                    dir('examples/histogram-parallel') {
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
                     }
                 }
             }
         }
+
+//	stage('upload benchmarks') {
+//	    when {
+//                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
+//            }
+//	    steps {
+//	        sh('ci/deploy_benchmarks.sh')
+//	    }
+//	}
 
         stage('build') {
             steps {

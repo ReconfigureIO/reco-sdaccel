@@ -44,4 +44,4 @@ kernel
 1 directory, 1 file
 ```
 
-Building would resul in a file `addition.hw_emu.xilinx_adm-pcie-ku3_2ddr-xpr_3_2.xclbin`
+Building would resul in a file `addition.hw_emu.xilinx_adm-pcie-ku3_2ddr-xpr_3_3.xclbin`
