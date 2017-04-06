@@ -3,6 +3,9 @@
     "jobQueue": "build-jobs",
     "jobDefinition": "sdaccel-builder-build",
     "containerOverrides": {
+        "command": [
+            "/opt/simulate.sh"
+        ],
         "environment": [
             {
                 "name": "PART",
@@ -15,6 +18,18 @@
             {
                 "name": "INPUT_URL",
                 "value": "s3://reconfigureio-builds/bundle.tar.gz"
+            },
+            {
+                "name": "CMD",
+                "value": "test-addition"
+            },
+            {
+                "name": "DEVICE",
+                "value": "xilinx_adm-pcie-ku3_2ddr-xpr_3_3"
+            },
+            {
+                "name": "DEVICE_FULL",
+                "value": "xilinx:adm-pcie-ku3:2ddr-xpr:3.3"
             }
         ]
 
