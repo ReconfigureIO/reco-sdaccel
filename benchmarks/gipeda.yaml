@@ -6,14 +6,15 @@ start: d3823ad818a9afe05ea61015fdcafd701649371d
 interestingTags: "*"
 
 benchmarks:
-  - match: "*"
-    smallerIsBetter: False
-    threshold: 1
+  - match: "runtime/*"
+    smallerIsBetter: True
     type: integral
-    group: (ungrouped)
-  - match: "loc/*"
-    unit: lines of code
-    group: Lines of Code
-  - match: comment-rate
-    unit: percentags
-    group: Code quality
+    group: "benchmark"
+  - match: "bytes/*"
+    smallerIsBetter: False
+    type: integral
+    group: "benchmark"
+  - match: "allocs/*"
+    smallerIsBetter: True
+    type: integral
+    group: "benchmark"
