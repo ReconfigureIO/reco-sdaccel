@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	shared.Process("histogram")
+	shared.Process("histogramParallel")
 }
