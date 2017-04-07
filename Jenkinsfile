@@ -43,7 +43,7 @@ pipeline {
         stage('pre clean') {
             steps {
                 sh 'make clean'
-		sh 'rm -rf bench_tmp'
+                sh 'rm -rf bench_tmp'
             }
         }
 
@@ -135,17 +135,16 @@ pipeline {
             }
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} upload"
-		sh 'git checkout master'
-		sh('ci/upload_benchmarks.sh')
-
-		build job: 'reco-sdaccel-publish-benchmarks', wait: false
+                sh 'git checkout master'
+                sh './ci/upload_benchmarks.sh'
+                build job: 'reco-sdaccel-publish-benchmarks', wait: false
             }
         }
 
         stage('clean') {
             steps {
                 sh 'make clean'
-		sh 'rm -rf bench_tmp'
+                sh 'rm -rf bench_tmp'
             }
         }
     }
