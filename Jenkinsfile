@@ -141,7 +141,7 @@ pipeline {
         stage('clean') {
             steps {
                 sh 'make clean'
-		sh 'rm bench_tmp/*'
+		sh 'rm -rf bench_tmp'
             }
         }
     }
