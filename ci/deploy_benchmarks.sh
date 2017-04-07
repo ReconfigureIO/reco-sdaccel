@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+mkdir -p benchmarks/repository benchmarks/logs
+
 # Download them all
 aws s3 sync s3://nerabus/reco-sdaccel/benchmarks/ benchmarks/logs
 # Generate site
