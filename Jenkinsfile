@@ -134,6 +134,7 @@ pipeline {
             }
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} upload"
+		sh 'git checkout master'
 		sh('ci/deploy_benchmarks.sh')
             }
         }
