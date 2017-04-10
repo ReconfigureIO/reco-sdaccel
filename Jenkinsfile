@@ -1,7 +1,7 @@
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.8.0')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.8.1')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
     }
     environment {
@@ -43,6 +43,7 @@ pipeline {
         stage('pre clean') {
             steps {
                 sh 'make clean'
+                sh 'rm -rf bench_tmp'
             }
         }
 
@@ -122,15 +123,6 @@ pipeline {
             }
         }
 
-//	stage('upload benchmarks') {
-//	    when {
-//                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
-//            }
-//	    steps {
-//	        sh('ci/deploy_benchmarks.sh')
-//	    }
-//	}
-
         stage('build') {
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION}"
@@ -143,12 +135,15 @@ pipeline {
             }
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} upload"
+                sh './ci/upload_benchmarks.sh'
+                build job: 'reco-sdaccel-publish-benchmarks', wait: false
             }
         }
 
         stage('clean') {
             steps {
                 sh 'make clean'
+                sh 'rm -rf bench_tmp'
             }
         }
     }

@@ -2,7 +2,7 @@ title: reco-sdaccel
 diffLink: "http://github.com/ReconfigureIO/reco-sdaccel/compare/{{rev}}...{{base}}"
 revisionInfo: '<a href="https://github.com/ReconfigureIO/reco-sdaccel/commit/{{rev}}">View Diff</a>'
 limitRecent: 20
-start: 82267b0414252532613626c631b8e1b545a3ed29
+start: d3823ad818a9afe05ea61015fdcafd701649371d
 interestingTags: "*"
 
 benchmarks:

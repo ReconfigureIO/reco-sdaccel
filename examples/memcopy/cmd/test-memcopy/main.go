@@ -11,6 +11,8 @@ import (
 	"xcl"
 )
 
+const DATA_WIDTH = 12
+
 func main() {
 	var conf = quick.Config{Rand: rand.New(rand.NewSource(time.Now().UTC().UnixNano())), MaxCount: 1}
 
@@ -20,7 +22,7 @@ func main() {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
 	defer krnl.Release()
 
-	memcpy := func(input [10]uint32) bool {
+	memcpy := func(input [DATA_WIDTH]uint32) bool {
 
 		byteLength := uint(binary.Size(input))
 
@@ -43,7 +45,7 @@ func main() {
 		resp := make([]byte, byteLength)
 		outputBuff.Read(resp)
 
-		var ret [10]uint32
+		var ret [DATA_WIDTH]uint32
 		err := binary.Read(bytes.NewReader(resp), binary.LittleEndian, &ret)
 
 		if err != nil {

@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
-mkdir -p benchmarks/repository
-# Upload local logs
-aws s3 sync benchmarks/logs s3://nerabus/reco-sdaccel/benchmarks/
-# Then download them all
+
+mkdir -p benchmarks/repository benchmarks/logs
+
+# Download them all
 aws s3 sync s3://nerabus/reco-sdaccel/benchmarks/ benchmarks/logs
 # Generate site
 docker run -v "$PWD":/mnt -w /mnt/benchmarks "parfunc/gipeda:latest" gipeda
