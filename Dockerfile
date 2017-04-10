@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python-pip \
         groff \
         gcc \
+        curl \
 	&& rm -rf /var/lib/apt/lists/* \
     && pip install awscli
 COPY build/reco /opt/sdaccel-builder

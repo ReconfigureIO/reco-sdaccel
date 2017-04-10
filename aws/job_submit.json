@@ -20,6 +20,10 @@
                 "value": "s3://reconfigureio-builds/bundle.tar.gz"
             },
             {
+                "name": "CALLBACK_URL",
+                "value": "https://api.reconfigure.io/simulations/1"
+            },
+            {
                 "name": "CMD",
                 "value": "test-addition"
             },
