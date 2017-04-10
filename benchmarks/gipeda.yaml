@@ -12,9 +12,9 @@ benchmarks:
     group: "benchmark"
   - match: "bytes/*"
     smallerIsBetter: False
-    type: integral
+    unit: B/s
     group: "benchmark"
   - match: "allocs/*"
     smallerIsBetter: True
-    type: integral
+    unit: bytes
     group: "benchmark"
