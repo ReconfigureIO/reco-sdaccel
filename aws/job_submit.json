@@ -8,6 +8,10 @@
         ],
         "environment": [
             {
+                "name": "XILINX_SDACCEL",
+                "value": "/opt/Xilinx/SDx/2016.4"
+            },
+            {
                 "name": "PART",
                 "value": "xcvu9p-flgb2104-2-i-es2"
             },
@@ -29,11 +33,11 @@
             },
             {
                 "name": "DEVICE",
-                "value": "xilinx_adm-pcie-ku3_2ddr-xpr_3_3"
+                "value": "xilinx_minotaur-vu9p-f1_4ddr-xpr_3_3"
             },
             {
                 "name": "DEVICE_FULL",
-                "value": "xilinx:adm-pcie-ku3:2ddr-xpr:3.3"
+                "value": "xilinx:minotaur-vu9p-f1:4ddr-xpr:3.3"
             }
         ]
 

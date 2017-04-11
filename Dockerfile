@@ -6,8 +6,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         groff \
         gcc \
         curl \
+        unzip \
 	&& rm -rf /var/lib/apt/lists/* \
     && pip install awscli
 COPY build/reco /opt/sdaccel-builder
 COPY aws/*.sh /opt/
+ENV USER=root
 WORKDIR /mnt
