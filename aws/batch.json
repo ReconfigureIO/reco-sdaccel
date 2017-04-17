@@ -31,7 +31,7 @@
             },
             {
                 "name": "XILINX_VIVADO",
-                "value": "/opt/Xilinx/Vivado/2016.3"
+                "value": "/opt/Xilinx/SDx/2016.4/Vivado"
             },
             {
                 "name": "XILINX_SDX",
