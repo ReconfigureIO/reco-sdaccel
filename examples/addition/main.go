@@ -4,7 +4,8 @@ import (
 	// Import the entire framework (including bundled verilog)
 	_ "sdaccel"
 	// Use the new AXI protocol package
-	"axi/protocol"
+	aximemory "axi/memory"
+	axiprotocol "axi/protocol"
 	// Use the simple memory access API
 	"sdaccel/memory"
 )
@@ -15,12 +16,12 @@ func Top(
 	b uint32,
 	addr uintptr,
 
-	memReadAddr chan<- protocol.Addr,
-	memReadData <-chan protocol.ReadData,
+	memReadAddr chan<- axiprotocol.Addr,
+	memReadData <-chan axiprotocol.ReadData,
 
-	memWriteAddr chan<- protocol.Addr,
-	memWriteData chan<- protocol.WriteData,
-	memWriteResp <-chan protocol.WriteResp) {
+	memWriteAddr chan<- axiprotocol.Addr,
+	memWriteData chan<- axiprotocol.WriteData,
+	memWriteResp <-chan axiprotocol.WriteResp) {
 
 	// Disable memory reads
 	go memory.DisableReads(memReadAddr, memReadData)
