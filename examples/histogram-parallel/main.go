@@ -1,23 +1,26 @@
 package main
 
 import (
-	// import the entire framework (including bundled verilog)
+	// Import the entire framework (including bundled verilog)
 	_ "sdaccel"
+	// Use the new AXI protocol package
+	"axi/protocol"
+	// Use the simple memory access API
 	"sdaccel/memory"
 )
 
-// magic identifier for exporting
+// Magic identifier for exporting
 func Top(
 	inputData uintptr,
 	outputData uintptr,
 	length uint32,
 
-	memReadAddr chan<- memory.Addr,
-	memReadData <-chan memory.ReadData,
+	memReadAddr chan<- protocol.Addr,
+	memReadData <-chan protocol.ReadData,
 
-	memWriteAddr chan<- memory.Addr,
-	memWriteData chan<- memory.WriteData,
-	memResp <-chan memory.Response) {
+	memWriteAddr chan<- protocol.Addr,
+	memWriteData chan<- protocol.WriteData,
+	memWriteResp <-chan protocol.WriteResp) {
 
 	readChan := make(chan uintptr)
 	readRespChan := make(chan uint32)
@@ -40,7 +43,7 @@ func Top(
 				readRespChan <- memory.Read(addr, memReadAddr, memReadData)
 			case addr = <-incrChan:
 				current := memory.Read(addr, memReadAddr, memReadData)
-				memory.Write(addr, current+1, memWriteAddr, memWriteData, memResp)
+				memory.Write(addr, current+1, memWriteAddr, memWriteData, memWriteResp)
 				incrResp <- current + 1
 			}
 		}
