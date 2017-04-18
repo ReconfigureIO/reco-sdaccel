@@ -160,8 +160,8 @@ set Interfaces {
             }
             WDATA {
                 Type "integer unsigned"
-                Width "64"
-                Bits "64"
+                Width "32"
+                Bits "32"
             }
             WSTRB {
                 Type "integer unsigned"
@@ -175,8 +175,8 @@ set Interfaces {
             }
             RDATA {
                 Type "integer unsigned"
-                Width "64"
-                Bits "64"
+                Width "32"
+                Bits "32"
             }
         }
         data_width "32"
@@ -218,9 +218,8 @@ set Interfaces {
         type "native_axim"
         mode "master"
         port_prefix "m_axi_gmem"
-        data_width "32"
+        data_width "64"
         param_prefix "C_M_AXI_GMEM"
-        port_width "AWADDR 64 AWID 1 AWUSER 1 WDATA 32 WSTRB 4 WID 1 WUSER 1 ARADDR 64 ARID 1 ARUSER 1 RDATA 32 RID 1 RUSER 1 BID 1 BUSER 1"
         ctype {
             AWLEN {
                 Type "integer unsigned"
@@ -389,13 +388,13 @@ set Interfaces {
             }
             WDATA {
                 Type "integer unsigned"
-                Width "32"
-                Bits "32"
+                Width "64"
+                Bits "64"
             }
             WSTRB {
                 Type "integer unsigned"
-                Width "4"
-                Bits "4"
+                Width "8"
+                Bits "8"
             }
             WID {
                 Type "integer unsigned"
@@ -424,8 +423,8 @@ set Interfaces {
             }
             RDATA {
                 Type "integer unsigned"
-                Width "32"
-                Bits "32"
+                Width "64"
+                Bits "64"
             }
             RID {
                 Type "integer unsigned"
@@ -454,8 +453,8 @@ set Interfaces {
         offset_slave_name ""
         NUM_READ_OUTSTANDING "16"
         NUM_WRITE_OUTSTANDING "16"
-        MAX_READ_BURST_LENGTH "16"
-        MAX_WRITE_BURST_LENGTH "16"
+        MAX_READ_BURST_LENGTH "64"
+        MAX_WRITE_BURST_LENGTH "64"
     }
 }
 
