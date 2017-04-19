@@ -2,9 +2,9 @@ package main
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/binary"
 	"fmt"
-	"crypto/rand"
 	"testing"
 	"xcl"
 )
@@ -20,7 +20,7 @@ func main() {
 }
 
 func doit(B *testing.B) {
-	B.SetBytes(int64(4 * B.N))
+	B.SetBytes(int64(8 * B.N))
 	B.ReportAllocs()
 	B.StopTimer()
 	world := xcl.NewWorld()
@@ -29,7 +29,7 @@ func doit(B *testing.B) {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
 	defer krnl.Release()
 
-	byteLength := uint(B.N)
+	byteLength := uint(8 * B.N)
 
 	input := make([]byte, byteLength)
 	_, err := rand.Read(input)
@@ -51,7 +51,7 @@ func doit(B *testing.B) {
 
 	krnl.SetMemoryArg(0, inputBuff)
 	krnl.SetMemoryArg(1, outputBuff)
-	krnl.SetArg(2, uint32(len(input)))
+	krnl.SetArg(2, uint32(B.N))
 
 	B.ResetTimer()
 	B.StartTimer()
