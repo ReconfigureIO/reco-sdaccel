@@ -6,8 +6,6 @@ import (
 	// Use the new AXI protocol package
 	aximemory "axi/memory"
 	axiprotocol "axi/protocol"
-	// Use the simple memory access API
-	"sdaccel/memory"
 )
 
 // Magic identifier for exporting
@@ -23,7 +21,9 @@ func Top(
 	memWriteData chan<- axiprotocol.WriteData,
 	memWriteResp <-chan axiprotocol.WriteResp) {
 
-	data := make(chan uint32)
-	go memory.ReadBurst(inputData, length, data, memReadAddr, memReadData)
-	memory.WriteBurst(outputData, length, data, memWriteAddr, memWriteData, memWriteResp)
+	data := make(chan uint64)
+	go aximemory.ReadBurstUInt64(
+		memReadAddr, memReadData, true, inputData, length, data)
+	aximemory.WriteBurstUInt64(
+		memWriteAddr, memWriteData, memWriteResp, true, outputData, length, data)
 }
