@@ -123,6 +123,12 @@ pipeline {
             }
         }
 
+        stage('show benchmarks'){
+            steps {
+                sh 'cat bench_tmp/* | ./benchmarks/log2csv'
+            }
+        }
+
         stage('build') {
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION}"
