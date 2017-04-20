@@ -75,6 +75,10 @@ func (program *Program) GetKernel(kernelName string) *Kernel {
 	return &Kernel{program, k}
 }
 
+func (program *Program) Release() {
+	C.clReleaseProgram(program.program)
+}
+
 func (kernel *Kernel) Release() {
 	C.clReleaseKernel(kernel.kernel)
 }
