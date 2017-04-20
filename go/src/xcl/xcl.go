@@ -59,13 +59,13 @@ func NewWorld() World {
 	return World(C.xcl_world_single())
 }
 
-func (world *World) Release() {
-	C.xcl_release_world(C.xcl_world(*world))
+func (world World) Release() {
+	C.xcl_release_world(C.xcl_world(world))
 }
 
-func (world *World) Import(program string) *Program {
-	p := C.xcl_import_binary(C.xcl_world(*world), C.CString(program))
-	return &Program{world, p}
+func (world World) Import(program string) *Program {
+	p := C.xcl_import_binary(C.xcl_world(world), C.CString(program))
+	return &Program{&world, p}
 }
 
 func (program *Program) GetKernel(kernelName string) *Kernel {
@@ -77,7 +77,7 @@ func (kernel *Kernel) Release() {
 	C.clReleaseKernel(kernel.kernel)
 }
 
-func (world *World) Malloc(flags uint, size uint) *Memory {
+func (world World) Malloc(flags uint, size uint) *Memory {
 	var f C.cl_mem_flags
 	switch flags {
 	case ReadOnly:
@@ -87,8 +87,8 @@ func (world *World) Malloc(flags uint, size uint) *Memory {
 	case ReadWrite:
 		f = C.CL_MEM_READ_WRITE
 	}
-	m := C.xcl_malloc(C.xcl_world(*world), f, C.size_t(size))
-	return &Memory{world, size, m}
+	m := C.xcl_malloc(C.xcl_world(world), f, C.size_t(size))
+	return &Memory{&world, size, m}
 }
 
 func (mem *Memory) Free() {
