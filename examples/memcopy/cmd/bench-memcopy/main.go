@@ -2,25 +2,22 @@ package main
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/binary"
 	"fmt"
-	"crypto/rand"
 	"testing"
 	"xcl"
+
+	"ReconfigureIO/reco-sdaccel/benchmarks"
 )
 
 func main() {
 	bm := testing.Benchmark(doit)
-	print("runtime/memcopy;")
-	println(bm.NsPerOp())
-	print("allocs/memcopy;")
-	println(bm.AllocsPerOp())
-	print("bytes/memcopy;")
-	println(bm.AllocedBytesPerOp())
+	benchmarks.GipedaResults("memcopy", bm)
 }
 
 func doit(B *testing.B) {
-	B.SetBytes(int64(4 * B.N))
+	B.SetBytes(4)
 	B.ReportAllocs()
 	B.StopTimer()
 	world := xcl.NewWorld()
