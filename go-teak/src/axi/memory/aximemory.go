@@ -109,14 +109,16 @@ func WriteUInt32(
 			Cache: [4]bool{bufferedAccess, true, false, false}}
 	}()
 
-	// Duplicate write data accross full 64-bits.
-	writeData64 := uint64(writeData) | (uint64(writeData) << 32)
+	// Map write data to appropriate byte lanes.
+	var writeData64 uint64
 	var writeStrobe [8]bool
 	switch writeAddr & 0x4 {
 	case 0x0:
+		writeData64 = uint64(writeData)
 		writeStrobe = [8]bool{
 			true, true, true, true, false, false, false, false}
 	default:
+		writeData64 = uint64(writeData) << 32
 		writeStrobe = [8]bool{
 			false, false, false, false, true, true, true, true}
 	}
@@ -187,21 +189,24 @@ func WriteUInt16(
 			Cache: [4]bool{bufferedAccess, true, false, false}}
 	}()
 
-	// Duplicate write data accross full 64-bits.
-	writeData64 := uint64(writeData) | (uint64(writeData) << 16) |
-		(uint64(writeData) << 32) | (uint64(writeData) << 48)
+	// Map write data to appropriate byte lanes.
+	var writeData64 uint64
 	var writeStrobe [8]bool
 	switch writeAddr & 0x6 {
 	case 0x0:
+		writeData64 = uint64(writeData)
 		writeStrobe = [8]bool{
 			true, true, false, false, false, false, false, false}
 	case 0x2:
+		writeData64 = uint64(writeData) << 16
 		writeStrobe = [8]bool{
 			false, false, true, true, false, false, false, false}
 	case 0x4:
+		writeData64 = uint64(writeData) << 32
 		writeStrobe = [8]bool{
 			false, false, false, false, true, true, false, false}
 	default:
+		writeData64 = uint64(writeData) << 48
 		writeStrobe = [8]bool{
 			false, false, false, false, false, false, true, true}
 	}
@@ -275,35 +280,40 @@ func WriteUInt8(
 			Cache: [4]bool{bufferedAccess, true, false, false}}
 	}()
 
-	// Duplicate write data accross full 64-bits.
-	writeData64 := uint64(writeData) | (uint64(writeData) << 8) |
-		(uint64(writeData) << 16) | (uint64(writeData) << 24) |
-		(uint64(writeData) << 32) | (uint64(writeData) << 40) |
-		(uint64(writeData) << 48) | (uint64(writeData) << 56)
+	// Map write data to appropriate byte lanes.
+	var writeData64 uint64
 	var writeStrobe [8]bool
 	switch writeAddr & 0x7 {
 	case 0x0:
+		writeData64 = uint64(writeData)
 		writeStrobe = [8]bool{
 			true, false, false, false, false, false, false, false}
 	case 0x1:
+		writeData64 = uint64(writeData) << 8
 		writeStrobe = [8]bool{
 			false, true, false, false, false, false, false, false}
 	case 0x2:
+		writeData64 = uint64(writeData) << 16
 		writeStrobe = [8]bool{
 			false, false, true, false, false, false, false, false}
 	case 0x3:
+		writeData64 = uint64(writeData) << 24
 		writeStrobe = [8]bool{
 			false, false, false, true, false, false, false, false}
 	case 0x4:
+		writeData64 = uint64(writeData) << 32
 		writeStrobe = [8]bool{
 			false, false, false, false, true, false, false, false}
 	case 0x5:
+		writeData64 = uint64(writeData) << 40
 		writeStrobe = [8]bool{
 			false, false, false, false, false, true, false, false}
 	case 0x6:
+		writeData64 = uint64(writeData) << 48
 		writeStrobe = [8]bool{
 			false, false, false, false, false, false, true, false}
 	default:
+		writeData64 = uint64(writeData) << 56
 		writeStrobe = [8]bool{
 			false, false, false, false, false, false, false, true}
 	}
@@ -484,6 +494,7 @@ func WriteBurstUInt32(
 	// Get aligned address and initial strobe phase.
 	alignedAddr := writeAddr &^ uintptr(0x3)
 	strobePhase := byte(writeAddr)
+	var writeData64 uint64
 	var writeStrobe [8]bool
 
 	// Divide the transaction into burst sequences.
@@ -508,13 +519,14 @@ func WriteBurstUInt32(
 		for i := burstSize; i != 0; i-- {
 			writeData := <-writeDataChan
 
-			// Duplicate write data accross full 64-bits.
-			writeData64 := uint64(writeData) | (uint64(writeData) << 32)
+			// Map write data to appropriate byte lanes.
 			switch strobePhase & 0x4 {
 			case 0x0:
+				writeData64 = uint64(writeData)
 				writeStrobe = [8]bool{
 					true, true, true, true, false, false, false, false}
 			default:
+				writeData64 = uint64(writeData) << 32
 				writeStrobe = [8]bool{
 					false, false, false, false, true, true, true, true}
 			}
@@ -611,6 +623,7 @@ func WriteBurstUInt16(
 	// Get aligned address and initial strobe phase.
 	alignedAddr := writeAddr &^ uintptr(0x1)
 	strobePhase := byte(writeAddr)
+	var writeData64 uint64
 	var writeStrobe [8]bool
 
 	// Divide the transaction into burst sequences.
@@ -635,20 +648,22 @@ func WriteBurstUInt16(
 		for i := burstSize; i != 0; i-- {
 			writeData := <-writeDataChan
 
-			// Duplicate write data accross full 64-bits.
-			writeData64 := uint64(writeData) | (uint64(writeData) << 16) |
-				(uint64(writeData) << 32) | (uint64(writeData) << 48)
+			// Map write data to appropriate byte lanes.
 			switch strobePhase & 0x6 {
 			case 0x0:
+				writeData64 = uint64(writeData)
 				writeStrobe = [8]bool{
 					true, true, false, false, false, false, false, false}
 			case 0x2:
+				writeData64 = uint64(writeData) << 16
 				writeStrobe = [8]bool{
 					false, false, true, true, false, false, false, false}
 			case 0x4:
+				writeData64 = uint64(writeData) << 32
 				writeStrobe = [8]bool{
 					false, false, false, false, true, true, false, false}
 			default:
+				writeData64 = uint64(writeData) << 48
 				writeStrobe = [8]bool{
 					false, false, false, false, false, false, true, true}
 			}
@@ -748,6 +763,7 @@ func WriteBurstUInt8(
 	// Get aligned address and initial strobe phase.
 	alignedAddr := writeAddr
 	strobePhase := byte(writeAddr)
+	var writeData64 uint64
 	var writeStrobe [8]bool
 
 	// Divide the transaction into burst sequences.
@@ -772,34 +788,38 @@ func WriteBurstUInt8(
 		for i := burstSize; i != 0; i-- {
 			writeData := <-writeDataChan
 
-			// Duplicate write data accross full 64-bits.
-			writeData64 := uint64(writeData) | (uint64(writeData) << 8) |
-				(uint64(writeData) << 16) | (uint64(writeData) << 24) |
-				(uint64(writeData) << 32) | (uint64(writeData) << 40) |
-				(uint64(writeData) << 48) | (uint64(writeData) << 56)
+			// Map write data to appropriate byte lanes.
 			switch strobePhase & 0x7 {
 			case 0x0:
+				writeData64 = uint64(writeData)
 				writeStrobe = [8]bool{
 					true, false, false, false, false, false, false, false}
 			case 0x1:
+				writeData64 = uint64(writeData) << 8
 				writeStrobe = [8]bool{
 					false, true, false, false, false, false, false, false}
 			case 0x2:
+				writeData64 = uint64(writeData) << 16
 				writeStrobe = [8]bool{
 					false, false, true, false, false, false, false, false}
 			case 0x3:
+				writeData64 = uint64(writeData) << 24
 				writeStrobe = [8]bool{
 					false, false, false, true, false, false, false, false}
 			case 0x4:
+				writeData64 = uint64(writeData) << 32
 				writeStrobe = [8]bool{
 					false, false, false, false, true, false, false, false}
 			case 0x5:
+				writeData64 = uint64(writeData) << 40
 				writeStrobe = [8]bool{
 					false, false, false, false, false, true, false, false}
 			case 0x6:
+				writeData64 = uint64(writeData) << 48
 				writeStrobe = [8]bool{
 					false, false, false, false, false, false, true, false}
 			default:
+				writeData64 = uint64(writeData) << 56
 				writeStrobe = [8]bool{
 					false, false, false, false, false, false, false, true}
 			}
