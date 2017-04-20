@@ -19,7 +19,9 @@ import (
 	"unsafe"
 )
 
-type World C.xcl_world
+type World struct {
+	cw C.xcl_world
+}
 
 type Program struct {
 	world   *World
@@ -56,20 +58,20 @@ const (
 )
 
 func NewWorld() World {
-	return World(C.xcl_world_single())
+	return World{C.xcl_world_single()}
 }
 
 func (world *World) Release() {
-	C.xcl_release_world(C.xcl_world(*world))
+	C.xcl_release_world(world.cw)
 }
 
 func (world *World) Import(program string) *Program {
-	p := C.xcl_import_binary(C.xcl_world(*world), C.CString(program))
+	p := C.xcl_import_binary(world.cw, C.CString(program))
 	return &Program{world, p}
 }
 
 func (program *Program) GetKernel(kernelName string) *Kernel {
-	k := C.xcl_get_kernel(C.cl_program(program.program), C.CString(kernelName))
+	k := C.xcl_get_kernel(program.program, C.CString(kernelName))
 	return &Kernel{program, k}
 }
 
@@ -87,7 +89,7 @@ func (world *World) Malloc(flags uint, size uint) *Memory {
 	case ReadWrite:
 		f = C.CL_MEM_READ_WRITE
 	}
-	m := C.xcl_malloc(C.xcl_world(*world), f, C.size_t(size))
+	m := C.xcl_malloc(world.cw, f, C.size_t(size))
 	return &Memory{world, size, m}
 }
 
@@ -142,7 +144,7 @@ func (writer *MemoryWriter) Write(bytes []byte) (n int, err error) {
 	p := C.CBytes(bytes[0:toWrite])
 
 	ret := C.clEnqueueWriteBuffer(
-		C.xcl_world(*writer.memory.world).command_queue,
+		writer.memory.world.cw.command_queue,
 		writer.memory.mem,
 		C.CL_TRUE,
 		C.size_t(writer.offset), C.size_t(toWrite), p, C.cl_uint(0), nil, nil)
@@ -177,7 +179,7 @@ func (reader *MemoryReader) Read(bytes []byte) (n int, err error) {
 	p := unsafe.Pointer(&bytes[0])
 
 	ret := C.clEnqueueReadBuffer(
-		C.xcl_world(*reader.memory.world).command_queue,
+		reader.memory.world.cw.command_queue,
 		reader.memory.mem,
 		C.CL_TRUE,
 		C.size_t(reader.offset), C.size_t(toRead), p, C.cl_uint(0), nil, nil)
@@ -204,5 +206,5 @@ func (kernel *Kernel) SetArg(index uint, val uint32) {
 }
 
 func (kernel *Kernel) Run(x, y, z uint) {
-	C.xcl_run_kernel3d(C.xcl_world(*kernel.program.world), kernel.kernel, C.size_t(x), C.size_t(y), C.size_t(z))
+	C.xcl_run_kernel3d(kernel.program.world.cw, kernel.kernel, C.size_t(x), C.size_t(y), C.size_t(z))
 }
