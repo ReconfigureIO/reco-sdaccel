@@ -1,20 +1,23 @@
 package main
 
 import (
-	// import the entire framework (including bundled verilog)
+	// Import the entire framework (including bundled verilog)
 	_ "sdaccel"
-
+	// Use the new AXI protocol package
+	aximemory "axi/memory"
+	axiprotocol "axi/protocol"
+	// Use the simple memory access API
 	"sdaccel/memory"
 )
 
-// magic identifier for exporting
+// Magic identifier for exporting
 func Top(
-	memReadAddr chan<- memory.Addr,
-	memReadData <-chan memory.ReadData,
+	memReadAddr chan<- axiprotocol.Addr,
+	memReadData <-chan axiprotocol.ReadData,
 
-	memWriteAddr chan<- memory.Addr,
-	memWriteData chan<- memory.WriteData,
-	memWriteResp <-chan memory.Response) {
+	memWriteAddr chan<- axiprotocol.Addr,
+	memWriteData chan<- axiprotocol.WriteData,
+	memWriteResp <-chan axiprotocol.WriteResp) {
 
 	// Disable AXI memory accesses.
 	go memory.DisableReads(memReadAddr, memReadData)

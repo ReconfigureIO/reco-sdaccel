@@ -17,19 +17,21 @@ type Addr struct {
 	Prot  [3]bool
 }
 
-// Specifies AXI-List response channel fields.
-type Resp [2]bool
-
 // Specifies AXI-Lite read data channel fields.
 type ReadData struct {
 	Data uint32
-	Resp Resp
+	Resp [2]bool
 }
 
 // Specifies AXI-Lite write data channel fields.
 type WriteData struct {
 	Data uint32
 	Strb [4]bool
+}
+
+// Specifies AXI-Lite write response channel fields.
+type WriteResp struct {
+	Resp [2]bool
 }
 
 // Goroutine to disable control bus read transactions. Should only be run
@@ -47,12 +49,12 @@ func DisableReads(controlReadAddr <-chan Addr,
 func DisableWrites(
 	controlWriteAddr <-chan Addr,
 	controlWriteData <-chan WriteData,
-	controlResp chan<- Resp) {
+	controlWriteResp chan<- WriteResp) {
 
 	for {
 		<-controlWriteAddr
 		<-controlWriteData
-		controlResp <- Resp{}
+		controlWriteResp <- WriteResp{}
 	}
 }
 

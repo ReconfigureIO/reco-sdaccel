@@ -1,7 +1,7 @@
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.8.1')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.9.0')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
     }
     environment {

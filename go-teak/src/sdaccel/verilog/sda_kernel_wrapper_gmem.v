@@ -23,7 +23,7 @@
 `define AXI_MASTER_ADDR_WIDTH 64
 
 // Can be redefined on the synthesis command line.
-`define AXI_MASTER_DATA_WIDTH 32
+`define AXI_MASTER_DATA_WIDTH 64
 
 // Can be redefined on the synthesis command line.
 `define AXI_MASTER_ID_WIDTH 1

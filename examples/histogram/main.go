@@ -1,23 +1,27 @@
 package main
 
 import (
-	// import the entire framework (including bundled verilog)
+	// Import the entire framework (including bundled verilog)
 	_ "sdaccel"
+	// Use the new AXI protocol package
+	aximemory "axi/memory"
+	axiprotocol "axi/protocol"
+	// Use the simple memory access API
 	"sdaccel/memory"
 )
 
-// magic identifier for exporting
+// Magic identifier for exporting
 func Top(
 	inputData uintptr,
 	outputData uintptr,
 	length uint32,
 
-	memReadAddr chan<- memory.Addr,
-	memReadData <-chan memory.ReadData,
+	memReadAddr chan<- axiprotocol.Addr,
+	memReadData <-chan axiprotocol.ReadData,
 
-	memWriteAddr chan<- memory.Addr,
-	memWriteData chan<- memory.WriteData,
-	memResp <-chan memory.Response) {
+	memWriteAddr chan<- axiprotocol.Addr,
+	memWriteData chan<- axiprotocol.WriteData,
+	memWriteResp <-chan axiprotocol.WriteResp) {
 
 	// The host needs to provide the length we should read
 	for ; length > 0; length-- {
@@ -31,7 +35,7 @@ func Top(
 
 		current := memory.Read(outputPointer, memReadAddr, memReadData)
 
-		memory.Write(outputPointer, current+1, memWriteAddr, memWriteData, memResp)
+		memory.Write(outputPointer, current+1, memWriteAddr, memWriteData, memWriteResp)
 
 		inputData += 4
 	}
