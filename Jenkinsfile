@@ -128,7 +128,7 @@ pipeline {
                 expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
             }
             steps {
-                sh 'cat bench_tmp/* | ./benchmarks/log2csv'
+                sh 'cat bench_tmp/* | /benchmarks/log2csv -'
             }
         }
 
