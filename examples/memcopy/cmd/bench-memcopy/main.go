@@ -1,16 +1,28 @@
 package main
 
 import (
-	"bytes"
+	"crypto/rand"
 	"encoding/binary"
 	"fmt"
-	"crypto/rand"
 	"testing"
 	"xcl"
 )
 
 func main() {
-	bm := testing.Benchmark(doit)
+	world := xcl.NewWorld()
+	defer world.Release()
+
+	program := world.Import("kernel_test")
+	defer program.Release()
+
+	krnl := program.GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
+	defer krnl.Release()
+
+	f := func(B *testing.B) {
+		doit(world, krnl, B)
+	}
+
+	bm := testing.Benchmark(f)
 	print("runtime/memcopy;")
 	println(bm.NsPerOp())
 	print("allocs/memcopy;")
@@ -19,17 +31,10 @@ func main() {
 	println(bm.AllocedBytesPerOp())
 }
 
-func doit(B *testing.B) {
-	B.SetBytes(int64(4 * B.N))
+func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
+	B.SetBytes(8)
 	B.ReportAllocs()
-	B.StopTimer()
-	world := xcl.NewWorld()
-	defer world.Release()
-
-	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
-	defer krnl.Release()
-
-	byteLength := uint(B.N)
+	byteLength := uint(8 * B.N)
 
 	input := make([]byte, byteLength)
 	_, err := rand.Read(input)
@@ -45,16 +50,13 @@ func doit(B *testing.B) {
 	inputBuff := world.Malloc(xcl.ReadOnly, byteLength)
 	defer inputBuff.Free()
 
-	inToBytes := new(bytes.Buffer)
-	binary.Write(inToBytes, binary.LittleEndian, &input)
-	inputBuff.Write(inToBytes.Bytes())
+	binary.Write(inputBuff.Writer(), binary.LittleEndian, &input)
 
 	krnl.SetMemoryArg(0, inputBuff)
 	krnl.SetMemoryArg(1, outputBuff)
-	krnl.SetArg(2, uint32(len(input)))
+	krnl.SetArg(2, uint32(B.N))
 
 	B.ResetTimer()
-	B.StartTimer()
 	krnl.Run(1, 1, 1)
 	B.StopTimer()
 }

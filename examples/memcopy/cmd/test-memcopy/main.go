@@ -22,7 +22,7 @@ func main() {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
 	defer krnl.Release()
 
-	memcpy := func(input [DATA_WIDTH]uint32) bool {
+	memcpy := func(input [DATA_WIDTH]uint64) bool {
 
 		byteLength := uint(binary.Size(input))
 
@@ -45,7 +45,7 @@ func main() {
 		resp := make([]byte, byteLength)
 		outputBuff.Read(resp)
 
-		var ret [DATA_WIDTH]uint32
+		var ret [DATA_WIDTH]uint64
 		err := binary.Read(bytes.NewReader(resp), binary.LittleEndian, &ret)
 
 		if err != nil {
