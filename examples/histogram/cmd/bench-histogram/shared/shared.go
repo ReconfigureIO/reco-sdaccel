@@ -3,8 +3,10 @@ package shared
 import (
 	"encoding/binary"
 	"math/rand"
-	"xcl"
 	"testing"
+	"xcl"
+
+	"ReconfigureIO/reco-sdaccel/benchmarks"
 )
 
 const (
@@ -15,16 +17,11 @@ const (
 
 func Process(name string) {
 	bm := testing.Benchmark(doit)
-	print("runtime/" + name + ";")
-	println(bm.NsPerOp())
-	print("allocs/" + name + ";")
-	println(bm.AllocsPerOp())
-	print("bytes/" + name + ";")
-	println(bm.AllocedBytesPerOp())
+	benchmarks.GipedaResults(name, bm)
 }
 
 func doit(B *testing.B) {
-	B.SetBytes(int64(B.N))
+	B.SetBytes(4)
 	B.ReportAllocs()
 	B.StopTimer()
 	world := xcl.NewWorld()

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"testing"
 	"xcl"
+
+	"ReconfigureIO/reco-sdaccel/benchmarks"
 )
 
 func main() {
@@ -23,12 +25,7 @@ func main() {
 	}
 
 	bm := testing.Benchmark(f)
-	print("runtime/memcopy;")
-	println(bm.NsPerOp())
-	print("allocs/memcopy;")
-	println(bm.AllocsPerOp())
-	print("bytes/memcopy;")
-	println(bm.AllocedBytesPerOp())
+	benchmarks.GipedaResults("memcopy", bm)
 }
 
 func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
