@@ -65,14 +65,22 @@ func (world *World) Release() {
 	C.xcl_release_world(world.cw)
 }
 
-func (world *World) Import(program string) *Program {
-	p := C.xcl_import_binary(world.cw, C.CString(program))
-	return &Program{world, p}
+func (world World) Import(program string) *Program {
+	s := C.CString(program)
+	p := C.xcl_import_binary(world.cw, s)
+	C.free(unsafe.Pointer(s))
+	return &Program{&world, p}
 }
 
 func (program *Program) GetKernel(kernelName string) *Kernel {
-	k := C.xcl_get_kernel(program.program, C.CString(kernelName))
+	s := C.CString(kernelName)
+	k := C.xcl_get_kernel(C.cl_program(program.program), s)
+	C.free(unsafe.Pointer(s))
 	return &Kernel{program, k}
+}
+
+func (program *Program) Release() {
+	C.clReleaseProgram(program.program)
 }
 
 func (kernel *Kernel) Release() {
