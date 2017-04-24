@@ -46,15 +46,14 @@ func Top(
 	}()
 
 	go func() {
-		for i := length; i > 0; i-- {
+		for i := length; i != 0; i-- {
 			// Get the read response that was previously enqueued.
 			sample := <-readRespChan
 			// If we think of external memory we are writing to as a
 			// [512]uint32, this would be the index we access.
 			index := uint16(sample) >> (16 - 9)
-			pointerDiff := index << 2
 			// And this is that index as a pointer to external memory.
-			outputPointer := outputData + uintptr(pointerDiff)
+			outputPointer := outputData + uintptr(index << 2)
 			// Perform an increment operation on that location.
 			current := aximemory.ReadUInt32(
 				memReadAddr1, memReadData1, true, outputPointer)
