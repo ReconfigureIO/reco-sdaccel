@@ -16,19 +16,26 @@ const (
 )
 
 func Process(name string) {
-	bm := testing.Benchmark(doit)
-	benchmarks.GipedaResults(name, bm)
-}
-
-func doit(B *testing.B) {
-	B.SetBytes(4)
-	B.ReportAllocs()
-	B.StopTimer()
 	world := xcl.NewWorld()
 	defer world.Release()
 
-	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
+	program := world.Import("kernel_test")
+	defer program.Release()
+
+	krnl := program.GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
 	defer krnl.Release()
+
+	f := func(B *testing.B) {
+		doit(world, krnl, B)
+	}
+
+	bm := testing.Benchmark(f)
+	benchmarks.GipedaResults(name, bm)
+}
+
+func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
+	B.SetBytes(4)
+	B.ReportAllocs()
 
 	input := make([]uint32, B.N)
 
@@ -53,7 +60,6 @@ func doit(B *testing.B) {
 	krnl.SetArg(2, uint32(len(input)))
 
 	B.ResetTimer()
-	B.StartTimer()
 	krnl.Run(1, 1, 1)
 	B.StopTimer()
 }
