@@ -112,7 +112,7 @@ func WriteUInt32(
 	// Map write data to appropriate byte lanes.
 	var writeData64 uint64
 	var writeStrobe [8]bool
-	switch writeAddr & 0x4 {
+	switch byte(writeAddr) & 0x4 {
 	case 0x0:
 		writeData64 = uint64(writeData)
 		writeStrobe = [8]bool{
@@ -156,7 +156,7 @@ func ReadUInt32(
 	// Select data from 64-bit read result.
 	readResp := <-clientData
 	var readData uint32
-	switch readAddr & 0x4 {
+	switch byte(readAddr) & 0x4 {
 	case 0x0:
 		readData = uint32(readResp.Data)
 	default:
@@ -192,7 +192,7 @@ func WriteUInt16(
 	// Map write data to appropriate byte lanes.
 	var writeData64 uint64
 	var writeStrobe [8]bool
-	switch writeAddr & 0x6 {
+	switch byte(writeAddr) & 0x6 {
 	case 0x0:
 		writeData64 = uint64(writeData)
 		writeStrobe = [8]bool{
@@ -244,7 +244,7 @@ func ReadUInt16(
 	// Select data from 64-bit read result.
 	readResp := <-clientData
 	var readData uint16
-	switch readAddr & 0x6 {
+	switch byte(readAddr) & 0x6 {
 	case 0x0:
 		readData = uint16(readResp.Data)
 	case 0x2:
@@ -283,7 +283,7 @@ func WriteUInt8(
 	// Map write data to appropriate byte lanes.
 	var writeData64 uint64
 	var writeStrobe [8]bool
-	switch writeAddr & 0x7 {
+	switch byte(writeAddr) & 0x7 {
 	case 0x0:
 		writeData64 = uint64(writeData)
 		writeStrobe = [8]bool{
@@ -350,7 +350,7 @@ func ReadUInt8(
 	// Select data from 64-bit read result.
 	readResp := <-clientData
 	var readData uint8
-	switch readAddr & 0x7 {
+	switch byte(readAddr) & 0x7 {
 	case 0x0:
 		readData = uint8(readResp.Data)
 	case 0x1:
