@@ -27,10 +27,11 @@ func writeDataTransfer(
 	serverData <-chan protocol.WriteData) {
 
 	// Terminate transfers on write data channel 'last' flag.
-	writeData := protocol.WriteData{Last: false}
-	for writeData.Last == false {
-		writeData = <-serverData
+	getNext := true
+	for getNext {
+		writeData := <-serverData
 		clientData <- writeData
+		getNext = !writeData.Last
 	}
 }
 
@@ -42,10 +43,11 @@ func readDataTransfer(
 	serverData chan<- protocol.ReadData) {
 
 	// Terminate transfers on write data channel 'last' flag.
-	readData := protocol.ReadData{Last: false}
-	for readData.Last == false {
-		readData = <-clientData
+	getNext := true
+	for getNext {
+		readData := <-clientData
 		serverData <- readData
+		getNext = !readData.Last
 	}
 }
 
@@ -279,7 +281,7 @@ func ReadArbitrateX2(
 	// Specify the input selection channel.
 	dataChanSelect := make(chan byte)
 
-	// Run write data channel handler.
+	// Run read data channel handler.
 	go func() {
 		for {
 			chanSelect := <-dataChanSelect
@@ -323,7 +325,7 @@ func ReadArbitrateX3(
 	// Specify the input selection channel.
 	dataChanSelect := make(chan byte)
 
-	// Run write data channel handler.
+	// Run read data channel handler.
 	go func() {
 		for {
 			chanSelect := <-dataChanSelect
@@ -375,7 +377,7 @@ func ReadArbitrateX4(
 	// Specify the input selection channel.
 	dataChanSelect := make(chan byte)
 
-	// Run write data channel handler.
+	// Run read data channel handler.
 	go func() {
 		for {
 			chanSelect := <-dataChanSelect
