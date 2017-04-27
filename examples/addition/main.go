@@ -6,8 +6,6 @@ import (
 	// Use the new AXI protocol package
 	aximemory "axi/memory"
 	axiprotocol "axi/protocol"
-	// Use the simple memory access API
-	"sdaccel/memory"
 )
 
 // Magic identifier for exporting
@@ -24,9 +22,10 @@ func Top(
 	memWriteResp <-chan axiprotocol.WriteResp) {
 
 	// Disable memory reads
-	go memory.DisableReads(memReadAddr, memReadData)
+	go axiprotocol.ReadDisable(memReadAddr, memReadData)
 
 	val := a + b
 
-	memory.Write(addr, val, memWriteAddr, memWriteData, memWriteResp)
+	aximemory.WriteUInt32(
+		memWriteAddr, memWriteData, memWriteResp, false, addr, val)
 }

@@ -21,7 +21,7 @@ import (
 )
 
 //
-// Sets the maximum AXI burst length to use. Must be an integer multiple of 8.
+// Sets the maximum AXI burst length to use.
 //
 const maxAxiBurstSize = 64
 
@@ -112,7 +112,7 @@ func WriteUInt32(
 	// Map write data to appropriate byte lanes.
 	var writeData64 uint64
 	var writeStrobe [8]bool
-	switch writeAddr & 0x4 {
+	switch byte(writeAddr) & 0x4 {
 	case 0x0:
 		writeData64 = uint64(writeData)
 		writeStrobe = [8]bool{
@@ -156,7 +156,7 @@ func ReadUInt32(
 	// Select data from 64-bit read result.
 	readResp := <-clientData
 	var readData uint32
-	switch readAddr & 0x4 {
+	switch byte(readAddr) & 0x4 {
 	case 0x0:
 		readData = uint32(readResp.Data)
 	default:
@@ -192,7 +192,7 @@ func WriteUInt16(
 	// Map write data to appropriate byte lanes.
 	var writeData64 uint64
 	var writeStrobe [8]bool
-	switch writeAddr & 0x6 {
+	switch byte(writeAddr) & 0x6 {
 	case 0x0:
 		writeData64 = uint64(writeData)
 		writeStrobe = [8]bool{
@@ -244,7 +244,7 @@ func ReadUInt16(
 	// Select data from 64-bit read result.
 	readResp := <-clientData
 	var readData uint16
-	switch readAddr & 0x6 {
+	switch byte(readAddr) & 0x6 {
 	case 0x0:
 		readData = uint16(readResp.Data)
 	case 0x2:
@@ -283,7 +283,7 @@ func WriteUInt8(
 	// Map write data to appropriate byte lanes.
 	var writeData64 uint64
 	var writeStrobe [8]bool
-	switch writeAddr & 0x7 {
+	switch byte(writeAddr) & 0x7 {
 	case 0x0:
 		writeData64 = uint64(writeData)
 		writeStrobe = [8]bool{
@@ -350,7 +350,7 @@ func ReadUInt8(
 	// Select data from 64-bit read result.
 	readResp := <-clientData
 	var readData uint8
-	switch readAddr & 0x7 {
+	switch byte(readAddr) & 0x7 {
 	case 0x0:
 		readData = uint8(readResp.Data)
 	case 0x1:
@@ -387,10 +387,8 @@ func WriteBurstUInt64(
 	writeLength uint32,
 	writeDataChan <-chan uint64) bool {
 
-	// Get aligned address and initial strobe state.
+	// Get aligned address.
 	alignedAddr := writeAddr &^ uintptr(0x7)
-	writeStrobe := [8]bool{
-		true, true, true, true, true, true, true, true}
 
 	// Divide the transaction into burst sequences.
 	burstSize := byte(maxAxiBurstSize)
@@ -415,7 +413,9 @@ func WriteBurstUInt64(
 			writeData := <-writeDataChan
 			clientData <- protocol.WriteData{
 				Data: writeData,
-				Strb: writeStrobe,
+				Strb: [8]bool{
+					true, true, true, true,
+					true, true, true, true},
 				Last: i == 1}
 		}
 
@@ -461,15 +461,19 @@ func ReadBurstUInt64(
 				Cache: [4]bool{bufferedAccess, true, false, false}}
 		}()
 
-		// Loops until read data contains 'last' flag.
-		readData := protocol.ReadData{Last: false}
-		for readData.Last == false {
-			readData = <-clientData
+		// Loops until read data contains 'last' flag. Only the final
+		// burst status is of interest.
+		getNext := true
+		for getNext {
+			readData := <-clientData
 			readDataChan <- readData.Data
+			if readData.Last {
+				burstOk = burstOk && !readData.Resp[1]
+			}
+			getNext = !readData.Last
 		}
 
 		// Update the burst counter and status flag.
-		burstOk = burstOk && !readData.Resp[1]
 		readLength -= uint32(burstSize)
 		alignedAddr += uintptr(burstSize) << 3
 	}
@@ -584,21 +588,25 @@ func ReadBurstUInt32(
 				Cache: [4]bool{bufferedAccess, true, false, false}}
 		}()
 
-		// Loops until read data contains 'last' flag.
-		readData := protocol.ReadData{Last: false}
-		for readData.Last == false {
-			readData = <-clientData
+		// Loops until read data contains 'last' flag. Only the final
+		// burst status is of interest.
+		getNext := true
+		for getNext {
+			readData := <-clientData
 			switch readPhase & 0x4 {
 			case 0x0:
 				readDataChan <- uint32(readData.Data)
 			default:
 				readDataChan <- uint32(readData.Data >> 32)
 			}
+			if readData.Last {
+				burstOk = burstOk && !readData.Resp[1]
+			}
 			readPhase += 0x4
+			getNext = !readData.Last
 		}
 
 		// Update the burst counter and status flag.
-		burstOk = burstOk && !readData.Resp[1]
 		readLength -= uint32(burstSize)
 		alignedAddr += uintptr(burstSize) << 2
 	}
@@ -721,10 +729,11 @@ func ReadBurstUInt16(
 				Cache: [4]bool{bufferedAccess, true, false, false}}
 		}()
 
-		// Loops until read data contains 'last' flag.
-		readData := protocol.ReadData{Last: false}
-		for readData.Last == false {
-			readData = <-clientData
+		// Loops until read data contains 'last' flag. Only the final
+		// burst status is of interest.
+		getNext := true
+		for getNext {
+			readData := <-clientData
 			switch readPhase & 0x6 {
 			case 0x0:
 				readDataChan <- uint16(readData.Data)
@@ -735,11 +744,14 @@ func ReadBurstUInt16(
 			default:
 				readDataChan <- uint16(readData.Data >> 48)
 			}
+			if readData.Last {
+				burstOk = burstOk && !readData.Resp[1]
+			}
 			readPhase += 0x2
+			getNext = !readData.Last
 		}
 
 		// Update the burst counter and status flag.
-		burstOk = burstOk && !readData.Resp[1]
 		readLength -= uint32(burstSize)
 		alignedAddr += uintptr(burstSize) << 1
 	}
@@ -877,10 +889,11 @@ func ReadBurstUInt8(
 				Cache: [4]bool{bufferedAccess, true, false, false}}
 		}()
 
-		// Loops until read data contains 'last' flag.
-		readData := protocol.ReadData{Last: false}
-		for readData.Last == false {
-			readData = <-clientData
+		// Loops until read data contains 'last' flag. Only the final
+		// burst status is of interest.
+		getNext := true
+		for getNext {
+			readData := <-clientData
 			switch readPhase & 0x7 {
 			case 0x0:
 				readDataChan <- uint8(readData.Data)
@@ -899,11 +912,14 @@ func ReadBurstUInt8(
 			default:
 				readDataChan <- uint8(readData.Data >> 56)
 			}
+			if readData.Last {
+				burstOk = burstOk && !readData.Resp[1]
+			}
 			readPhase += 0x1
+			getNext = !readData.Last
 		}
 
 		// Update the burst counter and status flag.
-		burstOk = burstOk && !readData.Resp[1]
 		readLength -= uint32(burstSize)
 		alignedAddr += uintptr(burstSize)
 	}
