@@ -5,122 +5,71 @@
 //
 
 //
-// AXI master interface to memory mapped RAM and I/O. This defines the data
-// types to be used on the AXI write address (AXI_AW), write data (AXI_W),
-// write status (AXI_B), read address (AXI_RA) and read data (AXI_R) channels.
-// Note that in order to ensure the correct ordering of AXI channel requests
-// and responses, the AXI master interface channels must only ever be accessed
-// sequentially from within the same goroutine. A suitable memory arbitration
-// adapter will be required to support concurrent memory accesses.
+// AXI legacy interface to memory mapped RAM and I/O. This has been superseded
+// by the new AXI protocol and memory access packages, but is retained for
+// compatibility with existing demonstration and test code.
+// TODO: Remove this once all code has been ported to the new API.
 //
 
 package memory
 
-// Specifies AXI memory address channel fields.
-type Addr struct {
-	Id     bool
-	Addr   uintptr
-	Len    byte
-	Size   [3]bool
-	Burst  [2]bool
-	Lock   bool
-	Cache  [4]bool
-	Prot   [3]bool
-	Region [4]bool
-	Qos    [4]bool
-	User   bool
-}
-
-// Specifies AXI memory read data channel fields.
-type ReadData struct {
-	Id   bool
-	Data uint32
-	Resp [2]bool
-	Last bool
-	User bool
-}
-
-// Specifies AXI memory write data channel fields.
-type WriteData struct {
-	Data uint32
-	Strb [4]bool
-	Last bool
-	User bool
-}
-
-// Specifies AXI memory write response channel fields.
-type Response struct {
-	Id   bool
-	Resp [2]bool
-	User bool
-}
+import (
+	aximemory "axi/memory"
+	axiprotocol "axi/protocol"
+)
 
 // Goroutine to disable memory bus read transactions. Should only be run
 // once for each memory interface.
-func DisableReads(memoryReadAddr chan<- Addr,
-	memoryReadData <-chan ReadData) {
-
-	memoryReadAddr <- Addr{}
-	for {
-		<-memoryReadData
-	}
+func DisableReads(memoryReadAddr chan<- axiprotocol.Addr,
+	memoryReadData <-chan axiprotocol.ReadData) {
+	axiprotocol.ReadDisable(memoryReadAddr, memoryReadData)
 }
 
 // Goroutine to disable memory bus write transactions. Should only be run once
 // for each memory interface.
 func DisableWrites(
-	memoryWriteAddr chan<- Addr,
-	memoryWriteData chan<- WriteData,
-	memoryWriteResp <-chan Response) {
-
-	memoryWriteAddr <- Addr{}
-	memoryWriteData <- WriteData{}
-	for {
-		<-memoryWriteResp
-	}
+	memoryWriteAddr chan<- axiprotocol.Addr,
+	memoryWriteData chan<- axiprotocol.WriteData,
+	memoryWriteResp <-chan axiprotocol.WriteResp) {
+	axiprotocol.WriteDisable(memoryWriteAddr, memoryWriteData, memoryWriteResp)
 }
 
+// NOTE: API change replaces returned response with boolean 'writeOk' flag.
 func Write(
 	address uintptr,
 	data uint32,
-	memoryWriteAddr chan<- Addr,
-	memoryWriteData chan<- WriteData,
-	memoryWriteResp <-chan Response) Response {
-
-	go func() {
-		memoryWriteAddr <- Addr{
-			Addr:  address,
-			Size:  [3]bool{false, true, false},
-			Cache: [4]bool{false, false, true, true},
-			Burst: [2]bool{false, true},
-		}
-	}()
-
-	go func() {
-		memoryWriteData <- WriteData{
-			Data: data,
-			Strb: [4]bool{true, true, true, true},
-			Last: true,
-		}
-	}()
-
-	return <-memoryWriteResp
+	memoryWriteAddr chan<- axiprotocol.Addr,
+	memoryWriteData chan<- axiprotocol.WriteData,
+	memoryWriteResp <-chan axiprotocol.WriteResp) bool {
+	return aximemory.WriteUInt32(memoryWriteAddr, memoryWriteData,
+		memoryWriteResp, true, address, data)
 }
 
 func Read(
 	address uintptr,
-	memoryReadAddr chan<- Addr,
-	memoryReadData <-chan ReadData) uint32 {
+	memoryReadAddr chan<- axiprotocol.Addr,
+	memoryReadData <-chan axiprotocol.ReadData) uint32 {
+	return aximemory.ReadUInt32(memoryReadAddr, memoryReadData,
+		true, address)
+}
 
-	go func() {
-		memoryReadAddr <- Addr{
-			Addr:  address,
-			Size:  [3]bool{false, true, false},
-			Cache: [4]bool{false, false, true, true},
-			Burst: [2]bool{false, true},
-		}
-	}()
+func ReadBurst(
+	address uintptr,
+	burst uint32,
+	dataStream chan<- uint32,
+	memoryReadAddr chan<- axiprotocol.Addr,
+	memoryReadData <-chan axiprotocol.ReadData) {
+	aximemory.ReadBurstUInt32(memoryReadAddr, memoryReadData,
+		true, address, burst, dataStream)
+}
 
-	d := <-memoryReadData
-	return d.Data
+func WriteBurst(
+	address uintptr,
+	burst uint32,
+	dataStream <-chan uint32,
+	memoryWriteAddr chan<- axiprotocol.Addr,
+	memoryWriteData chan<- axiprotocol.WriteData,
+	memoryWriteResp <-chan axiprotocol.WriteResp) {
+	aximemory.WriteBurstUInt32(memoryWriteAddr, memoryWriteData,
+		memoryWriteResp, true, address, burst, dataStream)
 }

@@ -1,95 +1,74 @@
 package main
 
 import (
-	// import the entire framework (including bundled verilog)
+	// Import the entire framework (including bundled verilog)
 	_ "sdaccel"
+	// Use the new AXI protocol package
+	axiarbitrate "axi/arbitrate"
+	aximemory "axi/memory"
+	axiprotocol "axi/protocol"
 )
 
-const (
-	INPUT_INDEX = iota
-	OUTPUT_INDEX
-	LENGTH_INDEX
-)
-
-type Histogram [512]uint32
-
-func (hist Histogram) Add(sample uint32) {
-	hist[sample>>(32-9)] += 1
-}
-
-func (hist Histogram) ToBytes() [4][512]byte {
-	var ret [4][512]byte
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 512; j += 4 {
-			k := j / 4
-			val := hist[i<<7|k]
-			ret[i][k] = byte(val >> 24)
-			ret[i][k+1] = byte(val >> 16)
-			ret[i][k+2] = byte(val >> 8)
-			ret[i][k+3] = byte(val)
-		}
-	}
-	return ret
-}
-
-// magic identifier for exporting
+// Magic identifier for exporting
 func Top(
-	controlAddr chan<- uint32,
-	controlData <-chan uint32) {
+	inputData uintptr,
+	outputData uintptr,
+	length uint32,
 
-	readParam := func(a uint32) uint32 {
-		controlAddr <- a
-		return <-controlData
-	}
+	memReadAddr chan<- axiprotocol.Addr,
+	memReadData <-chan axiprotocol.ReadData,
 
-	readAddressParam := func(a uint32) uint64 {
-		controlAddr <- a
-		top := <-controlData
-		controlAddr <- a + 1
-		return (uint64(top) << 32) + uint64(<-controlData)
-	}
+	memWriteAddr chan<- axiprotocol.Addr,
+	memWriteData chan<- axiprotocol.WriteData,
+	memWriteResp <-chan axiprotocol.WriteResp) {
 
-	readMemory := func(a uint64) [512]byte {
-		return [512]byte{}
-	}
+	readRespChan := make(chan uint32)
+	incrRespChan := make(chan uint32)
 
-	writeMemory := func(a uint64, bytes [512]byte) {
-	}
+	// Create a 2-way AXI bus arbiter so that two goroutines can perform
+	// concurrent AXI memory reads.
+	memReadAddr0 := make(chan axiprotocol.Addr)
+	memReadData0 := make(chan axiprotocol.ReadData)
+	memReadAddr1 := make(chan axiprotocol.Addr)
+	memReadData1 := make(chan axiprotocol.ReadData)
+	go axiarbitrate.ReadArbitrateX2(
+		memReadAddr, memReadData, memReadAddr0, memReadData0,
+		memReadAddr1, memReadData1)
 
-	inputData := readAddressParam(INPUT_INDEX)
-	outputData := readAddressParam(INPUT_INDEX)
-
-	// how many samples are there? (uint32)
-	length := readParam(LENGTH_INDEX)
-
-	var histogram Histogram
-
-	for ; length > 0; length -= 16 {
-		toProcess := length
-
-		if toProcess > 16 {
-			toProcess = 16
+	go func() {
+		// Length is the number of addresses we are supposed to read
+		// so this block queues reads from each one in turn.
+		for i := length; i != 0; i-- {
+			readRespChan <- aximemory.ReadUInt32(
+				memReadAddr0, memReadData0, true, inputData)
+			inputData += 4
 		}
+	}()
 
-		bytes := readMemory(inputData)
-
-		inputData += 1
-
-		for i := uint32(0); i < toProcess; i++ {
-			sample :=
-				uint32(bytes[i])<<24 |
-					uint32(bytes[i+1])<<16 |
-					uint32(bytes[i+2])<<8 |
-					uint32(bytes[i+3])
-
-			histogram.Add(sample)
+	go func() {
+		for i := length; i != 0; i-- {
+			// Get the read response that was previously enqueued.
+			sample := <-readRespChan
+			// If we think of external memory we are writing to as a
+			// [512]uint32, this would be the index we access.
+			index := uint16(sample) >> (16 - 9)
+			// And this is that index as a pointer to external memory.
+			outputPointer := outputData + uintptr(index << 2)
+			// Perform an increment operation on that location.
+			current := aximemory.ReadUInt32(
+				memReadAddr1, memReadData1, true, outputPointer)
+			current += 1
+			aximemory.WriteUInt32(
+				memWriteAddr, memWriteData, memWriteResp, true,
+				outputPointer, current)
+			incrRespChan <- current
 		}
+	}()
 
+	// Wait for each response for increment operations.
+	for i := length; i != 0; i-- {
+		<-incrRespChan
 	}
 
-	bytes := histogram.ToBytes()
-
-	for i := 0; i <= 4; i++ {
-		writeMemory(outputData+uint64(i), bytes[i])
-	}
+	// Once that's done, we can exit.
 }

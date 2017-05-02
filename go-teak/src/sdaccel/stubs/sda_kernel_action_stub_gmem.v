@@ -15,7 +15,7 @@
 `define AXI_MASTER_ADDR_WIDTH 64
 
 // Can be redefined on the synthesis command line.
-`define AXI_MASTER_DATA_WIDTH 32
+`define AXI_MASTER_DATA_WIDTH 64
 
 // Can be redefined on the synthesis command line.
 `define AXI_MASTER_ID_WIDTH 1
@@ -254,7 +254,7 @@ assign m_axi_gmem_awuser = `AXI_MASTER_USER_WIDTH'b0;
 assign m_axi_gmem_awid = `AXI_MASTER_ID_WIDTH'b0;
 assign m_axi_gmem_awvalid = 1'b0;
 assign m_axi_gmem_wdata = `AXI_MASTER_DATA_WIDTH'b0;
-assign m_axi_gmem_wstrb = 4'b0;
+assign m_axi_gmem_wstrb = `AXI_MASTER_DATA_WIDTH/8'b0;
 assign m_axi_gmem_wlast = 1'b0;
 assign m_axi_gmem_wuser = `AXI_MASTER_USER_WIDTH'b0;
 assign m_axi_gmem_wvalid = 1'b0;

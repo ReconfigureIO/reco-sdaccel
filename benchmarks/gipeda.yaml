@@ -1,0 +1,24 @@
+title: reco-sdaccel
+diffLink: "http://github.com/ReconfigureIO/reco-sdaccel/compare/{{rev}}...{{base}}"
+revisionInfo: '<a href="https://github.com/ReconfigureIO/reco-sdaccel/commit/{{rev}}">View Diff</a>'
+limitRecent: 20
+start: d3823ad818a9afe05ea61015fdcafd701649371d
+interestingTags: "*"
+
+benchmarks:
+  - match: "runtime/*"
+    smallerIsBetter: True
+    type: integral
+    group: "benchmark"
+  - match: "mbsPerSec/*"
+    smallerIsBetter: False
+    unit: MB/s
+    group: "benchmark"
+  - match: "bytes/*"
+    smallerIsBetter: True
+    unit: bytes
+    group: "benchmark"
+  - match: "allocs/*"
+    smallerIsBetter: True
+    unit: allocs
+    group: "benchmark"

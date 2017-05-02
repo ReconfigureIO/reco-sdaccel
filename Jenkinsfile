@@ -1,7 +1,7 @@
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.7.0')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.9.1')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
     }
     environment {
@@ -43,6 +43,7 @@ pipeline {
         stage('pre clean') {
             steps {
                 sh 'make clean'
+                sh 'rm -rf bench_tmp'
             }
         }
 
@@ -70,8 +71,8 @@ pipeline {
                 expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
             }
             steps {
-                parallel histogram: {
-                    dir('examples/histogram'){
+                parallel histogram array: {
+                    dir('examples/histogram-array'){
                         sh '../../reco-jarvice/reco-jarvice test test-histogram'
                     }
                 },
@@ -85,8 +86,8 @@ pipeline {
                         sh '../../reco-jarvice/reco-jarvice test test-memcopy'
                     }
                 },
-                "histogram-array": {
-                    dir('examples/histogram-array'){
+                "parallel histogram": {
+                    dir('examples/histogram-parallel'){
                         sh '../../reco-jarvice/reco-jarvice test test-histogram'
                     }
                 }
@@ -100,8 +101,8 @@ pipeline {
             }
             steps {
                 parallel histogram: {
-                    dir('examples/histogram'){
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram'
+                    dir('examples/histogram-array') {
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
                     }
                 },
 //                addition: {
@@ -111,9 +112,23 @@ pipeline {
 //                },
                 memcopy: {
                     dir('examples/memcopy'){
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy'
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy && ../../ci/run-benchmark.sh $NUMBER memcopy "`git rev-parse HEAD`"'
+                    }
+                },
+                "parallel histogram": {
+                    dir('examples/histogram-parallel') {
+                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
                     }
                 }
+            }
+        }
+
+        stage('show benchmarks'){
+            when {
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
+            }
+            steps {
+                sh 'cat bench_tmp/* | ./benchmarks/log2csv -'
             }
         }
 
@@ -129,12 +144,15 @@ pipeline {
             }
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} upload"
+                sh './ci/upload_benchmarks.sh'
+                build job: 'reco-sdaccel-publish-benchmarks', wait: false
             }
         }
 
         stage('clean') {
             steps {
                 sh 'make clean'
+                sh 'rm -rf bench_tmp'
             }
         }
     }
