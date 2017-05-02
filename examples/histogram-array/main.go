@@ -3,7 +3,9 @@ package main
 import (
 	// import the entire framework (including bundled verilog)
 	_ "sdaccel"
-	"sdaccel/memory"
+	// Use the new AXI protocol package
+	aximemory "axi/memory"
+	axiprotocol "axi/protocol"
 )
 
 // magic identifier for exporting
@@ -12,36 +14,38 @@ func Top(
 	outputData uintptr,
 	length uint32,
 
-	memReadAddr chan<- memory.Addr,
-	memReadData <-chan memory.ReadData,
+	memReadAddr chan<- axiprotocol.Addr,
+	memReadData <-chan axiprotocol.ReadData,
 
-	memWriteAddr chan<- memory.Addr,
-	memWriteData chan<- memory.WriteData,
-	memResp <-chan memory.Response) {
+	memWriteAddr chan<- axiprotocol.Addr,
+	memWriteData chan<- axiprotocol.WriteData,
+	memWriteResp <-chan axiprotocol.WriteResp) {
 
 	var histogram [512]uint32
 
+	// Read all of the input data into a channel
+	inputChan := make(chan uint32)
+	go aximemory.ReadBurstUInt32(
+		memReadAddr, memReadData, true, inputData, length, inputChan)
+
 	// The host needs to provide the length we should read
 	for ; length > 0; length-- {
-		// First we'll read each sample
-		sample := memory.Read(inputData, memReadAddr, memReadData)
+		// First we'll pull of each sample from the channel
+		sample := <-inputChan
 		// calculate the bin for the histogram
 		index := uint16(sample) >> (16 - 9)
 
 		// And increment the value in that bin
 		histogram[uint(index)] += 1
-
-		inputData += 4
 	}
 
-	for i := 0; i < 512; i++ {
-		val := histogram[i]
-		// we assume ouput memory is already zeroed
-		if val > 0 {
-			// write the val to the appropriate address
-			memory.Write(outputData, val, memWriteAddr, memWriteData, memResp)
+	data := make(chan uint32)
+	go func() {
+		for i := 0; i < 512; i++ {
+			data <- histogram[i]
 		}
-		outputData += 4
+	}()
 
-	}
+	aximemory.WriteBurstUInt32(
+		memWriteAddr, memWriteData, memWriteResp, true, outputData, 512, data)
 }
