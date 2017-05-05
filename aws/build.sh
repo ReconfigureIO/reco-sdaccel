@@ -13,7 +13,7 @@ if [ $? -ne 0 ]; then
     exit "$exit"
 fi
 
-/opt/sdaccel-builder/sdaccel-builder build
+/opt/sdaccel-builder/sdaccel-builder image
 
 if [ $? -ne 0 ]; then
     exit="$?"
