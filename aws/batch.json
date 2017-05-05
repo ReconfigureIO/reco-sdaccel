@@ -1,5 +1,5 @@
 {
-    "jobDefinitionName": "sdaccel-builder-build",
+    "jobDefinitionName": "sdaccel-builder-build-staging",
     "type": "container",
     "parameters": {},
     "containerProperties": {
@@ -31,15 +31,15 @@
             },
             {
                 "name": "XILINX_VIVADO",
-                "value": "/opt/Xilinx/SDx/2016.4/Vivado"
+                "value": "/opt/Xilinx/SDx/2017.1.op/Vivado"
             },
             {
                 "name": "XILINX_SDX",
-                "value": "/opt/Xilinx/SDx/2016.4"
+                "value": "/opt/Xilinx/SDx/2017.1.op"
             },
             {
                 "name": "XILINX_SDACCEL",
-                "value": "/opt/Xilinx/SDx/2016.4"
+                "value": "/opt/Xilinx/SDx/2017.1.op"
             }
         ],
         "mountPoints": [
