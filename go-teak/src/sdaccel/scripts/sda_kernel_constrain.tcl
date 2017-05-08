@@ -11,7 +11,7 @@ proc sda_kernel_constrain {moduleName} {
   puts "Generating placement constraints"
 
   # Assumes current design is correctly set by synthesis script.
-  foreach top_cell [get_cells] {
+  foreach top_cell [get_cells -filter {!IS_PRIMITIVE}] {
     set instance_name [get_property NAME $top_cell]
     set module_name [get_property REF_NAME $top_cell]
     puts "Recursive constraint generation for $instance_name : $module_name"
@@ -32,12 +32,12 @@ proc apply_constraints {instance} {
 
   # Determine if the current instance is a SELF buffer that can have constraints
   # applied.
-  if [string match "selfW2R1Buffer*" $module_name] {
+  if [string match "*selfW2R1Buffer*" $module_name] {
     apply_self_buffer_constraints $instance
 
   # Attempt to apply constraints to child instances.
   } else {
-    set child_cells [get_cells -quiet -hierarchical -filter "!IS_PRIMITIVE && (PARENT == $instance)"]
+    set child_cells [get_cells -quiet -hierarchical -filter {!IS_PRIMITIVE && (PARENT == $instance)}]
     foreach child_cell $child_cells {
       apply_constraints $child_cell
     }
@@ -67,7 +67,7 @@ proc apply_self_buffer_constraints {instance} {
   puts "Constraining $instance_name : $module_name"
 
   # Get the register A and register B instance lists.
-  set cells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && (PARENT == $instance)"]
+  set cells [get_cells -quiet -hierarchical -filter {IS_PRIMITIVE && (PARENT == $instance)}]
   set reg_a_cells [get_sorted_cells $cells "*dataRegA_q_reg\\\[*"]
   set reg_b_cells [get_sorted_cells $cells "*dataRegB_q_reg\\\[*"]
 
