@@ -8,13 +8,9 @@
 # Apply constraints recursively from the top level instance.
 #
 proc sda_kernel_constrain {moduleName} {
-  puts "Generating placement constraints"
 
   # Assumes current design is correctly set by synthesis script.
   foreach top_cell [get_cells -filter {!IS_PRIMITIVE}] {
-    set instance_name [get_property NAME $top_cell]
-    set module_name [get_property REF_NAME $top_cell]
-    puts "Recursive constraint generation for $instance_name : $module_name"
     apply_constraints $top_cell
   }
 
@@ -28,6 +24,7 @@ proc sda_kernel_constrain {moduleName} {
 # Recursively applies constraints to hierarchical instances.
 #
 proc apply_constraints {instance} {
+  set instance_name [get_property NAME $instance]
   set module_name [get_property REF_NAME $instance]
 
   # Determine if the current instance is a SELF buffer that can have constraints
@@ -37,6 +34,7 @@ proc apply_constraints {instance} {
 
   # Attempt to apply constraints to child instances.
   } else {
+    puts "Recursive constraint generation for $instance_name : $module_name"
     set child_cells [get_cells -quiet -hierarchical -filter {!IS_PRIMITIVE && (PARENT == $instance)}]
     foreach child_cell $child_cells {
       apply_constraints $child_cell
