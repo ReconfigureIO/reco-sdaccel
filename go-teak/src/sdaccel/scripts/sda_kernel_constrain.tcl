@@ -12,8 +12,8 @@ proc sda_kernel_constrain {moduleName} {
 
   # Assumes current design is correctly set by synthesis script.
   foreach top_cell [get_cells] {
-    set instance_name [get_property NAME $instance]
-    set module_name [get_property REF_NAME $instance]
+    set instance_name [get_property NAME $top_cell]
+    set module_name [get_property REF_NAME $top_cell]
     puts "Recursive constraint generation for $instance_name : $module_name"
     apply_constraints $top_cell
   }
