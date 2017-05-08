@@ -8,14 +8,20 @@
 # Apply constraints recursively from the top level instance.
 #
 proc sda_kernel_constrain {moduleName} {
+  puts "Generating placement constraints"
 
   # Assumes current design is correctly set by synthesis script.
   foreach top_cell [get_cells] {
+    set instance_name [get_property NAME $instance]
+    set module_name [get_property REF_NAME $instance]
+    puts "Recursive constraint generation for $instance_name : $module_name"
     apply_constraints $top_cell
   }
 
   # Write out the generated relative placement constraints.
   write_xdc -force -exclude_timing "${moduleName}.xdc"
+
+  stop procesing here with an error
 }
 
 #
