@@ -61,7 +61,7 @@ proc apply_self_buffer_constraints {instance} {
   puts "Constraining $instance_name : $module_name"
 
   # Get the register A and register B instance lists.
-  set cells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && PARENT == $instance"]
+  set cells [get_cells -quiet -hierarchical -filter "REF_NAM == FDRE && PARENT == $instance"]
   set reg_a_cells [get_sorted_cells $cells "*dataRegA_q_reg\\\[*"]
   set reg_b_cells [get_sorted_cells $cells "*dataRegB_q_reg\\\[*"]
 
