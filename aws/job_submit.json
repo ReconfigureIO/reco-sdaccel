@@ -4,7 +4,7 @@
     "jobDefinition": "sdaccel-builder-build-staging",
     "containerOverrides": {
         "command": [
-            "/opt/simulate.sh"
+            "/opt/build.sh"
         ],
         "environment": [
             {
@@ -36,12 +36,8 @@
                 "value": "xilinx:aws-vu9p-f1:4ddr-xpr-2pr:4.0"
             },
             {
-                "name": "LIBRARY_PATH",
-                "value": "/opt/Xilinx/SDx/2017.1.op/SDK/lib/lnx64.o"
-            },
-            {
-                "name": "LD_LIBRARY_PATH",
-                "value": "/opt/Xilinx/SDx/2017.1.op/Vivado/lib/lnx64.o"
+                "name": "CLFLAGS",
+                "value": "--xp param:compiler.worstNegativeSlack=-0.025 --kernel_frequency 200"
             }
         ]
 
