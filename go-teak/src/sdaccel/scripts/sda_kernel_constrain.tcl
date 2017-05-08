@@ -10,21 +10,18 @@
 proc sda_kernel_constrain {moduleName} {
 
   # Assumes current design is correctly set by synthesis script.
-  foreach top_cell [get_cells -filter {!IS_PRIMITIVE}] {
+  foreach top_cell [get_cells -filter "!IS_PRIMITIVE"] {
     apply_constraints $top_cell
   }
 
   # Write out the generated relative placement constraints.
   write_xdc -force -exclude_timing "${moduleName}.xdc"
-
-  stop procesing here with an error
 }
 
 #
 # Recursively applies constraints to hierarchical instances.
 #
 proc apply_constraints {instance} {
-  set instance_name [get_property NAME $instance]
   set module_name [get_property REF_NAME $instance]
 
   # Determine if the current instance is a SELF buffer that can have constraints
@@ -34,8 +31,7 @@ proc apply_constraints {instance} {
 
   # Attempt to apply constraints to child instances.
   } else {
-    puts "Recursive constraint generation for $instance_name : $module_name"
-    set child_cells [get_cells -quiet -hierarchical -filter {!IS_PRIMITIVE && (PARENT == $instance)}]
+    set child_cells [get_cells -quiet -hierarchical -filter "!IS_PRIMITIVE && PARENT == $instance"]
     foreach child_cell $child_cells {
       apply_constraints $child_cell
     }
@@ -65,7 +61,7 @@ proc apply_self_buffer_constraints {instance} {
   puts "Constraining $instance_name : $module_name"
 
   # Get the register A and register B instance lists.
-  set cells [get_cells -quiet -hierarchical -filter {IS_PRIMITIVE && (PARENT == $instance)}]
+  set cells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && PARENT == $instance"]
   set reg_a_cells [get_sorted_cells $cells "*dataRegA_q_reg\\\[*"]
   set reg_b_cells [get_sorted_cells $cells "*dataRegB_q_reg\\\[*"]
 
@@ -73,7 +69,7 @@ proc apply_self_buffer_constraints {instance} {
   set reg_b_luts {}
   foreach reg_b_cell $reg_b_cells {
     set driver_net [get_nets -segments -of_objects [get_pins $reg_b_cell/D]]
-    set driver_pin [get_pins -of_objects $driver_net -filter {IS_LEAF && (DIRECTION == "OUT")}]
+    set driver_pin [get_pins -of_objects $driver_net -filter "IS_LEAF && DIRECTION == OUT"]
     set driver_cell_name [get_property NAME [get_cells -of_object $driver_pin]]
     set driver_cell [get_cells -quiet $driver_cell_name]
     lappend reg_b_luts $driver_cell
