@@ -66,7 +66,7 @@
 # > vivado -mode batch -source <this_script_name> -tclargs <tcl_script_args>
 #
 
-# Disable multithreading.
+# Specify degree of multithreading.
 set_param general.maxThreads 4
 set maxSynthesisThreads [get_param general.maxThreads]
 puts "Using $maxSynthesisThreads CPU thread(s) for Vivado synthesis"
@@ -77,6 +77,7 @@ set_msg_config -id "Synth 8-3352" -new_severity error
 
 # Include synthesis and packaging functions.
 source [file join [file dirname [info script]] sda_kernel_synthesis.tcl]
+source [file join [file dirname [info script]] sda_kernel_constrain.tcl]
 source [file join [file dirname [info script]] sda_kernel_packaging.tcl]
 source [file join [file dirname [info script]] sda_kernel_xilinx_utils.tcl]
 
@@ -204,9 +205,11 @@ if {0 == [info exists moduleName]} {
 #
 file mkdir $synDirPath
 set synFileName [file join $synDirPath "${moduleName}.v"]
+set constraintFileName [file join $synDirPath "${moduleName}.xdc"]
 if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
   sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath $partName
+  sda_kernel_constrain $moduleName
   cd $buildDirPath
 }
 
@@ -215,9 +218,14 @@ if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
 # kernel code as a standard Vivado IP core.
 #
 file delete -force $ipDirPath
+
 set verilogDirName [file join $ipDirPath "hdl" "verilog"]
 file mkdir $verilogDirName
 file copy -force $synFileName $verilogDirName
+
+set constraintDirName [file join $ipDirPath "constraints"]
+file mkdir $constraintDirName
+file copy -force $constraintFileName $constraintDirName
 
 #
 # Run the standard Xilinx HLS IP packaging flow.
