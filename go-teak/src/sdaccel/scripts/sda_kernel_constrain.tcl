@@ -53,29 +53,6 @@ proc get_sorted_cells {cells pattern} {
 }
 
 #
-# Get list of driver LUTs for a set of register cells.
-#
-proc get_driver_luts {fdre_cells} {
-  set lut_cells {}
-  foreach fdre_cell $fdre_cells {
-    set driver_net [get_nets -segments -of_objects [get_pins $fdre_cell/D]]
-    set driver_pin [get_pins -quiet -of_objects $driver_net -filter "REF_NAME =~ LUT* && DIRECTION == OUT"]
-
-    # Net must be driven by a LUT with 1:1 routing to the FDRE.
-    if {$driver_pin == {}} {
-      set driver_cell {}
-    } elseif {[llength [get_pins -quiet -of_objects $driver_net]] != 2} {
-      set driver_cell {}
-    } else {
-      set driver_cell_name [get_property NAME [get_cells -of_object $driver_pin]]
-      set driver_cell [get_cells -quiet $driver_cell_name]
-    }
-    lappend lut_cells $driver_cell
-  }
-  return $lut_cells
-}
-
-#
 # Set the BEL property on a register cell.
 #
 proc set_fdre_bel {reg_cell offset} {
@@ -99,29 +76,6 @@ proc set_fdre_bel {reg_cell offset} {
 }
 
 #
-# Set the BEL property on a LUT cell.
-#
-proc set_lut_bel {lut_cell offset} {
-  if {$offset == 0} {
-    set_property BEL A6LUT $lut_cell
-  } elseif {$offset == 1} {
-    set_property BEL B6LUT $lut_cell
-  } elseif {$offset == 2} {
-    set_property BEL C6LUT $lut_cell
-  } elseif {$offset == 3} {
-    set_property BEL D6LUT $lut_cell
-  } elseif {$offset == 4} {
-    set_property BEL E6LUT $lut_cell
-  } elseif {$offset == 5} {
-    set_property BEL F6LUT $lut_cell
-  } elseif {$offset == 6} {
-    set_property BEL G6LUT $lut_cell
-  } elseif {$offset == 7} {
-    set_property BEL H6LUT $lut_cell
-  }
-}
-
-#
 # Apply SELF buffer constraints for W2R1 form.
 #
 proc apply_self_buffer_w2r1_constraints {instance} {
@@ -134,16 +88,12 @@ proc apply_self_buffer_w2r1_constraints {instance} {
   set reg_a_cells [get_sorted_cells $cells "*dataRegA_q_reg\\\[*"]
   set reg_b_cells [get_sorted_cells $cells "*dataRegB_q_reg\\\[*"]
 
-  # Get the LUT input instances for register lists.
-  set reg_a_luts [get_driver_luts $reg_a_cells]
-  set reg_b_luts [get_driver_luts $reg_b_cells]
-
   # Create the relative placement list for register A and register B.
   set rloc_list {}
   set bel_count 0
   set slice_count 0
 
-  foreach reg_a_cell $reg_a_cells reg_b_cell $reg_b_cells reg_a_lut $reg_a_luts reg_b_lut $reg_b_luts {
+  foreach reg_a_cell $reg_a_cells reg_b_cell $reg_b_cells {
 
     # Fix register A positions if possible.
     if {$reg_a_cell != {}} {
@@ -157,20 +107,6 @@ proc apply_self_buffer_w2r1_constraints {instance} {
       lappend rloc_list [get_property NAME $reg_b_cell]
       lappend rloc_list "X1Y$slice_count"
       set_fdre_bel $reg_b_cell $bel_count
-    }
-
-    # Fix the register A input LUT positions if possible.
-    if {$reg_a_lut != {}} {
-      lappend rloc_list [get_property NAME $reg_a_lut]
-      lappend rloc_list "X0Y$slice_count"
-      set_lut_bel $reg_a_lut $bel_count
-    }
-
-    # Fix the register B input LUT positions if possible.
-    if {$reg_b_lut != {}} {
-      lappend rloc_list [get_property NAME $reg_b_lut]
-      lappend rloc_list "X1Y$slice_count"
-      set_lut_bel $reg_b_lut $bel_count
     }
 
     if {$bel_count == 7} {
