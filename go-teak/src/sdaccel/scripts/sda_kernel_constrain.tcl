@@ -27,7 +27,7 @@ proc apply_constraints {instance} {
   # Determine if the current instance is a SELF buffer that can have constraints
   # applied.
   if [string match "*selfW2R1Buffer*" $module_name] {
-    apply_self_buffer_constraints $instance
+    apply_self_buffer_w2r1_constraints $instance
 
   # Attempt to apply constraints to child instances.
   } else {
@@ -53,103 +53,122 @@ proc get_sorted_cells {cells pattern} {
 }
 
 #
-# Apply SELF buffer constraints.
+# Get list of driver LUTs for a set of register cells.
 #
-proc apply_self_buffer_constraints {instance} {
+proc get_driver_luts {fdre_cells} {
+  set lut_cells {}
+  foreach fdre_cell $fdre_cells {
+    set driver_net [get_nets -segments -of_objects [get_pins $fdre_cell/D]]
+    set driver_pin [get_pins -quiet -of_objects $driver_net -filter "REF_NAME =~ LUT* && DIRECTION == OUT"]
+    if {$driver_pin == {}} {
+      set driver_cell {}
+    } else {
+      set driver_cell_name [get_property NAME [get_cells -of_object $driver_pin]]
+      set driver_cell [get_cells -quiet $driver_cell_name]
+    }
+    lappend lut_cells $driver_cell
+  }
+  return $lut_cells
+}
+
+#
+# Set the BEL property on a register cell.
+#
+proc set_fdre_bel {reg_cell offset} {
+  if {$offset == 0} {
+    set_property BEL AFF $reg_cell
+  } elseif {$offset == 1} {
+    set_property BEL BFF $reg_cell
+  } elseif {$offset == 2} {
+    set_property BEL CFF $reg_cell
+  } elseif {$offset == 3} {
+    set_property BEL DFF $reg_cell
+  } elseif {$offset == 4} {
+    set_property BEL EFF $reg_cell
+  } elseif {$offset == 5} {
+    set_property BEL FFF $reg_cell
+  } elseif {$offset == 6} {
+    set_property BEL GFF $reg_cell
+  } elseif {$offset == 7} {
+    set_property BEL HFF $reg_cell
+  }
+}
+
+#
+# Set the BEL property on a LUT cell.
+#
+proc set_lut_bel {lut_cell offset} {
+  if {$offset == 0} {
+    set_property BEL A6LUT $lut_cell
+  } elseif {$offset == 1} {
+    set_property BEL B6LUT $lut_cell
+  } elseif {$offset == 2} {
+    set_property BEL C6LUT $lut_cell
+  } elseif {$offset == 3} {
+    set_property BEL D6LUT $lut_cell
+  } elseif {$offset == 4} {
+    set_property BEL E6LUT $lut_cell
+  } elseif {$offset == 5} {
+    set_property BEL F6LUT $lut_cell
+  } elseif {$offset == 6} {
+    set_property BEL G6LUT $lut_cell
+  } elseif {$offset == 7} {
+    set_property BEL H6LUT $lut_cell
+  }
+}
+
+#
+# Apply SELF buffer constraints for W2R1 form.
+#
+proc apply_self_buffer_w2r1_constraints {instance} {
   set instance_name [get_property NAME $instance]
   set module_name [get_property REF_NAME $instance]
   puts "Constraining $instance_name : $module_name"
 
   # Get the register A and register B instance lists.
-  set cells [get_cells -quiet -hierarchical -filter "REF_NAM == FDRE && PARENT == $instance"]
+  set cells [get_cells -quiet -hierarchical -filter "REF_NAME == FDRE && PARENT == $instance"]
   set reg_a_cells [get_sorted_cells $cells "*dataRegA_q_reg\\\[*"]
   set reg_b_cells [get_sorted_cells $cells "*dataRegB_q_reg\\\[*"]
 
-  # Get the LUT input instances for register B list.
-  set reg_b_luts {}
-  foreach reg_b_cell $reg_b_cells {
-    set driver_net [get_nets -segments -of_objects [get_pins $reg_b_cell/D]]
-    set driver_pin [get_pins -of_objects $driver_net -filter "IS_LEAF && DIRECTION == OUT"]
-    set driver_cell_name [get_property NAME [get_cells -of_object $driver_pin]]
-    set driver_cell [get_cells -quiet $driver_cell_name]
-    lappend reg_b_luts $driver_cell
-  }
+  # Get the LUT input instances for register lists.
+  set reg_a_luts [get_driver_luts $reg_a_cells]
+  set reg_b_luts [get_driver_luts $reg_b_cells]
 
   # Create the relative placement list for register A and register B.
   set rloc_list {}
   set bel_count 0
   set slice_count 0
 
-  foreach reg_a_cell $reg_a_cells reg_b_cell $reg_b_cells reg_b_lut $reg_b_luts {
+  foreach reg_a_cell $reg_a_cells reg_b_cell $reg_b_cells reg_a_lut $reg_a_luts reg_b_lut $reg_b_luts {
 
     # Fix register A positions if possible.
     if {$reg_a_cell != {}} {
       lappend rloc_list [get_property NAME $reg_a_cell]
       lappend rloc_list "X0Y$slice_count"
-      if {$bel_count == 0} {
-        set_property BEL AFF $reg_a_cell
-      } elseif {$bel_count == 1} {
-        set_property BEL BFF $reg_a_cell
-      } elseif {$bel_count == 2} {
-        set_property BEL CFF $reg_a_cell
-      } elseif {$bel_count == 3} {
-        set_property BEL DFF $reg_a_cell
-      } elseif {$bel_count == 4} {
-        set_property BEL EFF $reg_a_cell
-      } elseif {$bel_count == 5} {
-        set_property BEL FFF $reg_a_cell
-      } elseif {$bel_count == 6} {
-        set_property BEL GFF $reg_a_cell
-      } elseif {$bel_count == 7} {
-        set_property BEL HFF $reg_a_cell
-      }
+      set_fdre_bel $reg_a_cell $bel_count
     }
 
     # Fix register B positions if possible.
     if {$reg_b_cell != {}} {
       lappend rloc_list [get_property NAME $reg_b_cell]
+      lappend rloc_list "X1Y$slice_count"
+      set_fdre_bel $reg_b_cell $bel_count
+    }
+
+    # Fix the register A input LUT positions if possible.
+    if {$reg_a_lut != {}} {
+      lappend rloc_list [get_property NAME $reg_a_lut]
       lappend rloc_list "X0Y$slice_count"
-      if {$bel_count == 0} {
-        set_property BEL AFF2 $reg_b_cell
-      } elseif {$bel_count == 1} {
-        set_property BEL BFF2 $reg_b_cell
-      } elseif {$bel_count == 2} {
-        set_property BEL CFF2 $reg_b_cell
-      } elseif {$bel_count == 3} {
-        set_property BEL DFF2 $reg_b_cell
-      } elseif {$bel_count == 4} {
-        set_property BEL EFF2 $reg_b_cell
-      } elseif {$bel_count == 5} {
-        set_property BEL FFF2 $reg_b_cell
-      } elseif {$bel_count == 6} {
-        set_property BEL GFF2 $reg_b_cell
-      } elseif {$bel_count == 7} {
-        set_property BEL HFF2 $reg_b_cell
-      }
+      set_lut_bel $reg_a_lut $bel_count
     }
 
     # Fix the register B input LUT positions if possible.
     if {$reg_b_lut != {}} {
       lappend rloc_list [get_property NAME $reg_b_lut]
-      lappend rloc_list "X0Y$slice_count"
-      if {$bel_count == 0} {
-        set_property BEL A6LUT $reg_b_lut
-      } elseif {$bel_count == 1} {
-        set_property BEL B6LUT $reg_b_lut
-      } elseif {$bel_count == 2} {
-        set_property BEL C6LUT $reg_b_lut
-      } elseif {$bel_count == 3} {
-        set_property BEL D6LUT $reg_b_lut
-      } elseif {$bel_count == 4} {
-        set_property BEL E6LUT $reg_b_lut
-      } elseif {$bel_count == 5} {
-        set_property BEL F6LUT $reg_b_lut
-      } elseif {$bel_count == 6} {
-        set_property BEL G6LUT $reg_b_lut
-      } elseif {$bel_count == 7} {
-        set_property BEL H6LUT $reg_b_lut
-      }
+      lappend rloc_list "X1Y$slice_count"
+      set_lut_bel $reg_b_lut $bel_count
     }
+
     if {$bel_count == 7} {
       set bel_count 0
       incr slice_count
