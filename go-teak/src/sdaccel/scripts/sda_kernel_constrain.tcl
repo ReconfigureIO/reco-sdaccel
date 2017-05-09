@@ -60,7 +60,11 @@ proc get_driver_luts {fdre_cells} {
   foreach fdre_cell $fdre_cells {
     set driver_net [get_nets -segments -of_objects [get_pins $fdre_cell/D]]
     set driver_pin [get_pins -quiet -of_objects $driver_net -filter "REF_NAME =~ LUT* && DIRECTION == OUT"]
+
+    # Net must be driven by a LUT with 1:1 routing to the FDRE.
     if {$driver_pin == {}} {
+      set driver_cell {}
+    } elseif {[llength [get_pins -quiet -of_objects $driver_net]] != 2} {
       set driver_cell {}
     } else {
       set driver_cell_name [get_property NAME [get_cells -of_object $driver_pin]]
