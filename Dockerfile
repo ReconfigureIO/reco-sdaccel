@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         groff \
         gcc \
         curl \
+        zip \
         unzip \
 	&& rm -rf /var/lib/apt/lists/* \
     && pip install awscli
