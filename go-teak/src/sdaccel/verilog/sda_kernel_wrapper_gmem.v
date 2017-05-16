@@ -34,9 +34,6 @@
 // Can be redefined on the synthesis command line.
 `define AXI_PARAM_MEM_ADDR_WIDTH 12
 
-// Turn off UNDRIVEN warnings for compatibility right now
-/* verilator lint_off UNDRIVEN */
-
 // Module name to be substituted in post-synthesis netlist.
 module sda_kernel_wrapper_gmem
   (s_axi_control_AWADDR, s_axi_control_AWVALID, s_axi_control_AWREADY,
