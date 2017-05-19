@@ -25,7 +25,7 @@
 
 // The module name is common for different kernel action toplevel entities.
 // verilator lint_off DECLFILENAME
-module teak_action_top_gmem
+module teak__action__top__gmem
   (go_0Ready, go_0Stop, done_0Ready, done_0Stop, s_axi_araddr, s_axi_arcache, s_axi_arprot,
   s_axi_arvalid, s_axi_arready, s_axi_rdata, s_axi_rresp, s_axi_rvalid,
   s_axi_rready, s_axi_awaddr, s_axi_awcache, s_axi_awprot, s_axi_awvalid,
