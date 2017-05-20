@@ -71,8 +71,8 @@ pipeline {
                 expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
             }
             steps {
-                parallel histogram: {
-                    dir('examples/histogram'){
+                parallel "histogram array": {
+                    dir('examples/histogram-array'){
                         sh '../../reco-jarvice/reco-jarvice test test-histogram'
                     }
                 },
@@ -100,8 +100,8 @@ pipeline {
                 expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
             }
             steps {
-                parallel histogram: {
-                    dir('examples/histogram') {
+                parallel "histogram array": {
+                    dir('examples/histogram-array') {
                         sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
                     }
                 },
