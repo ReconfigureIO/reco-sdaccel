@@ -67,7 +67,12 @@
 #
 
 # Specify degree of multithreading.
-set_param general.maxThreads 4
+set numProcessors [exec nproc]
+if {0 == [info exists numProcessors]} {
+  set_param general.maxThreads 4
+} else {
+  set_param general.maxThreads numProcessors
+}
 set maxSynthesisThreads [get_param general.maxThreads]
 puts "Using $maxSynthesisThreads CPU thread(s) for Vivado synthesis"
 
