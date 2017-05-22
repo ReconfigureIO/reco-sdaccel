@@ -102,8 +102,8 @@ proc get_driver_luts {fdreCells} {
     set driverNet [get_nets -segments -of_objects [get_pins $fdreCell/D]]
     set driverPin [get_pins -quiet -of_objects $driverNet -filter "REF_NAME =~ LUT* && DIRECTION == OUT"]
 
-    # Net must be driven by a LUT which isn't already constrained or part of
-    # a combined LUT or which drives special slice logic.
+    # Net must be driven 1:1 by a LUT which isn't already constrained or part
+    # of a combined LUT.
     if {$driverPin == {}} {
       set driverCell {}
     } else {
@@ -115,12 +115,8 @@ proc get_driver_luts {fdreCells} {
         set driverCell {}
       }
       set loadPins [get_pins -quiet -of_objects $driverNet -filter "IS_PRIMITIVE && DIRECTION == IN"]
-      foreach loadPin $loadPins {
-        set loadCell [get_cells -of_object $loadPin]
-        set loadCellType [get_property REF_NAME $loadCell]
-        if {![string match "LUT*" $loadCellType] && ![string match "FD?E" $loadCellType]} {
-          set driverCell {}
-        }
+      if {[llength $loadPins] != 1} {
+        set driverCell {}
       }
     }
     lappend lutCells $driverCell
