@@ -118,7 +118,7 @@ proc get_driver_luts {fdreCells} {
       foreach loadPin $loadPins {
         set loadCell [get_cells -of_object $loadPin]
         set loadCellType [get_property REF_NAME $loadCell]
-        if {[string match "F?MUX" $loadCellType] || [string match "CARRY8" $loadCellType]} {
+        if {![string match "LUT*" $loadCellType] && ![string match "FD?E" $loadCellType]} {
           set driverCell {}
         }
       }
