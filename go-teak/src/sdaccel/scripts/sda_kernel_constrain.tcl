@@ -94,40 +94,52 @@ proc get_sorted_cells {cells pattern} {
 }
 
 #
-# Get list of driver LUTs for a set of register cells.
+# Gets a list of fan-in cells which can be constrained for the same slice as
+# the corresponding output register.
 #
-proc get_driver_luts {fdreCells} {
-  set lutCells {}
-  foreach fdreCell $fdreCells {
-    set driverNet [get_nets -segments -of_objects [get_pins $fdreCell/D]]
-    set driverPin [get_pins -quiet -of_objects $driverNet -filter "REF_NAME =~ LUT* && DIRECTION == OUT"]
+proc get_fan_in_cells {driverCell} {
+  set driverCellType [get_property REF_NAME $driverCell]
 
-    # Net must be driven 1:1 by a LUT which isn't already constrained or part
-    # of a combined LUT.
-    if {$driverPin == {}} {
-      set driverCell {}
+  # Add fan-in LUTs which are not already constrained or part of a combined LUT.
+  if [string match "LUT?" $driverCellType] {
+    set isConstrained [get_property RLOC $driverCell]
+    set conflict1 [get_property HLUTNM $driverCell]
+    set conflict2 [get_property SOFT_HLUTNM $driverCell]
+    if {$isConstrained != {} || $conflict1 != {} || $conflict2 != {}} {
+      return {}
     } else {
-      set driverCellName [get_property NAME [get_cells -of_object $driverPin]]
-      set driverCell [get_cells -quiet $driverCellName]
-      set currentLnm [get_property HLUTNM $driverCell]
-      set currentBel [get_property BEL $driverCell]
-      if {$currentLnm != {} || $currentBel != {}} {
-        set driverCell {}
-      }
-      set loadPins [get_pins -quiet -of_objects $driverNet -filter "IS_PRIMITIVE && DIRECTION == IN"]
-      if {[llength $loadPins] != 1} {
-        set driverCell {}
-      }
+      set driverCellName [get_property NAME $driverCell]
+      return [get_cell $driverCellName]
     }
-    lappend lutCells $driverCell
+
+  # Add function mux cells and their fan-in cells.
+  } elseif [string match "MUXF?" $driverCellType] {
+    set isConstrained [get_property RLOC $driverCell]
+    if {$isConstrained != {}} {
+      return {}
+    } else {
+      set fanInCells $driverCell
+      set driverNetI0 [get_nets -segments -of_objects [get_pins $driverCell/I0]]
+      set driverPinI0 [get_pins -quiet -of_objects $driverNetI0 -filter "DIRECTION == OUT"]
+      set driverCellI0 [get_cells -quiet -of_objects $driverPinI0 -filter "IS_PRIMITIVE"]
+      set fanInCells [concat $fanInCells [get_fan_in_cells $driverCellI0]]
+      set driverNetI1 [get_nets -segments -of_objects [get_pins $driverCell/I1]]
+      set driverPinI1 [get_pins -quiet -of_objects $driverNetI1 -filter "DIRECTION == OUT"]
+      set driverCellI1 [get_cells -quiet -of_objects $driverPinI1 -filter "IS_PRIMITIVE"]
+      set fanInCells [concat $fanInCells [get_fan_in_cells $driverCellI1]]
+      return $fanInCells
+    }
+
+  # Other driver cell types cannot be constrained.
+  } else {
+    return {}
   }
-  return $lutCells
 }
 
 #
-# Set the BEL property on a register cell (register set 1).
+# Set the BEL property on a register cell.
 #
-proc set_fdre_bel1 {regCell offset} {
+proc set_fdre_bel {regCell offset} {
   if {$offset == 0} {
     set_property BEL AFF $regCell
   } elseif {$offset == 1} {
@@ -144,29 +156,6 @@ proc set_fdre_bel1 {regCell offset} {
     set_property BEL GFF $regCell
   } elseif {$offset == 7} {
     set_property BEL HFF $regCell
-  }
-}
-
-#
-# Set the BEL property on a register cell (register set 2).
-#
-proc set_fdre_bel2 {regCell offset} {
-  if {$offset == 0} {
-    set_property BEL AFF2 $regCell
-  } elseif {$offset == 1} {
-    set_property BEL BFF2 $regCell
-  } elseif {$offset == 2} {
-    set_property BEL CFF2 $regCell
-  } elseif {$offset == 3} {
-    set_property BEL DFF2 $regCell
-  } elseif {$offset == 4} {
-    set_property BEL EFF2 $regCell
-  } elseif {$offset == 5} {
-    set_property BEL FFF2 $regCell
-  } elseif {$offset == 6} {
-    set_property BEL GFF2 $regCell
-  } elseif {$offset == 7} {
-    set_property BEL HFF2 $regCell
   }
 }
 
@@ -194,6 +183,99 @@ proc set_lut_bel {lutCell offset} {
 }
 
 #
+# Implements BEL locking for register cells and their immediate drivers when
+# there are 8 registers per cell allocated.
+#
+proc set_driver_bels_x8 {regCells fanInCellList} {
+  set regCellCount 0
+  set sliceCount 0
+  foreach regCell $regCells fanInCell $fanInCellList {
+    set_fdre_bel $regCell $regCellCount
+    if {$fanInCell != {}} {
+      set_lut_bel $fanInCell $regCellCount
+    }
+    if {$regCellCount == 7} {
+      set regCellCount 0
+    } else {
+      incr regCellCount
+    }
+  }
+}
+
+#
+# Generates a list of relative placement constraints for a vector of register
+# cells. This also includes constraints on the register input LUTs if possible.
+# The number of registers packed into each slice is as follows:
+#   16 - If no register inputs are sourced from LUTs.
+#    8 - If at least one register input is sourced from a standard LUT.
+#    4 - If at least one register input is sourced from an F7 LUT MUX.
+#    2 - If at least one register input is sourced from an F8 LUT MUX.
+#    1 - If at least one register input is sourced from an F9 LUT MUX.
+#
+proc get_vector_placement {regCells rlocIndex} {
+  set fanInCellList {}
+  set regCellsPerSlice 16
+
+  # Create a list of driver cells for each register cell.
+  foreach regCell $regCells {
+    set driverNet [get_nets -segments -of_objects [get_pins $regCell/D]]
+    set driverPin [get_pins -quiet -of_objects $driverNet -filter "DIRECTION == OUT"]
+    set driverCell [get_cells -quiet -of_objects $driverPin -filter "IS_PRIMITIVE"]
+    set fanInCells [get_fan_in_cells $driverCell]
+    lappend fanInCellList $fanInCells
+
+    # Get number of register cells per slice, based on the driver cell type.
+    if {$fanInCells != {}} {
+      set driverCellType [get_property REF_NAME $driverCell]
+      if [string match "LUT?" $driverCellType] {
+        if {$regCellsPerSlice > 8} {
+          set regCellsPerSlice 8
+        }
+      } elseif [string match "MUXF7" $driverCellType] {
+        if {$regCellsPerSlice > 4} {
+          set regCellsPerSlice 4
+        }
+      } elseif [string match "MUXF8" $driverCellType] {
+        if {$regCellsPerSlice > 2} {
+          set regCellsPerSlice 2
+        }
+      } elseif [string match "MUXF9" $driverCellType] {
+        if {$regCellsPerSlice > 1} {
+          set regCellsPerSlice 1
+        }
+      }
+    }
+  }
+
+  # Apply BEL constraints to register cells and their immediate LUT drivers.
+  # We currently rely on the Xilinx placement algorithm for MUX drivers.
+  if {$regCellsPerSlice == 8} {
+    set_driver_bels_x8 $regCells $fanInCellList
+  }
+
+  # Assign the appropriate number of register cells and their associated fan-in
+  # logic to each slice.
+  set regCellCount 0
+  set sliceCount 0
+  set rlocList {}
+  puts $fanInCellList
+  foreach regCell $regCells fanInCells $fanInCellList {
+    lappend rlocList [get_property NAME $regCell]
+    lappend rlocList "X${rlocIndex}Y${sliceCount}"
+    foreach fanInCell $fanInCells {
+      lappend rlocList [get_property NAME $fanInCell]
+      lappend rlocList "X${rlocIndex}Y${sliceCount}"
+    }
+    incr regCellCount
+    if {$regCellCount >= $regCellsPerSlice} {
+      set regCellCount 0
+      incr sliceCount
+    }
+  }
+  return $rlocList
+}
+
+#
 # Apply SELF fork control constraints.
 #
 proc apply_self_fork_control_constraints {instance rlocIndex} {
@@ -204,32 +286,9 @@ proc apply_self_fork_control_constraints {instance rlocIndex} {
   # Get the register instance list.
   set cells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && IS_SEQUENTIAL && PARENT == $instance"]
   set ctrlRegCells [get_sorted_cells $cells "*_q_reg\\\[*"]
-  set ctrlLutCells [get_driver_luts $ctrlRegCells]
 
   # Create the relative placement list for the control registers.
-  set rlocList {}
-  set belCount 0
-  set sliceCount 0
-
-  foreach regCell $ctrlRegCells lutCell $ctrlLutCells {
-    if {$regCell != {}} {
-      lappend rlocList [get_property NAME $regCell]
-      lappend rlocList "X${rlocIndex}Y${sliceCount}"
-      set_fdre_bel1 $regCell $belCount
-    }
-    if {$lutCell != {}} {
-      lappend rlocList [get_property NAME $lutCell]
-      lappend rlocList "X${rlocIndex}Y${sliceCount}"
-      set_lut_bel $lutCell $belCount
-    }
-
-    if {$belCount == 7} {
-      set belCount 0
-      incr sliceCount
-    } else {
-      incr belCount
-    }
-  }
+  set rlocList [get_vector_placement $ctrlRegCells $rlocIndex]
 
   # Create the relative placement macro.
   if {[llength $rlocList] != 0} {
@@ -253,36 +312,9 @@ proc apply_self_buffer_w1r1t_constraints {instance rlocIndex} {
   # Get the register instance list.
   set cells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && IS_SEQUENTIAL && PARENT == $instance"]
   set dataRegCells [get_sorted_cells $cells "*dataReg_q_reg\\\[*"]
-  set dataLutCells [get_driver_luts $dataRegCells]
 
-  # Create the relative placement list for the data register.
-  set rlocList {}
-  set belCount 0
-  set sliceCount 0
-
-  foreach regCell $dataRegCells lutCell $dataLutCells {
-
-    # Fix data register positions if possible.
-    if {$regCell != {}} {
-      lappend rlocList [get_property NAME $regCell]
-      lappend rlocList "X${rlocIndex}Y${sliceCount}"
-      set_fdre_bel1 $regCell $belCount
-    }
-
-    # Fix the input LUT positions if possible.
-    if {$lutCell != {}} {
-      lappend rlocList [get_property NAME $lutCell]
-      lappend rlocList "X${rlocIndex}Y${sliceCount}"
-      set_lut_bel $lutCell $belCount
-    }
-
-    if {$belCount == 7} {
-      set belCount 0
-      incr sliceCount
-    } else {
-      incr belCount
-    }
-  }
+  # Create the relative placement list for the data registers.
+  set rlocList [get_vector_placement $dataRegCells $rlocIndex]
 
   # Create the relative placement macro.
   if {[llength $rlocList] != 0} {
@@ -307,43 +339,11 @@ proc apply_self_buffer_w2r1_constraints {instance rlocIndex} {
   set cells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && IS_SEQUENTIAL && PARENT == $instance"]
   set regACells [get_sorted_cells $cells "*dataRegA_q_reg\\\[*"]
   set regBCells [get_sorted_cells $cells "*dataRegB_q_reg\\\[*"]
-  set regBLuts [get_driver_luts $regBCells]
 
-  # Create the relative placement list for register A and register B.
-  set rlocList {}
-  set belCount 0
-  set sliceCount 0
-
-  foreach regACell $regACells regBCell $regBCells regBLut $regBLuts {
-
-    # Fix register A positions if possible.
-    if {$regACell != {}} {
-      lappend rlocList [get_property NAME $regACell]
-      lappend rlocList "X${rlocIndex}Y${sliceCount}"
-      set_fdre_bel1 $regACell $belCount
-    }
-
-    # Fix register B positions if possible.
-    if {$regBCell != {}} {
-      lappend rlocList [get_property NAME $regBCell]
-      lappend rlocList "X${rlocIndex}Y${sliceCount}"
-      set_fdre_bel2 $regBCell $belCount
-    }
-
-    # Fix the register B input LUT positions if possible.
-    if {$regBLut != {}} {
-      lappend rlocList [get_property NAME $regBLut]
-      lappend rlocList "X${rlocIndex}Y${sliceCount}"
-      set_lut_bel $regBLut $belCount
-    }
-
-    if {$belCount == 7} {
-      set belCount 0
-      incr sliceCount
-    } else {
-      incr belCount
-    }
-  }
+  # Create the relative placement list for the data registers.
+  set rlocList [get_vector_placement $regACells $rlocIndex]
+  incr rlocIndex
+  set rlocList [concat $rlocList [get_vector_placement $regBCells $rlocIndex]]
 
   # Create the relative placement macro.
   if {[llength $rlocList] != 0} {
@@ -367,36 +367,9 @@ proc apply_self_var_scalar_constraints {instance rlocIndex} {
   # Get the data and optional enable registers as a single list.
   set cells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && IS_SEQUENTIAL && PARENT == $instance"]
   set regCells [get_sorted_cells $cells "*_q_reg\\\[*"]
-  set lutCells [get_driver_luts $regCells]
 
-  # Create the relative placement list for the write and enable registers.
-  set rlocList {}
-  set belCount 0
-  set sliceCount 0
-
-  foreach regCell $regCells lutCell $lutCells {
-
-    # Fix register positions if possible.
-    if {$regCell != {}} {
-      lappend rlocList [get_property NAME $regCell]
-      lappend rlocList "X${rlocIndex}Y${sliceCount}"
-      set_fdre_bel1 $regCell $belCount
-    }
-
-    # Fix the input LUT positions if possible.
-    if {$lutCell != {}} {
-      lappend rlocList [get_property NAME $lutCell]
-      lappend rlocList "X${rlocIndex}Y${sliceCount}"
-      set_lut_bel $lutCell $belCount
-    }
-
-    if {$belCount == 7} {
-      set belCount 0
-      incr sliceCount
-    } else {
-      incr belCount
-    }
-  }
+  # Create the relative placement list for the data registers.
+  set rlocList [get_vector_placement $regCells $rlocIndex]
 
   # Return relative placement list to be included in SELF variable macro.
   return $rlocList
