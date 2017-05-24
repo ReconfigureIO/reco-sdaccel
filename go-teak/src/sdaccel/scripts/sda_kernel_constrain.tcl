@@ -94,6 +94,17 @@ proc get_sorted_cells {cells pattern} {
 }
 
 #
+# Gets the driver cell for a specified register.
+#
+proc get_driver_cell {regCell} {
+  set driverNet [get_nets -segments -of_objects [get_pins $regCell/D]]
+  set driverPin [get_pins -quiet -of_objects $driverNet -filter "DIRECTION == OUT"]
+  set driverCell [get_cells -quiet -of_objects $driverPin -filter "IS_PRIMITIVE"]
+  set driverCellName [get_property NAME $driverCell]
+  return [get_cell $driverCellName]
+}
+
+#
 # Gets a list of fan-in cells which can be constrained for the same slice as
 # the corresponding output register.
 #
@@ -183,12 +194,37 @@ proc set_lut_bel {lutCell offset} {
 }
 
 #
+# Set the BEL property on a MUXF7 cell.
+#
+proc set_muxf7_bel {muxCell offset} {
+  if {$offset == 0} {
+    set_property BEL F7MUX_AB $muxCell
+  } elseif {$offset == 1} {
+    set_property BEL F7MUX_CD $muxCell
+  } elseif {$offset == 2} {
+    set_property BEL F7MUX_EF $muxCell
+  } elseif {$offset == 3} {
+    set_property BEL F7MUX_GH $muxCell
+  }
+}
+
+#
+# Set the BEL property on a MUXF8 cell.
+#
+proc set_muxf8_bel {muxCell offset} {
+  if {$offset == 0} {
+    set_property BEL F8MUX_BOT $muxCell
+  } elseif {$offset == 1} {
+    set_property BEL F8MUX_TOP $muxCell
+  }
+}
+
+#
 # Implements BEL locking for register cells and their immediate drivers when
 # there are 8 registers per cell allocated.
 #
 proc set_driver_bels_x8 {regCells fanInCellList} {
   set regCellCount 0
-  set sliceCount 0
   foreach regCell $regCells fanInCell $fanInCellList {
     set_fdre_bel $regCell $regCellCount
     if {$fanInCell != {}} {
@@ -199,6 +235,88 @@ proc set_driver_bels_x8 {regCells fanInCellList} {
     } else {
       incr regCellCount
     }
+  }
+}
+
+#
+# Implements BEL locking for register cells and their immediate drivers when
+# there are 4 registers per cell allocated.
+#
+proc set_driver_bels_x4 {regCells fanInCellList} {
+  set regCellCount 0
+  foreach regCell $regCells fanInCell $fanInCellList {
+    set regCellOffset [expr {2 * $regCellCount + 1}]
+    if {$fanInCell != {}} {
+      set driverCell [get_driver_cell $regCell]
+      set driverCellType [get_property REF_NAME $driverCell]
+      if [string match "LUT?" $driverCellType] {
+        set_lut_bel $driverCell $regCellOffset
+      } else {
+        set_muxf7_bel $driverCell $regCellCount
+      }
+    }
+    set_fdre_bel $regCell $regCellOffset
+    if {$regCellCount == 3} {
+      set regCellCount 0
+    } else {
+      incr regCellCount
+    }
+  }
+}
+
+#
+# Implements BEL locking for register cells and their immediate drivers when
+# there are 2 registers per cell allocated.
+#
+proc set_driver_bels_x2 {regCells fanInCellList} {
+  set regCellCount 0
+  foreach regCell $regCells fanInCell $fanInCellList {
+    set regCellOffset [expr {4 * $regCellCount + 2}]
+    if {$fanInCell != {}} {
+      set driverCell [get_driver_cell $regCell]
+      set driverCellType [get_property REF_NAME $driverCell]
+      if [string match "LUT?" $driverCellType] {
+        set_lut_bel $driverCell $regCellOffset
+      } elseif [string match "MUXF7" $driverCellType] {
+        set regCellOffset [expr {4 * $regCellCount + 1}]
+        set muxCellOffset [expr {2 * $regCellCount}]
+        set_muxf7_bel $driverCell $muxCellOffset
+      } else {
+        set_muxf8_bel $driverCell $regCellCount
+      }
+    }
+    set_fdre_bel $regCell $regCellOffset
+    if {$regCellCount == 1} {
+      set regCellCount 0
+    } else {
+      incr regCellCount
+    }
+  }
+}
+
+#
+# Implements BEL locking for register cells and their immediate drivers when
+# there are 1 register per cell allocated.
+#
+proc set_driver_bels_x1 {regCells fanInCellList} {
+  foreach regCell $regCells fanInCell $fanInCellList {
+    set regCellOffset 4
+    if {$fanInCell != {}} {
+      set driverCell [get_driver_cell $regCell]
+      set driverCellType [get_property REF_NAME $driverCell]
+      if [string match "LUT?" $driverCellType] {
+        set_lut_bel $driverCell $regCellOffset
+      } elseif [string match "MUXF7" $driverCellType] {
+        set regCellOffset 1
+        set_muxf7_bel $driverCell 0
+      } elseif [string match "MUXF8" $driverCellType] {
+        set regCellOffset 2
+        set_muxf8_bel $driverCell 0
+      } else {
+        set_property BEL F9MUX $muxCell
+      }
+    }
+    set_fdre_bel $regCell $regCellOffset
   }
 }
 
@@ -218,9 +336,7 @@ proc get_vector_placement {regCells rlocIndex} {
 
   # Create a list of driver cells for each register cell.
   foreach regCell $regCells {
-    set driverNet [get_nets -segments -of_objects [get_pins $regCell/D]]
-    set driverPin [get_pins -quiet -of_objects $driverNet -filter "DIRECTION == OUT"]
-    set driverCell [get_cells -quiet -of_objects $driverPin -filter "IS_PRIMITIVE"]
+    set driverCell [get_driver_cell $regCell]
     set fanInCells [get_fan_in_cells $driverCell]
     lappend fanInCellList $fanInCells
 
@@ -248,9 +364,14 @@ proc get_vector_placement {regCells rlocIndex} {
   }
 
   # Apply BEL constraints to register cells and their immediate LUT drivers.
-  # We currently rely on the Xilinx placement algorithm for MUX drivers.
   if {$regCellsPerSlice == 8} {
     set_driver_bels_x8 $regCells $fanInCellList
+  } elseif {$regCellsPerSlice == 4} {
+    set_driver_bels_x4 $regCells $fanInCellList
+  } elseif {$regCellsPerSlice == 2} {
+    set_driver_bels_x2 $regCells $fanInCellList
+  } elseif {$regCellsPerSlice == 1} {
+    set_driver_bels_x1 $regCells $fanInCellList
   }
 
   # Assign the appropriate number of register cells and their associated fan-in
@@ -258,7 +379,6 @@ proc get_vector_placement {regCells rlocIndex} {
   set regCellCount 0
   set sliceCount 0
   set rlocList {}
-  puts $fanInCellList
   foreach regCell $regCells fanInCells $fanInCellList {
     lappend rlocList [get_property NAME $regCell]
     lappend rlocList "X${rlocIndex}Y${sliceCount}"
