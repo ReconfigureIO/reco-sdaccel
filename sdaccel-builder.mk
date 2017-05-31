@@ -11,7 +11,7 @@ DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_3"
 DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.3"
 TARGET := "hw_emu"
 OPTIMIZE := "no"
-CLFLAGS := ""
+CLFLAGS :=
 
 ifeq ($(OPTIMIZE), yes)
 	GO_TEAK_FLAGS := -O
