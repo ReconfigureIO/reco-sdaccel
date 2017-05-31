@@ -1,7 +1,7 @@
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.8.1')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.11.0')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
     }
     environment {
@@ -52,7 +52,7 @@ pipeline {
                 sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} eTeak/go-teak-sdaccel"
                 dir('examples/noop'){
                     sh './../../sdaccel-builder test-go'
-                    sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+                    sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNDRIVEN'
                 }
             }
         }
@@ -71,8 +71,8 @@ pipeline {
                 expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
             }
             steps {
-                parallel histogram: {
-                    dir('examples/histogram'){
+                parallel "histogram array": {
+                    dir('examples/histogram-array'){
                         sh '../../reco-jarvice/reco-jarvice test test-histogram'
                     }
                 },
@@ -100,8 +100,8 @@ pipeline {
                 expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
             }
             steps {
-                parallel histogram: {
-                    dir('examples/histogram') {
+                parallel "histogram array": {
+                    dir('examples/histogram-array') {
                         sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
                     }
                 },
@@ -120,6 +120,15 @@ pipeline {
                         sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
                     }
                 }
+            }
+        }
+
+        stage('show benchmarks'){
+            when {
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
+            }
+            steps {
+                sh 'cat bench_tmp/* | ./benchmarks/log2csv -'
             }
         }
 

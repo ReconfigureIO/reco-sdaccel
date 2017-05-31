@@ -15,7 +15,7 @@
 `define AXI_MASTER_ADDR_WIDTH 64
 
 // Can be redefined on the synthesis command line.
-`define AXI_MASTER_DATA_WIDTH 32
+`define AXI_MASTER_DATA_WIDTH 64
 
 // Can be redefined on the synthesis command line.
 `define AXI_MASTER_ID_WIDTH 1
@@ -25,7 +25,7 @@
 
 // The module name is common for different kernel action toplevel entities.
 // verilator lint_off DECLFILENAME
-module teak_action_top_gmem
+module teak__action__top__gmem
   (go_0Ready, go_0Stop, done_0Ready, done_0Stop, s_axi_araddr, s_axi_arcache, s_axi_arprot,
   s_axi_arvalid, s_axi_arready, s_axi_rdata, s_axi_rresp, s_axi_rvalid,
   s_axi_rready, s_axi_awaddr, s_axi_awcache, s_axi_awprot, s_axi_awvalid,
@@ -254,7 +254,7 @@ assign m_axi_gmem_awuser = `AXI_MASTER_USER_WIDTH'b0;
 assign m_axi_gmem_awid = `AXI_MASTER_ID_WIDTH'b0;
 assign m_axi_gmem_awvalid = 1'b0;
 assign m_axi_gmem_wdata = `AXI_MASTER_DATA_WIDTH'b0;
-assign m_axi_gmem_wstrb = 4'b0;
+assign m_axi_gmem_wstrb = `AXI_MASTER_DATA_WIDTH/8'b0;
 assign m_axi_gmem_wlast = 1'b0;
 assign m_axi_gmem_wuser = `AXI_MASTER_USER_WIDTH'b0;
 assign m_axi_gmem_wvalid = 1'b0;

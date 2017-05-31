@@ -23,7 +23,7 @@
 `define AXI_MASTER_ADDR_WIDTH 64
 
 // Can be redefined on the synthesis command line.
-`define AXI_MASTER_DATA_WIDTH 32
+`define AXI_MASTER_DATA_WIDTH 64
 
 // Can be redefined on the synthesis command line.
 `define AXI_MASTER_ID_WIDTH 1
@@ -284,7 +284,7 @@ assign m_axi_control_ext_ARADDR =
   {zeros [31:`AXI_SLAVE_ADDR_WIDTH], m_axi_control_ARADDR};
 
 // Instantiate the simple generated action logic core.
-teak_action_top_gmem kernelActionTop_u
+teak__action__top__gmem kernelActionTop_u
   (.go_0Ready(go_0Ready), .go_0Stop(go_0Stop), .done_0Ready(done_0Ready), .done_0Stop(done_0Stop),
   .s_axi_araddr(m_axi_control_ext_ARADDR), .s_axi_arcache(m_axi_control_ARCACHE),
   .s_axi_arprot(m_axi_control_ARPROT), .s_axi_arvalid(m_axi_control_ARVALID),
