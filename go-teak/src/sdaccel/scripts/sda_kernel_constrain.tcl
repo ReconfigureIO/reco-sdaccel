@@ -59,17 +59,17 @@ proc apply_constraints {instance rlocIndex} {
   } elseif [string match "*selfFlowForkControl*" $moduleName] {
     set rlocList [apply_self_fork_control_constraints $instance $rlocIndex]
 
-  # Determine if the current instance is a SELF variable write port component.
-  } elseif [string match "*selfVarScalarWPort*" $moduleName] {
-    set rlocList [apply_self_var_scalar_constraints $instance $rlocIndex]
+  # Determine if the current instance is a SELF arbiter slot component.
+  } elseif [string match "*selfFlowArbiterSlot*" $moduleName] {
+    set rlocList [apply_sub_component_constraints $instance $rlocIndex "*Data_q_reg\\\[*"]
 
-  # Determine if the current instance is a SELF variable read port component.
-  } elseif [string match "*selfVarScalarRPort*" $moduleName] {
-    set rlocList [apply_self_var_scalar_constraints $instance $rlocIndex]
+  # Determine if the current instance is a SELF variable sub-component.
+  } elseif [string match "*selfVarScalar*" $moduleName] {
+    set rlocList [apply_sub_component_constraints $instance $rlocIndex "*Data_q_reg\\\[*"]
 
-  # Determine if the current instance is a SELF variable register component.
-  } elseif [string match "*selfVarScalarReg*" $moduleName] {
-    set rlocList [apply_self_var_scalar_constraints $instance $rlocIndex]
+  # Determine if the current instance is multiplier component.
+  } elseif [string match "*selfMult*" $moduleName] {
+    set rlocList [apply_self_op_mult_constraints $instance $rlocIndex]
 
   # Attempt to apply constraints to child instances.
   } else {
@@ -105,26 +105,46 @@ proc get_driver_cell {regCell} {
 }
 
 #
-# Gets a list of fan-in cells which can be constrained for the same slice as
-# the corresponding output register.
+# Cleans up a driver LUT by removing incompatible constraints. Returns the
+# cleaned up LUT cell reference or an empty reference if the cell is not a
+# LUT or is already constrained.
 #
-proc get_fan_in_cells {driverCell} {
-  set driverCellType [get_property REF_NAME $driverCell]
-
-  # Add fan-in LUTs which are not already constrained or part of a combined LUT.
-  if [string match "LUT?" $driverCellType] {
-    set isConstrained [get_property RLOC $driverCell]
-    set conflict1 [get_property HLUTNM $driverCell]
-    set conflict2 [get_property SOFT_HLUTNM $driverCell]
-    if {$isConstrained != {} || $conflict1 != {} || $conflict2 != {}} {
+proc cleanup_lut_driver_cell {driverCell} {
+  if [string match "LUT?" [get_property REF_NAME $driverCell]] {
+    if {[get_property HLUTNM $driverCell] != {}} {
+      set_property HLUTNM {} $driverCell
+    }
+    if {[get_property SOFT_HLUTNM $driverCell] != {}} {
+      set_property SOFT_HLUTNM {} $driverCell
+    }
+    if {[get_property RLOC $driverCell] != {}} {
       return {}
     } else {
       set driverCellName [get_property NAME $driverCell]
       return [get_cell $driverCellName]
     }
+  } else {
+    return {}
+  }
+}
+
+#
+# Gets a list of fan-in cells which can be constrained for the same slice as
+# the corresponding output register.
+#
+proc get_fan_in_cells {driverCell} {
+
+  # Add fan-in LUTs which are not already constrained, splitting combined LUTs
+  # if required.
+  if {$driverCell == {}} {
+    return {}
+  }
+  set lutDriverCell [cleanup_lut_driver_cell $driverCell]
+  if {$lutDriverCell != {}} {
+    return $lutDriverCell
 
   # Add function mux cells and their fan-in cells.
-  } elseif [string match "MUXF?" $driverCellType] {
+  } elseif [string match "MUXF?" [get_property REF_NAME $driverCell]] {
     set isConstrained [get_property RLOC $driverCell]
     if {$isConstrained != {}} {
       return {}
@@ -148,9 +168,9 @@ proc get_fan_in_cells {driverCell} {
 }
 
 #
-# Set the BEL property on a register cell.
+# Set the BEL property on a register cell (register set 1).
 #
-proc set_fdre_bel {regCell offset} {
+proc set_fdre_bel1 {regCell offset} {
   if {$offset == 0} {
     set_property BEL AFF $regCell
   } elseif {$offset == 1} {
@@ -167,6 +187,29 @@ proc set_fdre_bel {regCell offset} {
     set_property BEL GFF $regCell
   } elseif {$offset == 7} {
     set_property BEL HFF $regCell
+  }
+}
+
+#
+# Set the BEL property on a register cell (register set 2).
+#
+proc set_fdre_bel2 {regCell offset} {
+  if {$offset == 0} {
+    set_property BEL AFF2 $regCell
+  } elseif {$offset == 1} {
+    set_property BEL BFF2 $regCell
+  } elseif {$offset == 2} {
+    set_property BEL CFF2 $regCell
+  } elseif {$offset == 3} {
+    set_property BEL DFF2 $regCell
+  } elseif {$offset == 4} {
+    set_property BEL EFF2 $regCell
+  } elseif {$offset == 5} {
+    set_property BEL FFF2 $regCell
+  } elseif {$offset == 6} {
+    set_property BEL GFF2 $regCell
+  } elseif {$offset == 7} {
+    set_property BEL HFF2 $regCell
   }
 }
 
@@ -226,7 +269,7 @@ proc set_muxf8_bel {muxCell offset} {
 proc set_driver_bels_x8 {regCells fanInCellList} {
   set regCellCount 0
   foreach regCell $regCells fanInCell $fanInCellList {
-    set_fdre_bel $regCell $regCellCount
+    set_fdre_bel1 $regCell $regCellCount
     if {$fanInCell != {}} {
       set_lut_bel $fanInCell $regCellCount
     }
@@ -248,14 +291,13 @@ proc set_driver_bels_x4 {regCells fanInCellList} {
     set regCellOffset [expr {2 * $regCellCount + 1}]
     if {$fanInCell != {}} {
       set driverCell [get_driver_cell $regCell]
-      set driverCellType [get_property REF_NAME $driverCell]
-      if [string match "LUT?" $driverCellType] {
+      if [string match "LUT?" [get_property REF_NAME $driverCell]] {
         set_lut_bel $driverCell $regCellOffset
       } else {
         set_muxf7_bel $driverCell $regCellCount
       }
     }
-    set_fdre_bel $regCell $regCellOffset
+    set_fdre_bel1 $regCell $regCellOffset
     if {$regCellCount == 3} {
       set regCellCount 0
     } else {
@@ -285,7 +327,7 @@ proc set_driver_bels_x2 {regCells fanInCellList} {
         set_muxf8_bel $driverCell $regCellCount
       }
     }
-    set_fdre_bel $regCell $regCellOffset
+    set_fdre_bel1 $regCell $regCellOffset
     if {$regCellCount == 1} {
       set regCellCount 0
     } else {
@@ -316,7 +358,7 @@ proc set_driver_bels_x1 {regCells fanInCellList} {
         set_property BEL F9MUX $muxCell
       }
     }
-    set_fdre_bel $regCell $regCellOffset
+    set_fdre_bel1 $regCell $regCellOffset
   }
 }
 
@@ -396,6 +438,109 @@ proc get_vector_placement {regCells rlocIndex} {
 }
 
 #
+# Generates a list of relative placement constraints for two interleaved
+# register vectors. This includes placement constraints on the driver LUTs
+# where possible. In the event that both registers at an interleaved position
+# have driver LUTs, the logic associated with the first vector is constrained.
+#
+proc get_interleaved_vector_placement {regCells1 regCells2 rlocIndex} {
+
+  # Always assigns interleaved vectors as 16 registers per slice.
+  set regCellCount 0
+  set sliceCount 0
+  set rlocList {}
+  foreach regCell1 $regCells1 regCell2 $regCells2 {
+    set driverCell {}
+
+    # Lock the register cells into interleaved BEL locations.
+    if {$regCell1 != {}} {
+      lappend rlocList [get_property NAME $regCell1]
+      lappend rlocList "X${rlocIndex}Y${sliceCount}"
+      set_fdre_bel1 $regCell1 $regCellCount
+      set driverCell [cleanup_lut_driver_cell [get_driver_cell $regCell1]]
+    }
+    if {$regCell2 != {}} {
+      lappend rlocList [get_property NAME $regCell2]
+      lappend rlocList "X${rlocIndex}Y${sliceCount}"
+      set_fdre_bel2 $regCell2 $regCellCount
+      if {$driverCell == {}} {
+        set driverCell [cleanup_lut_driver_cell [get_driver_cell $regCell2]]
+      }
+    }
+
+    # Lock driver LUT for register cell 1 or 2, if possible.
+    if {$driverCell != {}} {
+      lappend rlocList [get_property NAME $driverCell]
+      lappend rlocList "X${rlocIndex}Y${sliceCount}"
+      set_lut_bel $driverCell $regCellCount
+    }
+    incr regCellCount
+    if {$regCellCount >= 8} {
+      set regCellCount 0
+      incr sliceCount
+    }
+  }
+  return $rlocList
+}
+
+#
+# Generates a list of relative placement constraints for an array of LUT cells.
+# This also includes generating BEL locking constraints.
+#
+proc get_lut_array_placement {lutCells rlocIndex} {
+  set lutCellCount 0
+  set sliceCount 0
+  set rlocList {}
+  foreach lutCell $lutCells {
+    lappend rlocList [get_property NAME $lutCell]
+    lappend rlocList "X${rlocIndex}Y${sliceCount}"
+    set_lut_bel $lutCell $lutCellCount
+    incr lutCellCount
+    if {$lutCellCount >= 8} {
+      set lutCellCount 0
+      incr sliceCount
+    }
+  }
+  return $rlocList
+}
+
+#
+# Generates a list of relative placement constraints for a chain of carry cells.
+# This also effectively constrains the LUT components which feed into the carry
+# chain.
+#
+proc get_carry_chain_placement {carryCells rlocIndex} {
+  set sliceCount 0
+  set rlocList {}
+  foreach carryCell $carryCells {
+    lappend rlocList [get_property NAME $carryCell]
+    lappend rlocList "X${rlocIndex}Y${sliceCount}"
+    incr sliceCount
+  }
+  return $rlocList
+}
+
+#
+# Apply constraints for a generic sub-component where all registers which match
+# the specified pattern are to be included in the constraint set.
+#
+proc apply_sub_component_constraints {instance rlocIndex pattern} {
+  set instanceName [get_property NAME $instance]
+  set moduleName [get_property REF_NAME $instance]
+  puts "Constraining ${instanceName} : ${moduleName}"
+
+  # Get the data and optional enable registers as a single list.
+  set cells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && IS_SEQUENTIAL && PARENT == $instance"]
+  set regCells [get_sorted_cells $cells $pattern]
+
+  # Create the relative placement list for all the registers.
+  set rlocList [get_vector_placement $regCells $rlocIndex]
+
+  # Return relative placement list to be included in SELF variable macro.
+  return $rlocList
+}
+
+#
 # Apply SELF fork control constraints.
 #
 proc apply_self_fork_control_constraints {instance rlocIndex} {
@@ -461,9 +606,7 @@ proc apply_self_buffer_w2r1_constraints {instance rlocIndex} {
   set regBCells [get_sorted_cells $cells "*dataRegB_q_reg\\\[*"]
 
   # Create the relative placement list for the data registers.
-  set rlocList [get_vector_placement $regACells $rlocIndex]
-  incr rlocIndex
-  set rlocList [concat $rlocList [get_vector_placement $regBCells $rlocIndex]]
+  set rlocList [get_interleaved_vector_placement $regBCells $regACells $rlocIndex]
 
   # Create the relative placement macro.
   if {[llength $rlocList] != 0} {
@@ -477,21 +620,62 @@ proc apply_self_buffer_w2r1_constraints {instance rlocIndex} {
 }
 
 #
-# Apply SELF variable component constraints.
+# Apply SELF multiplier constraints.
 #
-proc apply_self_var_scalar_constraints {instance rlocIndex} {
+proc apply_self_op_mult_constraints {instance rlocIndex} {
   set instanceName [get_property NAME $instance]
   set moduleName [get_property REF_NAME $instance]
   puts "Constraining ${instanceName} : ${moduleName}"
 
-  # Get the data and optional enable registers as a single list.
-  set cells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && IS_SEQUENTIAL && PARENT == $instance"]
-  set regCells [get_sorted_cells $cells "*_q_reg\\\[*"]
+  # Get the operand A, operand B and output register cells.
+  set regCells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && IS_SEQUENTIAL && PARENT == $instance"]
+  set opARegCells [get_sorted_cells $regCells "*operandAData_q_reg\\\[*"]
+  set opBRegCells [get_sorted_cells $regCells "*operandBData_q_reg\\\[*"]
+  set outRegCells [get_sorted_cells $regCells "*resultData_q_reg\\\[*"]
 
-  # Create the relative placement list for the data registers.
-  set rlocList [get_vector_placement $regCells $rlocIndex]
+  # Get the partial product LUT cells. These may be pushed into another instance
+  # during synthesis, in which case we can't constrain them.
+  set lutCells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && REF_NAME =~ LUT* && PARENT == $instance"]
+  set ppLutCells [get_sorted_cells $lutCells "*partialMultP3_q*"]
 
-  # Return relative placement list to be included in SELF variable macro.
-  return $rlocList
+  # Get the result carry chain cells. These may be pushed into another instance
+  # during synthesis, in which case we can't constrain them.
+  set carryCells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && REF_NAME =~ CARRY* && PARENT == $instance"]
+  set outCarryCells [get_sorted_cells $carryCells "*"]
+
+  # Create the relative placement list for those components which are still
+  # part of the multiplier hierarchy.
+  if {$opARegCells == {} && $opBRegCells == {}} {
+    set rlocList {}
+  } elseif {$opBRegCells == {}} {
+    set rlocList [get_vector_placement $opARegCells $rlocIndex]
+    incr rlocIndex
+  } elseif {$opARegCells == {}} {
+    set rlocList [get_vector_placement $opBRegCells $rlocIndex]
+    incr rlocIndex
+  } else {
+    set rlocList [get_interleaved_vector_placement $opBRegCells $opARegCells $rlocIndex]
+    incr rlocIndex
+  }
+  if {$ppLutCells != {}} {
+    set rlocList [concat $rlocList [get_lut_array_placement $ppLutCells $rlocIndex]]
+    incr rlocIndex
+  }
+  if {$outCarryCells != {}} {
+    set rlocList [concat $rlocList [get_carry_chain_placement $outCarryCells $rlocIndex]]
+    incr rlocIndex
+  }
+  if {$outRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $outRegCells $rlocIndex]]
+  }
+
+  # Create the relative placement macro.
+  if {[llength $rlocList] != 0} {
+    set macroName "rpm_${instanceName}"
+    create_macro $macroName
+    update_macro $macroName $rlocList
+  }
+
+  # Return empty set of relative placements.
+  return {}
 }
-
