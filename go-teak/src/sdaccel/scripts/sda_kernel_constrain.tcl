@@ -71,6 +71,14 @@ proc apply_constraints {instance rlocIndex} {
   } elseif [string match "*selfMult*" $moduleName] {
     set rlocList [apply_self_op_mult_constraints $instance $rlocIndex]
 
+  # Determine if the current instance is an unsigned division component.
+  } elseif [string match "*selfDivUnsigned*" $moduleName] {
+    set rlocList [apply_unsigned_div_constraints $instance $rlocIndex]
+
+  # Determine if the current instance is a signed division component.
+  } elseif [string match "*selfDivSigned*" $moduleName] {
+    set rlocList [apply_signed_div_constraints $instance $rlocIndex]
+
   # Attempt to apply constraints to child instances.
   } else {
     set childCells [get_cells -quiet -hierarchical -filter "!IS_PRIMITIVE && PARENT == $instance"]
@@ -263,6 +271,22 @@ proc set_muxf8_bel {muxCell offset} {
 }
 
 #
+# Implements BEL locking for register cells when they are a direct pipeline
+# stage.
+#
+proc set_pipeline_bels_x8 {regCells} {
+  set regCellCount 0
+  foreach regCell $regCells {
+    set_fdre_bel2 $regCell $regCellCount
+    if {$regCellCount == 7} {
+      set regCellCount 0
+    } else {
+      incr regCellCount
+    }
+  }
+}
+
+#
 # Implements BEL locking for register cells and their immediate drivers when
 # there are 8 registers per cell allocated.
 #
@@ -363,18 +387,55 @@ proc set_driver_bels_x1 {regCells fanInCellList} {
 }
 
 #
+# Perform a check on all specified register cells to ensure that they have the
+# same SR and CE inputs, such that they can be placed in the same column of
+# slices.
+#
+proc check_vector_valid {regCells} {
+  set srDriverNet {}
+  set ceDriverNet {}
+
+  foreach regCell $regCells {
+    set srNet [get_nets -of_objects [get_pins $regCell/SR]]
+    if {$srDriverNet == {}} {
+      set srDriverNet $srNet
+    } elseif {$srDriverNet != $srNet} {
+      puts "Mismatched vector SR drivers for $regCell ($srNet $srDriverNet)"
+      return 0
+    }
+    set ceNet [get_nets -of_objects [get_pins $regCell/CE]]
+    if {$ceDriverNet == {}} {
+      set ceDriverNet $ceNet
+    } elseif {$ceDriverNet != $ceNet} {
+      puts "Mismatched vector CE drivers for $regCell ($ceNet $ceDriverNet)"
+      return 0
+    }
+  }
+  return 1
+}
+
+#
 # Generates a list of relative placement constraints for a vector of register
 # cells. This also includes constraints on the register input LUTs if possible.
 # The number of registers packed into each slice is as follows:
-#   16 - If no register inputs are sourced from LUTs.
-#    8 - If at least one register input is sourced from a standard LUT.
-#    4 - If at least one register input is sourced from an F7 LUT MUX.
-#    2 - If at least one register input is sourced from an F8 LUT MUX.
-#    1 - If at least one register input is sourced from an F9 LUT MUX.
+#   8 - If no register inputs are sourced from LUTs.
+#   8 - If at least one register input is sourced from a standard LUT.
+#   4 - If at least one register input is sourced from an F7 LUT MUX.
+#   2 - If at least one register input is sourced from an F8 LUT MUX.
+#   1 - If at least one register input is sourced from an F9 LUT MUX.
+# Note that in order to allow registers without LUT drivers to be interleaved
+# with registers that are driven by LUTs, these use FDRE BEL position 2, where
+# all other forms use FDRE BEL position 1.
 #
 proc get_vector_placement {regCells rlocIndex} {
   set fanInCellList {}
-  set regCellsPerSlice 16
+  set isDirectPipeline 1
+  set regCellsPerSlice 8
+
+  # Don't attempt to constrain vectors with mismatched SR or CE drivers.
+  if {[check_vector_valid $regCells] == 0} {
+    return {}
+  }
 
   # Create a list of driver cells for each register cell.
   foreach regCell $regCells {
@@ -386,18 +447,22 @@ proc get_vector_placement {regCells rlocIndex} {
     if {$fanInCells != {}} {
       set driverCellType [get_property REF_NAME $driverCell]
       if [string match "LUT?" $driverCellType] {
+        set isDirectPipeline 0
         if {$regCellsPerSlice > 8} {
           set regCellsPerSlice 8
         }
       } elseif [string match "MUXF7" $driverCellType] {
+        set isDirectPipeline 0
         if {$regCellsPerSlice > 4} {
           set regCellsPerSlice 4
         }
       } elseif [string match "MUXF8" $driverCellType] {
+        set isDirectPipeline 0
         if {$regCellsPerSlice > 2} {
           set regCellsPerSlice 2
         }
       } elseif [string match "MUXF9" $driverCellType] {
+        set isDirectPipeline 0
         if {$regCellsPerSlice > 1} {
           set regCellsPerSlice 1
         }
@@ -406,7 +471,9 @@ proc get_vector_placement {regCells rlocIndex} {
   }
 
   # Apply BEL constraints to register cells and their immediate LUT drivers.
-  if {$regCellsPerSlice == 8} {
+  if {$isDirectPipeline != 0} {
+    set_pipeline_bels_x8 $regCells
+  } elseif {$regCellsPerSlice == 8} {
     set_driver_bels_x8 $regCells $fanInCellList
   } elseif {$regCellsPerSlice == 4} {
     set_driver_bels_x4 $regCells $fanInCellList
@@ -430,52 +497,6 @@ proc get_vector_placement {regCells rlocIndex} {
     }
     incr regCellCount
     if {$regCellCount >= $regCellsPerSlice} {
-      set regCellCount 0
-      incr sliceCount
-    }
-  }
-  return $rlocList
-}
-
-#
-# Generates a list of relative placement constraints for two interleaved
-# register vectors. This includes placement constraints on the driver LUTs
-# where possible. In the event that both registers at an interleaved position
-# have driver LUTs, the logic associated with the first vector is constrained.
-#
-proc get_interleaved_vector_placement {regCells1 regCells2 rlocIndex} {
-
-  # Always assigns interleaved vectors as 16 registers per slice.
-  set regCellCount 0
-  set sliceCount 0
-  set rlocList {}
-  foreach regCell1 $regCells1 regCell2 $regCells2 {
-    set driverCell {}
-
-    # Lock the register cells into interleaved BEL locations.
-    if {$regCell1 != {}} {
-      lappend rlocList [get_property NAME $regCell1]
-      lappend rlocList "X${rlocIndex}Y${sliceCount}"
-      set_fdre_bel1 $regCell1 $regCellCount
-      set driverCell [cleanup_lut_driver_cell [get_driver_cell $regCell1]]
-    }
-    if {$regCell2 != {}} {
-      lappend rlocList [get_property NAME $regCell2]
-      lappend rlocList "X${rlocIndex}Y${sliceCount}"
-      set_fdre_bel2 $regCell2 $regCellCount
-      if {$driverCell == {}} {
-        set driverCell [cleanup_lut_driver_cell [get_driver_cell $regCell2]]
-      }
-    }
-
-    # Lock driver LUT for register cell 1 or 2, if possible.
-    if {$driverCell != {}} {
-      lappend rlocList [get_property NAME $driverCell]
-      lappend rlocList "X${rlocIndex}Y${sliceCount}"
-      set_lut_bel $driverCell $regCellCount
-    }
-    incr regCellCount
-    if {$regCellCount >= 8} {
       set regCellCount 0
       incr sliceCount
     }
@@ -606,7 +627,15 @@ proc apply_self_buffer_w2r1_constraints {instance rlocIndex} {
   set regBCells [get_sorted_cells $cells "*dataRegB_q_reg\\\[*"]
 
   # Create the relative placement list for the data registers.
-  set rlocList [get_interleaved_vector_placement $regBCells $regACells $rlocIndex]
+  set rlocList {}
+  if {$regACells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $regACells $rlocIndex]]
+    incr rlocIndex
+  }
+  if {$regBCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $regBCells $rlocIndex]]
+    incr rlocIndex
+  }
 
   # Create the relative placement macro.
   if {[llength $rlocList] != 0} {
@@ -643,20 +672,20 @@ proc apply_self_op_mult_constraints {instance rlocIndex} {
   set carryCells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && REF_NAME =~ CARRY* && PARENT == $instance"]
   set outCarryCells [get_sorted_cells $carryCells "*"]
 
-  # Create the relative placement list for those components which are still
+  # Create the relative placement list for those operand inputs which are still
   # part of the multiplier hierarchy.
-  if {$opARegCells == {} && $opBRegCells == {}} {
-    set rlocList {}
-  } elseif {$opBRegCells == {}} {
-    set rlocList [get_vector_placement $opARegCells $rlocIndex]
-    incr rlocIndex
-  } elseif {$opARegCells == {}} {
-    set rlocList [get_vector_placement $opBRegCells $rlocIndex]
-    incr rlocIndex
-  } else {
-    set rlocList [get_interleaved_vector_placement $opBRegCells $opARegCells $rlocIndex]
+  set rlocList {}
+  if {$opARegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $opARegCells $rlocIndex]]
     incr rlocIndex
   }
+  if {$opBRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $opBRegCells $rlocIndex]]
+    incr rlocIndex
+  }
+
+  # Create the reslative placement list for the combinatorial logic and output
+  # registers which are still part of the multiplier hierarchy.
   if {$ppLutCells != {}} {
     set rlocList [concat $rlocList [get_lut_array_placement $ppLutCells $rlocIndex]]
     incr rlocIndex
@@ -667,6 +696,135 @@ proc apply_self_op_mult_constraints {instance rlocIndex} {
   }
   if {$outRegCells != {}} {
     set rlocList [concat $rlocList [get_vector_placement $outRegCells $rlocIndex]]
+  }
+
+  # Create the relative placement macro.
+  if {[llength $rlocList] != 0} {
+    set macroName "rpm_${instanceName}"
+    create_macro $macroName
+    update_macro $macroName $rlocList
+  }
+
+  # Return empty set of relative placements.
+  return {}
+}
+
+#
+# Get common constraints for both signed and unsigned division.
+#
+proc create_common_div_constraints {instance rlocIndexName} {
+  upvar 1 $rlocIndexName rlocIndex
+
+  # Get the common division register cells.
+  set regCells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && IS_SEQUENTIAL && PARENT == $instance"]
+  set divdRegCells [get_sorted_cells $regCells "*dividendData_q_reg\\\[*"]
+  set divsRegCells [get_sorted_cells $regCells "*divisorData_q_reg\\\[*"]
+  set currentDivsRegCells [get_sorted_cells $regCells "*currentDivisor_q_reg\\\[*"]
+  set shiftLowRegCells [get_sorted_cells $regCells "*shiftValueLow_q_reg\\\[*"]
+  set shiftHighRegCells [get_sorted_cells $regCells "*shiftValueHigh_q_reg\\\[*"]
+  set quotientRegCells [get_sorted_cells $regCells "*quotientValue_q_reg\\\[*"]
+  set resultDivRegCells [get_sorted_cells $regCells "*resultDivData_q_reg\\\[*"]
+  set resultModRegCells [get_sorted_cells $regCells "*resultModData_q_reg\\\[*"]
+
+  # Create the relative placement list for the operand inputs.
+  set rlocList {}
+  if {$divdRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $divdRegCells $rlocIndex]]
+    incr rlocIndex
+  }
+  if {$divsRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $divsRegCells $rlocIndex]]
+    incr rlocIndex
+  }
+
+  # Create the relative placement list for the internal state signals.
+  if {$currentDivsRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $currentDivsRegCells $rlocIndex]]
+    incr rlocIndex
+  }
+  if {$shiftLowRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $shiftLowRegCells $rlocIndex]]
+    incr rlocIndex
+  }
+  if {$shiftHighRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $shiftHighRegCells $rlocIndex]]
+    incr rlocIndex
+  }
+  if {$quotientRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $quotientRegCells $rlocIndex]]
+    incr rlocIndex
+  }
+
+  # Create the relative placement list for the result registers.
+  if {$resultDivRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $resultDivRegCells $rlocIndex]]
+    incr rlocIndex
+  }
+  if {$resultModRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $resultModRegCells $rlocIndex]]
+    incr rlocIndex
+  }
+  return $rlocList
+}
+
+#
+# Apply unsigned division constraints.
+#
+proc apply_unsigned_div_constraints {instance rlocIndex} {
+  set instanceName [get_property NAME $instance]
+  set moduleName [get_property REF_NAME $instance]
+  puts "Constraining ${instanceName} : ${moduleName}"
+
+  # Create the relative placement macro.
+  set rlocList [create_common_div_constraints $instance rlocIndex]
+  if {[llength $rlocList] != 0} {
+    set macroName "rpm_${instanceName}"
+    create_macro $macroName
+    update_macro $macroName $rlocList
+  }
+
+  # Return empty set of relative placements.
+  return {}
+}
+
+#
+# Apply signed division constraints.
+#
+proc apply_signed_div_constraints {instance rlocIndex} {
+  set instanceName [get_property NAME $instance]
+  set moduleName [get_property REF_NAME $instance]
+  puts "Constraining ${instanceName} : ${moduleName}"
+
+  # Get the signed division register cells.
+  set regCells [get_cells -quiet -hierarchical -filter "IS_PRIMITIVE && IS_SEQUENTIAL && PARENT == $instance"]
+  set divdRegCells [get_sorted_cells $regCells "*dividendData_q_reg\\\[*"]
+  set divsRegCells [get_sorted_cells $regCells "*divisorData_q_reg\\\[*"]
+  set resultDivRegCells [get_sorted_cells $regCells "*resultDivData_q_reg\\\[*"]
+  set resultModRegCells [get_sorted_cells $regCells "*resultModData_q_reg\\\[*"]
+
+  # Create the relative placement list for the operand inputs.
+  set rlocList {}
+  if {$divdRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $divdRegCells $rlocIndex]]
+    incr rlocIndex
+  }
+  if {$divsRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $divsRegCells $rlocIndex]]
+    incr rlocIndex
+  }
+
+  # Get constraints for underlying unsigned division component.
+  set divuInstance [get_cells -quiet -hierarchical -filter "REF_NAME =~ *selfDivUnsigned* && PARENT == $instance"]
+  set rlocList [concat $rlocList [create_common_div_constraints $divuInstance rlocIndex]]
+
+  # Create the relative placement list for the result registers.
+  if {$resultDivRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $resultDivRegCells $rlocIndex]]
+    incr rlocIndex
+  }
+  if {$resultModRegCells != {}} {
+    set rlocList [concat $rlocList [get_vector_placement $resultModRegCells $rlocIndex]]
+    incr rlocIndex
   }
 
   # Create the relative placement macro.
