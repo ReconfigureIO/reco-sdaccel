@@ -12,6 +12,7 @@ DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.3"
 TARGET := "hw_emu"
 OPTIMIZE := "no"
 CLFLAGS :=
+CPUS := $(shell nproc)
 
 ifeq ($(OPTIMIZE), yes)
 	GO_TEAK_FLAGS := -O
@@ -40,7 +41,7 @@ ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
 
 ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME} ${XCLBIN_DIR}
-	cd ${BUILD_DIR} && xocc -j8 -O3 -t "${TARGET}" $(CLFLAGS) --xdevice ${DEVICE_FULL} -l $< -o $@ -r estimate
+	cd ${BUILD_DIR} && xocc -j${CPUS} -O3 -t "${TARGET}" $(CLFLAGS) --xdevice ${DEVICE_FULL} -l $< -o $@ -r estimate
 
 ${DIST_DIR}/emconfig.json: ${DIST_DIR}
 	cd ${DIST_DIR} && XCL_EMULATION_MODE=${TARGET} emconfigutil --xdevice ${DEVICE_FULL} --nd 1
