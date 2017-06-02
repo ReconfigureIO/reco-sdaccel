@@ -34,12 +34,7 @@
             {
                 "name": "DEVICE_FULL",
                 "value": "xilinx:aws-vu9p-f1:4ddr-xpr-2pr:4.0"
-            },
-            {
-                "name": "CLFLAGS",
-                "value": "--xp param:compiler.worstNegativeSlack=-0.025 --kernel_frequency 200"
             }
         ]
-
     }
 }

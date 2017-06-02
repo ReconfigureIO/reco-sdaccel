@@ -16,18 +16,12 @@
                     "sourcePath": "/opt/Xilinx"
                 },
                 "name": "xilinx"
-            },
-            {
-                "host": {
-                    "sourcePath": "/home/centos/src/license"
-                },
-                "name": "license"
             }
         ],
         "environment": [
             {
                 "name": "XILINXD_LICENSE_FILE",
-                "value": "/opt/xilinx-license/XilinxAWS.lic"
+                "value": "/opt/Xilinx/license/XilinxAWS.lic"
             },
             {
                 "name": "XILINX_VIVADO",
@@ -48,20 +42,12 @@
             {
                 "name": "LD_LIBRARY_PATH",
                 "value": "/opt/Xilinx/SDx/2017.1.op/Vivado/lib/lnx64.o"
-            },
-            {
-                "name": "CLFLAGS",
-                "value": "--xp param:compiler.worstNegativeSlack=-0.025 --kernel_frequency 200"
             }
         ],
         "mountPoints": [
             {
                 "sourceVolume": "xilinx",
                 "containerPath": "/opt/Xilinx"
-            },
-            {
-                "sourceVolume": "license",
-                "containerPath": "/opt/xilinx-license"
             }
         ],
         "readonlyRootFilesystem": false,
