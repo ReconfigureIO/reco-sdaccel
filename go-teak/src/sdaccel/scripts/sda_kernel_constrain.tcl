@@ -121,19 +121,19 @@ proc get_driver_cell {regCell} {
 # cleaned up LUT cell reference or an empty reference if the cell is not a
 # LUT or is already constrained.
 #
-proc cleanup_lut_driver_cell {driverCell} {
-  if [string match "LUT?" [get_property REF_NAME $driverCell]] {
-    if {[get_property HLUTNM $driverCell] != {}} {
-      set_property HLUTNM {} $driverCell
+proc cleanup_lut_cell {lutCell} {
+  if [string match "LUT?" [get_property REF_NAME $lutCell]] {
+    if {[get_property HLUTNM $lutCell] != {}} {
+      set_property HLUTNM {} $lutCell
     }
-    if {[get_property SOFT_HLUTNM $driverCell] != {}} {
-      set_property SOFT_HLUTNM {} $driverCell
+    if {[get_property SOFT_HLUTNM $lutCell] != {}} {
+      set_property SOFT_HLUTNM {} $lutCell
     }
-    if {[get_property RLOC $driverCell] != {}} {
+    if {[get_property RLOC $lutCell] != {}} {
       return {}
     } else {
-      set driverCellName [get_property NAME $driverCell]
-      return [get_cell $driverCellName]
+      set lutCellName [get_property NAME $lutCell]
+      return [get_cell $lutCellName]
     }
   } else {
     return {}
@@ -151,7 +151,7 @@ proc get_fan_in_cells {driverCell} {
   if {$driverCell == {}} {
     return {}
   }
-  set lutDriverCell [cleanup_lut_driver_cell $driverCell]
+  set lutDriverCell [cleanup_lut_cell $driverCell]
   if {$lutDriverCell != {}} {
     return $lutDriverCell
 
@@ -552,14 +552,17 @@ proc get_lut_array_placement {lutCells rlocIndex} {
   set lutCellCount 0
   set sliceCount 0
   set rlocList {}
-  foreach lutCell $lutCells {
-    lappend rlocList [get_property NAME $lutCell]
-    lappend rlocList "X${rlocIndex}Y${sliceCount}"
-    set_lut_bel $lutCell $lutCellCount
-    incr lutCellCount
-    if {$lutCellCount >= 8} {
-      set lutCellCount 0
-      incr sliceCount
+  foreach candidateCell $lutCells {
+    set lutCell [cleanup_lut_cell $candidateCell]
+    if {$lutCell != {}} {
+      lappend rlocList [get_property NAME $lutCell]
+      lappend rlocList "X${rlocIndex}Y${sliceCount}"
+      set_lut_bel $lutCell $lutCellCount
+      incr lutCellCount
+      if {$lutCellCount >= 8} {
+        set lutCellCount 0
+        incr sliceCount
+      }
     }
   }
   return $rlocList
