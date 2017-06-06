@@ -400,7 +400,7 @@ proc check_vector_valid {regCells} {
   set ceDriverNet {}
 
   foreach regCell $regCells {
-    set srPin [get_pins $regCell/SR]
+    set srPin [get_pins -quiet $regCell/SR]
     if {$srPin != {}} {
       set srNet [get_nets -of_objects $srPin]
       if {$srDriverNet == {}} {
@@ -410,7 +410,7 @@ proc check_vector_valid {regCells} {
         return 0
       }
     }
-    set cePin [get_pins $regCell/CE]
+    set cePin [get_pins -quiet $regCell/CE]
     if {$cePin != {}} {
       set ceNet [get_nets -of_objects $cePin]
       if {$ceDriverNet == {}} {
