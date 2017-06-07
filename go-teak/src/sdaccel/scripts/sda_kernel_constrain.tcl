@@ -131,10 +131,10 @@ proc get_driver_cell {regCell} {
 proc cleanup_lut_cell {lutCell} {
   if [string match "LUT?" [get_property REF_NAME $lutCell]] {
     if {[get_property HLUTNM $lutCell] != {}} {
-      set_property HLUTNM {} $lutCell
+      return {}
     }
     if {[get_property SOFT_HLUTNM $lutCell] != {}} {
-      set_property SOFT_HLUTNM {} $lutCell
+      return {}
     }
     if {[get_property RLOC $lutCell] != {}} {
       return {}
