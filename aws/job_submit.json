@@ -1,0 +1,40 @@
+{
+    "jobName": "example",
+    "jobQueue": "staging-build-jobs",
+    "jobDefinition": "sdaccel-builder-build-staging",
+    "containerOverrides": {
+        "command": [
+            "/opt/build.sh"
+        ],
+        "environment": [
+            {
+                "name": "PART",
+                "value": "xcvu9p-flgb2104-2-i"
+            },
+            {
+                "name": "PART_FAMILY",
+                "value": "virtexuplus"
+            },
+            {
+                "name": "INPUT_URL",
+                "value": "s3://reconfigureio-builds/bundle.tar.gz"
+            },
+            {
+                "name": "CALLBACK_URL",
+                "value": "https://api.reconfigure.io/builds/14/events?token=BtAE4ojraOFJ2dTdUZuzTi0cuIDLok08xRNs889QVsepUGpknEo1F1xP6gFB4AGe"
+            },
+            {
+                "name": "CMD",
+                "value": "test-addition"
+            },
+            {
+                "name": "DEVICE",
+                "value": "xilinx_aws-vu9p-f1_4ddr-xpr-2pr_4_0"
+            },
+            {
+                "name": "DEVICE_FULL",
+                "value": "xilinx:aws-vu9p-f1:4ddr-xpr-2pr:4.0"
+            }
+        ]
+    }
+}

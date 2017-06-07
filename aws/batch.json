@@ -1,0 +1,58 @@
+{
+    "jobDefinitionName": "sdaccel-builder-build-staging",
+    "type": "container",
+    "parameters": {},
+    "containerProperties": {
+        "image": "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/sdaccel-builder:josh-test",
+        "vcpus": 8,
+        "memory": 16000,
+        "jobRoleArn": "arn:aws:iam::398048034572:role/batch-builder",
+        "command": [
+            "/opt/build.sh"
+        ],
+        "volumes": [
+            {
+                "host": {
+                    "sourcePath": "/opt/Xilinx"
+                },
+                "name": "xilinx"
+            }
+        ],
+        "environment": [
+            {
+                "name": "XILINXD_LICENSE_FILE",
+                "value": "/opt/Xilinx/license/XilinxAWS.lic"
+            },
+            {
+                "name": "XILINX_VIVADO",
+                "value": "/opt/Xilinx/SDx/2017.1.op/Vivado"
+            },
+            {
+                "name": "XILINX_SDX",
+                "value": "/opt/Xilinx/SDx/2017.1.op"
+            },
+            {
+                "name": "XILINX_SDACCEL",
+                "value": "/opt/Xilinx/SDx/2017.1.op"
+            },
+            {
+                "name": "LIBRARY_PATH",
+                "value": "/opt/Xilinx/SDx/2017.1.op/SDK/lib/lnx64.o"
+            },
+            {
+                "name": "LD_LIBRARY_PATH",
+                "value": "/opt/Xilinx/SDx/2017.1.op/Vivado/lib/lnx64.o"
+            }
+        ],
+        "mountPoints": [
+            {
+                "sourceVolume": "xilinx",
+                "containerPath": "/opt/Xilinx"
+            }
+        ],
+        "readonlyRootFilesystem": false,
+        "privileged": false,
+        "ulimits": [],
+        "user": "root"
+    }
+}

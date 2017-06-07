@@ -210,7 +210,7 @@ func (kernel *Kernel) SetMemoryArg(index uint, mem *Memory) {
 }
 
 func (kernel *Kernel) SetArg(index uint, val uint32) {
-	C.clSetKernelArg(kernel.kernel, C.cl_uint(index), C.size_t(unsafe.Sizeof(&val)), unsafe.Pointer(&val))
+	C.clSetKernelArg(kernel.kernel, C.cl_uint(index), C.size_t(unsafe.Sizeof(val)), unsafe.Pointer(&val))
 }
 
 func (kernel *Kernel) Run(x, y, z uint) {
