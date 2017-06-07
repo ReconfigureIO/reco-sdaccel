@@ -11,10 +11,17 @@ proc sda_kernel_constrain {moduleName} {
 
   # Assumes current design is correctly set by synthesis script.
   set childCells [get_cells -filter "!IS_PRIMITIVE"]
+
+  # Prevent further synthesis changes for the child cells.
+  foreach childCell $childCells {
+    set_property DONT_TOUCH true $childCell
+  }
+
+  # Recursively apply constraints.
   apply_group_constraints $childCells "design_toplevel"
 
   # Write out the generated relative placement constraints.
-  write_xdc -force -exclude_timing "${moduleName}.xdc"
+  write_xdc -force -exclude_timing -no_tool_comments "${moduleName}.xdc"
 }
 
 #
