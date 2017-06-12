@@ -73,22 +73,22 @@ pipeline {
             steps {
                 parallel "histogram array": {
                     dir('examples/histogram-array'){
-                        sh '../../reco-jarvice/reco-jarvice test test-histogram'
+                        sh '../../reco-aws/reco-aws test test-histogram'
                     }
                 },
 //                addition: {
 //                    dir('examples/addition'){
-//                        sh '../../reco-jarvice/reco-jarvice test test-addition'
+//                        sh '../../reco-aws/reco-aws test test-addition'
 //                    }
 //                },
                 memcopy: {
                     dir('examples/memcopy'){
-                        sh '../../reco-jarvice/reco-jarvice test test-memcopy'
+                        sh '../../reco-aws/reco-aws test test-memcopy'
                     }
                 },
                 "parallel histogram": {
                     dir('examples/histogram-parallel'){
-                        sh '../../reco-jarvice/reco-jarvice test test-histogram'
+                        sh '../../reco-aws/reco-aws test test-histogram'
                     }
                 }
             }
@@ -102,22 +102,22 @@ pipeline {
             steps {
                 parallel "histogram array": {
                     dir('examples/histogram-array') {
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
+                        sh 'NUMBER=$(../../reco-aws/reco-aws build)' // && ../../reco-aws/reco-aws run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
                     }
                 },
 //                addition: {
 //                    dir('examples/addition'){
-//                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-addition'
+//                        sh 'NUMBER=$(../../reco-aws/reco-aws build)' // && ../../reco-jarvice/reco-jarvice run $NUMBER test-addition'
 //                    }
 //                },
                 memcopy: {
                     dir('examples/memcopy'){
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy && ../../ci/run-benchmark.sh $NUMBER memcopy "`git rev-parse HEAD`"'
+                        sh 'NUMBER=$(../../reco-aws/reco-aws build)' // && ../../reco-jarvice/reco-jarvice run $NUMBER test-memcopy && ../../ci/run-benchmark.sh $NUMBER memcopy "`git rev-parse HEAD`"'
                     }
                 },
                 "parallel histogram": {
                     dir('examples/histogram-parallel') {
-                        sh 'NUMBER=$(../../reco-jarvice/reco-jarvice build) && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
+                        sh 'NUMBER=$(../../reco-aws/reco-aws build)' && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
                     }
                 }
             }
