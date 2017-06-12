@@ -7,14 +7,17 @@ BUILDTIME := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 BUILDDATE := $(shell date -u +"%B %d, %Y")
 BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
-PROJECT_URL := "https://github.com/ReconfigueIO/$(NAME)"
-DOCKER_NAME := "$(NAME)"
-DOCKER_REMOTE := "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/$(NAME)"
+PROJECT_URL := https://github.com/ReconfigueIO/$(NAME)
+DOCKER_NAME := $(NAME)
+DOCKER_REMOTE := 398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/$(NAME)
+PUBLISHED_DOCKER := ${DOCKER_REMOTE}:${VERSION}
+JOB_DEFINITION := sdaccel-builder-build-staging
+BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/sdaccel-builder:${VERSION}" | .jobDefinitionName = "${JOB_DEFINITION}"')
 
 SDACCEL_WRAPPER_VERSION := v0.11.0
 GO_VERSION := 1.7.4
 
-.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload
+.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws
 
 all: package/reco package/reco-jarvice
 
@@ -148,6 +151,9 @@ upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.
 	docker tag $(DOCKER_NAME):latest ${DOCKER_REMOTE}:${VERSION}
 	$$(aws ecr get-login --region us-east-1)
 	docker push ${DOCKER_REMOTE}:${VERSION}
+
+aws: upload
+	aws batch register-job-definition --cli-input-json '${BATCH_JOB}'
 
 release: upload
 	sed 's/$$VERSION/$(VERSION)/' RELEASE.md > RELEASE_NOTES.md
