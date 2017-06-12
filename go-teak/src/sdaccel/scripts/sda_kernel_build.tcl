@@ -52,6 +52,10 @@
 #   This is a boolean flag which can be used to skip the synthesis phase of the
 #   build process if a valid Verilog netlist is already present in the build
 #   directory. This option is not mandatory and has the default value of 0.
+# -do_relative_placement [0|1]
+#   This is a boolean flag which can be used to enable the generation of
+#   relative placement macros for Verilog primitives. This option is not
+#   mandatory and has the default value of 0.
 # -part <part_name>
 #   The part to synthesize for. If not provided, defaults to
 #   "xcku115-flvf1924-1-c"
@@ -89,6 +93,7 @@ source [file join [file dirname [info script]] sda_kernel_xilinx_utils.tcl]
 # Specify default parameter values.
 set includeCodePath "verilog"
 set skipResynthesis 0
+set doRelativePlacement 0
 set paramArgsFileName "param_args.xmldef"
 
 # Selects a generic Kintex Ultrascale part as the nominal target.
@@ -141,6 +146,10 @@ while {$argIndex < $argc} {
     }
     "-skip_resynthesis" {
       set skipResynthesis [lindex $argv $argIndex]
+      incr argIndex
+    }
+    "-do_relative_placement" {
+      set doRelativePlacement [lindex $argv $argIndex]
       incr argIndex
     }
     "-part" {
@@ -214,7 +223,9 @@ set constraintFileName [file join $synDirPath "${moduleName}.xdc"]
 if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
   sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath $partName
-  sda_kernel_constrain $moduleName
+  if {0 != $doRelativePlacement} {
+    sda_kernel_constrain $moduleName
+  }
   cd $buildDirPath
 }
 
