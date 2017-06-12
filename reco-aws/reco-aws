@@ -70,6 +70,11 @@ function submit_job {
     aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
 }
 
+function stream_logs {
+    STREAM=$(aws logs describe-log-streams --log-group-name /aws/batch/job --log-stream-name-prefix "example/$1" | jq -r ".logStreams[0].logStreamName")
+    aws logs get-log-events --log-group-name /aws/batch/job --log-stream-name "$STREAM" | jq -r ".events | .[] | .message"
+}
+
 function run_batch {
     JOB=$(uuidgen -t)
     bundle
@@ -77,6 +82,7 @@ function run_batch {
     JOB_ID=$(submit_job "$JOB" "$1")
     CODE=$(wait_for "$JOB_ID")
     clean_bundle "$JOB"
+    stream_logs "$JOB_ID"
     exit "$CODE"
 }
 
