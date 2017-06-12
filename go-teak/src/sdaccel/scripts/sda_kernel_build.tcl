@@ -239,9 +239,11 @@ set verilogDirName [file join $ipDirPath "hdl" "verilog"]
 file mkdir $verilogDirName
 file copy -force $synFileName $verilogDirName
 
-set constraintDirName [file join $ipDirPath "constraints"]
-file mkdir $constraintDirName
-file copy -force $constraintFileName $constraintDirName
+if {0 != [file exists $constraintFileName]} {
+  set constraintDirName [file join $ipDirPath "constraints"]
+  file mkdir $constraintDirName
+  file copy -force $constraintFileName $constraintDirName
+}
 
 #
 # Run the standard Xilinx HLS IP packaging flow.
