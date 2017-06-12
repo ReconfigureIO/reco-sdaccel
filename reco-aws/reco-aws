@@ -1,0 +1,107 @@
+#!/bin/bash
+
+set -ex
+
+export DIR
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+function help {
+    echo "
+
+reco-aws $VERSION
+
+usage: $0 <command>
+
+Where <command> is one of the following:
+
+    Testing:
+
+    test <cmd>              Test the current kernel using a hardware simulator
+
+    Building:
+
+    build                   Build the project in the current folder.
+
+    Other:
+
+    help    Display this help output
+"
+}
+
+function bundle {
+    tar czf .reco-work/bundle.tar.gz --exclude .reco-work ./*
+}
+
+function copy_bundle {
+    aws s3 cp .reco-work/bundle.tar.gz "s3://reconfigureio-builds/tmp/$1.tar.gz"
+}
+
+function clean_bundle {
+    aws s3 rm "s3://reconfigureio-builds/tmp/$1.tar.gz"
+}
+
+function wait_for {
+    while :
+    do
+        status=$(aws batch describe-jobs --jobs "$1" | jq -r ".jobs[0].status")
+        case $status in
+           "SUCCEEDED")
+                echo "0"
+                break
+                ;;
+            "FAILED")
+                echo "1"
+                break
+                ;;
+            "null")
+                echo "1"
+                break
+                ;;
+            *)
+                sleep 60s
+                ;;
+        esac
+    done
+
+}
+
+function submit_job {
+    SUBMIT=$(cat "$DIR/../aws/job_submit.json" | jq ".containerOverrides.command[0] = \"$2\" | .containerOverrides.environment[2].value = \"s3://reconfigureio-builds/tmp/$1.tar.gz\"")
+    aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
+}
+
+function run_batch {
+    JOB=$(uuidgen -t)
+    bundle
+    copy_bundle "$JOB"
+    JOB_ID=$(submit_job "$JOB" "$1")
+    CODE=$(wait_for "$JOB_ID")
+    clean_bundle "$JOB"
+    exit "$CODE"
+}
+
+function build {
+    run_batch "/opt/build.sh"
+}
+
+function test-cmd {
+    run_batch "/opt/simulate.sh"
+}
+
+function main {
+    case "$1" in
+        "test")
+            test-cmd "${@:2}"
+            ;;
+        "build")
+            build "${@:2}"
+            ;;
+        *)
+            echo "unrecognized command: $1";
+            help "$@"
+            exit 1
+            ;;
+        esac
+}
+
+main "$@"
