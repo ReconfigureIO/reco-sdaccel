@@ -117,7 +117,7 @@ pipeline {
                 },
                 "parallel histogram": {
                     dir('examples/histogram-parallel') {
-                        sh 'NUMBER=$(../../reco-aws/reco-aws build)' && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
+                        sh 'NUMBER=$(../../reco-aws/reco-aws build)' // && ../../reco-jarvice/reco-jarvice run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
                     }
                 }
             }
