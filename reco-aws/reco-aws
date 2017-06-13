@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -ex
+set -o pipefail
 
 export DIR
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -71,7 +72,7 @@ function submit_job {
 }
 
 function submit_deploy {
-    SUBMIT=$(cat "$DIR/../aws/deploy_test.json")
+    SUBMIT=$(cat "$DIR/../aws/deploy_test.json" | jq ".containerOverrides.command[2] = \"$*\"")
     aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
 }
 
