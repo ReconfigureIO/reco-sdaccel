@@ -72,7 +72,9 @@ function submit_job {
 }
 
 function submit_deploy {
-    SUBMIT=$(cat "$DIR/../aws/deploy_test.json" | jq ".containerOverrides.command[2] = \"$*\"")
+    NUMBER="$1"
+    CMD="${@:2}"
+    SUBMIT=$(cat "$DIR/../aws/deploy_test.json" | jq ".containerOverrides.command[2] = \"$CMD\"")
     aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
 }
 
