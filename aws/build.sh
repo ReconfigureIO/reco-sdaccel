@@ -26,4 +26,7 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
-curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
+zip -qr dist.zip /tmp/workspace/.reco-work/sdaccel/dist
+aws s3 cp "dist.zip" "$INPUT_URL.dist.zip"
+
+curl -XPOST -H "Content-Type: application/json"  -d '{"status": "COMPLETED"}' "$CALLBACK_URL" &> /dev/null
