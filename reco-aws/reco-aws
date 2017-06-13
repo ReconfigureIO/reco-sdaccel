@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 set -o pipefail
 
 export DIR
@@ -30,15 +30,15 @@ Where <command> is one of the following:
 }
 
 function bundle {
-    tar czf .reco-work/bundle.tar.gz --exclude .reco-work ./*
+    tar czf .reco-work/bundle.tar.gz --exclude .reco-work ./* 1>&2
 }
 
 function copy_bundle {
-    aws s3 cp .reco-work/bundle.tar.gz "s3://reconfigureio-builds/tmp/$1.tar.gz"
+    aws s3 cp .reco-work/bundle.tar.gz "s3://reconfigureio-builds/tmp/$1.tar.gz" 1>&2
 }
 
 function clean_bundle {
-    aws s3 rm "s3://reconfigureio-builds/tmp/$1.tar.gz"
+    aws s3 rm "s3://reconfigureio-builds/tmp/$1.tar.gz" 1>&2
 }
 
 function wait_for {
@@ -78,7 +78,7 @@ function submit_deploy {
 
 function stream_logs {
     STREAM=$(aws logs describe-log-streams --log-group-name /aws/batch/job --log-stream-name-prefix "$1/$2" | jq -r ".logStreams[0].logStreamName")
-    aws logs get-log-events --log-group-name /aws/batch/job --log-stream-name "$STREAM" | jq -r ".events | .[] | .message"
+    aws logs get-log-events --log-group-name /aws/batch/job --log-stream-name "$STREAM" | jq -r ".events | .[] | .message" 1>&2
 }
 
 function run_batch {
@@ -89,6 +89,7 @@ function run_batch {
     CODE=$(wait_for "$JOB_ID")
     clean_bundle "$JOB"
     stream_logs "example" "$JOB_ID"
+    echo "$JOB"
     exit "$CODE"
 }
 
