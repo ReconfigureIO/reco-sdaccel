@@ -30,6 +30,7 @@ Where <command> is one of the following:
 }
 
 function bundle {
+    mkdir -p .reco-work
     tar czf .reco-work/bundle.tar.gz --exclude .reco-work ./* 1>&2
 }
 
