@@ -154,6 +154,7 @@ upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.
 
 aws: upload
 	aws batch register-job-definition --cli-input-json '${BATCH_JOB}'
+	aws batch register-job-definition --cli-input-json file://aws/deploy.json
 
 release: upload
 	sed 's/$$VERSION/$(VERSION)/' RELEASE.md > RELEASE_NOTES.md

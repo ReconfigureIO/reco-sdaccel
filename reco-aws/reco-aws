@@ -70,8 +70,13 @@ function submit_job {
     aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
 }
 
+function submit_deploy {
+    SUBMIT=$(cat "$DIR/../aws/deploy_test.json")
+    aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
+}
+
 function stream_logs {
-    STREAM=$(aws logs describe-log-streams --log-group-name /aws/batch/job --log-stream-name-prefix "example/$1" | jq -r ".logStreams[0].logStreamName")
+    STREAM=$(aws logs describe-log-streams --log-group-name /aws/batch/job --log-stream-name-prefix "$1/$2" | jq -r ".logStreams[0].logStreamName")
     aws logs get-log-events --log-group-name /aws/batch/job --log-stream-name "$STREAM" | jq -r ".events | .[] | .message"
 }
 
@@ -79,19 +84,26 @@ function run_batch {
     JOB=$(uuidgen -t)
     bundle
     copy_bundle "$JOB"
-    JOB_ID=$(submit_job "$JOB" "$1")
+    JOB_ID=$(submit_job "$JOB" "$@")
     CODE=$(wait_for "$JOB_ID")
     clean_bundle "$JOB"
-    stream_logs "$JOB_ID"
+    stream_logs "example" "$JOB_ID"
+    exit "$CODE"
+}
+
+function run_deploy {
+    JOB_ID=$(submit_deploy "$@")
+    CODE=$(wait_for "$JOB_ID")
+    stream_logs "staging-deploy" "$JOB_ID"
     exit "$CODE"
 }
 
 function build {
-    run_batch "/opt/build.sh"
+    run_batch "/opt/build.sh" "${@:1}"
 }
 
 function test-cmd {
-    run_batch "/opt/simulate.sh"
+    run_batch "/opt/simulate.sh" "${@:1}"
 }
 
 function main {
@@ -101,6 +113,9 @@ function main {
             ;;
         "build")
             build "${@:2}"
+            ;;
+        "run")
+            run_deploy "${@:2}"
             ;;
         *)
             echo "unrecognized command: $1";

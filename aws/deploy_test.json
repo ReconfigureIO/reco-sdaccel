@@ -1,0 +1,14 @@
+{
+    "jobName": "staging-deploy",
+    "jobQueue": "staging-deploy",
+    "jobDefinition": "staging-deploy",
+    "containerOverrides": {
+        "command": [
+            "bash",
+            "-c",
+            "fpga-load-local-image -S 0 -I agfi-0f0e045f919413242 && fpga-describe-local-image -S 0"
+        ],
+        "environment": [
+        ]
+    }
+}
