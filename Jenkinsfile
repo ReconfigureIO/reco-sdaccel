@@ -102,22 +102,22 @@ pipeline {
             steps {
                 parallel "histogram array": {
                     dir('examples/histogram-array') {
-                        sh 'NUMBER=$(../../reco-aws/reco-aws build)' && ../../reco-aws/reco-aws run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
+                        sh 'NUMBER=$(../../reco-aws/reco-aws build) && ../../reco-aws/reco-aws run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
                     }
                 },
 //                addition: {
 //                    dir('examples/addition'){
-//                        sh 'NUMBER=$(../../reco-aws/reco-aws build)' && ../../reco-aws/reco-aws run $NUMBER test-addition'
+//                        sh 'NUMBER=$(../../reco-aws/reco-aws build) && ../../reco-aws/reco-aws run $NUMBER test-addition'
 //                    }
 //                },
                 memcopy: {
                     dir('examples/memcopy'){
-                        sh 'NUMBER=$(../../reco-aws/reco-aws build)' && ../../reco-aws/reco-aws run $NUMBER test-memcopy && ../../ci/run-benchmark.sh $NUMBER memcopy "`git rev-parse HEAD`"'
+                        sh 'NUMBER=$(../../reco-aws/reco-aws build) && ../../reco-aws/reco-aws run $NUMBER test-memcopy && ../../ci/run-benchmark.sh $NUMBER memcopy "`git rev-parse HEAD`"'
                     }
                 },
                 "parallel histogram": {
                     dir('examples/histogram-parallel') {
-                        sh 'NUMBER=$(../../reco-aws/reco-aws build)' && ../../reco-aws/reco-aws run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
+                        sh 'NUMBER=$(../../reco-aws/reco-aws build) && ../../reco-aws/reco-aws run $NUMBER test-histogram && ../../ci/run-benchmark.sh $NUMBER histogram "`git rev-parse HEAD`"'
                     }
                 }
             }
