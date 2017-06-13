@@ -42,10 +42,6 @@
             {
                 "name": "LD_LIBRARY_PATH",
                 "value": "/opt/Xilinx/SDx/2017.1.op/Vivado/lib/lnx64.o"
-            },
-            {
-                "name": "CPUS",
-                "value": "4"
             }
         ],
         "mountPoints": [
