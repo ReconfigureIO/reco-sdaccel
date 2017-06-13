@@ -20,13 +20,13 @@ exit="$?"
 
 if [ $exit -ne 0 ]; then
     zip -qr artifacts.zip /tmp/workspace/.reco-work
-    aws s3 cp "artifacts.zip" "$INPUT_URL.artifacts.zip"
+    aws s3 cp "artifacts.zip" "$OUTPUT_URL"
 
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
     exit "$exit"
 fi
 
 zip -qr dist.zip /tmp/workspace/.reco-work/sdaccel/dist
-aws s3 cp "dist.zip" "$INPUT_URL.dist.zip"
+aws s3 cp "dist.zip" "$OUTPUT_URL"
 
 curl -XPOST -H "Content-Type: application/json"  -d '{"status": "COMPLETED"}' "$CALLBACK_URL" &> /dev/null

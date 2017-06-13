@@ -34,6 +34,10 @@
             {
                 "name": "DEVICE_FULL",
                 "value": "xilinx:aws-vu9p-f1:4ddr-xpr-2pr:4.0"
+            },
+            {
+                "name": "OUTPUT_URL",
+                "value": "s3://reconfigureio-builds/bundle.dist.zip"
             }
         ]
     }

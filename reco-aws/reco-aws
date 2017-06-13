@@ -68,7 +68,7 @@ function wait_for {
 }
 
 function submit_job {
-    SUBMIT=$(cat "$DIR/../aws/job_submit.json" | jq ".containerOverrides.command[0] = \"$2\" | .containerOverrides.environment[2].value = \"s3://reconfigureio-builds/tmp/$1.tar.gz\" | .containerOverrides.environment[4].value = \"${@:3}\"")
+    SUBMIT=$(cat "$DIR/../aws/job_submit.json" | jq ".containerOverrides.command[0] = \"$2\" | .containerOverrides.environment[2].value = \"s3://reconfigureio-builds/tmp/$1.tar.gz\" | .containerOverrides.environment[7].value = \"s3://reconfigureio-builds/tmp/$1.dist.zip\" | .containerOverrides.environment[4].value = \"${@:3}\"")
     aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
 }
 
