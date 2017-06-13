@@ -14,8 +14,9 @@ fi
 
 /opt/sdaccel-builder/sdaccel-builder simulate "$CMD"
 
-if [ $? -ne 0 ]; then
-    exit="$?"
+exit="$?"
+
+if [ $exit -ne 0 ]; then
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" > /dev/null
     exit "$exit"
 fi
