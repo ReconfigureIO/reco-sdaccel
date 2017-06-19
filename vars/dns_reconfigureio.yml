@@ -1,0 +1,49 @@
+---
+
+reconfigureio:
+  - record: reconfigure.io.
+    type: A
+    ttl: 10800
+    value: 178.62.95.147
+  - record: reconfigure.io.
+    type: SOA
+    ttl: 900
+    value: ns-1410.awsdns-48.org. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400
+  - record: assets.reconfigure.io.
+    type: CNAME
+    ttl: 10800
+    value: d3qvtac6t51bg6.cloudfront.net.
+  - record: status.reconfigure.io
+    type: CNAME
+    ttl: 10800
+    value: 8d80qh0jc9m6.stspg-customer.com
+  - record: www.reconfigure.io.
+    type: A
+    ttl: 10800
+    value: 178.62.95.147
+  - record: e7wktu55v4pwshhvn5phno3fls2o23j6._domainkey.reconfigure.io
+    type: CNAME
+    value: e7wktu55v4pwshhvn5phno3fls2o23j6.dkim.amazonses.com
+    ttl: 3600
+  - record: gd7oxz7em52amocfc77x7vlmjqmgtlhi._domainkey.reconfigure.io
+    type: CNAME
+    value: gd7oxz7em52amocfc77x7vlmjqmgtlhi.dkim.amazonses.com
+    ttl: 3600
+  - record: xb7uwmr5jfub3o5atwfqoiysskm4nr63._domainkey.reconfigure.io
+    type: CNAME
+    value: xb7uwmr5jfub3o5atwfqoiysskm4nr63.dkim.amazonses.com
+    ttl: 3600
+
+reconfigureiotxt:
+  - record: google-site-verification.reconfigure.io.
+    type: TXT
+    ttl: 600
+    value: 7XlQ_BIyO4dMhGNDcQNAJrHDdprhfIrputn3SacTN0Y
+  - record: reconfigure.io.
+    type: TXT
+    ttl: 3600
+    value: google-site-verification=7XlQ_BIyO4dMhGNDcQNAJrHDdprhfIrputn3SacTN0Y
+  - record: _amazonses.reconfigure.io
+    type: TXT
+    ttl: 3600
+    value: pZa1F3HYSI94gCV9vypJgC1KlVzjR6FgNR+DQQnAOxg=
