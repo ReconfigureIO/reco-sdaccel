@@ -16,7 +16,7 @@ CLFLAGS :=
 CPUS := $(shell nproc)
 
 ifeq ($(OPTIMIZE), yes)
-	GO_TEAK_FLAGS := -O -o${OPTIMIZE_LEVEL}
+	GO_TEAK_FLAGS := -O -p${OPTIMIZE_LEVEL}
 else
 	GO_TEAK_FLAGS :=
 endif
