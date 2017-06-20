@@ -21,3 +21,4 @@ cd "/data/job/$JOB"
 
 sdaccel-builder cmds
 sdaccel-builder image
+cat times.out

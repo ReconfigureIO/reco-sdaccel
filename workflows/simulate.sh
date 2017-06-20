@@ -21,3 +21,4 @@ JOB="$1"
 cd "/data/tmp/tests/$JOB"
 
 timeout 30m sdaccel-builder simulate "${@:2}"
+cat times.out
