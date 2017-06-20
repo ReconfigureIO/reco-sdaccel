@@ -13,6 +13,11 @@
 // corresponds to the largest Go primitive data types.
 //
 
+/*
+
+Provides low level primitives for working the AXI4 protocol
+
+*/
 package protocol
 
 //

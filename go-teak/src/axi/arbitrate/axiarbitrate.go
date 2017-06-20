@@ -13,6 +13,9 @@
 // generate capability.
 //
 
+/*
+Provides reusable arbitrators for AXI transations.
+*/
 package arbitrate
 
 import (

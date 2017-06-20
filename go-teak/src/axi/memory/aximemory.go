@@ -14,6 +14,11 @@
 // to support concurrent memory accesses.
 //
 
+/*
+
+Provides high level operations for working an AXI bus
+
+*/
 package memory
 
 import (
