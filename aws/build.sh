@@ -27,8 +27,14 @@ if [ $exit -ne 0 ]; then
 fi
 
 
-cd /tmp/workspace/.reco-work/sdaccel/dist/xclbin
-/opt/package_dcp.sh -k kernel_test
+cd .reco-work/sdaccel/dist
+/opt/package_dcp.sh -k kernel_test -e `which cat`
+aws s3 cp *.Developer_CL.tar "s3://$DCP_BUCKET/$DCP_KEY"
+aws ec2 create-fpga-image \
+        --name kernel_test \
+        --description "stub info for amazon" \
+        --input-storage-location Bucket="$DCP_BUCKET",Key="$DCP_KEY" \
+        --logs-storage-location Bucket="$LOG_BUCKET",Key="$LOG_KEY"
 cd -
 
 zip -qr dist.zip /tmp/workspace/.reco-work/sdaccel/dist

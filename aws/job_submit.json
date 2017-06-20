@@ -38,7 +38,16 @@
             {
                 "name": "OUTPUT_URL",
                 "value": "s3://reconfigureio-builds/bundle.dist.zip"
+            },
+            {
+                "name": "DCP_KEY",
+                "value": "tmp/dcp/test"
+            },
+            {
+                "name": "LOG_KEY",
+                "value": "tmp/dcp-logs/test"
             }
+
         ]
     }
 }
