@@ -13,7 +13,7 @@
           service: vivado-ecs
           version: '{{ version }}'
           build: latest
-          production: "yes"
+          staging: "yes"
         sort: creationDate
         sort_order: descending
         no_result_action: fail
@@ -38,7 +38,7 @@
              volume_size: 200
              delete_on_termination: true
              device_type: gp2
-         instance_profile_name: ecsInstanceRole
+         instance_profile_name: batch-builder
       register: ec2
         
     - name: Wait for SSH to come up
