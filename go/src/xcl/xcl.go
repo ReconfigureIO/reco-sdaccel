@@ -1,3 +1,4 @@
+// Package xcl provides primitives for working with kernels from the host
 package xcl
 
 // #cgo CFLAGS: -std=gnu99
@@ -19,52 +20,82 @@ import (
 	"unsafe"
 )
 
+// World is an opaque structure that allows communication with FPGAs.
 type World struct {
 	cw C.xcl_world
 }
 
+// Program ways to lookup kernels
 type Program struct {
 	world   *World
 	program C.cl_program
 }
 
+// A kernel is a a function that runs on an FGPA.
 type Kernel struct {
 	program *Program
 	kernel  C.cl_kernel
 }
 
+// RAM on the FGPA
 type Memory struct {
 	world *World
 	size  uint
 	mem   C.cl_mem
 }
 
+// A writer to RAM on the FPGA
 type MemoryWriter struct {
 	left   uint
 	offset uint
 	memory *Memory
 }
 
+// A reader to RAM on the FPGA
 type MemoryReader struct {
 	left   uint
 	offset uint
 	memory *Memory
 }
 
+// Constants for opening RAM on the FGPA
 const (
 	ReadOnly = iota
 	WriteOnly
 	ReadWrite
 )
 
+/*
+
+Create a new World. This needs to be released when done. This can be done using `defer`
+
+    world := xcl.NewWorld()
+    defer world.Release()
+
+*/
 func NewWorld() World {
 	return World{C.xcl_world_single()}
 }
 
+/*
+
+Release a previously created World.
+
+*/
 func (world *World) Release() {
 	C.xcl_release_world(world.cw)
 }
 
+/*
+
+Import a Program into the World. This will search for an appropriate xclbin and load their contents, either in a simulator for hardware simulation, or onto an FPGA for actual hardware.
+
+This needs to be released when done. This can be done using defer
+
+    program := world.Import("kernel_test")
+    defer program.Release()
+
+*/
 func (world World) Import(program string) *Program {
 	s := C.CString(program)
 	p := C.xcl_import_binary(world.cw, s)
@@ -72,6 +103,14 @@ func (world World) Import(program string) *Program {
 	return &Program{&world, p}
 }
 
+/*
+
+Get a specific Kernel from the Program. This needs to be released when done.
+
+    kernel := program.GetKernl("my_kernel_name")
+    defer kernel.Release()
+
+*/
 func (program *Program) GetKernel(kernelName string) *Kernel {
 	s := C.CString(kernelName)
 	k := C.xcl_get_kernel(C.cl_program(program.program), s)
@@ -79,14 +118,32 @@ func (program *Program) GetKernel(kernelName string) *Kernel {
 	return &Kernel{program, k}
 }
 
+/*
+
+Release a previously acquired Program.
+
+*/
 func (program *Program) Release() {
 	C.clReleaseProgram(program.program)
 }
 
+/*
+
+Release a previously acquired Kernel
+
+*/
 func (kernel *Kernel) Release() {
 	C.clReleaseKernel(kernel.kernel)
 }
 
+/*
+
+Allocate a number of bytes on the FPGA. This needs to be freed when done.
+
+	buff := world.Malloc(xcl.WriteOnly, 512)
+	defer buff.Free()
+
+*/
 func (world *World) Malloc(flags uint, size uint) *Memory {
 	var f C.cl_mem_flags
 	switch flags {
@@ -101,15 +158,28 @@ func (world *World) Malloc(flags uint, size uint) *Memory {
 	return &Memory{world, size, m}
 }
 
+/*
+
+Free a previously allocated Memory.
+
+*/
 func (mem *Memory) Free() {
 	C.clReleaseMemObject(mem.mem)
 }
 
+/*
+
+Construct a one-time use writer for a Memory. This has the standard io.Writer interface. For example, to copy data to the FPGA with the binary package:
+
+    var input [256]uint32
+	err := binary.Write(buff.Writer(), binary.LittleEndian, &input)
+
+*/
 func (mem *Memory) Writer() *MemoryWriter {
 	return &MemoryWriter{mem.size, 0, mem}
 }
 
-func ErrorCode(code C.cl_int) error {
+func errorCode(code C.cl_int) error {
 	switch code {
 	case C.CL_SUCCESS:
 		return nil
@@ -157,13 +227,16 @@ func (writer *MemoryWriter) Write(bytes []byte) (n int, err error) {
 		C.CL_TRUE,
 		C.size_t(writer.offset), C.size_t(toWrite), p, C.cl_uint(0), nil, nil)
 
-	err = ErrorCode(ret)
+	err = errorCode(ret)
 	C.free(p)
 	writer.left -= toWrite
 	writer.offset += toWrite
 	return int(toWrite), err
 }
 
+/*
+Deprecated: legacy Write method. Use Writer instead.
+*/
 func (mem *Memory) Write(bytes []byte) {
 	_, err := mem.Writer().Write(bytes)
 	if err != nil {
@@ -171,6 +244,14 @@ func (mem *Memory) Write(bytes []byte) {
 	}
 }
 
+/*
+
+Construct a one-time use reader for a Memory. This has the standard io.Reader interface. For example, to copy from the FPGA with the binary package:
+
+    var input [256]uint32
+	err := binary.Read(buff.Reader(), binary.LittleEndian, &input)
+
+*/
 func (mem *Memory) Reader() *MemoryReader {
 	return &MemoryReader{mem.size, 0, mem}
 }
@@ -192,12 +273,15 @@ func (reader *MemoryReader) Read(bytes []byte) (n int, err error) {
 		C.CL_TRUE,
 		C.size_t(reader.offset), C.size_t(toRead), p, C.cl_uint(0), nil, nil)
 
-	err = ErrorCode(ret)
+	err = errorCode(ret)
 	reader.left -= toRead
 	reader.offset += toRead
 	return int(toRead), err
 }
 
+/*
+Deprecated: legacy Read method. Use Reader instead.
+*/
 func (mem *Memory) Read(bytes []byte) {
 	_, err := mem.Reader().Read(bytes)
 	if err != nil && err != io.EOF {
@@ -205,14 +289,30 @@ func (mem *Memory) Read(bytes []byte) {
 	}
 }
 
+/*
+
+Pass the pointer to Memory as an argument to the Kernel. The resulting type on the kernel will be a uintptr.
+
+*/
 func (kernel *Kernel) SetMemoryArg(index uint, mem *Memory) {
 	C.setMemArg(kernel.kernel, C.cl_uint(index), mem.mem)
 }
 
+/*
+
+Pass the uint32 as an argument to the Kernel. The resulting type on the kernel will be a uint32.
+
+*/
 func (kernel *Kernel) SetArg(index uint, val uint32) {
 	C.clSetKernelArg(kernel.kernel, C.cl_uint(index), C.size_t(unsafe.Sizeof(val)), unsafe.Pointer(&val))
 }
 
+/*
+Run the Kernel with the number of dimensions. Most uses of this should be called as
+
+    kernel.Run(1,1,1)
+
+*/
 func (kernel *Kernel) Run(x, y, z uint) {
 	C.xcl_run_kernel3d(kernel.program.world.cw, kernel.kernel, C.size_t(x), C.size_t(y), C.size_t(z))
 }

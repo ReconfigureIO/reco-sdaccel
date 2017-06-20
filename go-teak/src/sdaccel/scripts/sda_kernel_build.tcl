@@ -52,6 +52,10 @@
 #   This is a boolean flag which can be used to skip the synthesis phase of the
 #   build process if a valid Verilog netlist is already present in the build
 #   directory. This option is not mandatory and has the default value of 0.
+# -do_relative_placement [0|1]
+#   This is a boolean flag which can be used to enable the generation of
+#   relative placement macros for Verilog primitives. This option is not
+#   mandatory and has the default value of 0.
 # -part <part_name>
 #   The part to synthesize for. If not provided, defaults to
 #   "xcku115-flvf1924-1-c"
@@ -66,8 +70,13 @@
 # > vivado -mode batch -source <this_script_name> -tclargs <tcl_script_args>
 #
 
-# Disable multithreading.
-set_param general.maxThreads 4
+# Specify degree of multithreading.
+set numProcessors [exec nproc]
+if {0 == [info exists numProcessors]} {
+  set_param general.maxThreads 4
+} else {
+  set_param general.maxThreads [expr $numProcessors]
+}
 set maxSynthesisThreads [get_param general.maxThreads]
 puts "Using $maxSynthesisThreads CPU thread(s) for Vivado synthesis"
 
@@ -77,12 +86,14 @@ set_msg_config -id "Synth 8-3352" -new_severity error
 
 # Include synthesis and packaging functions.
 source [file join [file dirname [info script]] sda_kernel_synthesis.tcl]
+source [file join [file dirname [info script]] sda_kernel_constrain.tcl]
 source [file join [file dirname [info script]] sda_kernel_packaging.tcl]
 source [file join [file dirname [info script]] sda_kernel_xilinx_utils.tcl]
 
 # Specify default parameter values.
 set includeCodePath "verilog"
 set skipResynthesis 0
+set doRelativePlacement 0
 set paramArgsFileName "param_args.xmldef"
 
 # Selects a generic Kintex Ultrascale part as the nominal target.
@@ -135,6 +146,10 @@ while {$argIndex < $argc} {
     }
     "-skip_resynthesis" {
       set skipResynthesis [lindex $argv $argIndex]
+      incr argIndex
+    }
+    "-do_relative_placement" {
+      set doRelativePlacement [lindex $argv $argIndex]
       incr argIndex
     }
     "-part" {
@@ -204,9 +219,13 @@ if {0 == [info exists moduleName]} {
 #
 file mkdir $synDirPath
 set synFileName [file join $synDirPath "${moduleName}.v"]
+set constraintFileName [file join $synDirPath "${moduleName}.xdc"]
 if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
   sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath $partName
+  if {0 != $doRelativePlacement} {
+    sda_kernel_constrain $moduleName
+  }
   cd $buildDirPath
 }
 
@@ -215,9 +234,16 @@ if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
 # kernel code as a standard Vivado IP core.
 #
 file delete -force $ipDirPath
+
 set verilogDirName [file join $ipDirPath "hdl" "verilog"]
 file mkdir $verilogDirName
 file copy -force $synFileName $verilogDirName
+
+if {0 != [file exists $constraintFileName]} {
+  set constraintDirName [file join $ipDirPath "constraints"]
+  file mkdir $constraintDirName
+  file copy -force $constraintFileName $constraintDirName
+}
 
 #
 # Run the standard Xilinx HLS IP packaging flow.
