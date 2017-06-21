@@ -247,16 +247,6 @@ func (writer *MemoryWriter) Write(bytes []byte) (n int, err error) {
 }
 
 /*
-Deprecated: legacy Write method. Use Writer instead.
-*/
-func (mem *Memory) Write(bytes []byte) {
-	_, err := mem.Writer().Write(bytes)
-	if err != nil {
-		log.Fatalf("Unhandled error in Write %v. Use the Writer interface to handle this\n", err)
-	}
-}
-
-/*
 
 Reader constructs a one-time use reader for a Memory. This has the standard io.Reader interface. For example, to copy from the FPGA with the binary package:
 
@@ -289,16 +279,6 @@ func (reader *MemoryReader) Read(bytes []byte) (n int, err error) {
 	reader.left -= toRead
 	reader.offset += toRead
 	return int(toRead), err
-}
-
-/*
-Deprecated: legacy Read method. Use Reader instead.
-*/
-func (mem *Memory) Read(bytes []byte) {
-	_, err := mem.Reader().Read(bytes)
-	if err != nil && err != io.EOF {
-		log.Fatalf("Unhandled error in Read %v. Use the Reader interface to handle this\n", err)
-	}
 }
 
 /*
