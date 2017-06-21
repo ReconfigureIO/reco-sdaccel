@@ -16,7 +16,7 @@
 
 /*
 
-Provides high level operations for working an AXI bus
+Package memory provides high level operations for working an AXI bus
 
 */
 package memory
