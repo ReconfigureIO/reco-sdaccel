@@ -98,7 +98,7 @@ dist/${NAME}-reco-jarvice-${VERSION}.tar.gz: bundle/reco-jarvice dist
 clean:
 	rm -rf build dist downloads eTeak docs
 
-deploy: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows
+deploy: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows aws
 	./deploy.sh $<
 
 downloads:
