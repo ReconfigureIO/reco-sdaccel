@@ -16,5 +16,6 @@ cat $ERRFILE
 mkdir -p ../../bench_tmp
 TMPFILE=$(mktemp --suffix ".log" -p ../../bench_tmp)
 cat $ERRFILE | grep "verilog," -A2 | awk -F"," "{print \"buildTime/\" \$1 \"/$NAME\" \";\" \$2}" | tee -a "$TMPFILE"
+rm $ERRFILE
 ../../reco-jarvice/reco-jarvice run "$NUMBER" "$EXAMPLE"
 ../../reco-jarvice/reco-jarvice run "$NUMBER" "bench-$BENCH" 2>&1 | tee -a "$TMPFILE"
