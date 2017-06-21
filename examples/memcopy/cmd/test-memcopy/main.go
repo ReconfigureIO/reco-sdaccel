@@ -32,9 +32,7 @@ func main() {
 		inputBuff := world.Malloc(xcl.ReadOnly, byteLength)
 		defer inputBuff.Free()
 
-		inToBytes := new(bytes.Buffer)
-		binary.Write(inToBytes, binary.LittleEndian, &input)
-		inputBuff.Write(inToBytes.Bytes())
+		binary.Write(inputBuff.Writer(), binary.LittleEndian, &input)
 
 		krnl.SetMemoryArg(0, inputBuff)
 		krnl.SetMemoryArg(1, outputBuff)
@@ -42,11 +40,8 @@ func main() {
 
 		krnl.Run(1, 1, 1)
 
-		resp := make([]byte, byteLength)
-		outputBuff.Read(resp)
-
 		var ret [DATA_WIDTH]uint64
-		err := binary.Read(bytes.NewReader(resp), binary.LittleEndian, &ret)
+		err := binary.Read(outputBuff.Reader(), binary.LittleEndian, &ret)
 
 		if err != nil {
 			log.Fatal("binary.Read failed:", err)
