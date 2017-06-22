@@ -204,6 +204,7 @@ if {0 != [info exists buildDirPath]} {
 set buildDirPath [pwd]
 set synDirPath [file join $buildDirPath syn]
 set ipDirPath [file join $buildDirPath ip]
+set reportDirPath [file join $buildDirPath reports]
 
 #
 # Construct the unique module name if not specified.
@@ -224,7 +225,7 @@ set constraintFileName [file join $synDirPath "${moduleName}.xdc"]
 if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
   sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath $partName
-  sda_kernel_report $moduleName $partName
+  sda_kernel_report $moduleName $partName $reportDirPath
   if {0 != $doRelativePlacement} {
     sda_kernel_constrain $moduleName
   }

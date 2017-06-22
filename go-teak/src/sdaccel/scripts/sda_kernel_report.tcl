@@ -8,9 +8,10 @@
 # Generate reports of kernel resource usage for end-user feedback.
 # Produces structured JSON for use in the API.
 #
-proc sda_kernel_report {moduleName partName} {
-  sda_kernel_report_summary $moduleName $partName
-  sda_kernel_report_hierarchy $moduleName $partName
+proc sda_kernel_report {moduleName partName reportDirPath} {
+  file mkdir $reportDirPath
+  sda_kernel_report_summary $moduleName $partName $reportDirPath
+  sda_kernel_report_hierarchy $moduleName $partName $reportDirPath
 }
 
 #
@@ -29,7 +30,7 @@ proc parse_summary_table_row {tableRow} {
 #
 # Generates utilisation summary report.
 #
-proc sda_kernel_report_summary {moduleName partName} {
+proc sda_kernel_report_summary {moduleName partName reportDirPath} {
 
   # Specify the relative weightings of the different resources.
   set utilWeightReg 1
@@ -171,13 +172,13 @@ proc sda_kernel_report_summary {moduleName partName} {
   set weightedAverageList [list $kvDescription $kvUsed $kvAvailable $kvUtilisation]
   lappend kvList [list "@" "weightedAverage" $weightedAverageList]
 
-  write_json "${moduleName}_util.json" $kvList
+  write_json [file join $reportDirPath "${moduleName}_util.json"] $kvList
 }
 
 #
 # Generates utilisation hierarchical report.
 #
-proc sda_kernel_report_hierarchy {moduleName partName} {
+proc sda_kernel_report_hierarchy {moduleName partName reportDirPath} {
   # Not currently implemented.
 }
 
