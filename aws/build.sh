@@ -38,7 +38,7 @@ aws ec2 create-fpga-image \
         --region=us-east-1
 cd -
 
-zip -qr dist.zip /tmp/workspace/.reco-work/sdaccel/dist
+zip -qr dist.zip .reco-work/sdaccel/dist
 aws s3 cp "dist.zip" "$OUTPUT_URL"
 
 curl -XPOST -H "Content-Type: application/json"  -d '{"status": "COMPLETED"}' "$CALLBACK_URL" &> /dev/null
