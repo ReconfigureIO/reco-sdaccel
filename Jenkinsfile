@@ -1,3 +1,5 @@
+def SDACCEL_WRAPPER_VERSION = ''
+
 pipeline {
     agent { label "master" }
     parameters {
@@ -29,10 +31,12 @@ pipeline {
         stage('config') {
             steps {
                 script {
-                    if(params.SDACCEL_WRAPPER_VERSION == ''){
-                        params.SDACCEL_WRAPPER_VERSION = sh (returnStdout: true, script: 'make print-SDACCEL_WRAPPER_VERSION')
+                    if(SDACCEL_WRAPPER_VERSION == ''){
+                        SDACCEL_WRAPPER_VERSION = sh (returnStdout: true, script: 'make print-SDACCEL_WRAPPER_VERSION').trim()
+                    }else{
+                        SDACCEL_WRAPPER_VERSION = params.SDACCEL_WRAPPER_VERSION
                     }
-                    echo "${params.SDACCEL_WRAPPER_VERSION}"
+                    echo "${SDACCEL_WRAPPER_VERSION}"
                 }
             }
         }
@@ -60,7 +64,7 @@ pipeline {
 
         stage('test go') {
             steps {
-                sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} eTeak/go-teak-sdaccel"
+                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} eTeak/go-teak-sdaccel"
                 dir('examples/noop'){
                     sh './../../sdaccel-builder test-go'
                     sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNDRIVEN'
@@ -73,7 +77,7 @@ pipeline {
                 expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
             }
             steps {
-                sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} deploy"
+                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} deploy"
             }
         }
 
@@ -145,7 +149,7 @@ pipeline {
 
         stage('build') {
             steps {
-                sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION}"
+                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION}"
             }
         }
 
@@ -154,7 +158,7 @@ pipeline {
                 expression { env.BRANCH_NAME in ["master"] && env.UPLOAD}
             }
             steps {
-                sh "make SDACCEL_WRAPPER_VERSION=${params.SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} upload"
+                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} upload"
                 sh './ci/upload_benchmarks.sh'
                 build job: 'reco-sdaccel-publish-benchmarks', wait: false
             }
