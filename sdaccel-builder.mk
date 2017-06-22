@@ -35,15 +35,15 @@ verilog: ${VERILOG_DIR}/main.v ${VERILOG_DIR}/includes
 ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
-${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${REPORTS_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v
-	cd ${BUILD_DIR} && vivado -notrace -mode batch -source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" -param_args_file "${VERILOG_DIR}/main.v.xmldef" -vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part ${PART} -part_family ${PART_FAMILY}
-	cp ${BUILD_DIR}/reports/* ${REPORTS_DIR} 
+${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v
+	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%U,%M" vivado -notrace -mode batch -source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" -param_args_file "${VERILOG_DIR}/main.v.xmldef" -vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part ${PART} -part_family ${PART_FAMILY}
+	cp ${BUILD_DIR}/reports/* ${REPORTS_DIR}
 
 ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
 
 ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME} ${XCLBIN_DIR}
-	cd ${BUILD_DIR} && xocc -j${CPUS} -O3 -t "${TARGET}" $(CLFLAGS) --xdevice ${DEVICE_FULL} -l $< -o $@ -r estimate
+	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xclbin,%U,%M" xocc -j${CPUS} -O3 -t "${TARGET}" $(CLFLAGS) --xdevice ${DEVICE_FULL} -l $< -o $@ -r estimate
 
 ${DIST_DIR}/emconfig.json: ${DIST_DIR}
 	cd ${DIST_DIR} && XCL_EMULATION_MODE=${TARGET} emconfigutil --xdevice ${DEVICE_FULL} --nd 1
@@ -55,7 +55,7 @@ ${DIST_DIR}:
 
 ${REPORTS_DIR}:
 	mkdir -p "${REPORTS_DIR}"
-	
+
 ${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR}
 	LIBRARY_PATH=${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH} CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ GOPATH="${DIR}/go" go build -o $@ $<
 
@@ -71,7 +71,7 @@ VERILOG_SOURCES := $(shell find ${DIR}/eTeak/verilog/SELF_files/ -type f)
 INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/includes/%,$(VERILOG_SOURCES))
 
 ${VERILOG_DIR}/main.v: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR}
-	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak ./go-teak-sdaccel build ${GO_TEAK_FLAGS} $< -o $@
+	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%U,%M" ./go-teak-sdaccel build ${GO_TEAK_FLAGS} $< -o $@
 
 ${VERILOG_DIR}/includes: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/includes
