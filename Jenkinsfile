@@ -29,9 +29,10 @@ pipeline {
         stage('config') {
             steps {
                 script {
-                    if(env.SDACCEL_WRAPPER_VERSION == ''){
-                        env.SDACCEL_WRAPPER_VERSION = sh 'make print-SDACCEL_WRAPPER_VERSION'
+                    if(params.SDACCEL_WRAPPER_VERSION == ''){
+                        params.SDACCEL_WRAPPER_VERSION = sh 'make print-SDACCEL_WRAPPER_VERSION'
                     }
+                    echo "${params.SDACCEL_WRAPPER_VERSION}"
                 }
             }
         }
