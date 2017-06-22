@@ -14,7 +14,7 @@
 //
 
 /*
-Provides reusable arbitrators for AXI transations.
+Package arbitrate provides reusable arbitrators for AXI transations.
 */
 package arbitrate
 

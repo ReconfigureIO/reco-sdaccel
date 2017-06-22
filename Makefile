@@ -14,7 +14,7 @@ PUBLISHED_DOCKER := ${DOCKER_REMOTE}:${VERSION}
 JOB_DEFINITION := sdaccel-builder-build-staging
 BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/sdaccel-builder:${VERSION}" | .jobDefinitionName = "${JOB_DEFINITION}"')
 
-SDACCEL_WRAPPER_VERSION := v0.13.0
+SDACCEL_WRAPPER_VERSION := v0.14.0
 GO_VERSION := 1.7.4
 
 .PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws build-docs upload-docs
