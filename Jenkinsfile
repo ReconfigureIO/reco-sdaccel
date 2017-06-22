@@ -1,7 +1,7 @@
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.14.0')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: '')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
     }
     environment {
@@ -23,6 +23,16 @@ pipeline {
         stage("notify") {
             steps {
                 slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+            }
+        }
+
+        stage('config') {
+            steps {
+                script {
+                    if(env.SDACCEL_WRAPPER_VERSION == ''){
+                        env.SDACCEL_WRAPPER_VERSION = sh 'make print-SDACCEL_WRAPPER_VERSION'
+                    }
+                }
             }
         }
 
