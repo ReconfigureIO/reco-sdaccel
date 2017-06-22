@@ -30,7 +30,7 @@ pipeline {
             steps {
                 script {
                     if(params.SDACCEL_WRAPPER_VERSION == ''){
-                        params.SDACCEL_WRAPPER_VERSION = sh 'make print-SDACCEL_WRAPPER_VERSION'
+                        params.SDACCEL_WRAPPER_VERSION = sh (returnStdout: true, script: 'make print-SDACCEL_WRAPPER_VERSION')
                     }
                     echo "${params.SDACCEL_WRAPPER_VERSION}"
                 }
