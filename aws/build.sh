@@ -14,7 +14,7 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
-/opt/sdaccel-builder/sdaccel-builder image
+/opt/sdaccel-builder/sdaccel-builder cmd && /opt/sdaccel-builder/sdaccel-builder image
 
 exit="$?"
 
