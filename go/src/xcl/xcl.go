@@ -16,42 +16,41 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"unsafe"
 )
 
-// World is an opaque structure that allows communication with FPGAs.
+// Type World is an opaque structure that allows communication with FPGAs.
 type World struct {
 	cw C.xcl_world
 }
 
-// Program ways to lookup kernels
+// Type Program ways to lookup kernels
 type Program struct {
 	world   *World
 	program C.cl_program
 }
 
-// A kernel is a a function that runs on an FGPA.
+// Type kernel is a a function that runs on an FGPA.
 type Kernel struct {
 	program *Program
 	kernel  C.cl_kernel
 }
 
-// RAM on the FGPA
+// Type Memory represents a segment of RAM on the FGPA
 type Memory struct {
 	world *World
 	size  uint
 	mem   C.cl_mem
 }
 
-// A writer to RAM on the FPGA
+// Type MemoryWriter is an io.Writer to RAM on the FPGA
 type MemoryWriter struct {
 	left   uint
 	offset uint
 	memory *Memory
 }
 
-// A reader to RAM on the FPGA
+// Type MemoryReader is an io.Reader to RAM on the FPGA
 type MemoryReader struct {
 	left   uint
 	offset uint
@@ -67,7 +66,7 @@ const (
 
 /*
 
-Create a new World. This needs to be released when done. This can be done using `defer`
+NewWorld creates a new World. This needs to be released when done. This can be done using `defer`
 
     world := xcl.NewWorld()
     defer world.Release()
@@ -79,7 +78,7 @@ func NewWorld() World {
 
 /*
 
-Release a previously created World.
+Release cleans up a previously created World.
 
 */
 func (world *World) Release() {
@@ -88,9 +87,13 @@ func (world *World) Release() {
 
 /*
 
-Import a Program into the World. This will search for an appropriate xclbin and load their contents, either in a simulator for hardware simulation, or onto an FPGA for actual hardware.
+Import will search for an appropriate xclbin and load their contents,
+either in a simulator for hardware simulation, or onto an FPGA for
+actual hardware. The input argument is the name of the program from
+the build procedure (typically "kernel_test"). The returned value is
+the program used for interacting with the loaded xclbin.
 
-This needs to be released when done. This can be done using defer
+This needs to be released when done. This can be done using defer.
 
     program := world.Import("kernel_test")
     defer program.Release()
@@ -105,9 +108,14 @@ func (world World) Import(program string) *Program {
 
 /*
 
-Get a specific Kernel from the Program. This needs to be released when done.
+GetKernel will return the specific Kernel from the Program. The input
+argument is the name of the Kernel in the Program (typically
+"reconfigure_io_sdaccel_builder_stub_0_1").
 
-    kernel := program.GetKernl("my_kernel_name")
+This needs to be released when done.
+
+
+    kernel := program.GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
     defer kernel.Release()
 
 */
@@ -138,7 +146,10 @@ func (kernel *Kernel) Release() {
 
 /*
 
-Allocate a number of bytes on the FPGA. This needs to be freed when done.
+Malloc allocates a number of bytes on the FPGA. The resulting
+structure represents a pointer to Memory on the FGPA.
+
+This needs to be freed when done.
 
 	buff := world.Malloc(xcl.WriteOnly, 512)
 	defer buff.Free()
@@ -169,7 +180,7 @@ func (mem *Memory) Free() {
 
 /*
 
-Construct a one-time use writer for a Memory. This has the standard io.Writer interface. For example, to copy data to the FPGA with the binary package:
+Writer constructs a one-time use writer for a Memory. This has the standard io.Writer interface. For example, to copy data to the FPGA with the binary package:
 
     var input [256]uint32
 	err := binary.Write(buff.Writer(), binary.LittleEndian, &input)
@@ -235,18 +246,8 @@ func (writer *MemoryWriter) Write(bytes []byte) (n int, err error) {
 }
 
 /*
-Deprecated: legacy Write method. Use Writer instead.
-*/
-func (mem *Memory) Write(bytes []byte) {
-	_, err := mem.Writer().Write(bytes)
-	if err != nil {
-		log.Fatalf("Unhandled error in Write %v. Use the Writer interface to handle this\n", err)
-	}
-}
 
-/*
-
-Construct a one-time use reader for a Memory. This has the standard io.Reader interface. For example, to copy from the FPGA with the binary package:
+Reader constructs a one-time use reader for a Memory. This has the standard io.Reader interface. For example, to copy from the FPGA with the binary package:
 
     var input [256]uint32
 	err := binary.Read(buff.Reader(), binary.LittleEndian, &input)
@@ -280,18 +281,9 @@ func (reader *MemoryReader) Read(bytes []byte) (n int, err error) {
 }
 
 /*
-Deprecated: legacy Read method. Use Reader instead.
-*/
-func (mem *Memory) Read(bytes []byte) {
-	_, err := mem.Reader().Read(bytes)
-	if err != nil && err != io.EOF {
-		log.Fatalf("Unhandled error in Read %v. Use the Reader interface to handle this\n", err)
-	}
-}
 
-/*
-
-Pass the pointer to Memory as an argument to the Kernel. The resulting type on the kernel will be a uintptr.
+SetMemoryArg passes the pointer to Memory as an argument to the
+Kernel. The resulting type on the kernel will be a uintptr.
 
 */
 func (kernel *Kernel) SetMemoryArg(index uint, mem *Memory) {
@@ -300,7 +292,8 @@ func (kernel *Kernel) SetMemoryArg(index uint, mem *Memory) {
 
 /*
 
-Pass the uint32 as an argument to the Kernel. The resulting type on the kernel will be a uint32.
+SetArg passes the uint32 as an argument to the Kernel. The resulting
+type on the kernel will be a uint32.
 
 */
 func (kernel *Kernel) SetArg(index uint, val uint32) {
@@ -308,7 +301,7 @@ func (kernel *Kernel) SetArg(index uint, val uint32) {
 }
 
 /*
-Run the Kernel with the number of dimensions. Most uses of this should be called as
+Run will start execution of the Kernel with the number of dimensions. Most uses of this should be called as
 
     kernel.Run(1,1,1)
 

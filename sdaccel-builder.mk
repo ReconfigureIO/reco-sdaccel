@@ -1,6 +1,7 @@
 
 BUILD_DIR := "/tmp/workspace/.reco-work/sdaccel/build"
 DIST_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist"
+REPORTS_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/reports"
 XCLBIN_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin"
 VERILOG_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/verilog"
 
@@ -36,6 +37,7 @@ ${BUILD_DIR}:
 
 ${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v
 	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%U,%M" vivado -notrace -mode batch -source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" -param_args_file "${VERILOG_DIR}/main.v.xmldef" -vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part ${PART} -part_family ${PART_FAMILY}
+	cp ${BUILD_DIR}/reports/* ${REPORTS_DIR}
 
 ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
@@ -50,6 +52,9 @@ sim: ${DIST_DIR}/emconfig.json
 
 ${DIST_DIR}:
 	mkdir -p "${DIST_DIR}"
+
+${REPORTS_DIR}:
+	mkdir -p "${REPORTS_DIR}"
 
 ${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR}
 	LIBRARY_PATH=${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH} CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ GOPATH="${DIR}/go" go build -o $@ $<
