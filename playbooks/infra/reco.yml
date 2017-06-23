@@ -1,0 +1,30 @@
+- name: Setup reco bucket
+  hosts: localhost
+  become: False
+  gather_facts: False
+  tasks:
+
+    # This may fail because of a bug in aws: https://github.com/boto/boto/issues/2836
+    # If this fails add the following to you ~/.boto
+
+    # [s3]
+    # calling_format = boto.s3.connection.OrdinaryCallingFormat
+
+    - name: "make {{ item }} bucket"
+      s3_bucket:
+        name: "{{ item }}"
+        policy: |
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Sid": "AddPerm",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::{{ item }}/reco/releases/*"
+              }
+            ]
+          }
+      with_items:
+        - reconfigure.io

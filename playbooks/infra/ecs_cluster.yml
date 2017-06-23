@@ -1,0 +1,272 @@
+- hosts: localhost
+  gather_facts: False
+
+  tasks:
+    - name: "make reconfigureio-builds bucket"
+      s3_bucket:
+        name: "{{ item }}"
+        policy: |
+          {
+              "Version": "2012-10-17",
+              "Statement": [
+                  {
+                      "Sid": "Bucket level permissions",
+                      "Effect": "Allow",
+                      "Principal": {
+                          "AWS": "arn:aws:iam::365015490807:root"
+                      },
+                      "Action": [
+                          "s3:ListBucket"
+                      ],
+                      "Resource": "arn:aws:s3:::{{ item }}"
+                  },
+                  {
+                      "Sid": "Object read permissions",
+                      "Effect": "Allow",
+                      "Principal": {
+                          "AWS": "arn:aws:iam::365015490807:root"
+                      },
+                      "Action": [
+                          "s3:GetObject",
+                          "s3:PutObject"
+                      ],
+                      "Resource": "arn:aws:s3:::{{ item }}/*"
+                  }
+              ]
+          }
+      with_items:
+        - "reconfigureio-builds"
+
+    - name: create builder role in IAM
+      iam:
+        iam_type: role
+        name: batch-builder
+        state: present
+        trust_policy:
+          "Version": "2012-10-17"
+          "Statement":
+            - "Effect": "Allow"
+              "Principal":
+                "Service": "ecs-tasks.amazonaws.com"
+              "Action": "sts:AssumeRole"
+
+    - name: Apply READ-ONLY policy to new groups that have been recently created
+      iam_policy:
+        iam_type: role
+        iam_name: batch-builder
+        policy_name: "READ-ONLY-S3"
+        policy_json: |
+          {
+              "Statement": [
+                  {
+                      "Effect": "Allow",
+                      "Action": [
+                        "s3:ListAllMyBuckets",
+                        "s3:List*"
+                      ],
+                      "Resource": "*"
+                  },
+                  {
+                      "Effect": "Allow",
+                      "Action": [
+                        "s3:Get*",
+                        "s3:Put*"
+                      ],
+                      "Resource": [
+                          "arn:aws:s3:::reconfigureio-builds/*"
+                      ]
+                  }
+              ]
+          }
+        state: present
+
+    - name: create builder role in IAM
+      iam:
+        iam_type: role
+        name: deployment-worker
+        state: present
+
+    # TODO: Add the managed policies we need, which we currently need
+    # for elastic beanstalk permissions
+    - name: Apply READ-ONLY policy to new groups that have been recently created
+      iam_policy:
+        iam_type: role
+        iam_name: deployment-worker
+        policy_name: "READ-ONLY-S3"
+        policy_json: |
+          {
+              "Statement": [
+                  {
+                      "Effect": "Allow",
+                      "Action": [
+                        "s3:ListAllMyBuckets",
+                        "s3:List*"
+                      ],
+                      "Resource": "*"
+                  },
+                  {
+                      "Effect": "Allow",
+                      "Action": [
+                        "s3:Get*"
+                      ],
+                      "Resource": [
+                          "arn:aws:s3:::reconfigureio-builds/*"
+                      ]
+                  }
+              ]
+          }
+        state: present
+
+    # TODO: Add the managed policies we need, which we currently need
+    # for elastic beanstalk permissions
+    - name: create web api role in IAM
+      iam:
+        iam_type: role
+        name: api-web-server
+        state: present
+
+    - name: Apply build initiator policy
+      iam_policy:
+        iam_type: role
+        iam_name: api-web-server
+        policy_name: "INITIATE-BUILDS"
+        policy_json: |
+          {
+              "Statement": [
+                  {
+                      "Effect": "Allow",
+                      "Action": [
+                        "s3:ListAllMyBuckets",
+                        "s3:List*"
+                      ],
+                      "Resource": "*"
+                  },
+                  {
+                      "Effect": "Allow",
+                      "Action": [
+                        "s3:Get*",
+                        "s3:Put*"
+                      ],
+                      "Resource": [
+                          "arn:aws:s3:::reconfigureio-builds/*"
+                      ]
+                  },
+                  {
+                      "Effect": "Allow",
+                      "Action": [
+                        "batch:*"
+                      ],
+                      "Resource": [
+                          "*"
+                      ]
+                  }
+
+              ]
+          }
+        state: present
+
+
+    - name: find our ami
+      ec2_ami_find:
+        owner: self
+        ami_tags:
+          service: vivado-ecs
+          version: 2016.3
+          build: latest
+          production: "yes"
+        sort: creationDate
+        sort_order: descending
+        no_result_action: fail
+      register: ami_find
+
+    - name: find ecs ami
+      ec2_ami_find:
+        name: "amzn-ami-*.a-amazon-ecs-optimized"
+        owner: amazon
+        sort: creationDate
+        sort_order: descending
+        no_result_action: fail
+      register: ecs_ami_find
+
+    - name: remove any old zip
+      file:
+        path: "../../cloud-formation/ecs-cid-sample/code/metric.zip"
+        state: absent
+
+    - name: zip metric lambda code
+      command: zip metric.zip publishBatchMetrics.js
+      args:
+        chdir: "../../cloud-formation/ecs-cid-sample/code/"
+
+    # FIXME: this needs some sort of versioning to get cloudformation to update it
+    - name: upload metric lambda code
+      s3:
+        bucket: nerabus
+        src: "../../cloud-formation/ecs-cid-sample/code/metric.zip"
+        object: "ecs-cluster/metric.zip"
+        mode: put
+
+    - name: upload lambda code
+      s3:
+        bucket: nerabus
+        src: "../../cloud-formation/ecs-cid-sample/code/index.zip"
+        object: "ecs-cluster/index.zip"
+        mode: put
+
+    - name: launch autoscale ecs example
+      cloudformation:
+        stack_name: "autoscale-build-cluster"
+        state: "present"
+        region: "us-east-1"
+        disable_rollback: true
+        template: "../../cloud-formation/ecs-cid-sample/cform/ecs.yaml"
+        template_parameters:
+          EcsClusterName: test-unmanaged_Batch_ab97bcda-f63e-3df1-9fb8-bae045e0ea8e
+          KeyName: josh
+          S3BucketName: nerabus
+          S3BucketObject: "ecs-cluster/index.zip"
+          MetricS3BucketObject: "ecs-cluster/metric.zip"
+          QueueName: build-jobs
+          EcsAmiId: "{{ ami_find.results[0].ami_id }}"
+          EcsInstanceType: m4.2xlarge
+          VpcId: vpc-03ca8364
+          SecurityGroupId: sg-8a1b9cf0
+          IamRoleInstanceProfile: ecsInstanceRole
+          SecurityIngressFromPort: 0
+          SecurityIngressToPort: 0
+          SecurityIngressCidrIp:
+          VpcAvailabilityZones: us-east-1b,us-east-1c,us-east-1d,us-east-1e
+          EbsVolumeSize: 100
+          EbsVolumeType: gp2
+          SubnetIds: subnet-9829fdd1,subnet-b28a6d8e,subnet-d4f511f9,subnet-22acb67a
+        tags:
+          Stack: "autoscale-ecs"
+
+    - name: launch autoscale staging deployment cluster
+      cloudformation:
+        stack_name: "autoscale-deploy-staging-cluster"
+        state: "present"
+        region: "us-east-1"
+        disable_rollback: true
+        template: "../../cloud-formation/ecs-cid-sample/cform/ecs.yaml"
+        template_parameters:
+          EcsClusterName: deploy-staging-cluster_Batch_3f38f98d-f7ff-32ba-96aa-df100a48fdef
+          KeyName: josh
+          S3BucketName: nerabus
+          S3BucketObject: "ecs-cluster/index.zip"
+          MetricS3BucketObject: "ecs-cluster/metric.zip"
+          QueueName: staging-deploy
+          EcsAmiId: "{{ ecs_ami_find.results[0].ami_id }}"
+          EcsInstanceType: f1.2xlarge
+          VpcId: vpc-03ca8364
+          SecurityGroupId: sg-8a1b9cf0
+          IamRoleInstanceProfile: ecsInstanceRole
+          SecurityIngressFromPort: 0
+          SecurityIngressToPort: 0
+          SecurityIngressCidrIp:
+          VpcAvailabilityZones: us-east-1b,us-east-1c,us-east-1d,us-east-1e
+          EbsVolumeSize: 10
+          EbsVolumeType: gp2
+          SubnetIds: subnet-9829fdd1,subnet-b28a6d8e,subnet-d4f511f9,subnet-22acb67a
+        tags:
+          Stack: "autscale-deployment-staging"

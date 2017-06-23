@@ -6,3 +6,4 @@ eTeak
 go-root
 .reco-work
 bench_tmp
+/cloud-formation/ecs-cid-sample/code/metric.zip

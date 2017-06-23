@@ -1,0 +1,66 @@
+{
+    "builders": [{
+        "type": "amazon-ebs",
+        "region": "us-east-1",
+        "iam_instance_profile": "jenkins",
+        "source_ami": "ami-ff83cee9",
+        "instance_type": "m4.2xlarge",
+        "ssh_username": "centos",
+        "ami_name": "vivado-2016.3-ecs {{timestamp}}",
+        "ebs_optimized": true,
+        "ami_block_device_mappings": [{
+            "device_name": "/dev/sda1",
+            "volume_size": 150,
+            "delete_on_termination": true,
+            "volume_type": "gp2"
+        },{
+            "device_name": "/dev/sdb",
+            "no_device": true
+        }],
+        "tags": {
+            "service": "vivado-ecs",
+            "version": "2016.3",
+            "build": "latest",
+            "staging": "yes"
+        },
+        "launch_block_device_mappings" : [{
+            "device_name": "/dev/sda1",
+            "volume_size": 150,
+            "delete_on_termination": true,
+            "volume_type": "gp2"
+        },{
+            "device_name": "/dev/sdb",
+            "no_device": true
+        }]
+    }],
+
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "amis/ecs.service",
+            "destination": "/tmp/ecs-agent.service"
+        },
+        {
+            "type": "file",
+            "source": "amis/install_platform.sh",
+            "destination": "/tmp/install_platform.sh"
+        },
+        {
+        	"type": "shell",
+        	"inline": [
+                "sudo yum install -y docker",
+                "sudo systemctl enable docker.service",
+                "sudo service docker start",
+                "sudo mkdir -p /var/log/ecs /etc/ecs /var/lib/ecs/data",
+                "sudo touch /etc/ecs/ecs.config",
+                "echo ECS_AVAILABLE_LOGGING_DRIVERS='[\"json-file\",\"awslogs\"]' | sudo tee /etc/ecs/ecs.config",
+                "sudo docker pull amazon/amazon-ecs-agent:latest",
+                "sudo mv /tmp/ecs-agent.service /etc/systemd/system/ecs-agent.service",
+                "sudo systemctl daemon-reload",
+                "sudo systemctl start ecs-agent.service",
+                "sudo systemctl enable ecs-agent.service",
+                "sudo bash /tmp/install_platform.sh"
+            ]
+        }
+    ]
+}
