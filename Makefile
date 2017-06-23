@@ -14,7 +14,7 @@ DOCKER_REMOTE := "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/bui
 SDACCEL_WRAPPER_VERSION := v0.14.0
 GO_VERSION := 1.7.4
 
-.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload build-docs upload-docs
+print-% : ; @echo $($*)
 
 all: package/reco package/reco-jarvice
 
