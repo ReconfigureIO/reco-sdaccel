@@ -1,0 +1,7 @@
+- hosts: localhost
+
+  tasks:
+    - name: create sdaccel-builder repo
+      ecs_ecr:
+        name: reconfigureio/build-framework/sdaccel-builder
+        state: present

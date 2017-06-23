@@ -22,3 +22,8 @@ benchmarks:
     smallerIsBetter: True
     unit: allocs
     group: "benchmark"
+  - match: "buildTime/*"
+    smallerIsBetter: True
+    type: integral
+    unit: s
+    group: "benchmark"
