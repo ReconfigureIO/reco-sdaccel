@@ -12,11 +12,12 @@ DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_3"
 DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.3"
 TARGET := "hw_emu"
 OPTIMIZE := "no"
+OPTIMIZE_LEVEL := 10
 CLFLAGS :=
 CPUS := $(shell nproc)
 
 ifeq ($(OPTIMIZE), yes)
-	GO_TEAK_FLAGS := -O
+	GO_TEAK_FLAGS := -O -p${OPTIMIZE_LEVEL}
 else
 	GO_TEAK_FLAGS :=
 endif
