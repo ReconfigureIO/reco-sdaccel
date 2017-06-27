@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -euox pipefail
 IFS=$'\n\t'
 
 NAME=$1
@@ -10,8 +10,16 @@ SHA=$4
 ERRFILE=$(mktemp --suffix ".log")
 
 cd "examples/$NAME"
+set +e
 NUMBER=$(../../reco-aws/reco-aws build 2>$ERRFILE)
+
+exit="$?"
 cat $ERRFILE
+
+if [ $exit -ne 0 ]; then
+    exit "$exit"
+fi
+set -e
 
 mkdir -p ../../bench_tmp
 TMPFILE=$(mktemp --suffix ".log" -p ../../bench_tmp)
