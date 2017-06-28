@@ -13,6 +13,7 @@ if [ $? -ne 0 ]; then
 fi
 
 /opt/sdaccel-builder/sdaccel-builder simulate "$CMD"
+cat times.out
 
 exit="$?"
 

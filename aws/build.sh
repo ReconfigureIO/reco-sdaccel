@@ -26,6 +26,8 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
+cat times.out
+
 
 cd .reco-work/sdaccel/dist
 /opt/package_dcp.sh -k kernel_test -e `which cat`
