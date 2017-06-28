@@ -128,8 +128,8 @@ docs:
 	mkdir -p docs
 
 build-docs: | docs
-	GOROOT=go-teak ./scripts/gendoc.sh docs/kernel
-	GOROOT=go ./scripts/gendoc.sh docs/host
+	GOROOT=$$PWD/eTeak/go/ GOPATH=$$PWD/go-teak ./scripts/gendoc.sh docs/kernel
+	GOROOT=$$PWD/go/ ./scripts/gendoc.sh docs/host
 
 update-changelog:
 	sed -i 's/$$VERSION/$(VERSION)/' RELEASE.md
