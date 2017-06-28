@@ -77,7 +77,7 @@ pipeline {
                 expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
             }
             steps {
-                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} deploy"
+                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} aws"
             }
         }
 
