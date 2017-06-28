@@ -107,7 +107,7 @@ downloads:
 	mkdir -p downloads
 
 downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz: | downloads
-	aws s3 cp "s3://nerabus/eTeak/releases/eTeak-${SDACCEL_WRAPPER_VERSION}-x86_64-unknown-linux-release.tar.gz" $@
+	aws s3 cp --quiet "s3://nerabus/eTeak/releases/eTeak-${SDACCEL_WRAPPER_VERSION}-x86_64-unknown-linux-release.tar.gz" $@
 	# So that it won't download again
 	touch $@
 
@@ -157,9 +157,9 @@ upload-docs: build-docs
 	aws s3 sync docs "s3://godoc.reconfigure.io/${VERSION}/"
 
 upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz dist/${NAME}-deploy-${VERSION}.tar.gz docker-image upload-docs
-	aws s3 cp "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
-	aws s3 cp "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
-	aws s3 cp "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
+	aws s3 cp --quiet "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
+	aws s3 cp --quiet "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
+	aws s3 cp --quiet "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
 	docker tag $(DOCKER_NAME):latest ${DOCKER_REMOTE}:${VERSION}
 	$$(aws ecr get-login --region us-east-1)
 	docker push ${DOCKER_REMOTE}:${VERSION}
