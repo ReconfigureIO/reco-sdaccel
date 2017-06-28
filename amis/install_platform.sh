@@ -2,7 +2,7 @@
 set -ex
 mkdir -p /tmp/aws-fpga
 cd /tmp/aws-fpga
-aws s3 cp s3://nerabus/platform/aws-fpga-preview-master.zip .
+aws s3 cp --quiet s3://nerabus/platform/aws-fpga-preview-master.zip .
 unzip aws-fpga-preview-master.zip
 cd aws-fpga-preview-master
 export XILINX_SDX=/opt/Xilinx/SDx/2017.1.op/

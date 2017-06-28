@@ -5,7 +5,7 @@ source "/opt/sdaccel-builder/settings.sh"
 curl -XPOST -H "Content-Type: application/json"  -d '{"status": "STARTED"}' "$CALLBACK_URL" &> /dev/null
 
 set +e
-aws s3 cp "$INPUT_URL" - | tar zxf -
+aws s3 cp --quiet "$INPUT_URL" - | tar zxf -
 
 exit="$?"
 
@@ -20,7 +20,7 @@ exit="$?"
 
 if [ $exit -ne 0 ]; then
     zip -qr artifacts.zip /tmp/workspace/.reco-work
-    aws s3 cp "artifacts.zip" "$OUTPUT_URL"
+    aws s3 cp --quiet "artifacts.zip" "$OUTPUT_URL"
 
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
     exit "$exit"
@@ -29,7 +29,7 @@ fi
 
 cd .reco-work/sdaccel/dist
 /opt/package_dcp.sh -k kernel_test -e `which cat`
-aws s3 cp *Developer_CL.tar "s3://$DCP_BUCKET/$DCP_KEY"
+aws s3 cp --quiet *Developer_CL.tar "s3://$DCP_BUCKET/$DCP_KEY"
 aws ec2 create-fpga-image \
         --name kernel_test \
         --description "stub info for amazon" \
@@ -39,6 +39,6 @@ aws ec2 create-fpga-image \
 cd -
 
 zip -qr dist.zip .reco-work/sdaccel/dist
-aws s3 cp "dist.zip" "$OUTPUT_URL"
+aws s3 cp --quiet "dist.zip" "$OUTPUT_URL"
 
 curl -XPOST -H "Content-Type: application/json"  -d '{"status": "COMPLETED"}' "$CALLBACK_URL" &> /dev/null
