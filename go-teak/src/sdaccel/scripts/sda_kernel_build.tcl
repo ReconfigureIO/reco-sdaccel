@@ -72,6 +72,10 @@
 
 # Specify degree of multithreading.
 set numProcessors [exec nproc]
+if {$numProcessors > 8} {
+    set numProcessors 8
+}
+
 if {0 == [info exists numProcessors]} {
   set_param general.maxThreads 4
 } else {
