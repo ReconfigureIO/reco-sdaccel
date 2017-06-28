@@ -110,22 +110,22 @@ pipeline {
         }
 
 
-//        stage('test hw builds') {
-//            when {
-//                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
-//            }
-//            steps {
-//                parallel "histogram array": {
-//                    sh './ci/test_build.sh histogram-array test-histogram histogram "`git rev-parse HEAD`"'
-//                },
-//                memcopy: {
-//                    sh './ci/test_build.sh memcopy test-memcopy memcopy "`git rev-parse HEAD`"'
-//                },
-//                "parallel histogram": {
-//                    sh './ci/test_build.sh histogram-parallel test-histogram histogram "`git rev-parse HEAD`"'
-//                }
-//            }
-//        }
+        stage('test hw builds') {
+            when {
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
+            }
+            steps {
+                parallel "histogram array": {
+                    sh './ci/test_build.sh histogram-array test-histogram histogram "`git rev-parse HEAD`"'
+                },
+                memcopy: {
+                    sh './ci/test_build.sh memcopy test-memcopy memcopy "`git rev-parse HEAD`"'
+                },
+                "parallel histogram": {
+                    sh './ci/test_build.sh histogram-parallel test-histogram histogram "`git rev-parse HEAD`"'
+                }
+            }
+        }
 
         stage('show benchmarks'){
             when {
