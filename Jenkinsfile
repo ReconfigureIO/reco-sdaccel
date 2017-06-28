@@ -77,7 +77,7 @@ pipeline {
                 expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
             }
             steps {
-                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} deploy"
+                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} aws"
             }
         }
 
@@ -88,22 +88,22 @@ pipeline {
             steps {
                 parallel "histogram array": {
                     dir('examples/histogram-array'){
-                        sh '../../reco-jarvice/reco-jarvice test test-histogram'
+                        sh '../../reco-aws/reco-aws test test-histogram'
                     }
                 },
-//                addition: {
-//                    dir('examples/addition'){
-//                        sh '../../reco-jarvice/reco-jarvice test test-addition'
-//                    }
-//                },
+                addition: {
+                    dir('examples/addition'){
+                        sh '../../reco-aws/reco-aws test test-addition'
+                    }
+                },
                 memcopy: {
                     dir('examples/memcopy'){
-                        sh '../../reco-jarvice/reco-jarvice test test-memcopy'
+                        sh '../../reco-aws/reco-aws test test-memcopy'
                     }
                 },
                 "parallel histogram": {
                     dir('examples/histogram-parallel'){
-                        sh '../../reco-jarvice/reco-jarvice test test-histogram'
+                        sh '../../reco-aws/reco-aws test test-histogram'
                     }
                 }
             }

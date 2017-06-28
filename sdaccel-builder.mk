@@ -14,7 +14,7 @@ TARGET := "hw_emu"
 OPTIMIZE := "no"
 OPTIMIZE_LEVEL := 10
 CLFLAGS :=
-CPUS := $(shell nproc)
+CPUS := 4
 
 ifeq ($(OPTIMIZE), yes)
 	GO_TEAK_FLAGS := -O -p${OPTIMIZE_LEVEL}

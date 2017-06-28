@@ -1,0 +1,133 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+export DIR
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+function help {
+    echo "
+
+reco-aws $VERSION
+
+usage: $0 <command>
+
+Where <command> is one of the following:
+
+    Testing:
+
+    test <cmd>              Test the current kernel using a hardware simulator
+
+    Building:
+
+    build                   Build the project in the current folder.
+
+    Other:
+
+    help    Display this help output
+"
+}
+
+function bundle {
+    mkdir -p .reco-work
+    tar hczf .reco-work/bundle.tar.gz --exclude .reco-work ./* 1>&2
+}
+
+function copy_bundle {
+    aws s3 cp --quiet .reco-work/bundle.tar.gz "s3://reconfigureio-builds/tmp/$1.tar.gz" 1>&2
+}
+
+function clean_bundle {
+    aws s3 rm "s3://reconfigureio-builds/tmp/$1.tar.gz" 1>&2
+}
+
+function wait_for {
+    while :
+    do
+        status=$(aws batch describe-jobs --jobs "$1" | jq -r ".jobs[0].status")
+        case $status in
+           "SUCCEEDED")
+                echo "0"
+                break
+                ;;
+            "FAILED")
+                echo "1"
+                break
+                ;;
+            "null")
+                echo "1"
+                break
+                ;;
+            *)
+                sleep 60s
+                ;;
+        esac
+    done
+
+}
+
+function submit_job {
+    SUBMIT=$(cat "$DIR/../aws/job_submit.json" | jq ".containerOverrides.command[0] = \"$2\" | .containerOverrides.environment[2].value = \"s3://reconfigureio-builds/tmp/$1.tar.gz\" | .containerOverrides.environment[7].value = \"s3://reconfigureio-builds/tmp/$1.dist.zip\" | .containerOverrides.environment[4].value = \"${@:3}\" | .containerOverrides.environment[8].value = \"tmp/dcp/$1.tar\" | .containerOverrides.environment[9].value = \"tmp/dcp-logs/$1\"")
+    aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
+}
+
+function submit_deploy {
+    NUMBER="$1"
+    CMD="${@:2}"
+    SUBMIT=$(cat "$DIR/../aws/deploy_test.json" | jq ".containerOverrides.command[2] = \"$CMD\"")
+    aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
+}
+
+function stream_logs {
+    STREAM=$(aws logs describe-log-streams --log-group-name /aws/batch/job --log-stream-name-prefix "$1/$2" | jq -r ".logStreams[0].logStreamName")
+    aws logs get-log-events --log-group-name /aws/batch/job --log-stream-name "$STREAM" | jq -r ".events | .[] | .message" 1>&2
+}
+
+function run_batch {
+    JOB=$(uuidgen -t)
+    bundle
+    copy_bundle "$JOB"
+    JOB_ID=$(submit_job "$JOB" "$@")
+    CODE=$(wait_for "$JOB_ID")
+    clean_bundle "$JOB"
+    stream_logs "example" "$JOB_ID"
+    echo "$JOB"
+    exit "$CODE"
+}
+
+function run_deploy {
+    JOB_ID=$(submit_deploy "$@")
+    CODE=$(wait_for "$JOB_ID")
+    stream_logs "staging-deploy" "$JOB_ID"
+    exit "$CODE"
+}
+
+function build {
+    run_batch "/opt/build.sh" "${@:1}"
+}
+
+function test-cmd {
+    run_batch "/opt/simulate.sh" "${@:1}"
+}
+
+function main {
+    case "$1" in
+        "test")
+            test-cmd "${@:2}"
+            ;;
+        "build")
+            build "${@:2}"
+            ;;
+        "run")
+            run_deploy "${@:2}"
+            ;;
+        *)
+            echo "unrecognized command: $1";
+            help "$@"
+            exit 1
+            ;;
+        esac
+}
+
+main "$@"

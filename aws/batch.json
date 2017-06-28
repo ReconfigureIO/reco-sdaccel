@@ -4,8 +4,8 @@
     "parameters": {},
     "containerProperties": {
         "image": "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/sdaccel-builder:josh-test",
-        "vcpus": 8,
-        "memory": 16000,
+        "vcpus": 4,
+        "memory": 8000,
         "jobRoleArn": "arn:aws:iam::398048034572:role/batch-builder",
         "command": [
             "/opt/build.sh"
@@ -42,6 +42,14 @@
             {
                 "name": "LD_LIBRARY_PATH",
                 "value": "/opt/Xilinx/SDx/2017.1.op/Vivado/lib/lnx64.o"
+            },
+            {
+                "name": "DCP_BUCKET",
+                "value": "reconfigureio-builds"
+            },
+            {
+                "name": "LOG_BUCKET",
+                "value": "reconfigureio-builds"
             }
         ],
         "mountPoints": [
