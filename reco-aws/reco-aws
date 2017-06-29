@@ -45,13 +45,15 @@ function clean_bundle {
 function wait_for {
     while :
     do
-        status=$(aws batch describe-jobs --jobs "$1" | jq -r ".jobs[0].status")
+        #poll for
+        afi=aws s3 ls s3://reconfigureio-builds/tmp/dcp-logs/"$1"/ | grep -o 'afi-[^ ,]\+'
+        status=$(aws s3 cp s3://reconfigureio-builds/tmp/dcp-logs/"$1"/"$afi"/State - | grep -oP 'State=\K\w+')
         case $status in
-           "SUCCEEDED")
+           "succeeded")
                 echo "0"
                 break
                 ;;
-            "FAILED")
+            "failed")
                 echo "1"
                 break
                 ;;
