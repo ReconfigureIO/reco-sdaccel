@@ -4,6 +4,8 @@ export PATH=$XILINX_SDX/bin:$XILINX_VIVADO/bin:$XILINX_SDX/runtime/bin:$PATH
 source "/opt/sdaccel-builder/settings.sh"
 curl -XPOST -H "Content-Type: application/json"  -d '{"status": "STARTED"}' "$CALLBACK_URL" &> /dev/null
 
+mount -o -t tmpfs none /tmp
+
 set +e
 aws s3 cp --quiet "$INPUT_URL" - | tar zxf -
 
