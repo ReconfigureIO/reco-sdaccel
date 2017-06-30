@@ -45,7 +45,6 @@ function clean_bundle {
 function wait_for {
     while :
     do
-        #poll for
         afi=aws s3 ls s3://reconfigureio-builds/tmp/dcp-logs/"$1"/ | grep -o 'afi-[^ ,]\+'
         status=$(aws s3 cp s3://reconfigureio-builds/tmp/dcp-logs/"$1"/"$afi"/State - | grep -oP 'State=\K\w+')
         case $status in
