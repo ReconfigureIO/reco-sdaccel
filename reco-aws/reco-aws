@@ -75,7 +75,7 @@ function wait_for_afi {
     AFI=$(afi_id_from_build_id "$1")
     while :
     do
-        status=$(aws ec2 describe-fpga-images "$AFI" - | jq -r ".FpgaImages[0].State.code")
+        status=$(aws ec2 describe-fpga-images --fpga-image-ids "$AFI" | jq -r ".FpgaImages[0].State.code")
         case $status in
            "succeeded")
                 echo "0"
@@ -115,7 +115,7 @@ function stream_logs {
 }
 
 function afi_id_from_build_id {
-    afi=aws s3 ls s3://reconfigureio-builds/tmp/dcp-logs/"$1"/ | grep -o 'afi-[^ ,]\+'
+    afi=$(aws s3 ls s3://reconfigureio-builds/tmp/dcp-logs/"$1"/ | grep -o 'afi-[^ ,]\+')
     echo "$afi"
 }
 
