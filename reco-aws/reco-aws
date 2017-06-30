@@ -42,7 +42,32 @@ function clean_bundle {
     aws s3 rm "s3://reconfigureio-builds/tmp/$1.tar.gz" 1>&2
 }
 
-function wait_for {
+function wait_for_batch {
+    while :
+    do
+        status=$(aws batch describe-jobs --jobs "$1" | jq -r ".jobs[0].status")
+        case $status in
+           "SUCCEEDED")
+                echo "0"
+                break
+                ;;
+            "FAILED")
+                echo "1"
+                break
+                ;;
+            "null")
+                echo "1"
+                break
+                ;;
+            *)
+                sleep 60s
+                ;;
+        esac
+    done
+
+}
+
+function wait_for_afi {
     while :
     do
         afi=aws s3 ls s3://reconfigureio-builds/tmp/dcp-logs/"$1"/ | grep -o 'afi-[^ ,]\+'
@@ -90,7 +115,7 @@ function run_batch {
     bundle
     copy_bundle "$JOB"
     JOB_ID=$(submit_job "$JOB" "$@")
-    CODE=$(wait_for "$JOB_ID")
+    CODE=$(wait_for_batch "$JOB_ID")
     clean_bundle "$JOB"
     stream_logs "example" "$JOB_ID"
     echo "$JOB"
@@ -99,7 +124,7 @@ function run_batch {
 
 function run_deploy {
     JOB_ID=$(submit_deploy "$@")
-    CODE=$(wait_for "$JOB_ID")
+    CODE=$(wait_for_batch "$JOB_ID")
     stream_logs "staging-deploy" "$JOB_ID"
     exit "$CODE"
 }
