@@ -23,6 +23,10 @@ Where <command> is one of the following:
 
     build                   Build the project in the current folder.
 
+    check-afi <build_id>    Check the state of the build's output AFI.
+
+    afi-logs <build_id>     Retrieve logs from AFI generation.
+
     Other:
 
     help    Display this help output
@@ -68,10 +72,10 @@ function wait_for_batch {
 }
 
 function wait_for_afi {
+    AFI=$(afi_id_from_build_id "$1")
     while :
     do
-        afi=aws s3 ls s3://reconfigureio-builds/tmp/dcp-logs/"$1"/ | grep -o 'afi-[^ ,]\+'
-        status=$(aws s3 cp s3://reconfigureio-builds/tmp/dcp-logs/"$1"/"$afi"/State - | grep -oP 'State=\K\w+')
+        status=$(aws ec2 describe-fpga-images "$AFI" - | jq -r ".FpgaImages[0].State.code")
         case $status in
            "succeeded")
                 echo "0"
@@ -108,6 +112,17 @@ function submit_deploy {
 function stream_logs {
     STREAM=$(aws logs describe-log-streams --log-group-name /aws/batch/job --log-stream-name-prefix "$1/$2" | jq -r ".logStreams[0].logStreamName")
     aws logs get-log-events --log-group-name /aws/batch/job --log-stream-name "$STREAM" | jq -r ".events | .[] | .message" 1>&2
+}
+
+function afi_id_from_build_id {
+    afi=aws s3 ls s3://reconfigureio-builds/tmp/dcp-logs/"$1"/ | grep -o 'afi-[^ ,]\+'
+    echo "$afi"
+}
+
+function get_afi_logs {
+    AFI=$(afi_id_from_build_id "$1")
+    LOGFILE=$(aws s3 ls s3://reconfigureio-builds/tmp/dcp-logs/"$1"/"$AFI"/ | grep "\.log" | awk '{print $4}' | head -n1)
+    aws s3 cp s3://reconfigureio-builds/tmp/dcp-logs/"$1"/"$AFI"/"$LOGFILE"
 }
 
 function run_batch {
@@ -147,6 +162,12 @@ function main {
             ;;
         "run")
             run_deploy "${@:2}"
+            ;;
+        "check-afi")
+            wait_for_afi "${@:2}"
+            ;;
+        "afi-logs")
+            get_afi_logs "${@:2}"
             ;;
         *)
             echo "unrecognized command: $1";
