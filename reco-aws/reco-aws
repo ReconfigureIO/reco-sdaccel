@@ -77,7 +77,7 @@ function wait_for_afi {
     do
         status=$(aws ec2 describe-fpga-images --fpga-image-ids "$AFI" | jq -r ".FpgaImages[0].State.code")
         case $status in
-           "succeeded")
+           "available")
                 echo "0"
                 break
                 ;;
