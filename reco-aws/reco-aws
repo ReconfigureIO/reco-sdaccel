@@ -2,6 +2,7 @@
 
 set -e
 set -o pipefail
+set -x
 
 export DIR
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -117,7 +118,7 @@ function afi_id_from_build_id {
     while :
     do
         AFI=$(aws s3 ls s3://reconfigureio-builds/tmp/dcp-logs/"$1"/ | grep -o 'afi-[^ ,]\+')
-        if [ -z $AFI ]
+        if [ -z "$AFI" ]
         then
             sleep 60s
         else
@@ -159,7 +160,7 @@ function run_deploy {
 function build {
     JOB_ID=$(generate_job_id)
     CODE_BUILD=$(run_batch "/opt/build.sh" "${@:1}" "$JOB_ID")
-    if [ CODE_BUILD=="0"]
+    if [ "$CODE_BUILD" == "0" ]
     then
         CODE_AFI=$(wait_for_afi "$JOB_ID")
         exit "$CODE_AFI"
