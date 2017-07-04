@@ -72,9 +72,9 @@ function wait_for_batch {
 }
 
 function wait_for_afi {
-    AFI=$(afi_id_from_build_id "$1")
     while :
     do
+        AFI=$(afi_id_from_build_id "$1")
         status=$(aws ec2 describe-fpga-images --fpga-image-ids "$AFI" | jq -r ".FpgaImages[0].State.code")
         case $status in
            "available")
@@ -94,7 +94,6 @@ function wait_for_afi {
                 ;;
         esac
     done
-
 }
 
 function submit_job {
@@ -115,8 +114,17 @@ function stream_logs {
 }
 
 function afi_id_from_build_id {
-    afi=$(aws s3 ls s3://reconfigureio-builds/tmp/dcp-logs/"$1"/ | grep -o 'afi-[^ ,]\+')
-    echo "${afi::-1}"
+    while :
+    do
+        AFI=$(aws s3 ls s3://reconfigureio-builds/tmp/dcp-logs/"$1"/ | grep -o 'afi-[^ ,]\+')
+        if [ -z $AFI ]
+        then
+            sleep 60s
+        else
+            echo "${AFI::-1}"
+            break
+        fi
+    done
 }
 
 function get_afi_logs {
@@ -130,7 +138,8 @@ function run_batch {
     bundle
     copy_bundle "$JOB"
     JOB_ID=$(submit_job "$JOB" "$@")
-    CODE=$(wait_for_batch "$JOB_ID")
+    BATCH_CODE=$(wait_for_batch "$JOB_ID")
+    AFI_CODE=$(wait_for_afi "$JOB_ID")
     clean_bundle "$JOB"
     stream_logs "example" "$JOB_ID"
     echo "$JOB"
