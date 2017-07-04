@@ -133,17 +133,20 @@ function get_afi_logs {
     aws s3 cp s3://reconfigureio-builds/tmp/dcp-logs/"$1"/"$AFI"/"$LOGFILE" -
 }
 
-function run_batch {
+function generate_job_id {
     JOB=$(uuidgen -t)
+    echo "$JOB"
+}
+
+function run_batch {
+    JOB="$@:2"
     bundle
     copy_bundle "$JOB"
     JOB_ID=$(submit_job "$JOB" "$@")
-    BATCH_CODE=$(wait_for_batch "$JOB_ID")
-    AFI_CODE=$(wait_for_afi "$JOB_ID")
+    CODE=$(wait_for_batch "$JOB_ID")
     clean_bundle "$JOB"
     stream_logs "example" "$JOB_ID"
-    echo "$JOB"
-    exit "$CODE"
+    echo "$CODE"
 }
 
 function run_deploy {
@@ -154,11 +157,21 @@ function run_deploy {
 }
 
 function build {
-    run_batch "/opt/build.sh" "${@:1}"
+    JOB_ID=$(generate_job_id)
+    CODE_BUILD=$(run_batch "/opt/build.sh" "${@:1}" "$JOB_ID")
+    if [ CODE_BUILD=="0"]
+    then
+        CODE_AFI=$(wait_for_afi "$JOB_ID")
+        exit "$CODE_AFI"
+    else
+        exit "$CODE_BUILD"
+    fi
 }
 
 function test-cmd {
-    run_batch "/opt/simulate.sh" "${@:1}"
+    JOB_ID=$(generate_job_id)
+    CODE=$(run_batch "/opt/simulate.sh" "${@:1}" "$JOB_ID")
+    exit "$CODE"
 }
 
 function main {
