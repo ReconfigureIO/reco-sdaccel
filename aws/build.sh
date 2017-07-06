@@ -32,15 +32,15 @@ cat times.out
 cd .reco-work/sdaccel/dist
 /opt/package_dcp.sh -k kernel_test -e `which cat`
 aws s3 cp --quiet *Developer_CL.tar "s3://$DCP_BUCKET/$DCP_KEY"
-aws ec2 create-fpga-image \
+AFI=$(aws ec2 create-fpga-image \
         --name kernel_test \
         --description "stub info for amazon" \
         --input-storage-location Bucket="$DCP_BUCKET",Key="$DCP_KEY" \
         --logs-storage-location Bucket="$LOG_BUCKET",Key="$LOG_KEY" \
-        --region=us-east-1
+        --region=us-east-1 | jq -r ".FpgaImageId")
 cd -
 
 zip -qr dist.zip .reco-work/sdaccel/dist
 aws s3 cp --quiet "dist.zip" "$OUTPUT_URL"
 
-curl -XPOST -H "Content-Type: application/json"  -d '{"status": "COMPLETED"}' "$CALLBACK_URL" &> /dev/null
+curl -XPOST -H "Content-Type: application/json"  -d '{"status": "CREATING_IMAGE", "message": "$AFI"}' "$CALLBACK_URL" &> /dev/null
