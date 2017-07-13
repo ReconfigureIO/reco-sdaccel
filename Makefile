@@ -99,6 +99,7 @@ dist/${NAME}-reco-jarvice-${VERSION}.tar.gz: bundle/reco-jarvice dist
 
 clean:
 	rm -rf build dist downloads eTeak docs
+	$(MAKE) -C reco-check-bundle clean
 
 deploy: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows
 	./deploy.sh $<
@@ -163,6 +164,7 @@ upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.
 	docker tag $(DOCKER_NAME):latest ${DOCKER_REMOTE}:${VERSION}
 	$$(aws ecr get-login --region us-east-1)
 	docker push ${DOCKER_REMOTE}:${VERSION}
+	$(MAKE) -C reco-check-bundle upload
 
 aws: upload
 	aws batch register-job-definition --cli-input-json '${BATCH_JOB}'
