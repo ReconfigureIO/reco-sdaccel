@@ -43,7 +43,7 @@ releases:
 	mkdir -p releases
 
 $(RELEASE_TARGETS): releases/${NAME}-${VERSION}-%.zip: dist/%/gopath dist/%/bin | releases
-	cd dist/$* && zip -r ${PWD}/$@ *
+	cd dist/$* && zip -r $(CURDIR)/$@ *
 
 upload: $(RELEASE_TARGETS)
 	aws s3 sync --acl public-read releases "s3://reconfigure.io/reco-check/bundles/"
