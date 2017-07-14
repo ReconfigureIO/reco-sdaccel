@@ -5,6 +5,7 @@ import (
 
 	// Import support for AXI memory access
 	aximemory "axi/memory"
+	axiprotocol "axi/protocol"
 	// Import the entire framework (including bundled verilog)
 	_ "sdaccel"
 )
