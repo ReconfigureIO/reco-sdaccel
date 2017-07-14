@@ -99,6 +99,7 @@ dist/${NAME}-reco-jarvice-${VERSION}.tar.gz: bundle/reco-jarvice dist
 
 clean:
 	rm -rf build dist downloads eTeak docs
+	$(MAKE) -C reco-check-bundle clean
 
 deploy: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows
 	./deploy.sh $<
@@ -168,7 +169,10 @@ aws: upload
 	aws batch register-job-definition --cli-input-json '${BATCH_JOB}'
 	aws batch register-job-definition --cli-input-json file://aws/deploy.json
 
-release: upload
+upload-reco-check-bundle:
+	$(MAKE) -C reco-check-bundle upload
+
+release: upload-reco-check-bundle upload
 	sed 's/$$VERSION/$(VERSION)/' RELEASE.md > RELEASE_NOTES.md
 	hub release create -d -F "RELEASE_NOTES.md" -a "dist/${NAME}-${VERSION}.tar.gz" -a "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" -a "dist/${NAME}-deploy-${VERSION}.tar.gz" "$(VERSION)"
 	rm RELEASE_NOTES.md
