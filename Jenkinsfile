@@ -101,6 +101,11 @@ pipeline {
                         sh '../../reco-aws/reco-aws test test-memcopy'
                     }
                 },
+                popcount: {
+                    dir('examples/popcount'){
+                        sh '../../reco-aws/reco-aws test test-popcount'
+                    }
+                },
                 "parallel histogram": {
                     dir('examples/histogram-parallel'){
                         sh '../../reco-aws/reco-aws test test-histogram'
