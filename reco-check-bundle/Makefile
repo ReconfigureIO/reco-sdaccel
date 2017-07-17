@@ -37,7 +37,7 @@ dist/%/bin: downloads/reco-check-${SDACCEL_WRAPPER_VERSION}-%.tar.gz | dist/%
 KERNEL_LIBS := $(shell find ../go-teak/ -type f -name "*.go")
 
 dist/%/gopath: $(KERNEL_LIBS) | dist/%
-	rsync -a --include="*.go" ../go-teak/ $@
+	rsync -a --exclude="*.v" --exclude="*.tcl" --exclude="*.md" --prune-empty-dirs ../go-teak/ $@
 
 releases:
 	mkdir -p releases
