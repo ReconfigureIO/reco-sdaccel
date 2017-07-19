@@ -3,12 +3,15 @@
     "jobQueue": "staging-deploy",
     "jobDefinition": "staging-deploy",
     "containerOverrides": {
-        "command": [
-            "bash",
-            "-c",
-            "fpga-load-local-image -S 0 -I agfi-0f0e045f919413242 && fpga-describe-local-image -S 0"
-        ],
         "environment": [
+            {
+                "name": "CMD",
+                "value": "test-histogram"
+            },
+            {
+                "name": "DIST_URL",
+                "value": "foo"
+            }
         ]
     }
 }
