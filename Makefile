@@ -21,7 +21,7 @@ PUBLISHED_DEPLOY := ${DOCKER_REMOTE}:${VERSION}
 JOB_DEFINITION := sdaccel-builder-build-staging
 
 BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "${PUBLISHED_DOCKER}" | .jobDefinitionName = "${JOB_DEFINITION}"')
-DEPLOY_JOB := $(shell cat aws/deploy.json.json | jq '.containerProperties.image = "${PUBLISHED_DEPLOY}"')
+DEPLOY_JOB := $(shell cat aws/deploy.json | jq '.containerProperties.image = "${PUBLISHED_DEPLOY}"')
 
 export SDACCEL_WRAPPER_VERSION := v0.16.3
 
