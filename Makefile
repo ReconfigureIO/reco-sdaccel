@@ -134,7 +134,7 @@ eTeak/go-teak-sdaccel: | eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-
 docs:
 	mkdir -p docs
 
-build-docs: | docs
+build-docs: | eTeak/go-teak-sdaccel docs
 	GOROOT=$$PWD/eTeak/go/ GOPATH=$$PWD/go-teak ./scripts/gendoc.sh docs/kernel
 	GOROOT=$$PWD/go/ ./scripts/gendoc.sh docs/host
 
