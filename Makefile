@@ -16,7 +16,7 @@ DOCKER_REMOTE := 398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/buil
 DEPLOY_REMOTE := 398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/$(DEPLOY_NAME)
 
 PUBLISHED_DOCKER := ${DOCKER_REMOTE}:${VERSION}
-PUBLISHED_DEPLOY := ${DOCKER_REMOTE}:${VERSION}
+PUBLISHED_DEPLOY := ${DEPLOY_REMOTE}:${VERSION}
 
 JOB_DEFINITION := sdaccel-builder-build-staging
 
