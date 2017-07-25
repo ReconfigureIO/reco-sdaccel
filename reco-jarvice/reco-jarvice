@@ -53,6 +53,7 @@ function shutdown {
 function builds {
     JOBS=$(curl "https://api.jarvice.com/jarvice/jobs?username=$USERNAME&apikey=$API_KEY&completed=true")
 
+    # shellcheck disable=SC1117
     echo -e "id\t\t\t\t\tstarted\t\t\tstatus"
     echo "$JOBS" | jq -r ".[] | values | select(.job_label | select(. != null) | test(\"^build:\") ) | [(.job_label | split(\":\") | .[1]), (.job_start_time | todateiso8601), .job_status] | @tsv" | sort -r -k2
 }
