@@ -75,7 +75,7 @@ function submit_job {
 function submit_deploy {
     NUMBER="$1"
     CMD="${@:2}"
-    SUBMIT=$(cat "$DIR/../aws/deploy_test.json" | jq ".containerOverrides.command[2] = \"$CMD\"")
+    SUBMIT=$(cat "$DIR/../aws/deploy_test.json" | jq ".containerOverrides.environment[0].value = \"$CMD\" | .containerOverrides.environment[1].value = \"s3://reconfigureio-builds/tmp/$NUMBER.dist.zip\"")
     aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
 }
 

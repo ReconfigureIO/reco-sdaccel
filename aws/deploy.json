@@ -3,20 +3,32 @@
     "type": "container",
     "parameters": {},
     "containerProperties": {
-        "image": "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/platform/deployment:latest",
+        "image": "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/f1-staging-deploy:latest",
         "vcpus": 1,
         "memory": 1000,
         "jobRoleArn": "arn:aws:iam::398048034572:role/batch-builder",
         "command": [
-            "bash",
-            "-c",
-            "fpga-load-local-image -S 0 -I agfi-0f0e045f919413242 && fpga-describe-local-image -S 0"
+            "/run.sh"
         ],
         "volumes": [
+            {
+                "host": {
+                    "sourcePath": "/opt/Xilinx"
+                },
+                "name": "xilinx"
+            }
         ],
         "environment": [
+            {
+                "name": "XILINX_SDX",
+                "value": "/opt/Xilinx/SDx/2017.1.op"
+            }
         ],
         "mountPoints": [
+            {
+                "sourceVolume": "xilinx",
+                "containerPath": "/opt/Xilinx"
+            }
         ],
         "readonlyRootFilesystem": false,
         "privileged": true,

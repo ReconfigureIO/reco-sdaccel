@@ -36,7 +36,7 @@ if [ -e 'reco.yml' ]; then
 fi
 
 function build {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" kernel
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" kernel sim
 }
 
 function image {
