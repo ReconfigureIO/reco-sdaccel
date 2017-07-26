@@ -8,11 +8,20 @@ BUILDDATE := $(shell date -u +"%B %d, %Y")
 BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PKG_RELEASE ?= 1
 PROJECT_URL := https://github.com/ReconfigueIO/$(NAME)
+
 DOCKER_NAME := $(NAME)
+DEPLOY_NAME := f1-staging-deploy
+
 DOCKER_REMOTE := 398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/$(NAME)
+DEPLOY_REMOTE := 398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/$(DEPLOY_NAME)
+
 PUBLISHED_DOCKER := ${DOCKER_REMOTE}:${VERSION}
+PUBLISHED_DEPLOY := ${DEPLOY_REMOTE}:${VERSION}
+
 JOB_DEFINITION := sdaccel-builder-build-staging
-BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/sdaccel-builder:${VERSION}" | .jobDefinitionName = "${JOB_DEFINITION}"')
+
+BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "${PUBLISHED_DOCKER}" | .jobDefinitionName = "${JOB_DEFINITION}"')
+DEPLOY_JOB := $(shell cat aws/deploy.json | jq '.containerProperties.image = "${PUBLISHED_DEPLOY}"')
 
 export SDACCEL_WRAPPER_VERSION := v0.16.3
 
@@ -134,7 +143,7 @@ eTeak/go-teak-sdaccel: | eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-
 docs:
 	mkdir -p docs
 
-build-docs: | docs
+build-docs: | eTeak/go-teak-sdaccel docs
 	GOROOT=$$PWD/eTeak/go/ GOPATH=$$PWD/go-teak ./scripts/gendoc.sh docs/kernel
 	GOROOT=$$PWD/go/ ./scripts/gendoc.sh docs/host
 
@@ -154,6 +163,7 @@ update-changelog:
 
 docker-image: bundle/reco
 	docker build -t $(DOCKER_NAME):latest .
+	docker build -t $(DEPLOY_NAME):latest docker-staging-deploy
 
 upload-docs: build-docs
 	aws s3 sync docs "s3://godoc.reconfigure.io/${VERSION}/"
@@ -162,13 +172,15 @@ upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.
 	aws s3 cp --quiet "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
 	aws s3 cp --quiet "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
 	aws s3 cp --quiet "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
-	docker tag $(DOCKER_NAME):latest ${DOCKER_REMOTE}:${VERSION}
+	docker tag $(DOCKER_NAME):latest ${PUBLISHED_DOCKER}
+	docker tag $(DEPLOY_NAME):latest ${PUBLISHED_DEPLOY}
 	$$(aws ecr get-login --region us-east-1)
-	docker push ${DOCKER_REMOTE}:${VERSION}
+	docker push ${PUBLISHED_DOCKER}
+	docker push ${PUBLISHED_DEPLOY}
 
 aws: upload
 	aws batch register-job-definition --cli-input-json '${BATCH_JOB}'
-	aws batch register-job-definition --cli-input-json file://aws/deploy.json
+	aws batch register-job-definition --cli-input-json '${DEPLOY_JOB}'
 
 upload-reco-check-bundle:
 	$(MAKE) -C reco-check-bundle upload

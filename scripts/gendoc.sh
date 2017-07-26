@@ -3,9 +3,6 @@ set -u
 
 DOC_DIR="$1"
 
-# Run a godoc server which we will scrape. Clobber the GOPATH to include
-# only our dependencies.
-GOPATH=""
 godoc -http=localhost:6060 &
 DOC_PID=$!
 
