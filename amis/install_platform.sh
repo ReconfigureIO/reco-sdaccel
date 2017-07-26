@@ -1,10 +1,11 @@
 #!/bin/bash
-set -ex
+set -x
+VERSION=v1.3.0-pre
 mkdir -p /tmp/aws-fpga
 cd /tmp/aws-fpga
-aws s3 cp --quiet s3://nerabus/platform/aws-fpga-preview-master.zip .
-unzip aws-fpga-preview-master.zip
-cd aws-fpga-preview-master
+aws s3 cp --quiet s3://nerabus/platform/aws-fpga-preview-$VERSION.zip .
+unzip aws-fpga-preview-$VERSION.zip
+#cd aws-fpga-preview-master
 export XILINX_SDX=/opt/Xilinx/SDx/2017.1.op/
 export AWS_FPGA_REPO_DIR="$PWD"
 export SDK_DIR="$PWD/sdk"
