@@ -52,8 +52,7 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	defer outputBuff.Free()
 
 	binary.Write(buff.Writer(), binary.LittleEndian, &input)
-
-	outputBuff.Write(resp)
+	binary.Write(outputBuff.Writer(), binary.LittleEndian, &resp)
 
 	krnl.SetMemoryArg(0, buff)
 	krnl.SetMemoryArg(1, outputBuff)

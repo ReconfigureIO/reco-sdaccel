@@ -1,0 +1,26 @@
+{
+    "jobDefinitionName": "staging-deploy",
+    "type": "container",
+    "parameters": {},
+    "containerProperties": {
+        "image": "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/platform/deployment:latest",
+        "vcpus": 1,
+        "memory": 1000,
+        "jobRoleArn": "arn:aws:iam::398048034572:role/batch-builder",
+        "command": [
+            "bash",
+            "-c",
+            "fpga-load-local-image -S 0 -I agfi-0f0e045f919413242 && fpga-describe-local-image -S 0"
+        ],
+        "volumes": [
+        ],
+        "environment": [
+        ],
+        "mountPoints": [
+        ],
+        "readonlyRootFilesystem": false,
+        "privileged": true,
+        "ulimits": [],
+        "user": "root"
+    }
+}

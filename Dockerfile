@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
         zip \
         unzip \
+        time \
 	&& rm -rf /var/lib/apt/lists/* \
     && pip install awscli
 COPY build/reco /opt/sdaccel-builder
