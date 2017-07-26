@@ -3,7 +3,7 @@ def SDACCEL_WRAPPER_VERSION = ''
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.16.3')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.16.4')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
     }
     environment {
