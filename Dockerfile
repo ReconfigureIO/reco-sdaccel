@@ -15,4 +15,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY build/reco /opt/sdaccel-builder
 COPY aws/*.sh /opt/
 ENV USER=root
+RUN aws configure set default.region us-east-1
 WORKDIR /mnt
