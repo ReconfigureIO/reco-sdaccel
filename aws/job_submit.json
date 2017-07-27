@@ -46,8 +46,11 @@
             {
                 "name": "LOG_KEY",
                 "value": "tmp/dcp-logs/test"
+            },
+            {
+                "name": "GENERATE_AFI",
+                "value": "no"
             }
-
         ]
     }
 }

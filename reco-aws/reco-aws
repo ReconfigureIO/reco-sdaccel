@@ -6,6 +6,8 @@ set -o pipefail
 export DIR
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+GENERATE_AFI=${GENERATE_AFI:-no}
+
 function help {
     echo "
 
@@ -72,32 +74,35 @@ function wait_for_batch {
 }
 
 function wait_for_afi {
-    while :
-    do
-        AFI=$(afi_id_from_build_id "$1")
-        status=$(aws ec2 describe-fpga-images --fpga-image-ids "$AFI" | jq -r ".FpgaImages[0].State.code")
-        case $status in
-           "available")
-                echo "0"
-                break
-                ;;
-            "failed")
-                echo "1"
-                break
-                ;;
-            "null")
-                echo "1"
-                break
-                ;;
-            *)
-                sleep 60s
-                ;;
-        esac
-    done
+    # If we aren't generating an AFI, we can't wait for it
+    if [ "$GENERATE_AFI" = "yes" ]; then
+        while :
+        do
+            AFI=$(afi_id_from_build_id "$1")
+            status=$(aws ec2 describe-fpga-images --fpga-image-ids "$AFI" | jq -r ".FpgaImages[0].State.code")
+            case $status in
+                "available")
+                    echo "0"
+                    break
+                    ;;
+                "failed")
+                    echo "1"
+                    break
+                    ;;
+                "null")
+                    echo "1"
+                    break
+                    ;;
+                *)
+                    sleep 60s
+                    ;;
+            esac
+        done
+    fi
 }
 
 function submit_job {
-    SUBMIT=$(cat "$DIR/../aws/job_submit.json" | jq ".containerOverrides.command[0] = \"$2\" | .containerOverrides.environment[2].value = \"s3://reconfigureio-builds/tmp/$1.tar.gz\" | .containerOverrides.environment[7].value = \"s3://reconfigureio-builds/tmp/$1.dist.zip\" | .containerOverrides.environment[4].value = \"${@:3}\" | .containerOverrides.environment[8].value = \"tmp/dcp/$1.tar\" | .containerOverrides.environment[9].value = \"tmp/dcp-logs/$1\"")
+    SUBMIT=$(cat "$DIR/../aws/job_submit.json" | jq ".containerOverrides.command[0] = \"$2\" | .containerOverrides.environment[2].value = \"s3://reconfigureio-builds/tmp/$1.tar.gz\" | .containerOverrides.environment[7].value = \"s3://reconfigureio-builds/tmp/$1.dist.zip\" | .containerOverrides.environment[4].value = \"${@:3}\" | .containerOverrides.environment[8].value = \"tmp/dcp/$1.tar\" | .containerOverrides.environment[9].value = \"tmp/dcp-logs/$1\" | .containerOverrides.environment[10].value = \"$GENERATE_AFI\"")
     aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
 }
 
