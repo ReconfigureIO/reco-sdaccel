@@ -17,6 +17,7 @@ cd SDAccel
 # This isn't correctly generated in sdaccel_setup.sh
 make ec2=1 -C userspace/src
 source sdaccel_setup.sh
+cp tools/create_sdaccel_afi.sh "$XILINX_SDX/bin"
 cd ../..
 cp -R ./sdk/SDAccel/aws_platform/xilinx_aws-vu9p-f1_4ddr-xpr-2pr_4_0/ "$XILINX_SDX/platforms"
 rm -rf /tmp/aws-fpga
