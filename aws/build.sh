@@ -29,16 +29,7 @@ fi
 cat times.out
 
 
-#cd .reco-work/sdaccel/dist
-#/opt/package_dcp.sh -k kernel_test -e `which cat`
-#aws s3 cp --quiet *Developer_CL.tar "s3://$DCP_BUCKET/$DCP_KEY"
-#aws ec2 create-fpga-image \
-#        --name kernel_test \
-#        --description "stub info for amazon" \
-#        --input-storage-location Bucket="$DCP_BUCKET",Key="$DCP_KEY" \
-#        --logs-storage-location Bucket="$LOG_BUCKET",Key="$LOG_KEY" \
-#        --region=us-east-1
-#cd -
+./create_sdaccel_afi.sh -s3_bucket="$DCP_BUCKET" -s3_dcp_key="$DCP_KEY" -s3_logs_key="$LOG_KEY" -xclbin=.reco-work/sdaccel/dist/xclbin/kernel_test.hw.*.xclbin -o=.reco-work/sdaccel/dist/xclbin/kernel_test.hw.*.xclbin
 
 zip -qr dist.zip .reco-work/sdaccel/dist
 aws s3 cp --quiet "dist.zip" "$OUTPUT_URL"
