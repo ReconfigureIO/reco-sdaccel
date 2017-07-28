@@ -107,9 +107,10 @@ function submit_job {
 }
 
 function submit_deploy {
-    NUMBER="$1"
-    CMD="${@:2}"
-    SUBMIT=$(cat "$DIR/../aws/deploy_test.json" | jq ".containerOverrides.environment[0].value = \"$CMD\" | .containerOverrides.environment[1].value = \"s3://reconfigureio-builds/tmp/$NUMBER.dist.zip\"")
+    AGFI="$1"
+    NUMBER="$2"
+    CMD="${@:3}"
+    SUBMIT=$(cat "$DIR/../aws/deploy_test.json" | jq ".containerOverrides.environment[2].value = \"$AGFI\" | .containerOverrides.environment[0].value = \"$CMD\" | .containerOverrides.environment[1].value = \"s3://reconfigureio-builds/tmp/$NUMBER.dist.zip\"")
     aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
 }
 
@@ -155,7 +156,9 @@ function run_batch {
 }
 
 function run_deploy {
-    JOB_ID=$(submit_deploy "$@")
+    AFI=$(afi_id_from_build_id "$1")
+    AGFI=$(aws ec2 describe-fpga-images --fpga-image-ids "$AFI" | jq -r ".FpgaImages[0].FpgaImageGlobalId")
+    JOB_ID=$(submit_deploy "$AGFI" "$@")
     CODE=$(wait_for_batch "$JOB_ID")
     stream_logs "staging-deploy" "$JOB_ID"
     exit "$CODE"

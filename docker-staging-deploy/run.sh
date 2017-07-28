@@ -1,4 +1,5 @@
 #!/bin/bash
+set -ex
 aws s3 cp "$DIST_URL" /tmp/bundle.zip
 unzip /tmp/bundle.zip -d "$PWD"
 

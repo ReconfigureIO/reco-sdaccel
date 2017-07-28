@@ -11,6 +11,10 @@
             {
                 "name": "DIST_URL",
                 "value": "foo"
+            },
+            {
+                "name": "AGFI",
+                "value": "foo"
             }
         ]
     }
