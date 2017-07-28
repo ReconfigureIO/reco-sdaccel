@@ -27,7 +27,7 @@ export SDACCEL_WRAPPER_VERSION := v0.16.3
 
 GO_VERSION := 1.7.4
 
-.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws build-docs upload-docs
+.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws build-docs upload-docs upload-docker
 
 print-% : ; @echo $($*)
 
@@ -168,17 +168,19 @@ docker-image: bundle/reco
 upload-docs: build-docs
 	aws s3 sync docs "s3://godoc.reconfigure.io/${VERSION}/"
 
-upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz dist/${NAME}-deploy-${VERSION}.tar.gz docker-image upload-docs
-	aws s3 cp --quiet "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
-	aws s3 cp --quiet "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
-	aws s3 cp --quiet "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
+upload-docker: docker-image
 	docker tag $(DOCKER_NAME):latest ${PUBLISHED_DOCKER}
 	docker tag $(DEPLOY_NAME):latest ${PUBLISHED_DEPLOY}
 	$$(aws ecr get-login --region us-east-1)
 	docker push ${PUBLISHED_DOCKER}
 	docker push ${PUBLISHED_DEPLOY}
 
-aws: upload
+upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz dist/${NAME}-deploy-${VERSION}.tar.gz upload-docs docker-image
+	aws s3 cp --quiet "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
+	aws s3 cp --quiet "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
+	aws s3 cp --quiet "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
+
+aws: upload-docker
 	aws batch register-job-definition --cli-input-json '${BATCH_JOB}'
 	aws batch register-job-definition --cli-input-json '${DEPLOY_JOB}'
 
