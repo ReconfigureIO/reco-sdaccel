@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 set -o pipefail
 
 export DIR
@@ -79,7 +79,7 @@ function wait_for_afi {
         while :
         do
             AFI=$(afi_id_from_build_id "$1")
-            status=$(aws ec2 describe-fpga-images --fpga-image-ids "$AFI" | jq -r ".FpgaImages[0].State.code")
+            status=$(aws ec2 describe-fpga-images --fpga-image-ids "$AFI" | jq -r ".FpgaImages[0].State.Code")
             case $status in
                 "available")
                     echo "0"
