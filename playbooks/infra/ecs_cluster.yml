@@ -179,6 +179,19 @@
         no_result_action: fail
       register: ami_find
 
+    - name: find our ami
+      ec2_ami_find:
+        owner: self
+        ami_tags:
+          service: vivado-ecs
+          version: 2017.1
+          build: latest
+          staging: "yes"
+        sort: creationDate
+        sort_order: descending
+        no_result_action: fail
+      register: staging_ami_find
+
     - name: remove any old zip
       file:
         path: "../../cloud-formation/ecs-cid-sample/code/metric.zip"
@@ -248,7 +261,7 @@
           S3BucketObject: "ecs-cluster/index.zip"
           MetricS3BucketObject: "ecs-cluster/metric.zip"
           QueueName: staging-deploy
-          EcsAmiId: "{{ ami_find.results[0].ami_id }}"
+          EcsAmiId: "{{ staging_ami_find.results[0].ami_id }}"
           EcsInstanceType: f1.2xlarge
           VpcId: vpc-03ca8364
           SecurityGroupId: sg-8a1b9cf0
