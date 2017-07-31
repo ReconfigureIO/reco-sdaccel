@@ -6,7 +6,7 @@
         "source_ami": "ami-78e7d66e",
         "instance_type": "m4.2xlarge",
         "ssh_username": "centos",
-        "ami_name": "vivado-2016.3-ecs {{timestamp}}",
+        "ami_name": "vivado-2017.1-ecs {{timestamp}}",
         "ebs_optimized": true,
         "ami_block_device_mappings": [{
             "device_name": "/dev/sda1",
@@ -19,7 +19,7 @@
         }],
         "tags": {
             "service": "vivado-ecs",
-            "version": "2016.3",
+            "version": "2017.1",
             "build": "latest",
             "staging": "yes"
         },
@@ -46,6 +46,11 @@
             "destination": "/tmp/install_platform.sh"
         },
         {
+            "type": "file",
+            "source": "amis/modules.conf",
+            "destination": "/tmp/sdaccel.conf"
+        },
+        {
         	"type": "shell",
         	"inline": [
                 "sudo yum install -y docker",
@@ -56,6 +61,7 @@
                 "echo ECS_AVAILABLE_LOGGING_DRIVERS='[\"json-file\",\"awslogs\"]' | sudo tee /etc/ecs/ecs.config",
                 "sudo docker pull amazon/amazon-ecs-agent:latest",
                 "sudo mv /tmp/ecs-agent.service /etc/systemd/system/ecs-agent.service",
+                "sudo mv /tmp/sdaccel.conf /etc/modules-load.d/sdaccel.conf",
                 "sudo systemctl daemon-reload",
                 "sudo systemctl start ecs-agent.service",
                 "sudo systemctl enable ecs-agent.service",
