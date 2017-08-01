@@ -98,6 +98,8 @@ function wait_for_afi {
                     ;;
             esac
         done
+    else
+        echo "0"
     fi
 }
 
