@@ -130,6 +130,11 @@ Parameters:
       - sc1
       - st1
     ConstraintDescription: Must be a valid EC2 volume type.
+  EcsClusterMaxSize:
+    Type: Number
+    Description: >
+      Optional - Max number of instances in the cluster
+    Default: '3'
 Conditions:
   CreateEC2LCWithKeyPair:
     !Not [!Equals [!Ref KeyName, '']]
@@ -264,7 +269,7 @@ Resources:
         - !Ref SubnetIds
       LaunchConfigurationName: !Ref EcsInstanceLc
       MinSize: '0'
-      MaxSize:  '3'
+      MaxSize:  !Ref EcsClusterMaxSize
       NotificationConfigurations:
       - TopicARN: !Ref ASGSNSTopic
         NotificationTypes:

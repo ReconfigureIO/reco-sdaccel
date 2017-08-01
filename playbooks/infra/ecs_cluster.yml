@@ -179,14 +179,18 @@
         no_result_action: fail
       register: ami_find
 
-    - name: find ecs ami
+    - name: find our ami
       ec2_ami_find:
-        name: "amzn-ami-*.a-amazon-ecs-optimized"
-        owner: amazon
+        owner: self
+        ami_tags:
+          service: vivado-ecs
+          version: 2017.1
+          build: latest
+          staging: "yes"
         sort: creationDate
         sort_order: descending
         no_result_action: fail
-      register: ecs_ami_find
+      register: staging_ami_find
 
     - name: remove any old zip
       file:
@@ -251,12 +255,13 @@
         template: "../../cloud-formation/ecs-cid-sample/cform/ecs.yaml"
         template_parameters:
           EcsClusterName: deploy-staging-cluster_Batch_3f38f98d-f7ff-32ba-96aa-df100a48fdef
+          EcsClusterMaxSize: 3
           KeyName: josh
           S3BucketName: nerabus
           S3BucketObject: "ecs-cluster/index.zip"
           MetricS3BucketObject: "ecs-cluster/metric.zip"
           QueueName: staging-deploy
-          EcsAmiId: "{{ ecs_ami_find.results[0].ami_id }}"
+          EcsAmiId: "{{ staging_ami_find.results[0].ami_id }}"
           EcsInstanceType: f1.2xlarge
           VpcId: vpc-03ca8364
           SecurityGroupId: sg-8a1b9cf0
