@@ -16,6 +16,12 @@
                     "sourcePath": "/opt/Xilinx"
                 },
                 "name": "xilinx"
+            },
+            {
+                "host": {
+                    "sourcePath": "/dev"
+                },
+                "name": "dev"
             }
         ],
         "environment": [
@@ -28,6 +34,10 @@
             {
                 "sourceVolume": "xilinx",
                 "containerPath": "/opt/Xilinx"
+            },
+            {
+                "sourceVolume": "dev",
+                "containerPath": "/dev"
             }
         ],
         "readonlyRootFilesystem": false,
