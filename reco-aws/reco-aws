@@ -168,6 +168,7 @@ function run_deploy {
 
 function build {
     JOB_ID=$(generate_job_id)
+    echo "$JOB_ID"
     CODE_BUILD=$(run_batch "/opt/build.sh" "$JOB_ID" "${@:1}")
     if [ "$CODE_BUILD" == "0" ]
     then
