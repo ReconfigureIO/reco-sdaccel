@@ -5,7 +5,6 @@ pipeline {
     parameters {
         string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.16.5')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
-        booleanParam(name: 'TEST_AFI', defaultValue: false, description: 'Test AFI generation')
     }
     environment {
         VERSION = "${env.BRANCH_NAME}"
@@ -122,7 +121,7 @@ pipeline {
             }
             steps {
                 parallel "histogram array": {
-                    sh './ci/test_build.sh histogram-array test-histogram histogram "`git rev-parse HEAD`"'
+                    sh './ci/test_afi_generation.sh histogram-array test-histogram histogram "`git rev-parse HEAD`"'
                 },
                 memcopy: {
                     sh './ci/test_build.sh memcopy test-memcopy memcopy "`git rev-parse HEAD`"'
@@ -130,15 +129,6 @@ pipeline {
                 "parallel histogram": {
                     sh './ci/test_build.sh histogram-parallel test-histogram histogram "`git rev-parse HEAD`"'
                 }
-            }
-        }
-
-        stage('test afi generation') {
-            when {
-                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] && params.TEST_AFI}
-            }
-            steps {
-                sh './ci/test_afi_generation.sh histogram-array test-histogram histogram "`git rev-parse HEAD`"'
             }
         }
 
