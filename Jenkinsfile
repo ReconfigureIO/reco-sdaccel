@@ -3,7 +3,7 @@ def SDACCEL_WRAPPER_VERSION = ''
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.16.4')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.16.5')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
         booleanParam(name: 'TEST_AFI', defaultValue: false, description: 'Test AFI generation')
     }
