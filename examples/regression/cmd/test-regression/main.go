@@ -8,7 +8,7 @@ import (
 )
 
 // check if a number is prime
-func IsPrime(value int) bool {
+/*func IsPrime(value int) bool {
 
     for i := 2; i <= int(math.Floor(math.Sqrt(float64(value)))); i++ {
         if value % i == 0 {
@@ -17,7 +17,7 @@ func IsPrime(value int) bool {
     }
 
     return value > 1
-}
+}*/
 
 func main() {
 
