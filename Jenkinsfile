@@ -91,6 +91,11 @@ pipeline {
                         sh '../../reco-aws/reco-aws test test-histogram'
                     }
                 },
+                regression : {
+                    dir('examples/regression'){
+                        sh '../../reco-aws/reco-aws test test-regression'
+                    }
+                },
                 addition: {
                     dir('examples/addition'){
                         sh '../../reco-aws/reco-aws test test-addition'
