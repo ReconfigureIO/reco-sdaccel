@@ -12,6 +12,12 @@ const (
 	ARRAY_SPLIT_SIZE = 15
 )
 
+type DataBlock struct {
+	Last bool
+	xs   [8]int32
+	ys   [8]int32
+}
+
 func add_slice(x [8]int32) int32 {
 	var x_total int32 = ((x[0] + x[1]) + (x[2] + x[3])) + ((x[4] + x[5]) + (x[6] + x[7]))
 	return x_total
@@ -34,10 +40,26 @@ type Pair struct {
 	Y int32
 }
 
-func MakePair(c <-chan uint64) Pair {
-	return Pair{
-		X: int32(<-c >> 32),
-		Y: int32(<-c),
+func MakeBlock(length uint32, inputChannel <-chan uint64) DataBlock {
+	var x_arr [8]int32
+	var y_arr [8]int32
+
+	for i := length; i != 0; {
+		next := <-inputChannel
+		t := i - 1
+		go func() {
+			x_arr[t] = int32(next >> 32)
+		}()
+		go func() {
+			y_arr[t] = int32(next)
+		}()
+		i = t
+	}
+
+	return DataBlock{
+		Last: length < 8,
+		xs:   x_arr,
+		ys:   y_arr,
 	}
 }
 
@@ -46,15 +68,6 @@ type Result struct {
 	y_total     int32
 	product_sum int32
 	squared_sum int32
-}
-
-func (a Result) Add(b Result) Result {
-	return Result{
-		x_total:     a.x_total + b.x_total,
-		y_total:     a.y_total + b.y_total,
-		product_sum: a.product_sum + b.product_sum,
-		squared_sum: a.squared_sum + b.squared_sum,
-	}
 }
 
 func squared_sum_func(x [8]int32) int32 {
@@ -70,45 +83,75 @@ func squared_sum_func(x [8]int32) int32 {
 	return add_slice(squared_array)
 }
 
+func MakeResult(block DataBlock, input_length_int int32) Result {
+	x_total := make(chan int32)
+	y_total := make(chan int32)
+	product_sum := make(chan int32)
+	squared_sum := make(chan int32)
+
+	go func() {
+		x_total <- add_slice(block.xs)
+	}()
+	go func() {
+		y_total <- add_slice(block.ys)
+	}()
+	go func() {
+		product_sum <- input_length_int * product_sum_slice(block.xs, block.ys)
+	}()
+	go func() {
+		squared_sum <- input_length_int * squared_sum_func(block.xs)
+	}()
+	return Result{
+		x_total:     (<-x_total),
+		y_total:     (<-y_total),
+		product_sum: (<-product_sum),
+		squared_sum: (<-squared_sum),
+	}
+}
+
+func MakePair(c <-chan uint64) Pair {
+	return Pair{
+		X: int32(<-c >> 32),
+		Y: int32(<-c),
+	}
+}
+
+func (a Result) Add(b Result) Result {
+	return Result{
+		x_total:     a.x_total + b.x_total,
+		y_total:     a.y_total + b.y_total,
+		product_sum: a.product_sum + b.product_sum,
+		squared_sum: a.squared_sum + b.squared_sum,
+	}
+}
+
 func regression(inputLength uint32, inputChannel <-chan uint64) Result {
 
-        //var result Result
-        result := Result{
-            x_total: 0,
-            y_total: 0,
-            product_sum: 0,
-            squared_sum: 0,
-        }
+        blocks := make(chan DataBlock)
 
-	var input_length_int int32 = 0
-	input_length_int = int32(inputLength)
+	input_length_int := int32(inputLength)
 
-        length := int(inputLength) / 8
+	go func() {
+		for ; inputLength != 0; inputLength -= 8 {
 
-	for ; length > 0; length-- {
+			toProcess := inputLength
+			if toProcess > 8 {
+				toProcess = 8
+			}
 
-		x_arr := [8]int32{}
-		y_arr := [8]int32{}
+			blocks <- MakeBlock(toProcess, inputChannel)
+		}
+	}()
 
-                for i := 8; i != 0; {
-                    next := <-inputChannel
-                    t := i - 1
-                    x_arr[t] = int32(next >> 32)
-                    y_arr[t] = int32(next)
-                    i = t
-                }
-
-                newResult := Result{
-                    x_total:     add_slice(x_arr),
-                    y_total:     add_slice(y_arr),
-                    product_sum: input_length_int * product_sum_slice(x_arr, y_arr),
-                    squared_sum: input_length_int * squared_sum_func(x_arr),
-                }
-
-                result.Add(newResult)
-
+	var result Result
+	notDone := true
+	for notDone {
+		block := <-blocks
+		result = result.Add(MakeResult(block, input_length_int))
+		notDone = !block.Last
 	}
-        return result
+
+	return result
 }
 
 // The Top function will be presented as a kernel
