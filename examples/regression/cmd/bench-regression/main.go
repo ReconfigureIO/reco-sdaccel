@@ -42,7 +42,7 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	B.ReportAllocs()
 
 	// The data we'll send to the kernel for processing
-        input := [2048]uint32{}
+        input := [64]uint64{}
 
         // so we don't get a divide by zero error
         input[0] = 1
@@ -60,7 +60,7 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	binary.Write(inputBuff.Writer(), binary.LittleEndian, &input)
 
 	krnl.SetMemoryArg(0, inputBuff)
-        krnl.SetArg(1, 1024)
+        krnl.SetArg(1, 64)
 
         // don't care about 3rd/4th
 	krnl.SetMemoryArg(2, buff1)

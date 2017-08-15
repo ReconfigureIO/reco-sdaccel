@@ -13,7 +13,7 @@ const (
 )
 
 func add_slice(x [8]int32) int32 {
-    var x_total int32 = x[0] + x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7]
+    var x_total int32 = ((x[0] + x[1]) + (x[2] + x[3])) + ((x[4] + x[5]) + (x[6] + x[7]))
     return x_total
 }
 
@@ -34,9 +34,9 @@ type Pair struct {
 	Y int32
 }
 
-func MakePair(c <-chan uint32) Pair {
+func MakePair(c <-chan uint64) Pair {
 	return Pair{
-		X: int32(<-c),
+		X: int32(<-c >> 32),
 		Y: int32(<-c),
 	}
 }
@@ -75,15 +75,12 @@ func Top(
 	memWriteData chan<- axiprotocol.WriteData,
 	memWriteResp <-chan axiprotocol.WriteResp) {
 
-        independentChannel := make(chan uint32)
+        independentChannel := make(chan uint64)
 	inputChannel := make(chan uint32)
 	alphaResponse := make(chan int32)
 	betaResponse := make(chan int32)
 
-	//memReadAddr0 := make(chan axiprotocol.Addr)
-	//memReadData0 := make(chan axiprotocol.ReadData)
-
-	go aximemory.ReadBurstUInt32(
+	go aximemory.ReadBurstUInt64(
 		memReadAddr, memReadData, true, inputData, inputLength * 2, inputChannel)
 
         // compute concurrently with reads.
@@ -106,7 +103,6 @@ func Top(
             var length int = 0
             length = int(inputLength)/8
 
-            // FIXME go generate or something? we *need* a concurrent adder
             for ; length > 0; length-- {
 
                 go func () {
