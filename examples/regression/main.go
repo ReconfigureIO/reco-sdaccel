@@ -12,39 +12,46 @@ const (
     ARRAY_SPLIT_SIZE = 15
 )
 
-func product_sum_slice(x [8]int32, y [8]int32) int32 {
-    var product_sum int32 = x[0] * y[0] 
-        + x[1] * y[1]
-        + x[2] * y[2]
-        + x[3] * y[3]
-        + x[4] * y[4]
-        + x[5] * y[5]
-        + x[6] * y[6]
-        + x[7] * y[7]
-    return product_sum
-}
-
-
-func squared_sum_func(x [8]int32) int32 {
-    var squared int32 = x[0] * x[0]
-        + x[1] * x[1]
-        + x[2] * x[2]
-        + x[3] * x[3]
-        + x[4] * x[4]
-        + x[5] * x[5]
-        + x[6] * x[6]
-        + x[7] * x[7]
-    return squared
-}
-
 func add_slice(x [8]int32) int32 {
     var x_total int32 = x[0] + x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7]
     return x_total
 }
 
-func add_slice_y(x [8]int32) int32 {
-    var x_total int32 = x[0] + x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7]
-    return x_total
+func product_sum_slice(x [8]int32, y [8]int32) int32 {
+    product_slice := [8]int32{x[0] * y[0],
+        x[1] * y[1],
+        x[2] * y[2],
+        x[3] * y[3],
+        x[4] * y[4],
+        x[5] * y[5],
+        x[6] * y[6],
+        x[7] * y[7]}
+    return add_slice(product_slice)
+}
+
+type Pair struct {
+	X int32
+	Y int32
+}
+
+func MakePair(c <-chan uint32) Pair {
+	return Pair{
+		X: int32(<-c),
+		Y: int32(<-c),
+	}
+}
+
+func squared_sum_func(x [8]int32) int32 {
+    squared_array := [8]int32{x[0] * x[0],
+        x[1] * x[1],
+        x[2] * x[2],
+        x[3] * x[3],
+        x[4] * x[4],
+        x[5] * x[5],
+        x[6] * x[6],
+        x[7] * x[7]}
+
+    return add_slice(squared_array)
 }
 
 // The Top function will be presented as a kernel
@@ -97,14 +104,14 @@ func Top(
             input_length_int = int32(inputLength)
 
             var length int = 0
-            length = int(inputLength)
+            length = int(inputLength)/8
 
             // FIXME go generate or something? we *need* a concurrent adder
             for ; length > 0; length-- {
 
                 go func () {
-    
-                    /*x_arr := [8]int32{}
+
+                    x_arr := [8]int32{}
                     y_arr := [8]int32{}
 
                     x_arr[0] = int32(<-inputChannel)
@@ -122,9 +129,9 @@ func Top(
                     x_arr[6] = int32(<-inputChannel)
                     y_arr[6] = int32(<-inputChannel)
                     x_arr[7] = int32(<-inputChannel)
-                    y_arr[7] = int32(<-inputChannel)*/
+                    y_arr[7] = int32(<-inputChannel)
 
-                    x_next := <- inputChannel
+                    /*x_next := <- inputChannel
                     y_next := <- inputChannel
 
                     x := int32(x_next)
@@ -133,12 +140,12 @@ func Top(
                     product_sum = product_sum + input_length_int * x * y
                     x_total = x_total + x
                     y_total = y_total + y
-                    squared_sum = squared_sum + input_length_int * x  * x
+                    squared_sum = squared_sum + input_length_int * x  * x*/
 
-                    /*product_sum = product_sum + input_length_int * product_sum_slice(x_arr, y_arr)
+                    product_sum = product_sum + input_length_int * product_sum_slice(x_arr, y_arr)
                     x_total = x_total + add_slice(x_arr)
                     y_total = y_total + add_slice(y_arr)
-                    squared_sum = squared_sum + input_length_int * squared_sum_func(x_arr)*/
+                    squared_sum = squared_sum + input_length_int * squared_sum_func(x_arr)
 
                 }()
             }
