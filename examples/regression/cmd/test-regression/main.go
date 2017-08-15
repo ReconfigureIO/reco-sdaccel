@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/binary"
-	"math/rand"
+	//"math/rand"
 	"fmt"
 	//"os"
 	"xcl"
@@ -20,6 +20,15 @@ import (
     return value > 1
 }*/
 
+/*type Sample struct {
+    x uint32
+    y uint32
+}
+
+func sample(x uint32, y uint32) {
+    Sample {x: x, y: y}
+}*/
+
 func main() {
 
 	// Allocate a world for interacting with kernels
@@ -32,13 +41,24 @@ func main() {
 	defer krnl.Release()
 
 	// The data we'll send to the kernel for processing
-        input := [8]uint32{2,3,5,7,11,13,17,19}
+        input := [32]uint32{1,2,
+            2,3,
+            3,5,
+            4,7,
+            5,11,
+            6,13,
+            7,17,
+            8,19,
+            9,23,
+            10,29,
+            11,31,
+            12,37,
+            13,41,
+            15,43,
+            16,47,
+        }
 
-	// seed it with 20 random values, bound to 0 - 2**16
-	for i, _ := range input {
-		input[i] = uint32(uint16(rand.Uint32()))
-	}
-
+        // FIXME is binary.Size doing something unexpected?
 	// On the FGPA, allocated ReadOnly memory for the input to the kernel.
 	inputBuff := world.Malloc(xcl.ReadOnly, uint(binary.Size(input)))
 	defer inputBuff.Free()
@@ -54,11 +74,12 @@ func main() {
 	// Pass the arguments to the kernel
 	// Set the pointer to the first output buffer
 	krnl.SetMemoryArg(0, inputBuff)
-        krnl.SetArg(1, 8)
+        krnl.SetArg(1, 16)
 	krnl.SetMemoryArg(2, buff1)
 	krnl.SetMemoryArg(3, buff2)
 
 	// write our input to the kernel at the memory we've previously allocated
+        // IDK if littleEndian is the right way to do this :|
 	binary.Write(inputBuff.Writer(), binary.LittleEndian, &input)
 
 	// Run the kernel with the supplied arguments
@@ -83,6 +104,6 @@ func main() {
         beta_scale = float32(beta)/1024
 
 	// Print the value we got from the FPGA
-	fmt.Printf("%f\n%f\n", alpha_scale, beta_scale)
+        fmt.Printf("\nIntercept: %f\nSlope: %f\n", alpha_scale, beta_scale)
 
 }

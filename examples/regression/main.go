@@ -9,8 +9,43 @@ import (
 )
 
 const (
-    ARRAY_SIZE = 15
+    ARRAY_SPLIT_SIZE = 15
 )
+
+func product_sum_slice(x [8]int32, y [8]int32) int32 {
+    var product_sum int32 = x[0] * y[0] 
+        + x[1] * y[1]
+        + x[2] * y[2]
+        + x[3] * y[3]
+        + x[4] * y[4]
+        + x[5] * y[5]
+        + x[6] * y[6]
+        + x[7] * y[7]
+    return product_sum
+}
+
+
+func squared_sum_func(x [8]int32) int32 {
+    var squared int32 = x[0] * x[0]
+        + x[1] * x[1]
+        + x[2] * x[2]
+        + x[3] * x[3]
+        + x[4] * x[4]
+        + x[5] * x[5]
+        + x[6] * x[6]
+        + x[7] * x[7]
+    return squared
+}
+
+func add_slice(x [8]int32) int32 {
+    var x_total int32 = x[0] + x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7]
+    return x_total
+}
+
+func add_slice_y(x [8]int32) int32 {
+    var x_total int32 = x[0] + x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7]
+    return x_total
+}
 
 // The Top function will be presented as a kernel
 func Top(
@@ -33,48 +68,99 @@ func Top(
 	memWriteData chan<- axiprotocol.WriteData,
 	memWriteResp <-chan axiprotocol.WriteResp) {
 
+        independentChannel := make(chan uint32)
 	inputChannel := make(chan uint32)
 	alphaResponse := make(chan int32)
 	betaResponse := make(chan int32)
 
+	//memReadAddr0 := make(chan axiprotocol.Addr)
+	//memReadData0 := make(chan axiprotocol.ReadData)
+
 	go aximemory.ReadBurstUInt32(
-		memReadAddr, memReadData, true, inputData, inputLength, inputChannel)
+		memReadAddr, memReadData, true, inputData, inputLength * 2, inputChannel)
 
+        // compute concurrently with reads.
         go func() {
-
-            x_arr := [8]int32{1,2,3,4,5,6,7,8}
-            x_arr_2 := [8]int32{1,2,3,4,5,6,7,8}
-            y_arr := [8]int32{2,3,5,7,11,13,17,19}
 
             var x_total int32 = 0
             var y_total int32 = 0
 
-            for i:= inputLength - 1; i != 0; i-- {
-                x_total = x_arr[i] + x_total
-                y_total = y_arr[i] + y_total
-            }
-
             // scale by 1024 so fractions are more precise. Divide by 8 because that's how many inputs we have
-            x_avg := (x_total << 10) / int32(inputLength)
-            y_avg := (y_total << 10) / int32(inputLength)
 
-            var beta1 int32 = 0
-            var beta2 int32 = 0
+            // nΣxy
+            var product_sum int32 = 0
 
-            for i := inputLength - 1; i != 0; i-- {
-                y_next := <- inputChannel
-                beta1 = beta1 + (x_arr[i] << 10 - x_avg) * (int32(y_next) << 10 - y_avg)
-                beta2 = beta2 + (x_arr_2[i] << 10 - x_avg) * (x_arr[i] << 10 - x_avg)
+            // nΣx^2
+            var squared_sum int32 = 0
+
+            var input_length_int int32 = 0
+            input_length_int = int32(inputLength)
+
+            var length int = 0
+            length = int(inputLength)
+
+            // FIXME go generate or something? we *need* a concurrent adder
+            for ; length > 0; length-- {
+
+                go func () {
+    
+                    /*x_arr := [8]int32{}
+                    y_arr := [8]int32{}
+
+                    x_arr[0] = int32(<-inputChannel)
+                    y_arr[0] = int32(<-inputChannel)
+                    x_arr[1] = int32(<-inputChannel)
+                    y_arr[1] = int32(<-inputChannel)
+                    x_arr[2] = int32(<-inputChannel)
+                    y_arr[2] = int32(<-inputChannel)
+                    x_arr[3] = int32(<-inputChannel)
+                    y_arr[3] = int32(<-inputChannel)
+                    x_arr[4] = int32(<-inputChannel)
+                    y_arr[4] = int32(<-inputChannel)
+                    x_arr[5] = int32(<-inputChannel)
+                    y_arr[5] = int32(<-inputChannel)
+                    x_arr[6] = int32(<-inputChannel)
+                    y_arr[6] = int32(<-inputChannel)
+                    x_arr[7] = int32(<-inputChannel)
+                    y_arr[7] = int32(<-inputChannel)*/
+
+                    x_next := <- inputChannel
+                    y_next := <- inputChannel
+
+                    x := int32(x_next)
+                    y := int32(y_next)
+                    
+                    product_sum = product_sum + input_length_int * x * y
+                    x_total = x_total + x
+                    y_total = y_total + y
+                    squared_sum = squared_sum + input_length_int * x  * x
+
+                    /*product_sum = product_sum + input_length_int * product_sum_slice(x_arr, y_arr)
+                    x_total = x_total + add_slice(x_arr)
+                    y_total = y_total + add_slice(y_arr)
+                    squared_sum = squared_sum + input_length_int * squared_sum_func(x_arr)*/
+
+                }()
             }
 
-            beta := beta2 / beta1
+            var x_avg int32 = x_total / int32(inputLength)
+            var y_avg int32 = y_total / int32(inputLength)
 
-            alpha := y_avg - beta * x_avg
+            // ΣxΣy
+            var pairwise_product int32 = x_total * y_total
 
-            // Calculate alpha
+            // nΣxy - ΣxΣy
+            var beta2 int32 = product_sum - (x_total * y_total)
+
+            // nΣx^2 - (Σx)^2
+            var beta1 int32 = squared_sum - (x_total * x_total)
+
+            // slope
+            beta := beta2 << 10 / beta1
+            // y-intercept
+            alpha := y_avg << 10 - beta * x_avg
+
             alphaResponse <- alpha
-
-            // Calculate beta
             betaResponse <- beta
 
         }()

@@ -1,0 +1,4 @@
+- [ ] vim plugin
+- [x] pi/mustache template
+  - [ ] fix pi's behavior w.r.t finding source templates in directories
+- [ ] parMap & parFold
