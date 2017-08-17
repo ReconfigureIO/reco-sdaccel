@@ -14,7 +14,7 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
-/opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdaccel-builder/sdaccel-builder image
+timeout -k 1m 12h /opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdaccel-builder/sdaccel-builder image
 
 exit="$?"
 
