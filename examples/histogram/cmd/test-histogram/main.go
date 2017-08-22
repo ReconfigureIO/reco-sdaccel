@@ -60,6 +60,7 @@ func main() {
 	krnl.SetMemoryArg(1, outputBuff)
 	// Pass the total length of the input as the third argument
 	krnl.SetArg(2, uint32(len(input)))
+	krnl.SetArg(3, uint32(1))
 
 	// Run the kernel
 	krnl.Run(1, 1, 1)

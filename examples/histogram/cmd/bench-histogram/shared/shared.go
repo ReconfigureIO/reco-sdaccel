@@ -34,10 +34,10 @@ func Process(name string) {
 }
 
 func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
-	B.SetBytes(4)
+	B.SetBytes(4 * 1024)
 	B.ReportAllocs()
 
-	input := make([]uint32, B.N)
+	input := make([]uint32, 1024)
 
 	// seed it with 20 random values, bound to 0 - 2**16
 	for i, _ := range input {
@@ -57,6 +57,7 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	krnl.SetMemoryArg(0, buff)
 	krnl.SetMemoryArg(1, outputBuff)
 	krnl.SetArg(2, uint32(len(input)))
+	krnl.SetArg(3, uint32(B.N))
 
 	B.ResetTimer()
 	krnl.Run(1, 1, 1)
