@@ -177,8 +177,7 @@ type digest struct {
    s [4]uint32
 }
 
-// TODO change this to 16 & update the &7 to be &15
-func block(dig digest, X [8]uint32) digest {
+func block(dig digest, X [16]uint32) digest {
     s := dig.s
 	ta0 := s[0]
 	tb0 := s[1]
@@ -186,31 +185,31 @@ func block(dig digest, X [8]uint32) digest {
 	td0 := s[3]
 
 	{{range $i, $s := dup 4 .Shift1}}
-  		{{index $.Table1 $i | printf "tmp := (((c^d)&b)^d) + (a + (X[%d&7] + %d))" $i | relabel}}{{ bump }}
-  		{{printf "a := tmp<<%d | tmp>>(32-%d) + b" $s $s | relabel}}
+  		{{index $.Table1 $i | printf "tmp := (((c^d)&b)^d) + (a + (X[%d] + %d))" $i | relabel}}{{ bump }}
+  		{{printf "a := tmp<<uint8(%d) | tmp>>uint8(32-%d) + b" $s $s | relabel}}
   		{{rotate}}
   	{{end}}
 
 
   	// Round 2.
   	{{range $i, $s := dup 4 .Shift2}}
-  		{{index $.Table2 $i | printf "tmp := ((b & d) | (c &^ d)) + (a + (X[(1+5*%d)&7] + %d))" $i | relabel}}{{bump}}
-  		{{printf "a := tmp<<%d | tmp>>(32-%d) + b" $s $s | relabel}}
+  		{{index $.Table2 $i | printf "tmp := ((b & d) | (c &^ d)) + (a + (X[uint32(1+5*%d)&15] + %d))" $i | relabel}}{{bump}}
+  		{{printf "a := tmp<<uint8(%d) | tmp>>uint8(32-%d) + b" $s $s | relabel}}
   		{{rotate}}
   	{{end}}
 
 
   	// Round 3.
   	{{range $i, $s := dup 4 .Shift3}}
-  		{{index $.Table3 $i | printf "tmp := (b^c^d) + (a + (X[(5+3*%d)&7] + %d))" $i | relabel}}{{bump}}
-  		{{printf "a := tmp<<%d | tmp>>(32-%d) + b" $s $s | relabel}}
+  		{{index $.Table3 $i | printf "tmp := (b^c^d) + (a + (X[uint32(5+3*%d)&15] + %d))" $i | relabel}}{{bump}}
+  		{{printf "a := tmp<<uint8(%d) | tmp>>uint8(32-%d) + b" $s $s | relabel}}
   		{{rotate}}
   	{{end}}
 
   	// Round 4.
   	{{range $i, $s := dup 4 .Shift4}}
-  		{{index $.Table4 $i | printf "tmp := (c^(b|^d)) + (a + (X[(7*%d)&7] + %d))" $i | relabel}}{{bump}}
-  		{{printf "a := tmp<<%d | tmp>>(32-%d) + b" $s $s | relabel}}
+  		{{index $.Table4 $i | printf "tmp := (c^(b|^d)) + (a + (X[uint32(7*%d)&15] + %d))" $i | relabel}}{{bump}}
+  		{{printf "a := tmp<<uint8(%d) | tmp>>uint8(32-%d) + b" $s $s | relabel}}
   		{{rotate}}
   	{{end}}
 
@@ -228,7 +227,7 @@ func block(dig digest, X [8]uint32) digest {
 
 func Benchmark(n uint32){
     d := digest{}
-    b := [8]uint32{}
+    b := [16]uint32{}
     for i := n; i != 0; i-- {
         block(d, b)
     }
