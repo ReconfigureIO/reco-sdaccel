@@ -167,7 +167,7 @@ function run_deploy {
     AGFI=$(aws ec2 describe-fpga-images --fpga-image-ids "$AFI" | jq -r ".FpgaImages[0].FpgaImageGlobalId")
     JOB_ID=$(submit_deploy "$AGFI" "$@")
     CODE=$(wait_for_batch "$JOB_ID")
-    stream_logs "staging-deploy/$JOB_ID"
+    stream_batch_logs "$JOB_ID"
     exit "$CODE"
 }
 
@@ -206,6 +206,9 @@ function main {
             ;;
         "afi-logs")
             get_afi_logs "${@:2}"
+            ;;
+        "stream-batch-logs")
+            stream_batch_logs "${@:2}"
             ;;
         *)
             echo "unrecognized command: $1";
