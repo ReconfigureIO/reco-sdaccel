@@ -8,4 +8,4 @@ sed -i "s/defaultValue:\ 'v*.*.*'/defaultValue:\ '${VERSION}'/g" Jenkinsfile
 git add Makefile Jenkinsfile
 git commit -m "[auto] update sdaccel wrapper to ${VERSION}"
 git push -u origin "$BRANCH"
-hub pull-request -m "[auto] bump donut to $VERSION"
+hub pull-request -m "[auto] bump eTeak to $VERSION"
