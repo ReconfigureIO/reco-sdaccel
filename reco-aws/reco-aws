@@ -117,7 +117,7 @@ function submit_deploy {
 }
 
 function stream_batch_logs {
-    LOG_STREAM=$(aws batch describe-jobs --jobs "$1" | jq -r ".jobs[0].attempts[0].container.logStreamName")
+    LOG_STREAM=$(aws batch describe-jobs --jobs "$1" | jq -r ".jobs[0].container.logStreamName")
     stream_logs "$LOG_STREAM"
 }
 
