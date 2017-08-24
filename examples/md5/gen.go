@@ -185,7 +185,7 @@ func block(dig digest, X [16]uint32) digest {
 	td0 := s[3]
 
 	{{range $i, $s := dup 4 .Shift1}}
-  		{{index $.Table1 $i | printf "tmp := (((c^d)&b)^d) + (a + (X[%d] + %d))" $i | relabel}}{{ bump }}
+  		{{index $.Table1 $i | printf "tmp := ((a + ((c^d)&b)^d) + (X[%d] + %d))" $i | relabel}}{{ bump }}
   		{{printf "a := tmp<<uint8(%d) | tmp>>uint8(32-%d) + b" $s $s | relabel}}
   		{{rotate}}
   	{{end}}
@@ -193,7 +193,7 @@ func block(dig digest, X [16]uint32) digest {
 
   	// Round 2.
   	{{range $i, $s := dup 4 .Shift2}}
-  		{{index $.Table2 $i | printf "tmp := ((b & d) | (c &^ d)) + (a + (X[uint32(1+5*%d)&15] + %d))" $i | relabel}}{{bump}}
+  		{{index $.Table2 $i | printf "tmp := ((a + (b & d) | (c &^ d)) + (X[uint32(1+5*%d)&15] + %d))" $i | relabel}}{{bump}}
   		{{printf "a := tmp<<uint8(%d) | tmp>>uint8(32-%d) + b" $s $s | relabel}}
   		{{rotate}}
   	{{end}}
@@ -201,14 +201,14 @@ func block(dig digest, X [16]uint32) digest {
 
   	// Round 3.
   	{{range $i, $s := dup 4 .Shift3}}
-  		{{index $.Table3 $i | printf "tmp := (b^c^d) + (a + (X[uint32(5+3*%d)&15] + %d))" $i | relabel}}{{bump}}
+  		{{index $.Table3 $i | printf "tmp := ((a + (b^c^d)) + (X[uint32(5+3*%d)&15] + %d))" $i | relabel}}{{bump}}
   		{{printf "a := tmp<<uint8(%d) | tmp>>uint8(32-%d) + b" $s $s | relabel}}
   		{{rotate}}
   	{{end}}
 
   	// Round 4.
   	{{range $i, $s := dup 4 .Shift4}}
-  		{{index $.Table4 $i | printf "tmp := (c^(b|^d)) + (a + (X[uint32(7*%d)&15] + %d))" $i | relabel}}{{bump}}
+  		{{index $.Table4 $i | printf "tmp := ((a + (c^(b|^d))) + (X[uint32(7*%d)&15] + %d))" $i | relabel}}{{bump}}
   		{{printf "a := tmp<<uint8(%d) | tmp>>uint8(32-%d) + b" $s $s | relabel}}
   		{{rotate}}
   	{{end}}
