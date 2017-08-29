@@ -220,7 +220,7 @@
     - name: launch autoscale ecs example
       cloudformation:
         stack_name: "autoscale-build-cluster"
-        state: "present"
+        state: "absent"
         region: "us-east-1"
         disable_rollback: true
         template: "../../cloud-formation/ecs-cid-sample/cform/ecs.yaml"
@@ -255,7 +255,7 @@
         template: "../../cloud-formation/ecs-cid-sample/cform/ecs.yaml"
         template_parameters:
           EcsClusterName: deploy-staging-cluster_Batch_3f38f98d-f7ff-32ba-96aa-df100a48fdef
-          EcsClusterMaxSize: 3
+          EcsClusterMaxSize: 1
           KeyName: josh
           S3BucketName: nerabus
           S3BucketObject: "ecs-cluster/index.zip"
