@@ -4,7 +4,7 @@
     "parameters": {},
     "containerProperties": {
         "image": "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/f1-staging-deploy:latest",
-        "vcpus": 32,
+        "vcpus": 8,
         "memory": 119678,
         "jobRoleArn": "arn:aws:iam::398048034572:role/deployment-worker",
         "command": [
