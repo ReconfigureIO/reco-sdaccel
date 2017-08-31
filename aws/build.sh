@@ -18,10 +18,12 @@ timeout -k 1m 12h /opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdaccel-buil
 
 exit="$?"
 
-if [ $exit -ne 0 ]; then
+if [ -n "$DEBUG_URL" ]; then
     zip -qr artifacts.zip /tmp/workspace/.reco-work
-    aws s3 cp --quiet "artifacts.zip" "$OUTPUT_URL"
+    aws s3 cp --quiet "artifacts.zip" "$DEBUG_URL"
+fi
 
+if [ $exit -ne 0 ]; then
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
     exit "$exit"
 fi

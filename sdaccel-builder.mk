@@ -12,7 +12,7 @@ DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_3"
 DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.3"
 TARGET := "hw_emu"
 OPTIMIZE := "no"
-OPTIMIZE_LEVEL := 10
+OPTIMIZE_LEVEL := 100
 CLFLAGS :=
 CPUS := 4
 
