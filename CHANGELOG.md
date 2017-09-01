@@ -1,3 +1,13 @@
+# sdaccel-builder v0.11.0
+
+## Features
+
+* Added a 15 minute time limit for simulation
+* Added a 5 hour time limit for builds
+
+## Bugfixes
+
+* Fixed usage reports crashing when only half a BRAM block was used
 # sdaccel-builder v0.10.0
 
 ## Features
