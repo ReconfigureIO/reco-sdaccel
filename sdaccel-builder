@@ -79,6 +79,9 @@ function main {
         "image")
             image "${@:2}"
             ;;
+        "plot")
+            plot "${@:2}"
+            ;;
         "cmds")
             cmds "${@:2}"
             ;;
