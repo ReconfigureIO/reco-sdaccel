@@ -44,7 +44,7 @@ proc load_ip_cores {ipSourceDirPath buildDirPath} {
 #
 proc sda_kernel_synthesis {
   sourceFileName moduleName includeCodePath partName} {
-create_project -in_memory -part $partName -force
+set_part $partName
 
 #
 # Attempt to build the IP cores if present.
@@ -54,7 +54,7 @@ set includeArchPath [file join $includeCodePath ".." "SELF_arch" "xilinx" "ultra
 set ipSourceDirPath [file join $includeArchPath "ip"]
 if {0 != [file exists $ipSourceDirPath]} {
   set includeCodePath {$includeCodePath $includeArchPath}
-  load_ip_cores $ipSourceDirPath [pwd]  
+  load_ip_cores $ipSourceDirPath [pwd]
 }
 
 #
@@ -88,5 +88,4 @@ rename_ref -ref [lindex [find_top] 0] -to $moduleName
 #
 write_verilog -force "${moduleName}.v"
 
-close_project
 }
