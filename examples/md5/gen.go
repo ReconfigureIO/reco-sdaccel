@@ -173,11 +173,26 @@ var program = `
 
 package main
 
-type digest struct {
+import (
+	// import the entire framework (including bundled verilog)
+	_ "sdaccel"
+	// Use the new AXI protocol package
+	aximemory "axi/memory"
+	axiprotocol "axi/protocol"
+)
+
+const Size = 16
+
+type Digest struct {
    s [4]uint32
+   len uint64
 }
 
-func block(dig digest, X [16]uint32) digest {
+func New() Digest {
+     return Digest{s: [4]uint32{0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476}, len: 0}
+}
+
+func (dig Digest) Block(X [16]uint32) Digest {
     s := dig.s
 	ta0 := s[0]
 	tb0 := s[1]
@@ -215,21 +230,52 @@ func block(dig digest, X [16]uint32) digest {
 
 
 
-    return digest {
+    return Digest {
         s: [4]uint32{
             s[0] + ta16,
             s[1] + tb16,
             s[2] + tc16,
             s[3] + td16,
         },
+        len: dig.len + (16 * 4),
     }
 }
 
-func Benchmark(n uint32){
-    d := digest{}
+func (dig Digest) Digest() [4]uint32 {
+    return dig.s
+}
+
+func (dig Digest) Sum() [Size]byte {
+  	var tmp [64]byte
+
+    len := dig.len << 3
+    for i := uint(0); i < 8; i++ {
+  		tmp[i] = byte(len >> (8 * i))
+  	}
+
+
+
+}
+
+func Top(
+    n uint,
+
+	memReadAddr chan<- axiprotocol.Addr,
+	memReadData <-chan axiprotocol.ReadData,
+
+	memWriteAddr chan<- axiprotocol.Addr,
+	memWriteData chan<- axiprotocol.WriteData,
+	memWriteResp <-chan axiprotocol.WriteResp) {
+
+	// Disable AXI memory accesses.
+	go axiprotocol.ReadDisable(memReadAddr, memReadData)
+	go axiprotocol.WriteDisable(memWriteAddr, memWriteData, memWriteResp)
+
+    d := New()
     b := [16]uint32{}
-    for i := n; i != 0; i-- {
-        block(d, b)
+
+    for i := n; i !=0; i-- {
+        d = d.Block(b)
     }
 }
 `
