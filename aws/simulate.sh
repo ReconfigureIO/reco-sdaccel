@@ -18,6 +18,9 @@ cat times.out
 exit="$?"
 
 if [ $exit -ne 0 ]; then
+    zip -qr artifacts.zip /tmp/workspace/.reco-work
+    aws s3 cp --quiet "artifacts.zip" "$OUTPUT_URL"
+
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
     exit "$exit"
 fi
