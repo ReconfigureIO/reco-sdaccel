@@ -111,6 +111,11 @@ pipeline {
                         sh '../../reco-aws/reco-aws test test-histogram'
                     }
                 }
+                "md5": {
+                    dir('examples/md5'){
+                        sh '../../reco-aws/reco-aws test test-md5'
+                    }
+                }
             }
         }
 
