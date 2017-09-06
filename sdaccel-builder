@@ -36,7 +36,7 @@ if [ -e 'reco.yml' ]; then
    eval "$(parse_yaml 'reco.yml' 'reco_')"
 fi
 
-function plot {
+function graph {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" plot
 }
 
@@ -83,8 +83,8 @@ function main {
         "image")
             image "${@:2}"
             ;;
-        "plot")
-            plot "${@:2}"
+        "graph")
+            graph "${@:2}"
             ;;
         "cmds")
             cmds "${@:2}"
