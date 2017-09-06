@@ -12,9 +12,7 @@ if [ $? -ne 0 ]; then
     exit "$exit"
 fi
 
-timeout -k 1m 15m /opt/sdaccel-builder/sdaccel-builder simulate "$CMD"
-cat times.out
-
+timeout -k 1m 30m /opt/sdaccel-builder/sdaccel-builder simulate "$CMD"
 exit="$?"
 
 if [ $exit -ne 0 ]; then
@@ -24,5 +22,7 @@ if [ $exit -ne 0 ]; then
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
     exit "$exit"
 fi
+
+cat times.out
 
 curl -XPOST -H "Content-Type: application/json"  -d '{"status": "COMPLETED"}' "$CALLBACK_URL" &> /dev/null
