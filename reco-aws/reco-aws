@@ -104,7 +104,7 @@ function wait_for_afi {
 }
 
 function submit_job {
-    SUBMIT=$(cat "$DIR/../aws/job_submit.json" | jq ".containerOverrides.command[0] = \"$2\" | .containerOverrides.environment[2].value = \"s3://reconfigureio-builds/tmp/$1.tar.gz\" | .containerOverrides.environment[7].value = \"s3://reconfigureio-builds/tmp/$1.dist.zip\" | .containerOverrides.environment[4].value = \"${@:3}\" | .containerOverrides.environment[8].value = \"tmp/dcp/$1.tar\" | .containerOverrides.environment[9].value = \"tmp/dcp-logs/$1\" | .containerOverrides.environment[10].value = \"$GENERATE_AFI\"")
+    SUBMIT=$(cat "$DIR/../aws/job_submit.json" | jq ".containerOverrides.command[0] = \"$2\" | .containerOverrides.environment[2].value = \"s3://reconfigureio-builds/tmp/$1.tar.gz\" | .containerOverrides.environment[7].value = \"s3://reconfigureio-builds/tmp/$1.dist.zip\" | .containerOverrides.environment[4].value = \"${@:3}\" | .containerOverrides.environment[8].value = \"tmp/dcp/$1.tar\" | .containerOverrides.environment[9].value = \"tmp/dcp-logs/$1\" | .containerOverrides.environment[10].value = \"$GENERATE_AFI\" | .containerOverrides.environment[11].value = \"s3://reconfigureio-builds/tmp/$1.debug.zip\"")
     aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
 }
 
@@ -116,8 +116,13 @@ function submit_deploy {
     aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
 }
 
+function stream_batch_logs {
+    LOG_STREAM=$(aws batch describe-jobs --jobs "$1" | jq -r ".jobs[0].container.logStreamName")
+    stream_logs "$LOG_STREAM"
+}
+
 function stream_logs {
-    STREAM=$(aws logs describe-log-streams --log-group-name /aws/batch/job --log-stream-name-prefix "$1/$2" | jq -r ".logStreams[0].logStreamName")
+    STREAM=$(aws logs describe-log-streams --log-group-name /aws/batch/job --log-stream-name-prefix "$1" | jq -r ".logStreams[0].logStreamName")
     aws logs get-log-events --log-group-name /aws/batch/job --log-stream-name "$STREAM" | jq -r ".events | .[] | .message" 1>&2
 }
 
@@ -153,7 +158,7 @@ function run_batch {
     JOB_ID=$(submit_job "$JOB" "$1" "${@:3}")
     CODE=$(wait_for_batch "$JOB_ID")
     clean_bundle "$JOB"
-    stream_logs "example" "$JOB_ID"
+    stream_batch_logs "$JOB_ID"
     echo "$CODE"
 }
 
@@ -162,7 +167,7 @@ function run_deploy {
     AGFI=$(aws ec2 describe-fpga-images --fpga-image-ids "$AFI" | jq -r ".FpgaImages[0].FpgaImageGlobalId")
     JOB_ID=$(submit_deploy "$AGFI" "$@")
     CODE=$(wait_for_batch "$JOB_ID")
-    stream_logs "staging-deploy" "$JOB_ID"
+    stream_batch_logs "$JOB_ID"
     exit "$CODE"
 }
 
@@ -201,6 +206,9 @@ function main {
             ;;
         "afi-logs")
             get_afi_logs "${@:2}"
+            ;;
+        "stream-batch-logs")
+            stream_batch_logs "${@:2}"
             ;;
         *)
             echo "unrecognized command: $1";

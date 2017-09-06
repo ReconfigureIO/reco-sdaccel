@@ -12,7 +12,7 @@ if [ $? -ne 0 ]; then
     exit "$exit"
 fi
 
-/opt/sdaccel-builder/sdaccel-builder simulate "$CMD"
+timeout -k 1m 15m /opt/sdaccel-builder/sdaccel-builder simulate "$CMD"
 cat times.out
 
 exit="$?"
