@@ -31,7 +31,7 @@ kernel: ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin
 
 xo: ${BUILD_DIR}/${XO_NAME}
 
-plot: main-network.pdf
+plot: main-graph.pdf
 
 verilog: ${VERILOG_DIR}/main.v ${VERILOG_DIR}/includes
 
@@ -76,7 +76,7 @@ INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/i
 ${VERILOG_DIR}/main.v: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR}
 	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak-sdaccel build ${GO_TEAK_FLAGS} $< -o $@
 
-main-network.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR}
+main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR}
 	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak plot ${GO_TEAK_FLAGS} $< -o $@
 
 ${VERILOG_DIR}/includes: ${VERILOG_DIR}
