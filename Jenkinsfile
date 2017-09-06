@@ -65,7 +65,7 @@ pipeline {
         stage('test go') {
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} eTeak/go-teak-sdaccel"
-                sh 'make docker-image && cd example/noop && docker run --rm -i -v $(pwd):/mnt sdaccel-builder:latest /opt/sdaccel-builder/sdaccel-builder graph'
+                sh 'make docker-image && cd examples/noop && docker run --rm -i -v $(pwd):/mnt sdaccel-builder:latest /opt/sdaccel-builder/sdaccel-builder graph'
                 dir('examples/noop'){
                     sh './../../sdaccel-builder test-go'
                     sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} docker-image"
