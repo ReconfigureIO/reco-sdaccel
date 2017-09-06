@@ -23,7 +23,14 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
-zip -qr dist.zip .reco-work/sdaccel/dist
+zip -qr graph.zip main-network.pdf
 aws s3 cp --quiet "graph.zip" "$GRAPH_URL"
+
+exit="$?"
+
+if [ $exit -ne 0 ]; then
+    curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
+    exit "$exit"
+fi
 
 curl -XPOST -H "Content-Type: application/json"  -d '{"status": "COMPLETED"}' "$CALLBACK_URL" &> /dev/null
