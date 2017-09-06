@@ -14,7 +14,7 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
-timeout -k 30m /opt/sdaccel-builder/sdaccel-builder plot
+timeout -k 30m /opt/sdaccel-builder/sdaccel-builder graph
 
 exit="$?"
 
@@ -24,7 +24,7 @@ if [ $exit -ne 0 ]; then
 fi
 
 zip -qr graph.zip main-network.pdf
-aws s3 cp --quiet "graph.zip" "$GRAPH_URL"
+aws s3 cp --quiet "graph.zip" "$OUTPUT_URL"
 
 exit="$?"
 
