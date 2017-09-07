@@ -190,10 +190,19 @@ function test-cmd {
     exit "$CODE"
 }
 
+function graph {
+    JOB_ID=$(generate_job_id)
+    CODE=$(run_batch "/opt/graph.sh" "$JOB_ID" "${@:1}")
+    exit "$CODE"
+}
+
 function main {
     case "$1" in
         "test")
             test-cmd "${@:2}"
+            ;;
+        "graph")
+            graph "${@:2}"
             ;;
         "build")
             build "${@:2}"

@@ -38,6 +38,9 @@ if [ "$GENERATE_AFI" = "yes" ]; then
     AGFI=$(cat ./*_agfi_id.txt)
 fi
 
+REPORT_FILE=$(find .reco-work/sdaccel/reports/ -name '*_util.json' -print)
+curl -XPOST -H "Content-Type: application/vnd.reconfigure.io/reports-v1+json" -d @"$REPORT_FILE" "$REPORT_URL" &> /dev/null
+
 zip -qr dist.zip .reco-work/sdaccel/dist
 aws s3 cp --quiet "dist.zip" "$OUTPUT_URL"
 
