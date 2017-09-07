@@ -31,7 +31,7 @@ kernel: ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin
 
 xo: ${BUILD_DIR}/${XO_NAME}
 
-graph: main-graph.pdf
+graph: ${ROOT_DIR}/main-graph.pdf
 
 verilog: ${VERILOG_DIR}/main.v ${VERILOG_DIR}/includes
 
