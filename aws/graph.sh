@@ -24,7 +24,7 @@ if [ $exit -ne 0 ]; then
 fi
 
 gzip -q main-graph.pdf
-aws s3 cp --quiet "main-graph.gz" "$OUTPUT_URL"
+aws s3 cp --quiet "main-graph.pdf.gz" "$OUTPUT_URL"
 
 exit="$?"
 
