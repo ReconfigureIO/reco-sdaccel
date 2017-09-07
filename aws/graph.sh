@@ -23,8 +23,8 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
-zip -qr graph.zip main-graph.pdf
-aws s3 cp --quiet "graph.zip" "$OUTPUT_URL"
+gzip -q main-graph.pdf
+aws s3 cp --quiet "main-graph.gz" "$OUTPUT_URL"
 
 exit="$?"
 
