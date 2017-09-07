@@ -64,10 +64,11 @@ pipeline {
 
         stage('test go') {
             steps {
-                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} eTeak/go-teak-sdaccel"
+                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} docker-image"
                 dir('examples/noop'){
                     sh './../../sdaccel-builder test-go'
                     sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNDRIVEN'
+                    sh 'docker run --rm -i -v $(pwd):/mnt sdaccel-builder:latest /opt/sdaccel-builder/sdaccel-builder graph'
                 }
             }
         }
