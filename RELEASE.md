@@ -4,4 +4,6 @@ sdaccel-builder $VERSION
 
 ## Features
 
+* Added support for intermediate graph generation
+
 ## Bugfixes
