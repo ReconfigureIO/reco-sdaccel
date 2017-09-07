@@ -14,7 +14,7 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
-timeout -k 30m /opt/sdaccel-builder/sdaccel-builder graph
+timeout -k 1m 30m /opt/sdaccel-builder/sdaccel-builder graph
 
 exit="$?"
 
