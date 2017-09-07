@@ -37,7 +37,7 @@ if [ -e 'reco.yml' ]; then
 fi
 
 function graph {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" plot
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" graph
 }
 
 function build {
