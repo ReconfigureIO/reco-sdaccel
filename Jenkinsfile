@@ -3,7 +3,7 @@ def SDACCEL_WRAPPER_VERSION = ''
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.16.5')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: '')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
     }
     environment {
@@ -31,7 +31,7 @@ pipeline {
         stage('config') {
             steps {
                 script {
-                    if(SDACCEL_WRAPPER_VERSION == ''){
+                    if(params.SDACCEL_WRAPPER_VERSION == ''){
                         SDACCEL_WRAPPER_VERSION = sh (returnStdout: true, script: 'make print-SDACCEL_WRAPPER_VERSION').trim()
                     }else{
                         SDACCEL_WRAPPER_VERSION = params.SDACCEL_WRAPPER_VERSION
@@ -64,10 +64,12 @@ pipeline {
 
         stage('test go') {
             steps {
-                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} eTeak/go-teak-sdaccel"
+                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} docker-image"
                 dir('examples/noop'){
                     sh './../../sdaccel-builder test-go'
                     sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNDRIVEN'
+                    sh 'docker run --rm -i -v $(pwd):/mnt sdaccel-builder:latest /opt/sdaccel-builder/sdaccel-builder graph'
+                    sh 'test -f main-graph.pdf'
                 }
             }
         }

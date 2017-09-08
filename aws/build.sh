@@ -18,10 +18,12 @@ timeout -k 1m 12h /opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdaccel-buil
 
 exit="$?"
 
-if [ $exit -ne 0 ]; then
+if [ -n "$DEBUG_URL" ]; then
     zip -qr artifacts.zip /tmp/workspace/.reco-work
-    aws s3 cp --quiet "artifacts.zip" "$OUTPUT_URL"
+    aws s3 cp --quiet "artifacts.zip" "$DEBUG_URL"
+fi
 
+if [ $exit -ne 0 ]; then
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
     exit "$exit"
 fi
@@ -35,6 +37,9 @@ if [ "$GENERATE_AFI" = "yes" ]; then
     mv ".reco-work/sdaccel/dist/xclbin/kernel_test.hw.$DEVICE.awsxclbin" ".reco-work/sdaccel/dist/xclbin/kernel_test.hw.$DEVICE.xclbin"
     AGFI=$(cat ./*_agfi_id.txt)
 fi
+
+REPORT_FILE=$(find .reco-work/sdaccel/reports/ -name '*_util.json' -print)
+curl -XPOST -H "Content-Type: application/vnd.reconfigure.io/reports-v1+json" -d @"$REPORT_FILE" "$REPORT_URL" &> /dev/null
 
 zip -qr dist.zip .reco-work/sdaccel/dist
 aws s3 cp --quiet "dist.zip" "$OUTPUT_URL"
