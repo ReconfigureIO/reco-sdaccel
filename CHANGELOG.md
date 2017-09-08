@@ -1,3 +1,11 @@
+# sdaccel-builder v0.12.0
+
+## Features
+
+* Added support for intermediate graph generation
+
+## Bugfixes
+
 # sdaccel-builder v0.11.0
 
 ## Features
