@@ -43,8 +43,7 @@ pipeline {
 
         stage('pre clean') {
             steps {
-                sh 'make clean'
-                sh 'rm -rf bench_tmp'
+                sh 'git clean -fdx'
             }
         }
 
