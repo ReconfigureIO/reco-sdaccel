@@ -598,12 +598,14 @@ func ReadBurstUInt32(
 		getNext := true
 		for getNext {
 			readData := <-clientData
+			var dataVal uint32
 			switch readPhase & 0x4 {
 			case 0x0:
-				readDataChan <- uint32(readData.Data)
+				dataVal = uint32(readData.Data)
 			default:
-				readDataChan <- uint32(readData.Data >> 32)
+				dataVal = uint32(readData.Data >> 32)
 			}
+			readDataChan <- dataVal
 			if readData.Last {
 				burstOk = burstOk && !readData.Resp[1]
 			}

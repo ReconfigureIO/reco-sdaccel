@@ -77,8 +77,8 @@ proc sda_kernel_report_summary {moduleName partName reportDirPath} {
         set toplevelList [parse_summary_table_row $reportLine]
         set lutsUsed [lindex [lindex $toplevelList 1] 2]
         set lutsAvailable [lindex [lindex $toplevelList 2] 2]
-        incr utilNumerator [expr $utilWeightLut * $lutsUsed]
-        incr utilDenominator [expr $utilWeightLut * $lutsAvailable]
+        incr utilNumerator [expr int($utilWeightLut * $lutsUsed)]
+        incr utilDenominator [expr int($utilWeightLut * $lutsAvailable)]
       } elseif {$lineCount == 7} {
         set lutLogicList [parse_summary_table_row $reportLine]
         lappend detailList [list "@" "lutLogic" $lutLogicList]
@@ -93,8 +93,8 @@ proc sda_kernel_report_summary {moduleName partName reportDirPath} {
         set toplevelList [parse_summary_table_row $reportLine]
         set regsUsed [lindex [lindex $toplevelList 1] 2]
         set regsAvailable [lindex [lindex $toplevelList 2] 2]
-        incr utilNumerator [expr $utilWeightReg * $regsUsed]
-        incr utilDenominator [expr $utilWeightReg * $regsAvailable]
+        incr utilNumerator [expr int($utilWeightReg * $regsUsed)]
+        incr utilDenominator [expr int($utilWeightReg * $regsAvailable)]
       } elseif {$lineCount == 12} {
         set regFlopList [parse_summary_table_row $reportLine]
         lappend detailList [list "@" "regFlipFlop" $regFlopList]
@@ -120,8 +120,8 @@ proc sda_kernel_report_summary {moduleName partName reportDirPath} {
         set toplevelList [parse_summary_table_row $reportLine]
         set bramUsed [lindex [lindex $toplevelList 1] 2]
         set bramAvailable [lindex [lindex $toplevelList 2] 2]
-        incr utilNumerator [expr $utilWeightBram * $bramUsed]
-        incr utilDenominator [expr $utilWeightBram * $bramAvailable]
+        incr utilNumerator [expr int($utilWeightBram * $bramUsed)]
+        incr utilDenominator [expr int($utilWeightBram * $bramAvailable)]
       } elseif {$lineCount == 7} {
         set lutLogicList [parse_summary_table_row $reportLine]
         lappend detailList [list "@" "blockRamB36" $lutLogicList]
@@ -136,8 +136,8 @@ proc sda_kernel_report_summary {moduleName partName reportDirPath} {
         set toplevelList [parse_summary_table_row $reportLine]
         set uramUsed [lindex [lindex $toplevelList 1] 2]
         set uramAvailable [lindex [lindex $toplevelList 2] 2]
-        incr utilNumerator [expr $utilWeightUram * $uramUsed]
-        incr utilDenominator [expr $utilWeightUram * $uramAvailable]
+        incr utilNumerator [expr int($utilWeightUram * $uramUsed)]
+        incr utilDenominator [expr int($utilWeightUram * $uramAvailable)]
         lappend kvList [list "@" "ultraRamSummary" $toplevelList]
       } elseif {$lineCount == 11} {
         incr parsingPhase
@@ -154,8 +154,8 @@ proc sda_kernel_report_summary {moduleName partName reportDirPath} {
         set toplevelList [parse_summary_table_row $reportLine]
         set dspsUsed [lindex [lindex $toplevelList 1] 2]
         set dspsAvailable [lindex [lindex $toplevelList 2] 2]
-        incr utilNumerator [expr $utilWeightDsp * $dspsUsed]
-        incr utilDenominator [expr $utilWeightDsp * $dspsAvailable]
+        incr utilNumerator [expr int($utilWeightDsp * $dspsUsed)]
+        incr utilDenominator [expr int($utilWeightDsp * $dspsAvailable)]
         lappend kvList [list "@" "dspBlockSummary" $toplevelList]
       } elseif {$lineCount == 8} {
         incr parsingPhase
