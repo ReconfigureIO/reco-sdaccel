@@ -1,10 +1,10 @@
 package main
 
 import (
-	//	_ "sdaccel"
+	_ "sdaccel"
+
 	aximemory "axi/memory"
 	axiprotocol "axi/protocol"
-	//
 )
 
 const (
