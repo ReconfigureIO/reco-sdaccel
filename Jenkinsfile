@@ -41,7 +41,14 @@ pipeline {
             }
         }
 
-        stage('build image') {
+        stage('pre clean') {
+            steps {
+                sh 'make clean'
+                sh 'rm -rf bench_tmp'
+            }
+        }
+
+        stage('build verilator image') {
             steps {
                 sh 'docker build -t "verilator:latest" docker-verilator'
             }
@@ -55,16 +62,14 @@ pipeline {
             }
         }
 
-        stage('pre clean') {
+        stage('build dist images') {
             steps {
-                sh 'make clean'
-                sh 'rm -rf bench_tmp'
+                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} docker-image"
             }
         }
 
         stage('test go') {
             steps {
-                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} docker-image"
                 sh "make test"
             }
         }
