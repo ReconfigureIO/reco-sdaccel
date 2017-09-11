@@ -44,6 +44,7 @@ pipeline {
         stage('pre clean') {
             steps {
                 sh 'git clean -fdx'
+                sh 'make clean'
             }
         }
 
