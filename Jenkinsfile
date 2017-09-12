@@ -103,6 +103,11 @@ pipeline {
                         sh '../../reco-aws/reco-aws test test-memcopy'
                     }
                 },
+                regression: {
+                    dir('examples/regression'){
+                        sh '../../reco-aws/reco-aws test test-regression'
+                    }
+                },
                 popcount: {
                     dir('examples/popcount'){
                         sh '../../reco-aws/reco-aws test test-popcount'
