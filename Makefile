@@ -29,12 +29,12 @@ GO_VERSION := 1.7.4
 
 .PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws build-docs upload-docs upload-docker test
 
-test:
-	find examples/ -maxdepth 1 -mindepth 1 -type d | PATH=$$PWD:$$PWD/ci/:$$PATH xargs -L1 test.sh
+all: package/reco package/reco-jarvice
 
 print-% : ; @echo $($*)
 
-all: package/reco package/reco-jarvice
+test:
+	find examples/ -maxdepth 1 -mindepth 1 -type d | PATH=$$PWD:$$PWD/ci/:$$PATH xargs -L1 test.sh
 
 package/reco: dist/${NAME}-${VERSION}.tar.gz
 
