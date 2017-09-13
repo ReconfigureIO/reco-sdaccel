@@ -6,6 +6,8 @@ import (
 	// Use the new AXI protocol package
 	aximemory "axi/memory"
 	axiprotocol "axi/protocol"
+
+	"github.com/ReconfigureIO/addition"
 )
 
 // Magic identifier for exporting
@@ -24,7 +26,7 @@ func Top(
 	// Disable memory reads
 	go axiprotocol.ReadDisable(memReadAddr, memReadData)
 
-	val := a + b
+	val := addition.Add(a, b)
 
 	aximemory.WriteUInt32(
 		memWriteAddr, memWriteData, memWriteResp, false, addr, val)
