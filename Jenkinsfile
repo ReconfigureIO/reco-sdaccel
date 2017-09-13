@@ -41,7 +41,14 @@ pipeline {
             }
         }
 
-        stage('build image') {
+        stage('pre clean') {
+            steps {
+                sh 'git clean -fdx'
+                sh 'make clean'
+            }
+        }
+
+        stage('build verilator image') {
             steps {
                 sh 'docker build -t "verilator:latest" docker-verilator'
             }
@@ -55,22 +62,15 @@ pipeline {
             }
         }
 
-        stage('pre clean') {
+        stage('build dist images') {
             steps {
-                sh 'make clean'
-                sh 'rm -rf bench_tmp'
+                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} docker-image"
             }
         }
 
         stage('test go') {
             steps {
-                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} docker-image"
-                dir('examples/noop'){
-                    sh './../../sdaccel-builder test-go'
-                    sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNDRIVEN'
-                    sh 'docker run --rm -i -v $(pwd):/mnt sdaccel-builder:latest /opt/sdaccel-builder/sdaccel-builder graph'
-                    sh 'test -f main-graph.pdf'
-                }
+                sh "make test"
             }
         }
 
