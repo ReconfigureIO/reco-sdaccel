@@ -12,7 +12,7 @@ func main() {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
 	defer krnl.Release()
 
-	krnl.SetArg(1, uint32(2))
+	krnl.SetArg(0, uint32(2))
 
 	krnl.Run(1, 1, 1)
 	fmt.Println("job's done!")
