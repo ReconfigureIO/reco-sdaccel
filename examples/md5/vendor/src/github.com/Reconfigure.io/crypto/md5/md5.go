@@ -237,14 +237,12 @@ func (dig Digest) Digest() [4]uint32 {
 func (dig Digest) Sum() [Size]byte {
 	var tmp [16]byte
 
-	j := uint(0)
 	for i := uint(0); i < 4; i++ {
 		a := dig.s[i]
-		tmp[j] = byte(a)
-		tmp[j+1] = byte(a >> 8)
-		tmp[j+2] = byte(a >> 16)
-		tmp[j+3] = byte(a >> 24)
-		j += 4
+		tmp[i*4] = byte(a)
+		tmp[i*4+1] = byte(a >> 8)
+		tmp[i*4+2] = byte(a >> 16)
+		tmp[i*4+3] = byte(a >> 24)
 	}
 	return tmp
 }
