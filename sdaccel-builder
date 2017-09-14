@@ -53,7 +53,6 @@ function test_go {
 }
 
 function simulate {
-    CMD="$1"
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" sim cmds kernel
     export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
     # This is for the emconfig.json
@@ -61,7 +60,7 @@ function simulate {
 
     # shellcheck source=/dev/null
     source "$XILINX_SDACCEL"/settings64.sh
-    XCL_EMULATION_MODE=hw_emu XCL_BINDIR="$PWD/.reco-work/sdaccel/dist/xclbin" "$CMD" "${@:2}"
+    XCL_EMULATION_MODE=hw_emu XCL_BINDIR="$PWD/.reco-work/sdaccel/dist/xclbin" bash -c "$@"
 }
 
 function cmds {
