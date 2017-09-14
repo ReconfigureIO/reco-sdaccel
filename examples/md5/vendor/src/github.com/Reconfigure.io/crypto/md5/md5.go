@@ -21,102 +21,102 @@ func (dig Digest) Block(X [16]uint32) Digest {
 	tc0 := s[2]
 	td0 := s[3]
 
-	tmp_ta0 := ((ta0 + ((tc0 ^ td0) & tb0) ^ td0) + (X[0] + 3614090360))
+	tmp_ta0 := ((ta0 + ((tb0 & tc0) | (td0 &^ tb0))) + (X[0] + 3614090360))
 	ta1 := tmp_ta0<<uint8(7) | tmp_ta0>>uint8(32-7) + tb0
 
-	tmp_td0 := ((td0 + ((tb0 ^ tc0) & ta1) ^ tc0) + (X[1] + 3905402710))
+	tmp_td0 := ((td0 + ((ta1 & tb0) | (tc0 &^ ta1))) + (X[1] + 3905402710))
 	td1 := tmp_td0<<uint8(12) | tmp_td0>>uint8(32-12) + ta1
 
-	tmp_tc0 := ((tc0 + ((ta1 ^ tb0) & td1) ^ tb0) + (X[2] + 606105819))
+	tmp_tc0 := ((tc0 + ((td1 & ta1) | (tb0 &^ td1))) + (X[2] + 606105819))
 	tc1 := tmp_tc0<<uint8(17) | tmp_tc0>>uint8(32-17) + td1
 
-	tmp_tb0 := ((tb0 + ((td1 ^ ta1) & tc1) ^ ta1) + (X[3] + 3250441966))
+	tmp_tb0 := ((tb0 + ((tc1 & td1) | (ta1 &^ tc1))) + (X[3] + 3250441966))
 	tb1 := tmp_tb0<<uint8(22) | tmp_tb0>>uint8(32-22) + tc1
 
-	tmp_ta1 := ((ta1 + ((tc1 ^ td1) & tb1) ^ td1) + (X[4] + 4118548399))
+	tmp_ta1 := ((ta1 + ((tb1 & tc1) | (td1 &^ tb1))) + (X[4] + 4118548399))
 	ta2 := tmp_ta1<<uint8(7) | tmp_ta1>>uint8(32-7) + tb1
 
-	tmp_td1 := ((td1 + ((tb1 ^ tc1) & ta2) ^ tc1) + (X[5] + 1200080426))
+	tmp_td1 := ((td1 + ((ta2 & tb1) | (tc1 &^ ta2))) + (X[5] + 1200080426))
 	td2 := tmp_td1<<uint8(12) | tmp_td1>>uint8(32-12) + ta2
 
-	tmp_tc1 := ((tc1 + ((ta2 ^ tb1) & td2) ^ tb1) + (X[6] + 2821735955))
+	tmp_tc1 := ((tc1 + ((td2 & ta2) | (tb1 &^ td2))) + (X[6] + 2821735955))
 	tc2 := tmp_tc1<<uint8(17) | tmp_tc1>>uint8(32-17) + td2
 
-	tmp_tb1 := ((tb1 + ((td2 ^ ta2) & tc2) ^ ta2) + (X[7] + 4249261313))
+	tmp_tb1 := ((tb1 + ((tc2 & td2) | (ta2 &^ tc2))) + (X[7] + 4249261313))
 	tb2 := tmp_tb1<<uint8(22) | tmp_tb1>>uint8(32-22) + tc2
 
-	tmp_ta2 := ((ta2 + ((tc2 ^ td2) & tb2) ^ td2) + (X[8] + 1770035416))
+	tmp_ta2 := ((ta2 + ((tb2 & tc2) | (td2 &^ tb2))) + (X[8] + 1770035416))
 	ta3 := tmp_ta2<<uint8(7) | tmp_ta2>>uint8(32-7) + tb2
 
-	tmp_td2 := ((td2 + ((tb2 ^ tc2) & ta3) ^ tc2) + (X[9] + 2336552879))
+	tmp_td2 := ((td2 + ((ta3 & tb2) | (tc2 &^ ta3))) + (X[9] + 2336552879))
 	td3 := tmp_td2<<uint8(12) | tmp_td2>>uint8(32-12) + ta3
 
-	tmp_tc2 := ((tc2 + ((ta3 ^ tb2) & td3) ^ tb2) + (X[10] + 4294925233))
+	tmp_tc2 := ((tc2 + ((td3 & ta3) | (tb2 &^ td3))) + (X[10] + 4294925233))
 	tc3 := tmp_tc2<<uint8(17) | tmp_tc2>>uint8(32-17) + td3
 
-	tmp_tb2 := ((tb2 + ((td3 ^ ta3) & tc3) ^ ta3) + (X[11] + 2304563134))
+	tmp_tb2 := ((tb2 + ((tc3 & td3) | (ta3 &^ tc3))) + (X[11] + 2304563134))
 	tb3 := tmp_tb2<<uint8(22) | tmp_tb2>>uint8(32-22) + tc3
 
-	tmp_ta3 := ((ta3 + ((tc3 ^ td3) & tb3) ^ td3) + (X[12] + 1804603682))
+	tmp_ta3 := ((ta3 + ((tb3 & tc3) | (td3 &^ tb3))) + (X[12] + 1804603682))
 	ta4 := tmp_ta3<<uint8(7) | tmp_ta3>>uint8(32-7) + tb3
 
-	tmp_td3 := ((td3 + ((tb3 ^ tc3) & ta4) ^ tc3) + (X[13] + 4254626195))
+	tmp_td3 := ((td3 + ((ta4 & tb3) | (tc3 &^ ta4))) + (X[13] + 4254626195))
 	td4 := tmp_td3<<uint8(12) | tmp_td3>>uint8(32-12) + ta4
 
-	tmp_tc3 := ((tc3 + ((ta4 ^ tb3) & td4) ^ tb3) + (X[14] + 2792965006))
+	tmp_tc3 := ((tc3 + ((td4 & ta4) | (tb3 &^ td4))) + (X[14] + 2792965006))
 	tc4 := tmp_tc3<<uint8(17) | tmp_tc3>>uint8(32-17) + td4
 
-	tmp_tb3 := ((tb3 + ((td4 ^ ta4) & tc4) ^ ta4) + (X[15] + 1236535329))
+	tmp_tb3 := ((tb3 + ((tc4 & td4) | (ta4 &^ tc4))) + (X[15] + 1236535329))
 	tb4 := tmp_tb3<<uint8(22) | tmp_tb3>>uint8(32-22) + tc4
 
 	// Round 2.
 
-	tmp_ta4 := ((ta4 + (tb4 & td4) | (tc4 &^ td4)) + (X[uint32(1+5*0)&15] + 4129170786))
+	tmp_ta4 := ((ta4 + ((tb4 & td4) | (tc4 &^ td4))) + (X[uint32(1+5*0)&15] + 4129170786))
 	ta5 := tmp_ta4<<uint8(5) | tmp_ta4>>uint8(32-5) + tb4
 
-	tmp_td4 := ((td4 + (ta5 & tc4) | (tb4 &^ tc4)) + (X[uint32(1+5*1)&15] + 3225465664))
+	tmp_td4 := ((td4 + ((ta5 & tc4) | (tb4 &^ tc4))) + (X[uint32(1+5*1)&15] + 3225465664))
 	td5 := tmp_td4<<uint8(9) | tmp_td4>>uint8(32-9) + ta5
 
-	tmp_tc4 := ((tc4 + (td5 & tb4) | (ta5 &^ tb4)) + (X[uint32(1+5*2)&15] + 643717713))
+	tmp_tc4 := ((tc4 + ((td5 & tb4) | (ta5 &^ tb4))) + (X[uint32(1+5*2)&15] + 643717713))
 	tc5 := tmp_tc4<<uint8(14) | tmp_tc4>>uint8(32-14) + td5
 
-	tmp_tb4 := ((tb4 + (tc5 & ta5) | (td5 &^ ta5)) + (X[uint32(1+5*3)&15] + 3921069994))
+	tmp_tb4 := ((tb4 + ((tc5 & ta5) | (td5 &^ ta5))) + (X[uint32(1+5*3)&15] + 3921069994))
 	tb5 := tmp_tb4<<uint8(20) | tmp_tb4>>uint8(32-20) + tc5
 
-	tmp_ta5 := ((ta5 + (tb5 & td5) | (tc5 &^ td5)) + (X[uint32(1+5*4)&15] + 3593408605))
+	tmp_ta5 := ((ta5 + ((tb5 & td5) | (tc5 &^ td5))) + (X[uint32(1+5*4)&15] + 3593408605))
 	ta6 := tmp_ta5<<uint8(5) | tmp_ta5>>uint8(32-5) + tb5
 
-	tmp_td5 := ((td5 + (ta6 & tc5) | (tb5 &^ tc5)) + (X[uint32(1+5*5)&15] + 38016083))
+	tmp_td5 := ((td5 + ((ta6 & tc5) | (tb5 &^ tc5))) + (X[uint32(1+5*5)&15] + 38016083))
 	td6 := tmp_td5<<uint8(9) | tmp_td5>>uint8(32-9) + ta6
 
-	tmp_tc5 := ((tc5 + (td6 & tb5) | (ta6 &^ tb5)) + (X[uint32(1+5*6)&15] + 3634488961))
+	tmp_tc5 := ((tc5 + ((td6 & tb5) | (ta6 &^ tb5))) + (X[uint32(1+5*6)&15] + 3634488961))
 	tc6 := tmp_tc5<<uint8(14) | tmp_tc5>>uint8(32-14) + td6
 
-	tmp_tb5 := ((tb5 + (tc6 & ta6) | (td6 &^ ta6)) + (X[uint32(1+5*7)&15] + 3889429448))
+	tmp_tb5 := ((tb5 + ((tc6 & ta6) | (td6 &^ ta6))) + (X[uint32(1+5*7)&15] + 3889429448))
 	tb6 := tmp_tb5<<uint8(20) | tmp_tb5>>uint8(32-20) + tc6
 
-	tmp_ta6 := ((ta6 + (tb6 & td6) | (tc6 &^ td6)) + (X[uint32(1+5*8)&15] + 568446438))
+	tmp_ta6 := ((ta6 + ((tb6 & td6) | (tc6 &^ td6))) + (X[uint32(1+5*8)&15] + 568446438))
 	ta7 := tmp_ta6<<uint8(5) | tmp_ta6>>uint8(32-5) + tb6
 
-	tmp_td6 := ((td6 + (ta7 & tc6) | (tb6 &^ tc6)) + (X[uint32(1+5*9)&15] + 3275163606))
+	tmp_td6 := ((td6 + ((ta7 & tc6) | (tb6 &^ tc6))) + (X[uint32(1+5*9)&15] + 3275163606))
 	td7 := tmp_td6<<uint8(9) | tmp_td6>>uint8(32-9) + ta7
 
-	tmp_tc6 := ((tc6 + (td7 & tb6) | (ta7 &^ tb6)) + (X[uint32(1+5*10)&15] + 4107603335))
+	tmp_tc6 := ((tc6 + ((td7 & tb6) | (ta7 &^ tb6))) + (X[uint32(1+5*10)&15] + 4107603335))
 	tc7 := tmp_tc6<<uint8(14) | tmp_tc6>>uint8(32-14) + td7
 
-	tmp_tb6 := ((tb6 + (tc7 & ta7) | (td7 &^ ta7)) + (X[uint32(1+5*11)&15] + 1163531501))
+	tmp_tb6 := ((tb6 + ((tc7 & ta7) | (td7 &^ ta7))) + (X[uint32(1+5*11)&15] + 1163531501))
 	tb7 := tmp_tb6<<uint8(20) | tmp_tb6>>uint8(32-20) + tc7
 
-	tmp_ta7 := ((ta7 + (tb7 & td7) | (tc7 &^ td7)) + (X[uint32(1+5*12)&15] + 2850285829))
+	tmp_ta7 := ((ta7 + ((tb7 & td7) | (tc7 &^ td7))) + (X[uint32(1+5*12)&15] + 2850285829))
 	ta8 := tmp_ta7<<uint8(5) | tmp_ta7>>uint8(32-5) + tb7
 
-	tmp_td7 := ((td7 + (ta8 & tc7) | (tb7 &^ tc7)) + (X[uint32(1+5*13)&15] + 4243563512))
+	tmp_td7 := ((td7 + ((ta8 & tc7) | (tb7 &^ tc7))) + (X[uint32(1+5*13)&15] + 4243563512))
 	td8 := tmp_td7<<uint8(9) | tmp_td7>>uint8(32-9) + ta8
 
-	tmp_tc7 := ((tc7 + (td8 & tb7) | (ta8 &^ tb7)) + (X[uint32(1+5*14)&15] + 1735328473))
+	tmp_tc7 := ((tc7 + ((td8 & tb7) | (ta8 &^ tb7))) + (X[uint32(1+5*14)&15] + 1735328473))
 	tc8 := tmp_tc7<<uint8(14) | tmp_tc7>>uint8(32-14) + td8
 
-	tmp_tb7 := ((tb7 + (tc8 & ta8) | (td8 &^ ta8)) + (X[uint32(1+5*15)&15] + 2368359562))
+	tmp_tb7 := ((tb7 + ((tc8 & ta8) | (td8 &^ ta8))) + (X[uint32(1+5*15)&15] + 2368359562))
 	tb8 := tmp_tb7<<uint8(20) | tmp_tb7>>uint8(32-20) + tc8
 
 	// Round 3.
