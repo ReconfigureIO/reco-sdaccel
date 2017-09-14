@@ -50,6 +50,10 @@
             {
                 "name": "GENERATE_AFI",
                 "value": "no"
+            },
+            {
+                "name": "DEBUG_URL",
+                "value": "s3://reconfigureio-builds/bundle.debug.zip"
             }
         ]
     }

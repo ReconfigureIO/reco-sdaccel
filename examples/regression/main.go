@@ -3,7 +3,6 @@ package main
 import (
 	_ "sdaccel"
 
-	axiarbitrate "axi/arbitrate"
 	aximemory "axi/memory"
 	axiprotocol "axi/protocol"
 )
@@ -40,7 +39,7 @@ type Pair struct {
 	Y int32
 }
 
-func MakeBlock(length uint32, inputChannel <-chan uint64) DataBlock {
+func MakeBlock(length uint32, last bool, inputChannel <-chan uint64) DataBlock {
 	var x_arr [8]int32
 	var y_arr [8]int32
 
@@ -57,7 +56,7 @@ func MakeBlock(length uint32, inputChannel <-chan uint64) DataBlock {
 	}
 
 	return DataBlock{
-		Last: length < 8,
+		Last: last,
 		xs:   x_arr,
 		ys:   y_arr,
 	}
@@ -109,10 +108,10 @@ func MakeResult(block DataBlock, input_length_int int32) Result {
 	}
 }
 
-func MakePair(c <-chan uint64) Pair {
+func MakePair(t uint64) Pair {
 	return Pair{
-		X: int32(<-c >> 32),
-		Y: int32(<-c),
+		X: int32(t >> 32),
+		Y: int32(t),
 	}
 }
 
@@ -125,23 +124,26 @@ func (a Result) Add(b Result) Result {
 	}
 }
 
+func MakeBlocks(inputLength uint32, inputChannel <-chan uint64, blocks chan<- DataBlock) {
+	for inputLength != 0 {
+
+		toProcess := inputLength
+		if toProcess > 8 {
+			toProcess = 8
+		}
+
+		blocks <- MakeBlock(toProcess, inputLength <= 8, inputChannel)
+		inputLength -= toProcess
+	}
+}
+
 func regression(inputLength uint32, inputChannel <-chan uint64) Result {
 
-        blocks := make(chan DataBlock)
+	blocks := make(chan DataBlock)
 
 	input_length_int := int32(inputLength)
 
-	go func() {
-		for ; inputLength != 0; inputLength -= 8 {
-
-			toProcess := inputLength
-			if toProcess > 8 {
-				toProcess = 8
-			}
-
-			blocks <- MakeBlock(toProcess, inputChannel)
-		}
-	}()
+	go MakeBlocks(inputLength, inputChannel, blocks)
 
 	var result Result
 	notDone := true
@@ -150,8 +152,20 @@ func regression(inputLength uint32, inputChannel <-chan uint64) Result {
 		result = result.Add(MakeResult(block, input_length_int))
 		notDone = !block.Last
 	}
-
 	return result
+}
+
+func Benchmark(n int32) {
+	data := make(chan uint64)
+
+	go func() {
+		for i := n; i != 0; i-- {
+			data <- 0
+		}
+	}()
+
+	regression(uint32(n), data)
+
 }
 
 // The Top function will be presented as a kernel
@@ -181,7 +195,7 @@ func Top(
 	betaResponse := make(chan int32)
 
 	go aximemory.ReadBurstUInt64(
-		memReadAddr, memReadData, true, inputData, inputLength*2, inputChannel)
+		memReadAddr, memReadData, true, inputData, inputLength, inputChannel)
 
 	result := regression(inputLength, inputChannel)
 

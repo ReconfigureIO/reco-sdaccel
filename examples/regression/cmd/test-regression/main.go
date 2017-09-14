@@ -2,32 +2,9 @@ package main
 
 import (
 	"encoding/binary"
-	//"math/rand"
 	"fmt"
-	//"os"
 	"xcl"
 )
-
-// check if a number is prime
-/*func IsPrime(value int) bool {
-
-    for i := 2; i <= int(math.Floor(math.Sqrt(float64(value)))); i++ {
-        if value % i == 0 {
-            return false
-        }
-    }
-
-    return value > 1
-}*/
-
-/*type Sample struct {
-    x uint32
-    y uint32
-}
-
-func sample(x uint32, y uint32) {
-    Sample {x: x, y: y}
-}*/
 
 func main() {
 
@@ -58,7 +35,6 @@ func main() {
 		16, 47,
 	}
 
-	// FIXME is binary.Size doing something unexpected?
 	// On the FGPA, allocated ReadOnly memory for the input to the kernel.
 	inputBuff := world.Malloc(xcl.ReadOnly, uint(binary.Size(input)))
 	defer inputBuff.Free()

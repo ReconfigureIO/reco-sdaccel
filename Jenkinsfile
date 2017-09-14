@@ -3,7 +3,7 @@ def SDACCEL_WRAPPER_VERSION = ''
 pipeline {
     agent { label "master" }
     parameters {
-        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: 'v0.16.5')
+        string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: '')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
     }
     environment {
@@ -31,7 +31,7 @@ pipeline {
         stage('config') {
             steps {
                 script {
-                    if(SDACCEL_WRAPPER_VERSION == ''){
+                    if(params.SDACCEL_WRAPPER_VERSION == ''){
                         SDACCEL_WRAPPER_VERSION = sh (returnStdout: true, script: 'make print-SDACCEL_WRAPPER_VERSION').trim()
                     }else{
                         SDACCEL_WRAPPER_VERSION = params.SDACCEL_WRAPPER_VERSION
@@ -41,7 +41,14 @@ pipeline {
             }
         }
 
-        stage('build image') {
+        stage('pre clean') {
+            steps {
+                sh 'git clean -fdx'
+                sh 'make clean'
+            }
+        }
+
+        stage('build verilator image') {
             steps {
                 sh 'docker build -t "verilator:latest" docker-verilator'
             }
@@ -55,20 +62,15 @@ pipeline {
             }
         }
 
-        stage('pre clean') {
+        stage('build dist images') {
             steps {
-                sh 'make clean'
-                sh 'rm -rf bench_tmp'
+                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} docker-image"
             }
         }
 
         stage('test go') {
             steps {
-                sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} eTeak/go-teak-sdaccel"
-                dir('examples/noop'){
-                    sh './../../sdaccel-builder test-go'
-                    sh 'docker run --rm -i -v $(pwd):/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNDRIVEN'
-                }
+                sh "make test"
             }
         }
 
@@ -91,11 +93,6 @@ pipeline {
                         sh '../../reco-aws/reco-aws test test-histogram'
                     }
                 },
-                regression : {
-                    dir('examples/regression'){
-                        sh '../../reco-aws/reco-aws test test-regression'
-                    }
-                },
                 addition: {
                     dir('examples/addition'){
                         sh '../../reco-aws/reco-aws test test-addition'
@@ -104,6 +101,11 @@ pipeline {
                 memcopy: {
                     dir('examples/memcopy'){
                         sh '../../reco-aws/reco-aws test test-memcopy'
+                    }
+                },
+                regression: {
+                    dir('examples/regression'){
+                        sh '../../reco-aws/reco-aws test test-regression'
                     }
                 },
                 popcount: {
@@ -130,6 +132,9 @@ pipeline {
                 },
                 memcopy: {
                     sh './ci/test_build.sh memcopy test-memcopy memcopy "`git rev-parse HEAD`"'
+                },
+                regression: {
+                    sh './ci/test_build.sh regression test-regression regression "`git rev-parse HEAD`"'
                 },
                 "parallel histogram": {
                     sh './ci/test_build.sh histogram-parallel test-histogram histogram "`git rev-parse HEAD`"'

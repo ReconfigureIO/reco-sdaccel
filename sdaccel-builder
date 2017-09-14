@@ -36,6 +36,10 @@ if [ -e 'reco.yml' ]; then
    eval "$(parse_yaml 'reco.yml' 'reco_')"
 fi
 
+function graph {
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" graph
+}
+
 function build {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" kernel sim
 }
@@ -78,6 +82,9 @@ function main {
             ;;
         "image")
             image "${@:2}"
+            ;;
+        "graph")
+            graph "${@:2}"
             ;;
         "cmds")
             cmds "${@:2}"
