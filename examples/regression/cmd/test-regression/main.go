@@ -81,7 +81,7 @@ func main() {
 	var beta_scale float32
 	beta_scale = float32(beta) / 1024
 
-	expected_slope := 3.153320
+	expected_slope := 3.1533203
 	expected_intercept := -2.073242
 
 	// error if they didn't do the same calculation
