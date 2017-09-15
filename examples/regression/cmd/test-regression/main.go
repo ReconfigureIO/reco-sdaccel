@@ -86,9 +86,9 @@ func main() {
 
 	// error if they didn't do the same calculation
 	if !reflect.DeepEqual(expected_slope, beta_scale) {
-		log.Fatalf("%v != %v\n", beta_scale, expected_slope)
+		log.Fatalf("%f != %f\n", beta_scale, expected_slope)
 	} else if !reflect.DeepEqual(expected_intercept, alpha_scale) {
-		log.Fatalf("%v != %v\n", alpha_scale, expected_intercept)
+		log.Fatalf("%f != %f\n", alpha_scale, expected_intercept)
 	}
 
 	// Print the value we got from the FPGA
