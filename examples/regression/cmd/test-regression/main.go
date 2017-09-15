@@ -18,7 +18,7 @@ func main() {
 	defer krnl.Release()
 
 	// The data we'll send to the kernel for processing
-	input := [32]uint32{1, 2,
+	input := [32]int32{1, 2,
 		2, 3,
 		3, 5,
 		4, 7,
