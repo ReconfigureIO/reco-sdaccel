@@ -47,10 +47,10 @@ func MakeBlock(length uint32, last bool, inputChannel <-chan uint64) DataBlock {
 		next := <-inputChannel
 		t := i - 1
 		go func() {
-			x_arr[t] = int32(next >> 32)
+			x_arr[t] = int32(next)
 		}()
 		go func() {
-			y_arr[t] = int32(next)
+			y_arr[t] = int32(next >> 32)
 		}()
 		i = t
 	}
@@ -228,7 +228,7 @@ func Top(
 	var beta1 int32 = result.squared_sum - (result.x_total * result.x_total)
 
 	// slope
-	beta := result.x_total << 10 // beta2 << 10 / beta1
+	beta := beta2 << 10 / beta1
 	// y-intercept
 	alpha := y_avg<<10 - beta*x_avg
 
