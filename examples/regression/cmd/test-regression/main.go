@@ -83,7 +83,7 @@ func main() {
 	beta_scale = float32(beta) / 1024
 
 	expected_slope := float32(3.1533203)
-	expected_intercept := float32(-2.073242)
+	expected_intercept := float32(-2.0732421875)
 
 	// error if they didn't do the same calculation
 	if !reflect.DeepEqual(expected_slope, beta_scale) {
