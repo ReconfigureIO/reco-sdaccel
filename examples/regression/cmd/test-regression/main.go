@@ -87,10 +87,10 @@ func main() {
 
 	// error if they didn't do the same calculation
 	if !reflect.DeepEqual(expected_slope, beta_scale) {
-		full_precision := strconv.FormatFloat(beta_scale, 'f', -1, 32)
+		full_precision := strconv.FormatFloat(float64(beta_scale), 'f', -1, 64)
 		log.Fatalf("%v != %v\n", full_precision, expected_slope)
 	} else if !reflect.DeepEqual(expected_intercept, alpha_scale) {
-		full_precision := strconv.FormatFloat(alpha_scale, 'f', -1, 32)
+		full_precision := strconv.FormatFloat(float64(alpha_scale), 'f', -1, 64)
 		log.Fatalf("%v != %v\n", full_precision, expected_intercept)
 	}
 
