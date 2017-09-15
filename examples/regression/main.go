@@ -168,22 +168,6 @@ func Benchmark(n int32) {
 
 }
 
-/*func main() {
-
-	n := uint32(8)
-	data := make(chan uint64)
-
-	go func() {
-		for i := n * 2; i != 0; i = i - 2 {
-			println(i)
-			data <- uint64(i)<<32 + uint64(i+1)
-		}
-	}()
-
-	result := regression(n, data)
-	println(result.x_total)
-}*/
-
 // The Top function will be presented as a kernel
 func Top(
 	// The first set of arguments to this function can be any number

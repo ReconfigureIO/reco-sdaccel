@@ -79,6 +79,16 @@ func main() {
 	var beta_scale float32
 	beta_scale = float32(beta) / 1024
 
+	expected_slope := 3.153320
+	expected_intercept := -2.073242
+
+	// error if they didn't do the same calculation
+	if !reflect.DeepEqual(expected_slope, beta_scale) {
+		log.Fatalf("%v != %v\n", beta_scale, expected_slope)
+	} else if !reflect.DeepEqual(expected_intercept, alpha_scale) {
+		log.Fatalf("%v != %v\n", alpha_scale, expected_intercept)
+	}
+
 	// Print the value we got from the FPGA
 	fmt.Printf("\nIntercept: %f\nSlope: %f\n", alpha_scale, beta_scale)
 
