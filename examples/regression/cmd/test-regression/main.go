@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"xcl"
 )
 
@@ -81,14 +82,16 @@ func main() {
 	var beta_scale float32
 	beta_scale = float32(beta) / 1024
 
-	expected_slope := 3.1533203
-	expected_intercept := -2.073242
+	expected_slope := float32(3.1533203)
+	expected_intercept := float32(-2.073242)
 
 	// error if they didn't do the same calculation
 	if !reflect.DeepEqual(expected_slope, beta_scale) {
-		log.Fatalf("%f != %f\n", beta_scale, expected_slope)
+		full_precision := strconv.FormatFloat(beta_scale, 'f', -1, 32)
+		log.Fatalf("%v != %v\n", full_precision, expected_slope)
 	} else if !reflect.DeepEqual(expected_intercept, alpha_scale) {
-		log.Fatalf("%f != %f\n", alpha_scale, expected_intercept)
+		full_precision := strconv.FormatFloat(alpha_scale, 'f', -1, 32)
+		log.Fatalf("%v != %v\n", full_precision, expected_intercept)
 	}
 
 	// Print the value we got from the FPGA
