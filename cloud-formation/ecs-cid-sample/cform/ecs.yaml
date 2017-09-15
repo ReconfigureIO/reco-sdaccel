@@ -66,6 +66,9 @@ Parameters:
       Optional - Specifies the Security Group Id of an existing Security
       Group. Leave blank to have a new Security Group created
     Default: ''
+  SpotPrice:
+    Type: String
+    Description: Defines max spot price
   VpcCidr:
     Type: String
     Description: Optional - Specifies the CIDR Block of VPC
@@ -243,6 +246,7 @@ Resources:
       IamInstanceProfile: !Ref IamRoleInstanceProfile
       KeyName: !If [ CreateEC2LCWithKeyPair, !Ref KeyName, !Ref "AWS::NoValue" ]
       SecurityGroups: [ !If [ CreateNewSecurityGroup, !Ref EcsSecurityGroup, !Ref SecurityGroupId ] ]
+      SpotPrice: !Ref SpotPrice
       BlockDeviceMappings:
           - DeviceName: "/dev/sdm"
             Ebs:
