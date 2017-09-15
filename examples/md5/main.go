@@ -14,7 +14,11 @@ import (
 )
 
 func Top(
-	n uint,
+	// The number of blocks to process
+	numBlocks uint,
+
+	inputData uintptr,
+	outputData uintptr,
 
 	memReadAddr chan<- axiprotocol.Addr,
 	memReadData <-chan axiprotocol.ReadData,
@@ -23,14 +27,25 @@ func Top(
 	memWriteData chan<- axiprotocol.WriteData,
 	memWriteResp <-chan axiprotocol.WriteResp) {
 
-	// Disable AXI memory accesses.
-	go axiprotocol.ReadDisable(memReadAddr, memReadData)
-	go axiprotocol.WriteDisable(memWriteAddr, memWriteData, memWriteResp)
-
 	d := md5.New()
-	b := [16]uint32{}
 
-	for i := n; i != 0; i-- {
-		d = d.Block(b)
+	blocks := make(chan [16]uint32)
+
+	go func() {
+		num64s := numBlocks << 3
+		block := [16]uint32{}
+
+		go
+
+		for i := numBlocks; i != 0; i-- {
+			for j := 0; j != 16; j += 2 {
+
+				block
+			}
+		}
+	}()
+
+	for i := numBlocks; i != 0; i-- {
+		d = d.Block(<-blocks)
 	}
 }
