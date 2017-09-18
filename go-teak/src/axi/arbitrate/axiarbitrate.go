@@ -23,38 +23,6 @@ import (
 )
 
 //
-// Perform write data transfers.
-//
-func writeDataTransfer(
-	clientData chan<- protocol.WriteData,
-	serverData <-chan protocol.WriteData) {
-
-	// Terminate transfers on write data channel 'last' flag.
-	getNext := true
-	for getNext {
-		writeData := <-serverData
-		clientData <- writeData
-		getNext = !writeData.Last
-	}
-}
-
-//
-// Perform read data transfers.
-//
-func readDataTransfer(
-	clientData <-chan protocol.ReadData,
-	serverData chan<- protocol.ReadData) {
-
-	// Terminate transfers on write data channel 'last' flag.
-	getNext := true
-	for getNext {
-		readData := <-clientData
-		serverData <- readData
-		getNext = !readData.Last
-	}
-}
-
-//
 // Goroutine which implements AXI arbitration between two AXI write interfaces.
 //
 func WriteArbitrateX2(
@@ -75,13 +43,20 @@ func WriteArbitrateX2(
 	// Run write data channel handler.
 	go func() {
 		for {
+			var writeData protocol.WriteData
 			chanSelect := <-dataChanSelect
-			respChanSelect <- chanSelect
-			switch chanSelect {
-			case 0:
-				writeDataTransfer(clientData, serverData0)
-			default:
-				writeDataTransfer(clientData, serverData1)
+
+			// Terminate transfers on write data channel 'last' flag.
+			isLast := false
+			for !isLast {
+				switch chanSelect {
+				case 0:
+					writeData = <-serverData0
+				default:
+					writeData = <-serverData1
+				}
+				clientData <- writeData
+				isLast = writeData.Last
 			}
 		}
 	}()
@@ -100,18 +75,19 @@ func WriteArbitrateX2(
 		}
 	}()
 
-	// Use independent write addresses for efficient implementation.
-	var writeAddr0 protocol.Addr
-	var writeAddr1 protocol.Addr
+	// Use intermediate variables for efficient implementation.
+	var writeAddr protocol.Addr
+	var dataChanId byte
 	for {
 		select {
-		case writeAddr0 = <-serverAddr0:
-			clientAddr <- writeAddr0
-			dataChanSelect <- 0
-		case writeAddr1 = <-serverAddr1:
-			clientAddr <- writeAddr1
-			dataChanSelect <- 1
+		case writeAddr = <-serverAddr0:
+			dataChanId = 0
+		case writeAddr = <-serverAddr1:
+			dataChanId = 1
 		}
+		clientAddr <- writeAddr
+		dataChanSelect <- dataChanId
+		respChanSelect <- dataChanId
 	}
 }
 
@@ -139,15 +115,22 @@ func WriteArbitrateX3(
 	// Run write data channel handler.
 	go func() {
 		for {
+			var writeData protocol.WriteData
 			chanSelect := <-dataChanSelect
-			respChanSelect <- chanSelect
-			switch chanSelect {
-			case 0:
-				writeDataTransfer(clientData, serverData0)
-			case 1:
-				writeDataTransfer(clientData, serverData1)
-			default:
-				writeDataTransfer(clientData, serverData2)
+
+			// Terminate transfers on write data channel 'last' flag.
+			isLast := false
+			for !isLast {
+				switch chanSelect {
+				case 0:
+					writeData = <-serverData0
+				case 1:
+					writeData = <-serverData1
+				default:
+					writeData = <-serverData2
+				}
+				clientData <- writeData
+				isLast = writeData.Last
 			}
 		}
 	}()
@@ -168,22 +151,21 @@ func WriteArbitrateX3(
 		}
 	}()
 
-	// Use independent write addresses for efficient implementation.
-	var writeAddr0 protocol.Addr
-	var writeAddr1 protocol.Addr
-	var writeAddr2 protocol.Addr
+	// Use intermediate variables for efficient implementation.
+	var writeAddr protocol.Addr
+	var dataChanId byte
 	for {
 		select {
-		case writeAddr0 = <-serverAddr0:
-			clientAddr <- writeAddr0
-			dataChanSelect <- 0
-		case writeAddr1 = <-serverAddr1:
-			clientAddr <- writeAddr1
-			dataChanSelect <- 1
-		case writeAddr2 = <-serverAddr2:
-			clientAddr <- writeAddr2
-			dataChanSelect <- 2
+		case writeAddr = <-serverAddr0:
+			dataChanId = 0
+		case writeAddr = <-serverAddr1:
+			dataChanId = 1
+		case writeAddr = <-serverAddr2:
+			dataChanId = 2
 		}
+		clientAddr <- writeAddr
+		dataChanSelect <- dataChanId
+		respChanSelect <- dataChanId
 	}
 }
 
@@ -214,17 +196,24 @@ func WriteArbitrateX4(
 	// Run write data channel handler.
 	go func() {
 		for {
+			var writeData protocol.WriteData
 			chanSelect := <-dataChanSelect
-			respChanSelect <- chanSelect
-			switch chanSelect {
-			case 0:
-				writeDataTransfer(clientData, serverData0)
-			case 1:
-				writeDataTransfer(clientData, serverData1)
-			case 2:
-				writeDataTransfer(clientData, serverData2)
-			default:
-				writeDataTransfer(clientData, serverData3)
+
+			// Terminate transfers on write data channel 'last' flag.
+			isLast := false
+			for !isLast {
+				switch chanSelect {
+				case 0:
+					writeData = <-serverData0
+				case 1:
+					writeData = <-serverData1
+				case 2:
+					writeData = <-serverData2
+				default:
+					writeData = <-serverData3
+				}
+				clientData <- writeData
+				isLast = writeData.Last
 			}
 		}
 	}()
@@ -247,26 +236,23 @@ func WriteArbitrateX4(
 		}
 	}()
 
-	// Use independent write addresses for efficient implementation.
-	var writeAddr0 protocol.Addr
-	var writeAddr1 protocol.Addr
-	var writeAddr2 protocol.Addr
-	var writeAddr3 protocol.Addr
+	// Use intermediate variables for efficient implementation.
+	var writeAddr protocol.Addr
+	var dataChanId byte
 	for {
 		select {
-		case writeAddr0 = <-serverAddr0:
-			clientAddr <- writeAddr0
-			dataChanSelect <- 0
-		case writeAddr1 = <-serverAddr1:
-			clientAddr <- writeAddr1
-			dataChanSelect <- 1
-		case writeAddr2 = <-serverAddr2:
-			clientAddr <- writeAddr2
-			dataChanSelect <- 2
-		case writeAddr3 = <-serverAddr3:
-			clientAddr <- writeAddr3
-			dataChanSelect <- 3
+		case writeAddr = <-serverAddr0:
+			dataChanId = 0
+		case writeAddr = <-serverAddr1:
+			dataChanId = 1
+		case writeAddr = <-serverAddr2:
+			dataChanId = 2
+		case writeAddr = <-serverAddr3:
+			dataChanId = 3
 		}
+		clientAddr <- writeAddr
+		dataChanSelect <- dataChanId
+		respChanSelect <- dataChanId
 	}
 }
 
@@ -287,28 +273,37 @@ func ReadArbitrateX2(
 	// Run read data channel handler.
 	go func() {
 		for {
+			var readData protocol.ReadData
 			chanSelect := <-dataChanSelect
-			switch chanSelect {
-			case 0:
-				readDataTransfer(clientData, serverData0)
-			default:
-				readDataTransfer(clientData, serverData1)
+
+			// Terminate transfers on write data channel 'last' flag.
+			isLast := false
+			for !isLast {
+				readData := <-clientData
+				switch chanSelect {
+				case 0:
+					serverData0 <- readData
+					isLast = readData.Last
+				default:
+					serverData1 <- readData
+					isLast = readData.Last
+				}
 			}
 		}
 	}()
 
-	// Use independent read addresses for efficient implementation.
-	var readAddr0 protocol.Addr
-	var readAddr1 protocol.Addr
+	// Use intermediate variables for efficient implementation.
+	var readAddr protocol.Addr
+	var dataChanId byte
 	for {
 		select {
-		case readAddr0 = <-serverAddr0:
-			clientAddr <- readAddr0
-			dataChanSelect <- 0
-		case readAddr1 = <-serverAddr1:
-			clientAddr <- readAddr1
-			dataChanSelect <- 1
+		case readAddr = <-serverAddr0:
+			dataChanId = 0
+		case readAddr = <-serverAddr1:
+			dataChanId = 1
 		}
+		clientAddr <- readAddr
+		dataChanSelect <- dataChanId
 	}
 }
 
@@ -331,34 +326,42 @@ func ReadArbitrateX3(
 	// Run read data channel handler.
 	go func() {
 		for {
+			var readData protocol.ReadData
 			chanSelect := <-dataChanSelect
-			switch chanSelect {
-			case 0:
-				readDataTransfer(clientData, serverData0)
-			case 1:
-				readDataTransfer(clientData, serverData1)
-			default:
-				readDataTransfer(clientData, serverData2)
+
+			// Terminate transfers on write data channel 'last' flag.
+			isLast := false
+			for !isLast {
+				readData := <-clientData
+				switch chanSelect {
+				case 0:
+					serverData0 <- readData
+					isLast = readData.Last
+				case 1:
+					serverData1 <- readData
+					isLast = readData.Last
+				default:
+					serverData2 <- readData
+					isLast = readData.Last
+				}
 			}
 		}
 	}()
 
-	// Use independent read addresses for efficient implementation.
-	var readAddr0 protocol.Addr
-	var readAddr1 protocol.Addr
-	var readAddr2 protocol.Addr
+	// Use intermediate variables for efficient implementation.
+	var readAddr protocol.Addr
+	var dataChanId byte
 	for {
 		select {
-		case readAddr0 = <-serverAddr0:
-			clientAddr <- readAddr0
-			dataChanSelect <- 0
-		case readAddr1 = <-serverAddr1:
-			clientAddr <- readAddr1
-			dataChanSelect <- 1
-		case readAddr2 = <-serverAddr2:
-			clientAddr <- readAddr2
-			dataChanSelect <- 2
+		case readAddr = <-serverAddr0:
+			dataChanId = 0
+		case readAddr = <-serverAddr1:
+			dataChanId = 1
+		case readAddr = <-serverAddr2:
+			dataChanId = 2
 		}
+		clientAddr <- readAddr
+		dataChanSelect <- dataChanId
 	}
 }
 
@@ -383,39 +386,46 @@ func ReadArbitrateX4(
 	// Run read data channel handler.
 	go func() {
 		for {
+			var readData protocol.ReadData
 			chanSelect := <-dataChanSelect
-			switch chanSelect {
-			case 0:
-				readDataTransfer(clientData, serverData0)
-			case 1:
-				readDataTransfer(clientData, serverData1)
-			case 2:
-				readDataTransfer(clientData, serverData2)
-			default:
-				readDataTransfer(clientData, serverData3)
+
+			// Terminate transfers on write data channel 'last' flag.
+			isLast := false
+			for !isLast {
+				readData := <-clientData
+				switch chanSelect {
+				case 0:
+					serverData0 <- readData
+					isLast = readData.Last
+				case 1:
+					serverData1 <- readData
+					isLast = readData.Last
+				case 2:
+					serverData2 <- readData
+					isLast = readData.Last
+				default:
+					serverData3 <- readData
+					isLast = readData.Last
+				}
 			}
 		}
 	}()
 
-	// Use independent read addresses for efficient implementation.
-	var readAddr0 protocol.Addr
-	var readAddr1 protocol.Addr
-	var readAddr2 protocol.Addr
-	var readAddr3 protocol.Addr
+	// Use intermediate variables for efficient implementation.
+	var readAddr protocol.Addr
+	var dataChanId byte
 	for {
 		select {
-		case readAddr0 = <-serverAddr0:
-			clientAddr <- readAddr0
-			dataChanSelect <- 0
-		case readAddr1 = <-serverAddr1:
-			clientAddr <- readAddr1
-			dataChanSelect <- 1
-		case readAddr2 = <-serverAddr2:
-			clientAddr <- readAddr2
-			dataChanSelect <- 2
-		case readAddr3 = <-serverAddr3:
-			clientAddr <- readAddr3
-			dataChanSelect <- 3
+		case readAddr = <-serverAddr0:
+			dataChanId = 0
+		case readAddr = <-serverAddr1:
+			dataChanId = 1
+		case readAddr = <-serverAddr2:
+			dataChanId = 2
+		case readAddr = <-serverAddr3:
+			dataChanId = 3
 		}
+		clientAddr <- readAddr
+		dataChanSelect <- dataChanId
 	}
 }
