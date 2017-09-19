@@ -4,7 +4,7 @@ const (
 	ARRAY_SPLIT_SIZE = 15
 )
 
-type DataBlock struct {
+type dataBlock struct {
 	Last bool
 	xs   [8]int32
 	ys   [8]int32
@@ -13,11 +13,6 @@ type DataBlock struct {
 func add_slice(x [8]int32) int32 {
 	var x_total int32 = ((x[0] + x[1]) + (x[2] + x[3])) + ((x[4] + x[5]) + (x[6] + x[7]))
 	return x_total
-}
-
-type Regression struct {
-	slope     int32
-	intercept int32
 }
 
 func product_sum_slice(x [8]int32, y [8]int32) int32 {
@@ -37,12 +32,12 @@ type Characteristic struct {
 	intercept int32
 }
 
-type Pair struct {
+type pair struct {
 	X int32
 	Y int32
 }
 
-func MakeBlock(length uint32, last bool, inputChannel <-chan uint64) DataBlock {
+func makeBlock(length uint32, last bool, inputChannel <-chan uint64) dataBlock {
 	var x_arr [8]int32
 	var y_arr [8]int32
 
@@ -58,21 +53,21 @@ func MakeBlock(length uint32, last bool, inputChannel <-chan uint64) DataBlock {
 		i = t
 	}
 
-	return DataBlock{
+	return dataBlock{
 		Last: last,
 		xs:   x_arr,
 		ys:   y_arr,
 	}
 }
 
-type Result struct {
+type arraySums struct {
 	x_total     int32
 	y_total     int32
 	product_sum int32
 	squared_sum int32
 }
 
-func squared_sum_func(x [8]int32) int32 {
+func squaredSumFunc(x [8]int32) int32 {
 	squared_array := [8]int32{x[0] * x[0],
 		x[1] * x[1],
 		x[2] * x[2],
@@ -85,7 +80,7 @@ func squared_sum_func(x [8]int32) int32 {
 	return add_slice(squared_array)
 }
 
-func MakeResult(block DataBlock, input_length_int int32) Result {
+func makeResult(block dataBlock, input_length_int int32) arraySums {
 	x_total := make(chan int32)
 	y_total := make(chan int32)
 	product_sum := make(chan int32)
@@ -101,9 +96,9 @@ func MakeResult(block DataBlock, input_length_int int32) Result {
 		product_sum <- input_length_int * product_sum_slice(block.xs, block.ys)
 	}()
 	go func() {
-		squared_sum <- input_length_int * squared_sum_func(block.xs)
+		squared_sum <- input_length_int * squaredSumFunc(block.xs)
 	}()
-	return Result{
+	return arraySums{
 		x_total:     (<-x_total),
 		y_total:     (<-y_total),
 		product_sum: (<-product_sum),
@@ -111,15 +106,15 @@ func MakeResult(block DataBlock, input_length_int int32) Result {
 	}
 }
 
-func MakePair(t uint64) Pair {
-	return Pair{
+func makePair(t uint64) pair {
+	return pair{
 		X: int32(t >> 32),
 		Y: int32(t),
 	}
 }
 
-func (a Result) Add(b Result) Result {
-	return Result{
+func (a arraySums) Add(b arraySums) arraySums {
+	return arraySums{
 		x_total:     a.x_total + b.x_total,
 		y_total:     a.y_total + b.y_total,
 		product_sum: a.product_sum + b.product_sum,
@@ -127,7 +122,7 @@ func (a Result) Add(b Result) Result {
 	}
 }
 
-func MakeBlocks(inputLength uint32, inputChannel <-chan uint64, blocks chan<- DataBlock) {
+func makeBlocks(inputLength uint32, inputChannel <-chan uint64, blocks chan<- dataBlock) {
 	for inputLength != 0 {
 
 		toProcess := inputLength
@@ -135,32 +130,32 @@ func MakeBlocks(inputLength uint32, inputChannel <-chan uint64, blocks chan<- Da
 			toProcess = 8
 		}
 
-		blocks <- MakeBlock(toProcess, inputLength <= 8, inputChannel)
+		blocks <- makeBlock(toProcess, inputLength <= 8, inputChannel)
 		inputLength -= toProcess
 	}
 }
 
-func regression_sums(inputLength uint32, inputChannel <-chan uint64) Result {
+func makeSums(inputLength uint32, inputChannel <-chan uint64) arraySums {
 
-	blocks := make(chan DataBlock)
+	blocks := make(chan dataBlock)
 
 	input_length_int := int32(inputLength)
 
-	go MakeBlocks(inputLength, inputChannel, blocks)
+	go makeBlocks(inputLength, inputChannel, blocks)
 
-	var result Result
+	var result arraySums
 	notDone := true
 	for notDone {
 		block := <-blocks
-		result = result.Add(MakeResult(block, input_length_int))
+		result = result.Add(makeResult(block, input_length_int))
 		notDone = !block.Last
 	}
 	return result
 }
 
-func regression(inputLength uint32, inputChannel <-chan uint64) Regression {
+func Regression(inputLength uint32, inputChannel <-chan uint64) Characteristic {
 
-	result := regression_sums(inputLength, inputChannel)
+	result := makeSums(inputLength, inputChannel)
 
 	var x_avg int32 = result.x_total / int32(inputLength)
 	var y_avg int32 = result.y_total / int32(inputLength)
@@ -179,7 +174,7 @@ func regression(inputLength uint32, inputChannel <-chan uint64) Regression {
 	// y-intercept
 	alpha := y_avg<<10 - beta*x_avg
 
-	return Regression{intercept: alpha, slope: beta}
+	return Characteristic{intercept: alpha, slope: beta}
 }
 
 /*
