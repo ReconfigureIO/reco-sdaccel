@@ -10,12 +10,12 @@ type dataBlock struct {
 	ys   [8]int32
 }
 
-func add_slice(x [8]int32) int32 {
+func addSlice(x [8]int32) int32 {
 	var x_total int32 = ((x[0] + x[1]) + (x[2] + x[3])) + ((x[4] + x[5]) + (x[6] + x[7]))
 	return x_total
 }
 
-func product_sum_slice(x [8]int32, y [8]int32) int32 {
+func productSumSlice(x [8]int32, y [8]int32) int32 {
 	product_slice := [8]int32{x[0] * y[0],
 		x[1] * y[1],
 		x[2] * y[2],
@@ -24,7 +24,7 @@ func product_sum_slice(x [8]int32, y [8]int32) int32 {
 		x[5] * y[5],
 		x[6] * y[6],
 		x[7] * y[7]}
-	return add_slice(product_slice)
+	return addSlice(product_slice)
 }
 
 type Characteristic struct {
@@ -77,32 +77,32 @@ func squaredSumFunc(x [8]int32) int32 {
 		x[6] * x[6],
 		x[7] * x[7]}
 
-	return add_slice(squared_array)
+	return addSlice(squared_array)
 }
 
-func makeResult(block dataBlock, input_length_int int32) arraySums {
+func makeResult(block dataBlock, inputLengthInt int32) arraySums {
 	x_total := make(chan int32)
 	y_total := make(chan int32)
-	product_sum := make(chan int32)
-	squared_sum := make(chan int32)
+	productSum := make(chan int32)
+	squaredSum := make(chan int32)
 
 	go func() {
-		x_total <- add_slice(block.xs)
+		x_total <- addSlice(block.xs)
 	}()
 	go func() {
-		y_total <- add_slice(block.ys)
+		y_total <- addSlice(block.ys)
 	}()
 	go func() {
-		product_sum <- input_length_int * product_sum_slice(block.xs, block.ys)
+		productSum <- inputLengthInt * productSumSlice(block.xs, block.ys)
 	}()
 	go func() {
-		squared_sum <- input_length_int * squaredSumFunc(block.xs)
+		squaredSum <- inputLengthInt * squaredSumFunc(block.xs)
 	}()
 	return arraySums{
 		x_total:     (<-x_total),
 		y_total:     (<-y_total),
-		product_sum: (<-product_sum),
-		squared_sum: (<-squared_sum),
+		product_sum: (<-productSum),
+		squared_sum: (<-squaredSum),
 	}
 }
 
