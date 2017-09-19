@@ -37,7 +37,7 @@ func Top(
 	go aximemory.ReadBurstUInt64(
 		memReadAddr, memReadData, true, inputData, inputLength, inputChannel)
 
-	result := linear.regression(inputLength, inputChannel)
+	result := linear.Regression(inputLength, inputChannel)
 
 	alpha := result.intercept
 	beta := result.slope
