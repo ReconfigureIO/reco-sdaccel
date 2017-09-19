@@ -160,9 +160,6 @@ func Regression(inputLength uint32, inputChannel <-chan uint64) Characteristic {
 	var x_avg int32 = result.x_total / int32(inputLength)
 	var y_avg int32 = result.y_total / int32(inputLength)
 
-	// ΣxΣy
-	var pairwise_product int32 = result.x_total * result.y_total
-
 	// nΣxy - ΣxΣy
 	var beta2 int32 = result.product_sum - (result.x_total * result.y_total)
 
