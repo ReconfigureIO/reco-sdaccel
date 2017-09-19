@@ -171,7 +171,7 @@ func Regression(inputLength uint32, inputChannel <-chan uint64) Characteristic {
 	// y-intercept
 	alpha := y_avg<<10 - beta*x_avg
 
-	return Characteristic{intercept: alpha, slope: beta}
+	return Characteristic{Intercept: alpha, Slope: beta}
 }
 
 /*

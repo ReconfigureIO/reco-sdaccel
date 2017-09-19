@@ -29,18 +29,15 @@ func Top(
 	memWriteData chan<- axiprotocol.WriteData,
 	memWriteResp <-chan axiprotocol.WriteResp) {
 
-	independentChannel := make(chan uint64)
 	inputChannel := make(chan uint64)
-	alphaResponse := make(chan int32)
-	betaResponse := make(chan int32)
 
 	go aximemory.ReadBurstUInt64(
 		memReadAddr, memReadData, true, inputData, inputLength, inputChannel)
 
 	result := linear.Regression(inputLength, inputChannel)
 
-	alpha := result.intercept
-	beta := result.slope
+	alpha := result.Intercept
+	beta := result.Slope
 
 	// Write them back to the pointers the host requests
 	aximemory.WriteUInt32(
