@@ -28,8 +28,8 @@ func productSumSlice(x [8]int32, y [8]int32) int32 {
 }
 
 type Characteristic struct {
-	slope     int32
-	intercept int32
+	Slope     int32
+	Intercept int32
 }
 
 type pair struct {
