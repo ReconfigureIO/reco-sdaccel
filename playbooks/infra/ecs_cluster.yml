@@ -227,7 +227,7 @@
         template_parameters:
           EcsClusterName: deploy-staging-cluster_Batch_3f38f98d-f7ff-32ba-96aa-df100a48fdef
           SpotPrice: "0.30"
-          EcsClusterMaxSize: 3
+          EcsClusterMaxSize: 1
           KeyName: josh
           S3BucketName: nerabus
           S3BucketObject: "ecs-cluster/index.zip"
