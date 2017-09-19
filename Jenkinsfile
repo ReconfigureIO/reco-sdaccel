@@ -103,6 +103,11 @@ pipeline {
                         sh '../../reco-aws/reco-aws test test-memcopy'
                     }
                 },
+                regression: {
+                    dir('examples/regression'){
+                        sh '../../reco-aws/reco-aws test test-regression'
+                    }
+                },
                 popcount: {
                     dir('examples/popcount'){
                         sh '../../reco-aws/reco-aws test test-popcount'
@@ -127,6 +132,9 @@ pipeline {
                 },
                 memcopy: {
                     sh './ci/test_build.sh memcopy test-memcopy memcopy "`git rev-parse HEAD`"'
+                },
+                regression: {
+                    sh './ci/test_build.sh regression test-regression regression "`git rev-parse HEAD`"'
                 },
                 "parallel histogram": {
                     sh './ci/test_build.sh histogram-parallel test-histogram histogram "`git rev-parse HEAD`"'
