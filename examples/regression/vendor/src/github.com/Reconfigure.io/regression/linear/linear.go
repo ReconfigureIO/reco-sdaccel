@@ -15,6 +15,11 @@ func add_slice(x [8]int32) int32 {
 	return x_total
 }
 
+type Regression struct {
+	slope     int32
+	intercept int32
+}
+
 func product_sum_slice(x [8]int32, y [8]int32) int32 {
 	product_slice := [8]int32{x[0] * y[0],
 		x[1] * y[1],
@@ -25,6 +30,11 @@ func product_sum_slice(x [8]int32, y [8]int32) int32 {
 		x[6] * y[6],
 		x[7] * y[7]}
 	return add_slice(product_slice)
+}
+
+type Characteristic struct {
+	slope     int32
+	intercept int32
 }
 
 type Pair struct {
@@ -130,7 +140,7 @@ func MakeBlocks(inputLength uint32, inputChannel <-chan uint64, blocks chan<- Da
 	}
 }
 
-func regression(inputLength uint32, inputChannel <-chan uint64) Result {
+func regression_sums(inputLength uint32, inputChannel <-chan uint64) Result {
 
 	blocks := make(chan DataBlock)
 
@@ -148,6 +158,31 @@ func regression(inputLength uint32, inputChannel <-chan uint64) Result {
 	return result
 }
 
+func regression(inputLength uint32, inputChannel <-chan uint64) Regression {
+
+	result := regression_sums(inputLength, inputChannel)
+
+	var x_avg int32 = result.x_total / int32(inputLength)
+	var y_avg int32 = result.y_total / int32(inputLength)
+
+	// ΣxΣy
+	var pairwise_product int32 = result.x_total * result.y_total
+
+	// nΣxy - ΣxΣy
+	var beta2 int32 = result.product_sum - (result.x_total * result.y_total)
+
+	// nΣx^2 - (Σx)^2
+	var beta1 int32 = result.squared_sum - (result.x_total * result.x_total)
+
+	// slope
+	beta := beta2 << 10 / beta1
+	// y-intercept
+	alpha := y_avg<<10 - beta*x_avg
+
+	return Regression{intercept: alpha, slope: beta}
+}
+
+/*
 func Benchmark(n int32) {
 	data := make(chan uint64)
 
@@ -157,6 +192,6 @@ func Benchmark(n int32) {
 		}
 	}()
 
-	regression(uint32(n), data)
+	regression_sums(uint32(n), data)
 
-}
+}*/

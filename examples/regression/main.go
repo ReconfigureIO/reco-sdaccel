@@ -39,33 +39,13 @@ func Top(
 
 	result := linear.regression(inputLength, inputChannel)
 
-	var x_avg int32 = result.x_total / int32(inputLength)
-	var y_avg int32 = result.y_total / int32(inputLength)
-
-	// ΣxΣy
-	var pairwise_product int32 = result.x_total * result.y_total
-
-	// nΣxy - ΣxΣy
-	var beta2 int32 = result.product_sum - (result.x_total * result.y_total)
-
-	// nΣx^2 - (Σx)^2
-	var beta1 int32 = result.squared_sum - (result.x_total * result.x_total)
-
-	// slope
-	beta := beta2 << 10 / beta1
-	// y-intercept
-	alpha := y_avg<<10 - beta*x_avg
-
-	alphaResponse <- alpha
-	betaResponse <- beta
-
-	val1 := <-alphaResponse
-	val2 := <-betaResponse
+	alpha := result.intercept
+	beta := result.slope
 
 	// Write them back to the pointers the host requests
 	aximemory.WriteUInt32(
-		memWriteAddr, memWriteData, memWriteResp, false, output1, uint32(val1))
+		memWriteAddr, memWriteData, memWriteResp, false, output1, uint32(alpha))
 	aximemory.WriteUInt32(
-		memWriteAddr, memWriteData, memWriteResp, false, output2, uint32(val2))
+		memWriteAddr, memWriteData, memWriteResp, false, output2, uint32(beta))
 
 }
