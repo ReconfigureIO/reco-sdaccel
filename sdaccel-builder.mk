@@ -4,6 +4,8 @@ DIST_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist"
 REPORTS_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/reports"
 XCLBIN_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin"
 VERILOG_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/verilog"
+VENDOR_DIR := "$(ROOT_DIR)/.reco-work/vendor"
+
 
 XO_NAME := "reconfigure_io_sdaccel_builder_stub_0_1.xo"
 
@@ -60,8 +62,8 @@ ${REPORTS_DIR}:
 	mkdir -p "${REPORTS_DIR}"
 
 ${DIST_DIR}/vendor/src:
-	mkdir -p ${DIST_DIR}/vendor
-	ln -sf ${DIST_DIR}/vendor ${DIST_DIR}/vendor/src
+	mkdir -p "${VENDOR_DIR}"
+	ln -sf "${ROOT_DIR}/vendor" "${VENDOR_DIR}/src"
 
 ${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR} | ${DIST_DIR}/vendor/src
 	LIBRARY_PATH=${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH} CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ GOPATH=${DIR}/go:${ROOT_DIR}/vendor go build -o $@ $<
@@ -78,10 +80,10 @@ VERILOG_SOURCES := $(shell find ${DIR}/eTeak/verilog/SELF_files/ -type f)
 INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/includes/%,$(VERILOG_SOURCES))
 
 ${VERILOG_DIR}/main.v: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src
-	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak:${ROOT_DIR}/vendor /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak-sdaccel build ${GO_TEAK_FLAGS} $< -o $@
+	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak:${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak-sdaccel build ${GO_TEAK_FLAGS} $< -o $@
 
 ${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src
-	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak:${ROOT_DIR}/vendor /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak graph ${GO_TEAK_FLAGS} $< -o $@
+	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak:${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak graph ${GO_TEAK_FLAGS} $< -o $@
 
 ${VERILOG_DIR}/includes: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/includes
