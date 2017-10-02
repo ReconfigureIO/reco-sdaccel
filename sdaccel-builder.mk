@@ -61,7 +61,7 @@ ${REPORTS_DIR}:
 
 ${DIST_DIR}/vendor/src:
 	mkdir -p ${DIST_DIR}/vendor
-	ln -s ${DIST_DIR}/vendor ${DIST_DIR}/vendor/src
+	ln -sf ${DIST_DIR}/vendor ${DIST_DIR}/vendor/src
 
 ${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR} | ${DIST_DIR}/vendor/src
 	LIBRARY_PATH=${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH} CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ GOPATH=${DIR}/go:${ROOT_DIR}/vendor go build -o $@ $<
