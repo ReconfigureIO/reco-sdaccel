@@ -60,7 +60,7 @@ ${REPORTS_DIR}:
 	mkdir -p "${REPORTS_DIR}"
 
 ${DIST_DIR}/vendor/src:
-	mdkir -p ${DIST_DIR}/vendor
+	mkdir -p ${DIST_DIR}/vendor
 	ln -s ${DIST_DIR}/vendor ${DIST_DIR}/vendor/src
 
 ${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR} | ${DIST_DIR}/vendor/src
