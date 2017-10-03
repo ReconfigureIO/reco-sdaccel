@@ -5,7 +5,7 @@ import (
 
 	aximemory "axi/memory"
 	axiprotocol "axi/protocol"
-	"github.com/Reconfigure.io/regression/linear"
+	"github.com/ReconfigureIO/regression/linear"
 )
 
 // The Top function will be presented as a kernel
