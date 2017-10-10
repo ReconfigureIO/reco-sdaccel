@@ -53,7 +53,7 @@ func Top(
 			// [512]uint32, this would be the index we access.
 			index := uint16(sample) >> (16 - 9)
 			// And this is that index as a pointer to external memory.
-			outputPointer := outputData + uintptr(index << 2)
+			outputPointer := outputData + uintptr(index<<2)
 			// Perform an increment operation on that location.
 			current := aximemory.ReadUInt32(
 				memReadAddr1, memReadData1, true, outputPointer)

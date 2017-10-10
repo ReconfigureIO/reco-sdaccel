@@ -1,3 +1,45 @@
+# sdaccel-builder v0.12.6
+
+## Features
+
+## Bugfixes
+
+# sdaccel-builder v0.12.5
+
+## Features
+
+## Bugfixes
+
+# sdaccel-builder v0.12.5
+
+## Features
+
+## Bugfixes
+
+# sdaccel-builder v0.12.4
+
+## Features
+
+## Bugfixes
+
+# sdaccel-builder v0.12.3
+
+## Features
+
+## Bugfixes
+
+# sdaccel-builder v0.12.2
+
+## Features
+
+## Bugfixes
+
+# sdaccel-builder v0.12.1
+
+## Features
+
+## Bugfixes
+
 # sdaccel-builder v0.12.0
 
 ## Features
