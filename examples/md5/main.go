@@ -15,7 +15,7 @@ import (
 
 // Read the number of blocks from
 func ProcessMD5(
-	numBlock uint,
+	numBlocks uint,
 	inputData uintptr,
 	memReadAddr chan<- axiprotocol.Addr,
 	memReadData <-chan axiprotocol.ReadData) md5.Digest {
@@ -83,6 +83,6 @@ func Top(
 	memWriteData chan<- axiprotocol.WriteData,
 	memWriteResp <-chan axiprotocol.WriteResp) {
 
-	d := ProcessMD5(numBlock, inputData, memReadAddr, memReadData)
+	d := ProcessMD5(numBlocks, inputData, memReadAddr, memReadData)
 	WriteSum(d, outputData, memWriteAddr, memWriteData, memWriteResp)
 }
