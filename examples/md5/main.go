@@ -10,7 +10,7 @@ import (
 	aximemory "axi/memory"
 	axiprotocol "axi/protocol"
 
-	"github.com/Reconfigure.io/crypto/md5"
+	"github.com/ReconfigureIO/crypto/md5"
 )
 
 // Read the number of blocks from
