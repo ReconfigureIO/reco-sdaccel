@@ -2,7 +2,8 @@ package main
 
 import (
 	"encoding/binary"
-	"fmt"
+	"encoding/hex"
+	"log"
 	"xcl"
 
 	"github.com/ReconfigureIO/crypto/md5/host"
@@ -15,13 +16,13 @@ func main() {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
 	defer krnl.Release()
 
-	outputBuff := world.Malloc(xcl.WriteOnly, byteLength)
+	msg := host.Pad([]byte("The quick brown fox jumps over the lazy dog"))
+
+	outputBuff := world.Malloc(xcl.WriteOnly, uint(len(msg)))
 	defer outputBuff.Free()
 
-	inputBuff := world.Malloc(xcl.ReadOnly, byteLength)
+	inputBuff := world.Malloc(xcl.ReadOnly, 16)
 	defer inputBuff.Free()
-
-	msg := host.Pad([]byte("The quick brown fox jumps over the lazy dog"))
 
 	binary.Write(inputBuff.Writer(), binary.LittleEndian, msg)
 	numBlocks := uint32(binary.Size(msg) / 8)
@@ -40,6 +41,6 @@ func main() {
 
 	s := hex.EncodeToString(ret)
 	if s != "9e107d9d372bb6826bd81d3542a419d6" {
-		log.Fatal("%s != %s", s, "9e107d9d372bb6826bd81d3542a419d6")
+		log.Fatalf("%s != %s", s, "9e107d9d372bb6826bd81d3542a419d6")
 	}
 }
