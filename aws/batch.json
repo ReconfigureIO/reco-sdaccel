@@ -5,7 +5,7 @@
     "containerProperties": {
         "image": "398048034572.dkr.ecr.us-east-1.amazonaws.com/reconfigureio/build-framework/sdaccel-builder:josh-test",
         "vcpus": 4,
-        "memory": 8000,
+        "memory": 16000,
         "jobRoleArn": "arn:aws:iam::398048034572:role/batch-builder",
         "command": [
             "/opt/build.sh"
