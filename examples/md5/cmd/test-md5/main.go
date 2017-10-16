@@ -17,15 +17,16 @@ func main() {
 	defer krnl.Release()
 
 	msg := host.Pad([]byte("The quick brown fox jumps over the lazy dog"))
+	msgSize := binary.Size(msg)
 
-	outputBuff := world.Malloc(xcl.WriteOnly, uint(len(msg)))
-	defer outputBuff.Free()
-
-	inputBuff := world.Malloc(xcl.ReadOnly, 16)
+	inputBuff := world.Malloc(xcl.ReadOnly, uint(msgSize))
 	defer inputBuff.Free()
 
+	outputBuff := world.Malloc(xcl.ReadOnly, 16)
+	defer outputBuff.Free()
+
 	binary.Write(inputBuff.Writer(), binary.LittleEndian, msg)
-	numBlocks := uint32(binary.Size(msg) / 8)
+	numBlocks := uint32(msgSize / 64)
 
 	krnl.SetArg(0, numBlocks)
 	krnl.SetMemoryArg(1, inputBuff)
@@ -33,13 +34,15 @@ func main() {
 
 	krnl.Run(1, 1, 1)
 
-	var ret []byte
-	err := binary.Read(outputBuff.Reader(), binary.LittleEndian, &ret)
+	ret := make([]byte, 16)
+	err := binary.Read(outputBuff.Reader(), binary.LittleEndian, ret)
 	if err != nil {
 		log.Fatal("binary.Read failed:", err)
 	}
 
 	s := hex.EncodeToString(ret)
+	log.Printf("Got hex string of %s", s)
+
 	if s != "9e107d9d372bb6826bd81d3542a419d6" {
 		log.Fatalf("%s != %s", s, "9e107d9d372bb6826bd81d3542a419d6")
 	}
