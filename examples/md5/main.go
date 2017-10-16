@@ -25,19 +25,17 @@ func ProcessMD5(
 	blocks := make(chan [16]uint32)
 
 	go func() {
-		num64s := numBlocks << 3
+		num32s := numBlocks << 4
 		block := [16]uint32{}
 
-		data := make(chan uint64)
+		data := make(chan uint32)
 
-		go aximemory.ReadBurstUInt64(
-			memReadAddr, memReadData, true, inputData, num64s, data)
+		go aximemory.ReadBurstUInt32(
+			memReadAddr, memReadData, true, inputData, num32s, data)
 
 		for i := numBlocks; i != 0; i-- {
-			for j := 0; j != 16; j += 2 {
-				val := <-data
-				block[j] = uint32(val >> 32)
-				block[j+1] = uint32(val)
+			for j := 0; j != 16; j += 1 {
+				block[j] = <-data
 			}
 			blocks <- block
 		}
@@ -57,16 +55,16 @@ func WriteSum(
 	memWriteData chan<- axiprotocol.WriteData,
 	memWriteResp <-chan axiprotocol.WriteResp) {
 
-	vals := d.Digest()
-	data := make(chan uint32)
+	vals := d.Sum()
+	data := make(chan uint8)
 	go func() {
-		for i := 0; i < 4; i++ {
-			data <- vals[i]
+		for i := 0; i < 16; i++ {
+			data <- uint8(vals[i])
 		}
 	}()
 
-	aximemory.WriteBurstUInt32(
-		memWriteAddr, memWriteData, memWriteResp, true, outputData, 4, data)
+	aximemory.WriteBurstUInt8(
+		memWriteAddr, memWriteData, memWriteResp, true, outputData, 16, data)
 }
 
 func Top(
