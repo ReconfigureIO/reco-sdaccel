@@ -217,35 +217,6 @@
         object: "ecs-cluster/index.zip"
         mode: put
 
-    - name: launch autoscale ecs example
-      cloudformation:
-        stack_name: "autoscale-build-cluster"
-        state: "present"
-        region: "us-east-1"
-        disable_rollback: true
-        template: "../../cloud-formation/ecs-cid-sample/cform/ecs.yaml"
-        template_parameters:
-          EcsClusterName: test-unmanaged_Batch_ab97bcda-f63e-3df1-9fb8-bae045e0ea8e
-          KeyName: josh
-          S3BucketName: nerabus
-          S3BucketObject: "ecs-cluster/index.zip"
-          MetricS3BucketObject: "ecs-cluster/metric.zip"
-          QueueName: build-jobs
-          EcsAmiId: "{{ ami_find.results[0].ami_id }}"
-          EcsInstanceType: m4.2xlarge
-          VpcId: vpc-03ca8364
-          SecurityGroupId: sg-8a1b9cf0
-          IamRoleInstanceProfile: ecsInstanceRole
-          SecurityIngressFromPort: 0
-          SecurityIngressToPort: 0
-          SecurityIngressCidrIp:
-          VpcAvailabilityZones: us-east-1b,us-east-1c,us-east-1d,us-east-1e
-          EbsVolumeSize: 100
-          EbsVolumeType: gp2
-          SubnetIds: subnet-9829fdd1,subnet-b28a6d8e,subnet-d4f511f9,subnet-22acb67a
-        tags:
-          Stack: "autoscale-ecs"
-
     - name: launch autoscale staging deployment cluster
       cloudformation:
         stack_name: "autoscale-deploy-staging-cluster"
@@ -255,7 +226,8 @@
         template: "../../cloud-formation/ecs-cid-sample/cform/ecs.yaml"
         template_parameters:
           EcsClusterName: deploy-staging-cluster_Batch_3f38f98d-f7ff-32ba-96aa-df100a48fdef
-          EcsClusterMaxSize: 3
+          SpotPrice: "0.35"
+          EcsClusterMaxSize: 1
           KeyName: josh
           S3BucketName: nerabus
           S3BucketObject: "ecs-cluster/index.zip"
