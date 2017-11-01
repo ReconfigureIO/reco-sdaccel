@@ -87,7 +87,7 @@ reg [ResetPipeLength-1:0] kernelResetPipe_q;
 integer i;
 
 // Implement combinatorial logic for reset control state machine.
-always @(resetState_q, resetCount_q, kernelReset_q, regDoneValid_q,
+always @(resetState_q, resetCount_q, kernelReset_q, regGoHoldoff_q, regDoneValid_q,
   kernelGoValid_q, kernelDoneStop_q, regGoValid, regDoneStop, kernelGoHoldoff,
   kernelDoneValid)
 begin
@@ -120,7 +120,6 @@ begin
       if (kernelGoValid_q & ~kernelGoHoldoff)
       begin
         resetState_d = KernelRunning;
-        regGoHoldoff_d = 1'b0;
       end
       else
       begin
@@ -160,10 +159,14 @@ begin
     // before releasing the kernel reset.
     default :
     begin
-      if (regGoValid)
+      if (regGoValid & ~regGoHoldoff_q)
       begin
         resetState_d = KernelStarting;
         kernelReset_d = 1'b0;
+      end
+      else
+      begin
+        regGoHoldoff_d = 1'b0;
       end
     end
   endcase
