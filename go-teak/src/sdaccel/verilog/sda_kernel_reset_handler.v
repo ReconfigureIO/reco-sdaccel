@@ -14,7 +14,8 @@
 
 module sda_kernel_reset_handler
   (regGoValid, regGoHoldoff, regDoneValid, regDoneStop, kernelGoValid,
-  kernelGoHoldoff, kernelDoneValid, kernelDoneStop, kernelReset, clk, srst);
+  kernelGoHoldoff, kernelDoneValid, kernelDoneStop, sysRstReq, wrapperReset,
+  kernelReset, clk);
 
 // Specifies the reset counter size. The kernel reset line will be asserted for
 // the time it takes the counter to wrap.
@@ -42,11 +43,14 @@ output kernelGoValid;
 input  kernelGoHoldoff;
 input  kernelDoneValid;
 output kernelDoneStop;
+
+// Specifies the system reset request signal and generated resets.
+input  sysRstReq;
+output wrapperReset;
 output kernelReset;
 
-// System level signals.
+// Specifies the clock input. There is no standard synchronous reset.
 input clk;
-input srst;
 
 // Reset control state machine signals.
 reg [2:0]                resetState_d;
@@ -64,6 +68,12 @@ reg                      regGoHoldoff_q;
 reg                      regDoneValid_q;
 reg                      kernelGoValid_q;
 reg                      kernelDoneStop_q;
+
+// Implements a register with an explicit initialisation value, which will have
+// the effect of forcing a reset cycle immediately after loading the FPGA
+// netlist. Only works with devices that support bitstream initalisation.
+reg resetHandlerEnabled_q = 1'b0;
+reg wrapperReset_q;
 
 // Miscellaneous signals.
 integer i;
@@ -155,7 +165,7 @@ end
 // Implement sequential logic for reset control state machine.
 always @(posedge clk)
 begin
-  if (srst)
+  if (sysRstReq | ~resetHandlerEnabled_q)
   begin
     resetState_q <= ResetTimeout;
     for (i = 0; i < ResetCountSize; i = i + 1)
@@ -165,6 +175,8 @@ begin
     regDoneValid_q <= 1'b0;
     kernelGoValid_q <= 1'b0;
     kernelDoneStop_q <= 1'b1;
+    resetHandlerEnabled_q <= 1'b1;
+    wrapperReset_q <= 1'b1;
   end
   else
   begin
@@ -175,13 +187,17 @@ begin
     regDoneValid_q <= regDoneValid_d;
     kernelGoValid_q <= kernelGoValid_d;
     kernelDoneStop_q <= kernelDoneStop_d;
+    resetHandlerEnabled_q <= 1'b1;
+    wrapperReset_q <= 1'b0;
   end
 end
 
-assign kernelReset = kernelReset_q;
 assign regGoHoldoff = regGoHoldoff_q;
 assign regDoneValid = regDoneValid_q;
 assign kernelGoValid = kernelGoValid_q;
 assign kernelDoneStop = kernelDoneStop_q;
+
+assign wrapperReset = wrapperReset_q;
+assign kernelReset = kernelReset_q;
 
 endmodule
