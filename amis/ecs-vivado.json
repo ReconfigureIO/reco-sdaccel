@@ -3,7 +3,7 @@
         "type": "amazon-ebs",
         "region": "us-east-1",
         "iam_instance_profile": "jenkins",
-        "source_ami": "ami-78e7d66e",
+        "source_ami": "ami-626e9918",
         "instance_type": "m4.2xlarge",
         "ssh_username": "centos",
         "ami_name": "vivado-2017.1-ecs {{timestamp}}",
