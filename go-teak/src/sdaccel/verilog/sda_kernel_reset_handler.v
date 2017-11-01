@@ -21,6 +21,10 @@ module sda_kernel_reset_handler
 // the time it takes the counter to wrap.
 parameter ResetCountSize = 5;
 
+// Specifies the length of the reset pipeline, which allows the synthesis tools
+// to build a reset tree if required by using register duplication.
+parameter ResetPipeLength = 8;
+
 // Derives the reset counter limit.
 parameter ResetCountLimit = (1 << ResetCountSize) - 1;
 
@@ -74,6 +78,10 @@ reg                      kernelDoneStop_q;
 // netlist. Only works with devices that support bitstream initalisation.
 reg resetHandlerEnabled_q = 1'b0;
 reg wrapperReset_q;
+
+// Specifies the reset pipeline signals.
+reg [ResetPipeLength-1:0] wrapperResetPipe_q;
+reg [ResetPipeLength-1:0] kernelResetPipe_q;
 
 // Miscellaneous signals.
 integer i;
@@ -197,7 +205,26 @@ assign regDoneValid = regDoneValid_q;
 assign kernelGoValid = kernelGoValid_q;
 assign kernelDoneStop = kernelDoneStop_q;
 
-assign wrapperReset = wrapperReset_q;
-assign kernelReset = kernelReset_q;
+// Implement reset output pipelines.
+always @(posedge clk)
+begin
+  if (wrapperReset_q | ~resetHandlerEnabled_q)
+    for (i = 0; i < ResetPipeLength; i = i + 1)
+       wrapperResetPipe_q [i] <= 1'b1;
+  else
+    wrapperResetPipe_q <= { 1'b0, wrapperResetPipe_q [ResetPipeLength-1:1] };
+end
+
+always @(posedge clk)
+begin
+  if (kernelReset_q | ~resetHandlerEnabled_q)
+    for (i = 0; i < ResetPipeLength; i = i + 1)
+       kernelResetPipe_q [i] <= 1'b1;
+  else
+    kernelResetPipe_q <= { 1'b0, kernelResetPipe_q [ResetPipeLength-1:1] };
+end
+
+assign wrapperReset = wrapperResetPipe_q [0];
+assign kernelReset = kernelResetPipe_q [0];
 
 endmodule
