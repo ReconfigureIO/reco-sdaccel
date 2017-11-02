@@ -122,11 +122,6 @@ pipeline {
                     dir('examples/md5'){
                         sh '../../reco-aws/reco-aws test test-md5'
                     }
-                },
-                "noop": {
-                    dir('examples/noop'){
-                        sh '../../reco-aws/reco-aws test test-noop'
-                    }
                 }
             }
         }
