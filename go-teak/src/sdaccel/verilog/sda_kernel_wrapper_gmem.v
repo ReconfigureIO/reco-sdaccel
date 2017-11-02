@@ -146,12 +146,10 @@ output interrupt;
 // verilator lint_on SYMRSVDWORD
 
 // Reset management signals.
-wire reg_go_valid;
-wire reg_go_holdoff;
-wire reg_done_valid;
-wire reg_done_stop;
-wire kernel_reset;
-wire wrapper_reset;
+wire [1:0] domain_reset;
+reg  [1:0] domain_ready;
+wire       action_reset;
+wire       axi_reg_reset;
 
 // AXI control interface master write address signals.
 wire [`AXI_SLAVE_ADDR_WIDTH-1:0] m_axi_control_AWADDR;
@@ -229,11 +227,22 @@ assign m_axi_gmem_ARLOCK[1] = 1'b0;
 // Tie off unused WID signal
 assign m_axi_gmem_WID = 1'b0;
 
-// Instantiate the reset controller.
-sda_kernel_reset_handler resetHandler_u
-  (reg_go_valid, reg_go_holdoff, reg_done_valid, reg_done_stop, go_0Ready,
-  go_0Stop, done_0Ready, done_0Stop, ~ap_rst_n, wrapper_reset, kernel_reset,
-  ap_clk);
+// Instantiate the reset controller. Performs complete reset on the action
+// core before releasing the reset on the AXI slave interface.
+action_reset_handler #(15, 4, 2) resetHandler
+  (~ap_rst_n, domain_reset, domain_ready, ap_clk);
+
+// Automatically generate the reset domain ready signals.
+always @(posedge ap_clk)
+begin
+  if (~ap_rst_n)
+    domain_ready <= 2'b0;
+  else
+    domain_ready <= ~domain_reset;
+end
+
+assign action_reset = domain_reset [0];
+assign axi_reg_reset = domain_reset [1];
 
 // Instantiate the AXI slave register selection component.
 sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, `AXI_PARAM_MEM_ADDR_WIDTH,
@@ -250,20 +259,19 @@ sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, `AXI_PARAM_MEM_ADDR_WIDTH,
   m_axi_control_ARVALID, m_axi_control_ARREADY, m_axi_control_ARADDR,
   m_axi_control_RVALID, m_axi_control_RREADY, m_axi_control_RDATA,
   m_axi_control_RRESP, reg_req, reg_ack, reg_write_en, reg_addr, reg_wdata,
-  reg_wstrb, reg_rdata, ap_clk, wrapper_reset);
+  reg_wstrb, reg_rdata, ap_clk, axi_reg_reset);
 
 // Instantiate the kernel control registers at slave address offset 0.
 sda_kernel_ctrl_reg #(`AXI_PARAM_MEM_ADDR_WIDTH, 63) kernelCtrlReg_u
   (reg_req, reg_ack_0, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata_0,
-  reg_go_valid, reg_go_holdoff, reg_done_valid, reg_done_stop, interrupt, ap_clk,
-  wrapper_reset);
+  go_0Ready, go_0Stop, done_0Ready, done_0Stop, interrupt, ap_clk, axi_reg_reset);
 
 // Instantiate the kernel parameter memory.
 sda_kernel_ctrl_param #(`AXI_PARAM_MEM_ADDR_WIDTH, 64,
   (1 << `AXI_PARAM_MEM_ADDR_WIDTH)-1) kernelCtrlParam_u
   (reg_req, reg_ack_1, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata_1,
   param_addr_valid, param_addr, param_addr_stop, param_data_valid, param_data,
-  param_data_stop, ap_clk, wrapper_reset);
+  param_data_stop, ap_clk, axi_reg_reset);
 
 assign reg_ack = reg_ack_0 | reg_ack_1;
 assign reg_rdata = reg_rdata_0 | reg_rdata_1 | zeros;
@@ -314,6 +322,6 @@ teak__action__top__gmem kernelActionTop_u
   .paramaddr_0Ready(param_addr_valid), .paramaddr_0Data(param_addr),
   .paramaddr_0Stop(param_addr_stop), .paramdata_0Ready(param_data_valid),
   .paramdata_0Data(param_data), .paramdata_0Stop(param_data_stop),
-  .clk(ap_clk), .reset(kernel_reset));
+  .clk(ap_clk), .reset(action_reset));
 
 endmodule
