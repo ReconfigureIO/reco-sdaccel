@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"time"
 	"xcl"
 )
 
@@ -12,6 +13,19 @@ func main() {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
 	defer krnl.Release()
 
-	krnl.Run(1, 1, 1)
-	fmt.Println("job's done!")
+	for i := 0; i != 10; i++ {
+		log.Printf("Running instance: %d", i)
+		res := make(chan struct{})
+		go func() {
+			krnl.Run(1, 1, 1)
+			res <- struct{}{}
+
+		}()
+		select {
+		case <-res:
+		case <-time.After(time.Minute):
+			log.Fatal("Timeout")
+		}
+	}
+	log.Print("job's done!")
 }
