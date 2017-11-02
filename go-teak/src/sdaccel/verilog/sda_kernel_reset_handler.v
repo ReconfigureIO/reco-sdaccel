@@ -190,14 +190,14 @@ begin
     // automatically converted to one-hot.
     default:
     begin
-      resetState_d <= ResetTimeout;
+      resetState_d = ResetTimeout;
       for (i = 0; i < ResetCountSize; i = i + 1)
-        resetCount_d [i] <= 1'b0;
-      kernelReset_d <= 1'b1;
-      regGoHoldoff_d <= 1'b1;
-      regDoneValid_d <= 1'b0;
-      kernelGoValid_d <= 1'b0;
-      kernelDoneStop_d <= 1'b1;
+        resetCount_d [i] = 1'b0;
+      kernelReset_d = 1'b1;
+      regGoHoldoff_d = 1'b1;
+      regDoneValid_d = 1'b0;
+      kernelGoValid_d = 1'b0;
+      kernelDoneStop_d = 1'b1;
     end
   endcase
 
