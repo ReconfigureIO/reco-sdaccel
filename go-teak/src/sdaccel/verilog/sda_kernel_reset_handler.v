@@ -86,6 +86,21 @@ reg [ResetPipeLength-1:0] kernelResetPipe_q;
 // Miscellaneous signals.
 integer i;
 
+// Initiate automatic reset on FPGA bitstream load.
+always @(posedge clk)
+begin
+  if (sysRstReq | ~resetHandlerEnabled_q)
+  begin
+    resetHandlerEnabled_q <= 1'b1;
+    wrapperReset_q <= 1'b1;
+  end
+  else
+  begin
+    resetHandlerEnabled_q <= 1'b1;
+    wrapperReset_q <= 1'b0;
+  end
+end
+
 // Implement combinatorial logic for reset control state machine.
 always @(resetState_q, resetCount_q, kernelReset_q, regGoHoldoff_q, regDoneValid_q,
   kernelGoValid_q, kernelDoneStop_q, regGoValid, regDoneStop, kernelGoHoldoff,
@@ -157,7 +172,7 @@ begin
 
     // In the reset idle state, wait for a go request from the register block
     // before releasing the kernel reset.
-    default :
+    ResetIdle :
     begin
       if (regGoValid & ~regGoHoldoff_q)
       begin
@@ -169,6 +184,21 @@ begin
         regGoHoldoff_d = 1'b0;
       end
     end
+
+    // Treat the unreachable default state as a hard reset. This prevents the
+    // Xilinx tools from generating dangling nets if the state encoding is
+    // automatically converted to one-hot.
+    default:
+    begin
+      resetState_d <= ResetTimeout;
+      for (i = 0; i < ResetCountSize; i = i + 1)
+        resetCount_d [i] <= 1'b0;
+      kernelReset_d <= 1'b1;
+      regGoHoldoff_d <= 1'b1;
+      regDoneValid_d <= 1'b0;
+      kernelGoValid_d <= 1'b0;
+      kernelDoneStop_d <= 1'b1;
+    end
   endcase
 
 end
@@ -176,7 +206,7 @@ end
 // Implement sequential logic for reset control state machine.
 always @(posedge clk)
 begin
-  if (sysRstReq | ~resetHandlerEnabled_q)
+  if (wrapperReset_q)
   begin
     resetState_q <= ResetTimeout;
     for (i = 0; i < ResetCountSize; i = i + 1)
@@ -186,8 +216,6 @@ begin
     regDoneValid_q <= 1'b0;
     kernelGoValid_q <= 1'b0;
     kernelDoneStop_q <= 1'b1;
-    resetHandlerEnabled_q <= 1'b1;
-    wrapperReset_q <= 1'b1;
   end
   else
   begin
@@ -198,8 +226,6 @@ begin
     regDoneValid_q <= regDoneValid_d;
     kernelGoValid_q <= kernelGoValid_d;
     kernelDoneStop_q <= kernelDoneStop_d;
-    resetHandlerEnabled_q <= 1'b1;
-    wrapperReset_q <= 1'b0;
   end
 end
 
@@ -211,7 +237,7 @@ assign kernelDoneStop = kernelDoneStop_q;
 // Implement reset output pipelines.
 always @(posedge clk)
 begin
-  if (wrapperReset_q | ~resetHandlerEnabled_q)
+  if (wrapperReset_q)
     for (i = 0; i < ResetPipeLength; i = i + 1)
        wrapperResetPipe_q [i] <= 1'b1;
   else
@@ -220,7 +246,7 @@ end
 
 always @(posedge clk)
 begin
-  if (kernelReset_q | ~resetHandlerEnabled_q)
+  if (kernelReset_q)
     for (i = 0; i < ResetPipeLength; i = i + 1)
        kernelResetPipe_q [i] <= 1'b1;
   else
