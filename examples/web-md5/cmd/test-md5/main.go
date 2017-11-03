@@ -17,7 +17,6 @@ func main() {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
 	defer krnl.Release()
 
-	//gin
 	r := gin.Default()
 	r.GET("/md5/:input", func(c *gin.Context) {
 		input := c.Param("input")
