@@ -1,0 +1,1 @@
+vendor/github.com/json-iterator/go/skip_tests/string/skip_test.go
