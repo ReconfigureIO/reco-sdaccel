@@ -11,3 +11,4 @@ bench_tmp
 *-graph.pdf
 .reco
 times.out
+playbooks/**/*.retry
