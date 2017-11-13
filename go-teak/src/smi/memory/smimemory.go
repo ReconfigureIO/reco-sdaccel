@@ -803,7 +803,8 @@ func writeSingleBurstUInt8(
 //
 // WritePagedBurstUInt64 writes an incrementing burst of 64-bit unsigned data
 // values to a word aligned address on the specified SMI memory endpoint, with
-// the bottom three address and burst length bits being ignored. The burst
+// the bottom three address bits being ignored. The supplied burst length
+// specifies the number of 64-bit values to be transferred. The overall burst
 // must be contained within a single 4096 byte page and must not cross page
 // boundaries. In order to ensure optimum performance, the write data channel
 // should be a buffered channel that already contains all the data to be
@@ -820,7 +821,7 @@ func WritePagedBurstUInt64(
 	// TODO: Page boundary validation.
 	// Force word alignment.
 	writeAddr := writeAddrIn & 0xFFFFFFFFFFFFFFF8
-	writeLength := writeLengthIn & 0xFFF8
+	writeLength := writeLengthIn << 3
 
 	return writeSingleBurstUInt64(
 		smiRequest, smiResponse, writeAddr, writeLength, writeDataChan)
@@ -829,7 +830,8 @@ func WritePagedBurstUInt64(
 //
 // WritePagedBurstUInt32 writes an incrementing burst of 32-bit unsigned data
 // values to a word aligned address on the specified SMI memory endpoint, with
-// the bottom two address and burst length bits being ignored. The burst
+// the bottom two address bits being ignored. The supplied burst length
+// specifies the number of 32-bit values to be transferred. The overall burst
 // must be contained within a single 4096 byte page and must not cross page
 // boundaries. In order to ensure optimum performance, the write data channel
 // should be a buffered channel that already contains all the data to be
@@ -846,7 +848,7 @@ func WritePagedBurstUInt32(
 	// TODO: Page boundary validation.
 	// Force word alignment.
 	writeAddr := writeAddrIn & 0xFFFFFFFFFFFFFFFC
-	writeLength := writeLengthIn & 0xFFFC
+	writeLength := writeLengthIn << 2
 
 	return writeSingleBurstUInt32(
 		smiRequest, smiResponse, writeAddr, writeLength, writeDataChan)
@@ -855,7 +857,8 @@ func WritePagedBurstUInt32(
 //
 // WritePagedBurstUInt16 writes an incrementing burst of 16-bit unsigned data
 // values to a word aligned address on the specified SMI memory endpoint, with
-// the bottom address and burst length bits being ignored. The burst must be
+// the bottom address bit being ignored. The supplied burst length specifies
+// the number of 16-bit values to be transferred. The overall burst must be
 // contained within a single 4096 byte page and must not cross page boundaries.
 // In order to ensure optimum performance, the write data channel should be a
 // buffered channel that already contains all the data to be written prior to
@@ -872,7 +875,7 @@ func WritePagedBurstUInt16(
 	// TODO: Page boundary validation.
 	// Force word alignment.
 	writeAddr := writeAddrIn & 0xFFFFFFFFFFFFFFFE
-	writeLength := writeLengthIn & 0xFFFE
+	writeLength := writeLengthIn << 1
 
 	return writeSingleBurstUInt16(
 		smiRequest, smiResponse, writeAddr, writeLength, writeDataChan)
@@ -903,12 +906,13 @@ func WritePagedBurstUInt8(
 //
 // WriteBurstUInt64 writes an incrementing burst of 64-bit unsigned data
 // values to a word aligned address on the specified SMI memory endpoint, with
-// the bottom three address and burst length bits being ignored. The burst is
-// automatically segmented to respect page boundaries and avoid blocking other
-// transactions. In order to ensure optimum performance, the write data channel
-// should be a buffered channel that already contains all the data to be
-// written prior to invoking this function. The status of the write transaction
-// is returned as the boolean 'writeOk' flag.
+// the bottom three address bits being ignored. The supplied burst length
+// specifies the number of 64-bit values to be transferred, up to a maximum of
+// 8191. The burst is automatically segmented to respect page boundaries and
+// avoid blocking other transactions. In order to ensure optimum performance,
+// the write data channel should be a buffered channel that already contains
+// all the data to be written prior to invoking this function. The status of
+// the write transaction is returned as the boolean 'writeOk' flag.
 //
 func WriteBurstUInt64(
 	smiRequest chan<- protocol.Flit64,
@@ -919,7 +923,7 @@ func WriteBurstUInt64(
 
 	writeOk := true
 	writeAddr := writeAddrIn & 0xFFFFFFFFFFFFFFF8
-	writeLength := writeLengthIn & 0xFFF8
+	writeLength := writeLengthIn << 3
 	burstOffset := uint16(writeAddr) & uint16(protocol.SmiMemBurstSize-1)
 	burstSize := protocol.SmiMemBurstSize - burstOffset
 
@@ -939,12 +943,13 @@ func WriteBurstUInt64(
 //
 // WriteBurstUInt32 writes an incrementing burst of 32-bit unsigned data
 // values to a word aligned address on the specified SMI memory endpoint, with
-// the bottom two address and burst length bits being ignored. The burst is
-// automatically segmented to respect page boundaries and avoid blocking other
-// transactions. In order to ensure optimum performance, the write data channel
-// should be a buffered channel that already contains all the data to be
-// written prior to invoking this function. The status of the write transaction
-// is returned as the boolean 'writeOk' flag.
+// the bottom two address bits being ignored. The supplied burst length
+// specifies the number of 32-bit values to be transferred, up to a maximum of
+// 16383. The burst is automatically segmented to respect page boundaries and
+// avoid blocking other transactions. In order to ensure optimum performance,
+// the write data channel should be a buffered channel that already contains
+// all the data to be written prior to invoking this function. The status of
+// the write transaction is returned as the boolean 'writeOk' flag.
 //
 func WriteBurstUInt32(
 	smiRequest chan<- protocol.Flit64,
@@ -955,7 +960,7 @@ func WriteBurstUInt32(
 
 	writeOk := true
 	writeAddr := writeAddrIn & 0xFFFFFFFFFFFFFFFC
-	writeLength := writeLengthIn & 0xFFFC
+	writeLength := writeLengthIn << 2
 	burstOffset := uint16(writeAddr) & uint16(protocol.SmiMemBurstSize-1)
 	burstSize := protocol.SmiMemBurstSize - burstOffset
 
@@ -975,12 +980,13 @@ func WriteBurstUInt32(
 //
 // WriteBurstUInt16 writes an incrementing burst of 16-bit unsigned data
 // values to a word aligned address on the specified SMI memory endpoint, with
-// the bottom address and burst length bits being ignored. The burst is
-// automatically segmented to respect page boundaries and avoid blocking other
-// transactions. In order to ensure optimum performance, the write data channel
-// should be a buffered channel that already contains all the data to be
-// written prior to invoking this function. The status of the write transaction
-// is returned as the boolean 'writeOk' flag.
+// the bottom address bit being ignored. The supplied burst length specifies
+// the number of 16-bit values to be transferred, up to a maximum of 32767.
+// The burst is automatically segmented to respect page boundaries and avoid
+// blocking other transactions. In order to ensure optimum performance, the
+// write data channel should be a buffered channel that already contains all
+// the data to be written prior to invoking this function. The status of the
+// write transaction is returned as the boolean 'writeOk' flag.
 //
 func WriteBurstUInt16(
 	smiRequest chan<- protocol.Flit64,
@@ -991,7 +997,7 @@ func WriteBurstUInt16(
 
 	writeOk := true
 	writeAddr := writeAddrIn & 0xFFFFFFFFFFFFFFFE
-	writeLength := writeLengthIn & 0xFFFE
+	writeLength := writeLengthIn << 1
 	burstOffset := uint16(writeAddr) & uint16(protocol.SmiMemBurstSize-1)
 	burstSize := protocol.SmiMemBurstSize - burstOffset
 
@@ -1416,7 +1422,8 @@ func readSingleBurstUInt8(
 //
 // ReadPagedBurstUInt64 reads an incrementing burst of 64-bit unsigned data
 // values from a word aligned address on the specified SMI memory endpoint,
-// with the bottom three address and burst length bits being ignored. The burst
+// with the bottom three address bits being ignored. The supplied burst length
+// specifies the number of 64-bit values to be transferred. The overall burst
 // must be contained within a single 4096 byte page and must not cross page
 // boundaries. In order to ensure optimum performance, the read data channel
 // should be a buffered channel that has sufficient free space to hold all the
@@ -1433,7 +1440,7 @@ func ReadPagedBurstUInt64(
 	// TODO: Page boundary validation.
 	// Force word alignment.
 	readAddr := readAddrIn & 0xFFFFFFFFFFFFFFF8
-	readLength := readLengthIn & 0xFFF8
+	readLength := readLengthIn << 3
 
 	return readSingleBurstUInt64(
 		smiRequest, smiResponse, readAddr, readLength, readDataChan)
@@ -1442,7 +1449,8 @@ func ReadPagedBurstUInt64(
 //
 // ReadPagedBurstUInt32 reads an incrementing burst of 32-bit unsigned data
 // values from a word aligned address on the specified SMI memory endpoint,
-// with the bottom two address and burst length bits being ignored. The burst
+// with the bottom two address bits being ignored. The supplied burst length
+// specifies the number of 32-bit values to be transferred. The overall burst
 // must be contained within a single 4096 byte page and must not cross page
 // boundaries. In order to ensure optimum performance, the read data channel
 // should be a buffered channel that has sufficient free space to hold all the
@@ -1459,7 +1467,7 @@ func ReadPagedBurstUInt32(
 	// TODO: Page boundary validation.
 	// Force word alignment.
 	readAddr := readAddrIn & 0xFFFFFFFFFFFFFFFC
-	readLength := readLengthIn & 0xFFFC
+	readLength := readLengthIn << 2
 
 	return readSingleBurstUInt32(
 		smiRequest, smiResponse, readAddr, readLength, readDataChan)
@@ -1468,7 +1476,8 @@ func ReadPagedBurstUInt32(
 //
 // ReadPagedBurstUInt16 reads an incrementing burst of 16-bit unsigned data
 // values from a word aligned address on the specified SMI memory endpoint,
-// with the bottom address and burst length bits being ignored. The burst
+// with the bottom address bit being ignored. The supplied burst length
+// specifies the number of 16-bit values to be transferred. The overall burst
 // must be contained within a single 4096 byte page and must not cross page
 // boundaries. In order to ensure optimum performance, the read data channel
 // should be a buffered channel that has sufficient free space to hold all the
@@ -1485,7 +1494,7 @@ func ReadPagedBurstUInt16(
 	// TODO: Page boundary validation.
 	// Force word alignment.
 	readAddr := readAddrIn & 0xFFFFFFFFFFFFFFFE
-	readLength := readLengthIn & 0xFFFE
+	readLength := readLengthIn << 1
 
 	return readSingleBurstUInt16(
 		smiRequest, smiResponse, readAddr, readLength, readDataChan)
@@ -1516,12 +1525,13 @@ func ReadPagedBurstUInt8(
 //
 // ReadBurstUInt64 reads an incrementing burst of 64-bit unsigned data
 // values from a word aligned address on the specified SMI memory endpoint,
-// with the bottom three address and burst length bits being ignored. The burst
-// is automatically segmented to respect page boundaries and avoid blocking
-// other transactions. In order to ensure optimum performance, the read data
-// channel should be a buffered channel that has sufficient free space to
-// hold all the data to be transferred. The status of the read transaction
-// is returned as the boolean 'readOk' flag.
+// with the bottom three address bits being ignored. The supplied burst length
+// specifies the number of 64-bit values to be transferred, up to a maximum of
+// 8191. The burst is automatically segmented to respect page boundaries and
+// avoid blocking other transactions. In order to ensure optimum performance,
+// the read data channel should be a buffered channel that has sufficient free
+// space to hold all the data to be transferred. The status of the read
+// transaction is returned as the boolean 'readOk' flag.
 //
 func ReadBurstUInt64(
 	smiRequest chan<- protocol.Flit64,
@@ -1532,7 +1542,7 @@ func ReadBurstUInt64(
 
 	readOk := true
 	readAddr := readAddrIn & 0xFFFFFFFFFFFFFFF8
-	readLength := readLengthIn & 0xFFF8
+	readLength := readLengthIn << 3
 	burstOffset := uint16(readAddr) & uint16(protocol.SmiMemBurstSize-1)
 	burstSize := protocol.SmiMemBurstSize - burstOffset
 
@@ -1552,12 +1562,13 @@ func ReadBurstUInt64(
 //
 // ReadBurstUInt32 reads an incrementing burst of 32-bit unsigned data
 // values from a word aligned address on the specified SMI memory endpoint,
-// with the bottom two address and burst length bits being ignored. The burst
-// is automatically segmented to respect page boundaries and avoid blocking
-// other transactions. In order to ensure optimum performance, the read data
-// channel should be a buffered channel that has sufficient free space to
-// hold all the data to be transferred. The status of the read transaction
-// is returned as the boolean 'readOk' flag.
+// with the bottom two address bits being ignored. The supplied burst length
+// specifies the number of 32-bit values to be transferred, up to a maximum of
+// 16383. The burst is automatically segmented to respect page boundaries and
+// avoid blocking other transactions. In order to ensure optimum performance,
+// the read data channel should be a buffered channel that has sufficient free
+// space to hold all the data to be transferred. The status of the read
+// transaction is returned as the boolean 'readOk' flag.
 //
 func ReadBurstUInt32(
 	smiRequest chan<- protocol.Flit64,
@@ -1568,7 +1579,7 @@ func ReadBurstUInt32(
 
 	readOk := true
 	readAddr := readAddrIn & 0xFFFFFFFFFFFFFFFC
-	readLength := readLengthIn & 0xFFFC
+	readLength := readLengthIn << 2
 	burstOffset := uint16(readAddr) & uint16(protocol.SmiMemBurstSize-1)
 	burstSize := protocol.SmiMemBurstSize - burstOffset
 
@@ -1588,12 +1599,13 @@ func ReadBurstUInt32(
 //
 // ReadBurstUInt16 reads an incrementing burst of 16-bit unsigned data
 // values from a word aligned address on the specified SMI memory endpoint,
-// with the bottom address and burst length bits being ignored. The burst
-// is automatically segmented to respect page boundaries and avoid blocking
-// other transactions. In order to ensure optimum performance, the read data
-// channel should be a buffered channel that has sufficient free space to
-// hold all the data to be transferred. The status of the read transaction
-// is returned as the boolean 'readOk' flag.
+// with the bottom address bit being ignored. The supplied burst length
+// specifies the number of 16-bit values to be transferred, up to a maximum of
+// 32767. The burst is automatically segmented to respect page boundaries and
+// avoid blocking other transactions. In order to ensure optimum performance,
+// the read data channel should be a buffered channel that has sufficient free
+// space to hold all the data to be transferred. The status of the read
+// transaction is returned as the boolean 'readOk' flag.
 //
 func ReadBurstUInt16(
 	smiRequest chan<- protocol.Flit64,
@@ -1604,7 +1616,7 @@ func ReadBurstUInt16(
 
 	readOk := true
 	readAddr := readAddrIn & 0xFFFFFFFFFFFFFFFE
-	readLength := readLengthIn & 0xFFFE
+	readLength := readLengthIn << 1
 	burstOffset := uint16(readAddr) & uint16(protocol.SmiMemBurstSize-1)
 	burstSize := protocol.SmiMemBurstSize - burstOffset
 
