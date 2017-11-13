@@ -166,3 +166,189 @@ func ArbitrateX2(
 		isHeaderFlit = respFlit.Eofc != 0
 	}
 }
+
+//
+// ArbitrateX3 is a goroutine for providing arbitration between three pairs of
+// SMI request/response channels. This uses tag matching and substitution on
+// bytes 2 and 3 of each transfer to ensure that response frames are correctly
+// routed to the source of the original request.
+//
+func ArbitrateX3(
+	upstreamRequestA <-chan protocol.Flit64,
+	upstreamResponseA chan<- protocol.Flit64,
+	upstreamRequestB <-chan protocol.Flit64,
+	upstreamResponseB chan<- protocol.Flit64,
+	upstreamRequestC <-chan protocol.Flit64,
+	upstreamResponseC chan<- protocol.Flit64,
+	downstreamRequest chan<- protocol.Flit64,
+	downstreamResponse <-chan protocol.Flit64) {
+
+	// Define local channel connections.
+	taggedRequestA := make(chan protocol.Flit64, 1)
+	taggedResponseA := make(chan protocol.Flit64, 1)
+	taggedRequestB := make(chan protocol.Flit64, 1)
+	taggedResponseB := make(chan protocol.Flit64, 1)
+	taggedRequestC := make(chan protocol.Flit64, 1)
+	taggedResponseC := make(chan protocol.Flit64, 1)
+	transferReqA := make(chan uint8, 1)
+	transferReqB := make(chan uint8, 1)
+	transferReqC := make(chan uint8, 1)
+
+	// Run the upstream port management routines.
+	go manageUpstreamPort(upstreamRequestA, upstreamResponseA,
+		taggedRequestA, taggedResponseA, transferReqA, uint8(1))
+	go manageUpstreamPort(upstreamRequestB, upstreamResponseB,
+		taggedRequestB, taggedResponseB, transferReqB, uint8(2))
+	go manageUpstreamPort(upstreamRequestC, upstreamResponseC,
+		taggedRequestC, taggedResponseC, transferReqC, uint8(3))
+
+	// Arbitrate between transfer requests.
+	go func() {
+		for {
+
+			// Gets port ID of active input.
+			var portId uint8
+			select {
+			case portId = <-transferReqA:
+			case portId = <-transferReqB:
+			case portId = <-transferReqC:
+			}
+
+			// Copy over input data.
+			var reqFlit protocol.Flit64
+			moreFlits := true
+			for moreFlits {
+				switch portId {
+				case 1:
+					reqFlit = <-taggedRequestA
+				case 2:
+					reqFlit = <-taggedRequestB
+				default:
+					reqFlit = <-taggedRequestC
+				}
+				downstreamRequest <- reqFlit
+				moreFlits = reqFlit.Eofc == 0
+			}
+		}
+	}()
+
+	// Steer transfer responses.
+	portId := uint8(0)
+	isHeaderFlit := true
+	for {
+		respFlit := <-downstreamResponse
+		if isHeaderFlit {
+			portId = respFlit.Data[2]
+		}
+		switch portId {
+		case 1:
+			taggedResponseA <- respFlit
+		case 2:
+			taggedResponseB <- respFlit
+		case 3:
+			taggedResponseC <- respFlit
+		default:
+			// Discard invalid flit.
+		}
+		isHeaderFlit = respFlit.Eofc != 0
+	}
+}
+
+//
+// ArbitrateX4 is a goroutine for providing arbitration between four pairs of
+// SMI request/response channels. This uses tag matching and substitution on
+// bytes 2 and 3 of each transfer to ensure that response frames are correctly
+// routed to the source of the original request.
+//
+func ArbitrateX4(
+	upstreamRequestA <-chan protocol.Flit64,
+	upstreamResponseA chan<- protocol.Flit64,
+	upstreamRequestB <-chan protocol.Flit64,
+	upstreamResponseB chan<- protocol.Flit64,
+	upstreamRequestC <-chan protocol.Flit64,
+	upstreamResponseC chan<- protocol.Flit64,
+	upstreamRequestD <-chan protocol.Flit64,
+	upstreamResponseD chan<- protocol.Flit64,
+	downstreamRequest chan<- protocol.Flit64,
+	downstreamResponse <-chan protocol.Flit64) {
+
+	// Define local channel connections.
+	taggedRequestA := make(chan protocol.Flit64, 1)
+	taggedResponseA := make(chan protocol.Flit64, 1)
+	taggedRequestB := make(chan protocol.Flit64, 1)
+	taggedResponseB := make(chan protocol.Flit64, 1)
+	taggedRequestC := make(chan protocol.Flit64, 1)
+	taggedResponseC := make(chan protocol.Flit64, 1)
+	taggedRequestD := make(chan protocol.Flit64, 1)
+	taggedResponseD := make(chan protocol.Flit64, 1)
+	transferReqA := make(chan uint8, 1)
+	transferReqB := make(chan uint8, 1)
+	transferReqC := make(chan uint8, 1)
+	transferReqD := make(chan uint8, 1)
+
+	// Run the upstream port management routines.
+	go manageUpstreamPort(upstreamRequestA, upstreamResponseA,
+		taggedRequestA, taggedResponseA, transferReqA, uint8(1))
+	go manageUpstreamPort(upstreamRequestB, upstreamResponseB,
+		taggedRequestB, taggedResponseB, transferReqB, uint8(2))
+	go manageUpstreamPort(upstreamRequestC, upstreamResponseC,
+		taggedRequestC, taggedResponseC, transferReqC, uint8(3))
+	go manageUpstreamPort(upstreamRequestD, upstreamResponseD,
+		taggedRequestD, taggedResponseD, transferReqD, uint8(4))
+
+	// Arbitrate between transfer requests.
+	go func() {
+		for {
+
+			// Gets port ID of active input.
+			var portId uint8
+			select {
+			case portId = <-transferReqA:
+			case portId = <-transferReqB:
+			case portId = <-transferReqC:
+			case portId = <-transferReqD:
+			}
+
+			// Copy over input data.
+			var reqFlit protocol.Flit64
+			moreFlits := true
+			for moreFlits {
+				switch portId {
+				case 1:
+					reqFlit = <-taggedRequestA
+				case 2:
+					reqFlit = <-taggedRequestB
+				case 3:
+					reqFlit = <-taggedRequestC
+				default:
+					reqFlit = <-taggedRequestD
+				}
+				downstreamRequest <- reqFlit
+				moreFlits = reqFlit.Eofc == 0
+			}
+		}
+	}()
+
+	// Steer transfer responses.
+	portId := uint8(0)
+	isHeaderFlit := true
+	for {
+		respFlit := <-downstreamResponse
+		if isHeaderFlit {
+			portId = respFlit.Data[2]
+		}
+		switch portId {
+		case 1:
+			taggedResponseA <- respFlit
+		case 2:
+			taggedResponseB <- respFlit
+		case 3:
+			taggedResponseC <- respFlit
+		case 4:
+			taggedResponseD <- respFlit
+		default:
+			// Discard invalid flit.
+		}
+		isHeaderFlit = respFlit.Eofc != 0
+	}
+}
