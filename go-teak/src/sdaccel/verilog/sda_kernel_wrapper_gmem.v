@@ -23,7 +23,10 @@
 `define AXI_MASTER_ADDR_WIDTH 64
 
 // Can be redefined on the synthesis command line.
-`define AXI_MASTER_DATA_WIDTH 64
+`define AXI_MASTER_DATA_WIDTH 128
+
+// Can be redefined on the synthesis command line.
+`define AXI_MASTER_DATA_INDEX_WIDTH 4
 
 // Can be redefined on the synthesis command line.
 `define AXI_MASTER_ID_WIDTH 1
@@ -184,6 +187,38 @@ wire [1:0]  m_axi_control_RRESP;
 wire        m_axi_control_RVALID;
 wire        m_axi_control_RREADY;
 
+// SMI to AXI conversion signals.
+wire                              smi_axi_req_ready;
+wire [7:0]                        smi_axi_req_eofc;
+wire [`AXI_MASTER_DATA_WIDTH-1:0] smi_axi_req_data;
+wire                              smi_axi_req_stop;
+
+wire                              smi_axi_resp_ready;
+wire [7:0]                        smi_axi_resp_eofc;
+wire [`AXI_MASTER_DATA_WIDTH-1:0] smi_axi_resp_data;
+wire                              smi_axi_resp_stop;
+
+// SMI to Teak toplevel interconnect signals.
+wire        smi_port_a_req_ready;
+wire [7:0]  smi_port_a_req_eofc;
+wire [63:0] smi_port_a_req_data;
+wire        smi_port_a_req_stop;
+
+wire        smi_port_a_resp_ready;
+wire [7:0]  smi_port_a_resp_eofc;
+wire [63:0] smi_port_a_resp_data;
+wire        smi_port_a_resp_stop;
+
+wire        smi_port_b_req_ready;
+wire [7:0]  smi_port_b_req_eofc;
+wire [63:0] smi_port_b_req_data;
+wire        smi_port_b_req_stop;
+
+wire        smi_port_b_resp_ready;
+wire [7:0]  smi_port_b_resp_eofc;
+wire [63:0] smi_port_b_resp_data;
+wire        smi_port_b_resp_stop;
+
 // Wrapper control register interface signals.
 wire                                 reg_req;
 wire                                 reg_ack;
@@ -222,12 +257,23 @@ assign m_axi_control_AWPROT = 3'b010;
 assign m_axi_control_ARCACHE = 4'b0000;
 assign m_axi_control_ARPROT = 3'b010;
 
-// Tie off upper bit of the lock signals for AXI3 backward compatibility.
-assign m_axi_gmem_AWLOCK[1] = 1'b0;
-assign m_axi_gmem_ARLOCK[1] = 1'b0;
-
-// Tie off unused WID signal
-assign m_axi_gmem_WID = 1'b0;
+// Tie off unused or fixed value AXI memory master signals.
+assign m_axi_gmem_AWBURST = 2'b01;
+assign m_axi_gmem_AWLOCK = 2'b00;
+assign m_axi_gmem_AWCACHE = 4'b0011;
+assign m_axi_gmem_AWPROT = 3'b010;
+assign m_axi_gmem_AWQOS = 4'b0000;
+assign m_axi_gmem_AWREGION = 4'b0000;
+assign m_axi_gmem_AWUSER = 0;
+assign m_axi_gmem_WID = 0;
+assign m_axi_gmem_WUSER = 0;
+assign m_axi_gmem_ARBURST = 2'b01;
+assign m_axi_gmem_ARLOCK = 2'b00;
+assign m_axi_gmem_ARCACHE = 4'b0011;
+assign m_axi_gmem_ARPROT = 3'b010
+assign m_axi_gmem_ARQOS = 4'b0000;
+assign m_axi_gmem_ARREGION = 4'b0000;
+assign m_axi_gmem_ARUSER = 0;
 
 // Instantiate the reset controller.
 sda_kernel_reset_handler resetHandler_u
@@ -275,6 +321,43 @@ assign m_axi_control_ext_AWADDR =
 assign m_axi_control_ext_ARADDR =
   {zeros [31:`AXI_SLAVE_ADDR_WIDTH], m_axi_control_ARADDR};
 
+// Instantiate the SMI bus scaling and arbitration block.
+smiScalingArbiterX2 #(`AXI_MASTER_DATA_WIDTH/16, 4) smiScalingArbiter
+  (.smiReqAInReady(smi_port_a_req_ready), .smiReqAInEofc(smi_port_a_req_eofc),
+  .smiReqAInData(smi_port_a_req_data), .smiReqAInStop(smi_port_a_req_stop),
+  .smiRespAOutReady(smi_port_a_resp_ready), .smiRespAOutEofc(smi_port_a_resp_eofc),
+  .smiRespAOutData(smi_port_a_resp_data), .smiRespAOutStop(smi_port_a_resp_stop),
+  .smiReqBInReady(smi_port_b_req_ready), .smiReqBInEofc(smi_port_b_req_eofc),
+  .smiReqBInData(smi_port_b_req_data), .smiReqBInStop(smi_port_b_req_stop),
+  .smiRespBOutReady(smi_port_b_resp_ready), .smiRespBOutEofc(smi_port_b_resp_eofc),
+  .smiRespBOutData(smi_port_b_resp_data), .smiRespBOutStop(smi_port_b_resp_stop),
+  .smiReqOutReady(smi_axi_req_ready), .smiReqOutEofc(smi_axi_req_eofc),
+  .smiReqOutData(smi_axi_req_data), .smiReqOutStop(smi_axi_req_stop),
+  .smiRespInReady(smi_axi_resp_ready), .smiRespInEofc(smi_axi_resp_eofc),
+  .smiRespInData(smi_axi_resp_data), .smiRespInStop(smi_axi_resp_stop),
+  .clk(ap_clk), .srst(wrapper_reset));
+
+// Instantiate the SMI to AXI conversion block.
+smiAxiBusAdaptor #(`AXI_MASTER_DATA_INDEX_WIDTH, `AXI_MASTER_ID_WIDTH) smiAxiAdaptor
+  (.smiReqReady(smi_axi_req_ready), .smiReqEofc(smi_axi_req_eofc),
+  .smiReqData(smi_axi_req_data), .smiReqStop(smi_axi_req_stop),
+  .smiRespReady(smi_axi_resp_ready), .smiRespEofc(smi_axi_resp_eofc),
+  .smiRespData(smi_axi_resp_data), .smiRespStop(smi_axi_resp_stop),
+  .axiARValid(m_axi_gmem_ARVALID), .axiARReady(m_axi_gmem_ARREADY),
+  .axiARId(m_axi_gmem_ARID), .axiARAddr(m_axi_gmem_ARADDR),
+  .axiARLen(m_axi_gmem_ARLEN), .axiARSize(m_axi_gmem_ARSIZE),
+  .axiRValid(m_axi_gmem_RVALID), .axiRReady(m_axi_gmem_RREADY),
+  .axiRId(m_axi_gmem_RID), .axiRData(m_axi_gmem_RDATA),
+  .axiRResp(m_axi_gmem_RRESP), .axiRLast(m_axi_gmem_RLAST),
+  .axiAWValid(m_axi_gmem_AWVALID), .axiAWReady(m_axi_gmem_AWREADY),
+  .axiAWId(m_axi_gmem_AWID), .axiAWAddr(m_axi_gmem_AWADDR),
+  .axiAWLen(m_axi_gmem_AWLEN), .axiAWSize(m_axi_gmem_AWSIZE),
+  .axiWValid(m_axi_gmem_WVALID), .axiWReady(m_axi_gmem_WREADY),
+  .axiWData(m_axi_gmem_WDATA), .axiWStrb(m_axi_gmem_WSTRB),
+  .axiWLast(m_axi_gmem_WLAST), .axiBValid(m_axi_gmem_BVALID),
+  .axiBReady(m_axi_gmem_BREADY), .axiBId(m_axi_gmem_BID),
+  .axiBResp(m_axi_gmem_BRESP), .clk(ap_clk), .srst(wrapper_reset));
+
 // Instantiate the simple generated action logic core.
 teak__action__top__gmem kernelActionTop_u
   (.go_0Ready(go_0Ready), .go_0Stop(go_0Stop), .done_0Ready(done_0Ready), .done_0Stop(done_0Stop),
@@ -288,32 +371,17 @@ teak__action__top__gmem kernelActionTop_u
   .s_axi_wdata(m_axi_control_WDATA), .s_axi_wstrb(m_axi_control_WSTRB),
   .s_axi_wvalid(m_axi_control_WVALID), .s_axi_wready(m_axi_control_WREADY),
   .s_axi_bresp(m_axi_control_BRESP), .s_axi_bvalid(m_axi_control_BVALID),
-  .s_axi_bready(m_axi_control_BREADY), .m_axi_gmem_awaddr(m_axi_gmem_AWADDR),
-  .m_axi_gmem_awlen(m_axi_gmem_AWLEN), .m_axi_gmem_awsize(m_axi_gmem_AWSIZE),
-  .m_axi_gmem_awburst(m_axi_gmem_AWBURST), .m_axi_gmem_awlock(m_axi_gmem_AWLOCK[0]),
-  .m_axi_gmem_awcache(m_axi_gmem_AWCACHE), .m_axi_gmem_awprot(m_axi_gmem_AWPROT),
-  .m_axi_gmem_awqos(m_axi_gmem_AWQOS), .m_axi_gmem_awregion(m_axi_gmem_AWREGION),
-  .m_axi_gmem_awid(m_axi_gmem_AWID), .m_axi_gmem_awuser(m_axi_gmem_AWUSER),
-  .m_axi_gmem_awvalid(m_axi_gmem_AWVALID), .m_axi_gmem_awready(m_axi_gmem_AWREADY),
-  .m_axi_gmem_wdata(m_axi_gmem_WDATA), .m_axi_gmem_wstrb(m_axi_gmem_WSTRB),
-  .m_axi_gmem_wlast(m_axi_gmem_WLAST), /* wid isn't in axi4 .m_axi_gmem_wid(m_axi_gmem_WID) , */
-  .m_axi_gmem_wuser(m_axi_gmem_WUSER), .m_axi_gmem_wvalid(m_axi_gmem_WVALID),
-  .m_axi_gmem_wready(m_axi_gmem_WREADY), .m_axi_gmem_bresp(m_axi_gmem_BRESP),
-  .m_axi_gmem_bid(m_axi_gmem_BID), .m_axi_gmem_buser(m_axi_gmem_BUSER),
-  .m_axi_gmem_bvalid(m_axi_gmem_BVALID), .m_axi_gmem_bready(m_axi_gmem_BREADY),
-  .m_axi_gmem_araddr(m_axi_gmem_ARADDR), .m_axi_gmem_arlen(m_axi_gmem_ARLEN),
-  .m_axi_gmem_arsize(m_axi_gmem_ARSIZE), .m_axi_gmem_arburst(m_axi_gmem_ARBURST),
-  .m_axi_gmem_arlock(m_axi_gmem_ARLOCK[0]), .m_axi_gmem_arcache(m_axi_gmem_ARCACHE),
-  .m_axi_gmem_arprot(m_axi_gmem_ARPROT), .m_axi_gmem_arqos(m_axi_gmem_ARQOS),
-  .m_axi_gmem_arregion(m_axi_gmem_ARREGION), .m_axi_gmem_arid(m_axi_gmem_ARID),
-  .m_axi_gmem_aruser(m_axi_gmem_ARUSER), .m_axi_gmem_arvalid(m_axi_gmem_ARVALID),
-  .m_axi_gmem_arready(m_axi_gmem_ARREADY), .m_axi_gmem_rdata(m_axi_gmem_RDATA),
-  .m_axi_gmem_rresp(m_axi_gmem_RRESP), .m_axi_gmem_rlast(m_axi_gmem_RLAST),
-  .m_axi_gmem_rid(m_axi_gmem_RID), .m_axi_gmem_ruser(m_axi_gmem_RUSER),
-  .m_axi_gmem_rvalid(m_axi_gmem_RVALID), .m_axi_gmem_rready(m_axi_gmem_RREADY),
-  .paramaddr_0Ready(param_addr_valid), .paramaddr_0Data(param_addr),
-  .paramaddr_0Stop(param_addr_stop), .paramdata_0Ready(param_data_valid),
-  .paramdata_0Data(param_data), .paramdata_0Stop(param_data_stop),
-  .clk(ap_clk), .reset(kernel_reset));
+  .s_axi_bready(m_axi_control_BREADY), .smi_port_a_req_ready(smi_port_a_req_ready),
+  .smi_port_a_req_eofc(smi_port_a_req_eofc), .smi_port_a_req_data(smi_port_a_req_data),
+  .smi_port_a_req_stop(smi_port_a_req_stop), .smi_port_a_resp_ready(smi_port_a_resp_ready),
+  .smi_port_a_resp_eofc(smi_port_a_resp_eofc), .smi_port_a_resp_data(smi_port_a_resp_data),
+  .smi_port_a_reap_stop(smi_port_a_resp_stop), .smi_port_b_req_ready(smi_port_b_req_ready),
+  .smi_port_b_req_eofc(smi_port_b_req_eofc), .smi_port_b_req_data(smi_port_b_req_data),
+  .smi_port_b_req_stop(smi_port_b_req_stop), .smi_port_b_resp_ready(smi_port_b_resp_ready),
+  .smi_port_b_resp_eofc(smi_port_b_resp_eofc), .smi_port_b_resp_data(smi_port_b_resp_data),
+  .smi_port_b_resp_stop(smi_port_b_resp_stop), .paramaddr_0Ready(param_addr_valid),
+  .paramaddr_0Data(param_addr), .paramaddr_0Stop(param_addr_stop),
+  .paramdata_0Ready(param_data_valid), .paramdata_0Data(param_data),
+  .paramdata_0Stop(param_data_stop), .clk(ap_clk), .reset(kernel_reset));
 
 endmodule
