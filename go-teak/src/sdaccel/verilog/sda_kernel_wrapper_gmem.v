@@ -112,7 +112,6 @@ input                                 m_axi_gmem_WREADY;
 // Specifies the AXI master write response signals.
 input [1:0]                        m_axi_gmem_BRESP;
 input [`AXI_MASTER_ID_WIDTH-1:0]   m_axi_gmem_BID;
-input [`AXI_MASTER_USER_WIDTH-1:0] m_axi_gmem_BUSER;
 input                              m_axi_gmem_BVALID;
 output                             m_axi_gmem_BREADY;
 
@@ -136,9 +135,13 @@ input [`AXI_MASTER_DATA_WIDTH-1:0] m_axi_gmem_RDATA;
 input [1:0]                        m_axi_gmem_RRESP;
 input                              m_axi_gmem_RLAST;
 input [`AXI_MASTER_ID_WIDTH-1:0]   m_axi_gmem_RID;
-input [`AXI_MASTER_USER_WIDTH-1:0] m_axi_gmem_RUSER;
 input                              m_axi_gmem_RVALID;
 output                             m_axi_gmem_RREADY;
+
+// verilator lint_off UNUSED
+input [`AXI_MASTER_USER_WIDTH-1:0] m_axi_gmem_BUSER;
+input [`AXI_MASTER_USER_WIDTH-1:0] m_axi_gmem_RUSER;
+// verilator lint_on UNUSED
 
 // Specifies the system level I/O signals.
 input  ap_clk;

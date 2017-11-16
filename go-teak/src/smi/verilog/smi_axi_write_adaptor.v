@@ -109,7 +109,10 @@ reg                  axiBHalt;
 // Specifies the buffered AXI address signals.
 reg         axiAWBufValid;
 wire        axiAWBufStop;
+
+// verilator lint_off UNUSED
 wire [15:0] axiAWLenBuf;
+// verilator lint_on UNUSED
 
 reg                  axiAWValid_q;
 reg [AxiIdWidth-1:0] axiAWId_q;

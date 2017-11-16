@@ -122,7 +122,10 @@ wire       axiRDataHalt;
 // Specifies the buffered AXI address signals.
 reg         axiARBufValid;
 wire        axiARBufStop;
+
+// verilator lint_off UNUSED
 wire [15:0] axiARLenBuf;
+// verilator lint_on UNUSED
 
 reg                  axiARValid_q;
 reg [AxiIdWidth-1:0] axiARId_q;
