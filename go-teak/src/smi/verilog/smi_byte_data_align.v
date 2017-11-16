@@ -180,7 +180,7 @@ begin
       shiftInStrobes_d [i] = 1'b1;
   else
     for (i = 0; i < FlitWidth; i = i + 1)
-      shiftInStrobes_d [i] = (i < smiInEofc_q) ? 1'b1 : 1'b0;
+      shiftInStrobes_d [i] = (i[7:0] < smiInEofc_q) ? 1'b1 : 1'b0;
 
   // Implement state machine.
   case (alignState_q)
