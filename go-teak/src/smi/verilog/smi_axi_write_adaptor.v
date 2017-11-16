@@ -252,7 +252,7 @@ begin
   end
   if (writeIdFifoPop)
   begin
-    writeIdFifoOutput = writeIdFifoData [writeIdFifoIndex_q];
+    writeIdFifoOutput <= writeIdFifoData [writeIdFifoIndex_q];
   end
 end
 
@@ -261,11 +261,11 @@ always @(posedge clk)
 begin
   if (pCacheWrite)
   begin
-    pCacheSmiTags [writeIdFifoOutput] = headerData [31:16];
+    pCacheSmiTags [writeIdFifoOutput] <= headerData [31:16];
   end
   if (pCacheRead)
   begin
-    paramSmiTag = pCacheSmiTags [axiBId_q];
+    paramSmiTag <= pCacheSmiTags [axiBId_q];
   end
 end
 
@@ -331,7 +331,7 @@ end
 
 always @(posedge clk)
 begin
-  byteOffset_q = byteOffset_d;
+  byteOffset_q <= byteOffset_d;
 end
 
 // To calculate the AXI burst length we need to take into account the number
@@ -404,7 +404,7 @@ begin
     // Send the response when ready.
     ResponseSend :
     begin
-      smiBufRespReady <= 1'b1;
+      smiBufRespReady = 1'b1;
       if (~smiBufRespStop)
         responseState_d = ResponseIdle;
     end

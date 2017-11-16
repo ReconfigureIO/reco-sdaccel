@@ -233,7 +233,7 @@ begin
   end
   if (tagIdFifoPop)
   begin
-    tagIdFifoOutput = tagIdFifoData [tagIdFifoIndex_q];
+    tagIdFifoOutput <= tagIdFifoData [tagIdFifoIndex_q];
   end
 end
 
@@ -242,11 +242,11 @@ always @(posedge clk)
 begin
   if (pCacheWrite)
   begin
-    pCacheSmiTags [tagIdFifoOutput] = smiReqInData_q [31:16];
+    pCacheSmiTags [tagIdFifoOutput] <= smiReqInData_q [31:16];
   end
   if (pCacheRead)
   begin
-    paramSmiTag = pCacheSmiTags [smiRespInData_q [TagIdWidth+15:16]];
+    paramSmiTag <= pCacheSmiTags [smiRespInData_q [TagIdWidth+15:16]];
   end
 end
 

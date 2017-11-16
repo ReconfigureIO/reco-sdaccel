@@ -280,7 +280,7 @@ begin
   end
   if (readIdFifoPop)
   begin
-    readIdFifoOutput = readIdFifoData [readIdFifoIndex_q];
+    readIdFifoOutput <= readIdFifoData [readIdFifoIndex_q];
   end
 end
 
@@ -289,15 +289,15 @@ always @(posedge clk)
 begin
   if (pCacheWrite)
   begin
-    pCacheSmiTags [readIdFifoOutput] = smiReqData_q [31:16];
-    pCacheAddrOffsets [readIdFifoOutput] = smiReqData_q [39:32];
-    pCacheDataLengths [readIdFifoOutput] = smiReqData_q [103:96];
+    pCacheSmiTags [readIdFifoOutput] <= smiReqData_q [31:16];
+    pCacheAddrOffsets [readIdFifoOutput] <= smiReqData_q [39:32];
+    pCacheDataLengths [readIdFifoOutput] <= smiReqData_q [103:96];
   end
   if (pCacheRead)
   begin
-    paramSmiTag = pCacheSmiTags [axiRId_q];
-    paramAddrOffset = pCacheAddrOffsets [axiRId_q];
-    paramDataLength = pCacheDataLengths [axiRId_q];
+    paramSmiTag <= pCacheSmiTags [axiRId_q];
+    paramAddrOffset <= pCacheAddrOffsets [axiRId_q];
+    paramDataLength <= pCacheDataLengths [axiRId_q];
   end
 end
 
