@@ -270,7 +270,7 @@ assign m_axi_gmem_WUSER = 0;
 assign m_axi_gmem_ARBURST = 2'b01;
 assign m_axi_gmem_ARLOCK = 2'b00;
 assign m_axi_gmem_ARCACHE = 4'b0011;
-assign m_axi_gmem_ARPROT = 3'b010
+assign m_axi_gmem_ARPROT = 3'b010;
 assign m_axi_gmem_ARQOS = 4'b0000;
 assign m_axi_gmem_ARREGION = 4'b0000;
 assign m_axi_gmem_ARUSER = 0;
@@ -375,7 +375,7 @@ teak__action__top__gmem kernelActionTop_u
   .smi_port_a_req_eofc(smi_port_a_req_eofc), .smi_port_a_req_data(smi_port_a_req_data),
   .smi_port_a_req_stop(smi_port_a_req_stop), .smi_port_a_resp_ready(smi_port_a_resp_ready),
   .smi_port_a_resp_eofc(smi_port_a_resp_eofc), .smi_port_a_resp_data(smi_port_a_resp_data),
-  .smi_port_a_reap_stop(smi_port_a_resp_stop), .smi_port_b_req_ready(smi_port_b_req_ready),
+  .smi_port_a_resp_stop(smi_port_a_resp_stop), .smi_port_b_req_ready(smi_port_b_req_ready),
   .smi_port_b_req_eofc(smi_port_b_req_eofc), .smi_port_b_req_data(smi_port_b_req_data),
   .smi_port_b_req_stop(smi_port_b_req_stop), .smi_port_b_resp_ready(smi_port_b_resp_ready),
   .smi_port_b_resp_eofc(smi_port_b_resp_eofc), .smi_port_b_resp_data(smi_port_b_resp_data),
