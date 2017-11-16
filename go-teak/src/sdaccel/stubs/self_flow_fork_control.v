@@ -6,7 +6,7 @@
 
 //
 // Stub for a SELF based dataflow 'fork' controller. This is included for
-// Verilator linting purposes only.
+// linting purposes only.
 //
 
 `timescale 1ns/1ps

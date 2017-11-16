@@ -5,7 +5,7 @@
 //
 
 //
-// Stub for a buffered SELF link with short FIFO. This is included for Verilator
+// Stub for a buffered SELF link with short FIFO. This is included for
 // linting purposes only.
 //
 
