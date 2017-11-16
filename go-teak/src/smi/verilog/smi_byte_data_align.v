@@ -112,10 +112,10 @@ reg [7:0]                   shiftP2Amount_q;
 reg [(2*FlitWidth-1)*8-1:0] shiftP3Data_d;
 reg [2*FlitWidth-2:0]       shiftP3Strobes_d;
 
-reg                         shiftP3Valid_q;
-reg                         shiftP3Last_q;
-reg [(2*FlitWidth-1)*8-1:0] shiftP3Data_q;
-reg [2*FlitWidth-2:0]       shiftP3Strobes_q;
+reg                   shiftP3Valid_q;
+reg                   shiftP3Last_q;
+reg [FlitWidth*8-1:0] shiftP3Data_q;
+reg [FlitWidth-1:0]   shiftP3Strobes_q;
 
 // Combined output vector.
 wire [FlitWidth*9:0] alignedOutVec;
@@ -403,16 +403,15 @@ begin
   if (~barrelShiftStop)
   begin
     shiftP3Last_q    <= shiftP2Last_q;
-    shiftP3Data_q    <= shiftP3Data_d;
-    shiftP3Strobes_q <= shiftP3Strobes_d;
+    shiftP3Data_q    <= shiftP3Data_d [(2*FlitWidth-1)*8-1:(FlitWidth-1)*8];
+    shiftP3Strobes_q <= shiftP3Strobes_d [2*FlitWidth-2:FlitWidth-1];
   end
 end
 
 // Implement FIFO buffer on the output flits.
 selfLinkBufferFifoS #(FlitWidth*9+1, FifoSize, FifoIndexSize) smiOutBuf
-  (shiftP3Valid_q, { shiftP3Last_q, shiftP3Strobes_q [2*FlitWidth-2:FlitWidth-1],
-  shiftP3Data_q [(2*FlitWidth-1)*8-1:(FlitWidth-1)*8] }, barrelShiftStop,
-  alignedOutReady, alignedOutVec, alignedOutStop, clk, srst);
+  (shiftP3Valid_q, { shiftP3Last_q, shiftP3Strobes_q, shiftP3Data_q  },
+  barrelShiftStop, alignedOutReady, alignedOutVec, alignedOutStop, clk, srst);
 
 assign alignedOutLast = alignedOutVec [FlitWidth*9];
 assign alignedOutStrobes = alignedOutVec [FlitWidth*9-1:FlitWidth*8];
