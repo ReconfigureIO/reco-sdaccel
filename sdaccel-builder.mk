@@ -65,7 +65,7 @@ ${DIST_DIR}/vendor/src:
 	mkdir -p "${VENDOR_DIR}"
 	ln -sf "${ROOT_DIR}/vendor" "${VENDOR_DIR}/src"
 
-${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR} | ${DIST_DIR}/vendor/src
+${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/ ${DIST_DIR} | ${DIST_DIR}/vendor/src
 	LIBRARY_PATH=${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH} CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ GOPATH=${DIR}/go:${VENDOR_DIR} go build -o $@ $<
 
 CMD_SOURCES := $(shell find ${ROOT_DIR}/cmd/ -name main.go)
