@@ -375,14 +375,19 @@ teak__action__top__gmem kernelActionTop_u
   .s_axi_wvalid(m_axi_control_WVALID), .s_axi_wready(m_axi_control_WREADY),
   .s_axi_bresp(m_axi_control_BRESP), .s_axi_bvalid(m_axi_control_BVALID),
   .s_axi_bready(m_axi_control_BREADY), .smi_port_a_req_ready(smi_port_a_req_ready),
-  .smi_port_a_req_eofc(smi_port_a_req_eofc), .smi_port_a_req_data(smi_port_a_req_data),
+
+  .smi_port_a_req_data({smi_port_a_req_data, smi_port_a_req_eofc}),
   .smi_port_a_req_stop(smi_port_a_req_stop), .smi_port_a_resp_ready(smi_port_a_resp_ready),
-  .smi_port_a_resp_eofc(smi_port_a_resp_eofc), .smi_port_a_resp_data(smi_port_a_resp_data),
+
+  .smi_port_a_resp_data({smi_port_a_resp_data, smi_port_a_resp_eofc}),
   .smi_port_a_resp_stop(smi_port_a_resp_stop), .smi_port_b_req_ready(smi_port_b_req_ready),
-  .smi_port_b_req_eofc(smi_port_b_req_eofc), .smi_port_b_req_data(smi_port_b_req_data),
+
+  .smi_port_b_req_data({smi_port_b_req_data, smi_port_b_req_eofc}),
   .smi_port_b_req_stop(smi_port_b_req_stop), .smi_port_b_resp_ready(smi_port_b_resp_ready),
-  .smi_port_b_resp_eofc(smi_port_b_resp_eofc), .smi_port_b_resp_data(smi_port_b_resp_data),
+
+  .smi_port_b_resp_data({smi_port_b_resp_data, smi_port_b_resp_eofc}),
   .smi_port_b_resp_stop(smi_port_b_resp_stop), .paramaddr_0Ready(param_addr_valid),
+
   .paramaddr_0Data(param_addr), .paramaddr_0Stop(param_addr_stop),
   .paramdata_0Ready(param_data_valid), .paramdata_0Data(param_data),
   .paramdata_0Stop(param_data_stop), .clk(ap_clk), .reset(kernel_reset));
