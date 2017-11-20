@@ -4,8 +4,8 @@ import (
 	// import the entire framework (including bundled verilog)
 	_ "sdaccel"
 	// Use the new AXI protocol package
-	aximemory "axi/memory"
-	axiprotocol "axi/protocol"
+	memory "smi/memory"
+	protocol "smi/protocol"
 )
 
 // magic identifier for exporting
@@ -14,19 +14,17 @@ func Top(
 	outputData uintptr,
 	length uint32,
 
-	memReadAddr chan<- axiprotocol.Addr,
-	memReadData <-chan axiprotocol.ReadData,
+	readReqFlit chan<- protocol.Flit64,
+	readRespFlit <-chan protocol.Flit64,
 
-	memWriteAddr chan<- axiprotocol.Addr,
-	memWriteData chan<- axiprotocol.WriteData,
-	memWriteResp <-chan axiprotocol.WriteResp) {
+	writeReqFlit chan<- protocol.Flit64,
+	writeRespFlit <-chan protocol.Flit64) {
 
 	var histogram [512]uint32
 
 	// Read all of the input data into a channel
 	inputChan := make(chan uint32)
-	go aximemory.ReadBurstUInt32(
-		memReadAddr, memReadData, true, inputData, length, inputChan)
+	go memory.ReadBurstUInt32(readReqFlit, readRespFlit, inputData, uint16(length), inputChan)
 
 	// The host needs to provide the length we should read
 	for ; length > 0; length-- {
@@ -46,6 +44,5 @@ func Top(
 		}
 	}()
 
-	aximemory.WriteBurstUInt32(
-		memWriteAddr, memWriteData, memWriteResp, true, outputData, 512, data)
+	memory.WriteBurstUInt32(writeReqFlit, writeRespFlit, outputData, 512, data)
 }
