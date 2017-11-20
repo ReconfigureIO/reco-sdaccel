@@ -377,13 +377,17 @@ teak__action__top__gmem kernelActionTop_u
   .s_axi_bready(m_axi_control_BREADY),
 
   .smiportareq_0Ready(smi_port_a_req_ready),
-  .smiportareq_0Data({smi_port_a_req_data, smi_port_a_req_eofc}),
+
+  .smiportareq_0Data({smi_port_a_req_eofc, smi_port_a_req_data}),
   .smiportareq_0Stop(smi_port_a_req_stop), .smiportaresp_0Ready(smi_port_a_resp_ready),
-  .smiportaresp_0Data({smi_port_a_resp_data, smi_port_a_resp_eofc}),
+
+  .smiportaresp_0Data({smi_port_a_resp_eofc, smi_port_a_resp_data}),
   .smiportaresp_0Stop(smi_port_a_resp_stop), .smiportbreq_0Ready(smi_port_b_req_ready),
-  .smiportbreq_0Data({smi_port_b_req_data, smi_port_b_req_eofc}),
+
+  .smiportbreq_0Data({smi_port_b_req_eofc, smi_port_b_req_data}),
   .smiportbreq_0Stop(smi_port_b_req_stop), .smiportbresp_0Ready(smi_port_b_resp_ready),
-  .smiportbresp_0Data({smi_port_b_resp_data, smi_port_b_resp_eofc}),
+
+  .smiportbresp_0Data({smi_port_b_resp_eofc, smi_port_b_resp_data}),
   .smiportbresp_0Stop(smi_port_b_resp_stop),
 
   .paramaddr_0Ready(param_addr_valid),
