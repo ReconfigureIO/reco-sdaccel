@@ -4,9 +4,9 @@ import (
 	// Import the entire framework (including bundled verilog)
 	_ "sdaccel"
 	// Use the new AXI protocol package
-	axiarbitrate "axi/arbitrate"
-	aximemory "axi/memory"
-	axiprotocol "axi/protocol"
+
+	memory "smi/memory"
+	protocol "smi/protocol"
 )
 
 // Magic identifier for exporting
@@ -15,32 +15,20 @@ func Top(
 	outputData uintptr,
 	length uint32,
 
-	memReadAddr chan<- axiprotocol.Addr,
-	memReadData <-chan axiprotocol.ReadData,
+	readReqFlit chan<- protocol.Flit64,
+	readRespFlit <-chan protocol.Flit64,
 
-	memWriteAddr chan<- axiprotocol.Addr,
-	memWriteData chan<- axiprotocol.WriteData,
-	memWriteResp <-chan axiprotocol.WriteResp) {
+	writeReqFlit chan<- protocol.Flit64,
+	writeRespFlit <-chan protocol.Flit64) {
 
 	readRespChan := make(chan uint32)
 	incrRespChan := make(chan uint32)
-
-	// Create a 2-way AXI bus arbiter so that two goroutines can perform
-	// concurrent AXI memory reads.
-	memReadAddr0 := make(chan axiprotocol.Addr)
-	memReadData0 := make(chan axiprotocol.ReadData)
-	memReadAddr1 := make(chan axiprotocol.Addr)
-	memReadData1 := make(chan axiprotocol.ReadData)
-	go axiarbitrate.ReadArbitrateX2(
-		memReadAddr, memReadData, memReadAddr0, memReadData0,
-		memReadAddr1, memReadData1)
 
 	go func() {
 		// Length is the number of addresses we are supposed to read
 		// so this block queues reads from each one in turn.
 		for i := length; i != 0; i-- {
-			readRespChan <- aximemory.ReadUInt32(
-				memReadAddr0, memReadData0, true, inputData)
+			readRespChan <- memory.ReadUInt32(readReqFlit, readRespFlit, inputData)
 			inputData += 4
 		}
 	}()
@@ -55,12 +43,9 @@ func Top(
 			// And this is that index as a pointer to external memory.
 			outputPointer := outputData + uintptr(index<<2)
 			// Perform an increment operation on that location.
-			current := aximemory.ReadUInt32(
-				memReadAddr1, memReadData1, true, outputPointer)
+			current := memory.ReadUInt32(writeReqFlit, writeRespFlit, outputPointer)
 			current += 1
-			aximemory.WriteUInt32(
-				memWriteAddr, memWriteData, memWriteResp, true,
-				outputPointer, current)
+			memory.WriteUInt32(writeReqFlit, writeRespFlit, outputPointer, current)
 			incrRespChan <- current
 		}
 	}()

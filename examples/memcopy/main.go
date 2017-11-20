@@ -3,9 +3,10 @@ package main
 import (
 	// Import the entire framework (including bundled verilog)
 	_ "sdaccel"
-	// Use the new AXI protocol package
-	aximemory "axi/memory"
-	axiprotocol "axi/protocol"
+
+	// Use the new SMI memory access layer
+	memory "smi/memory"
+	protocol "smi/protocol"
 )
 
 // Magic identifier for exporting
@@ -14,16 +15,13 @@ func Top(
 	outputData uintptr,
 	length uint32,
 
-	memReadAddr chan<- axiprotocol.Addr,
-	memReadData <-chan axiprotocol.ReadData,
+	readReqFlit chan<- protocol.Flit64,
+	readRespFlit <-chan protocol.Flit64,
 
-	memWriteAddr chan<- axiprotocol.Addr,
-	memWriteData chan<- axiprotocol.WriteData,
-	memWriteResp <-chan axiprotocol.WriteResp) {
+	writeReqFlit chan<- protocol.Flit64,
+	writeRespFlit <-chan protocol.Flit64) {
 
 	data := make(chan uint64)
-	go aximemory.ReadBurstUInt64(
-		memReadAddr, memReadData, true, inputData, length, data)
-	aximemory.WriteBurstUInt64(
-		memWriteAddr, memWriteData, memWriteResp, true, outputData, length, data)
+	go memory.ReadBurstUInt64(readReqFlit, readRespFlit, inputData, uint16(length), data)
+	memory.WriteBurstUInt64(writeReqFlit, writeRespFlit, outputData, uint16(length), data)
 }

@@ -3,8 +3,9 @@ package main
 import (
 	_ "sdaccel"
 
-	aximemory "axi/memory"
-	axiprotocol "axi/protocol"
+	memory "smi/memory"
+	protocol "smi/protocol"
+
 	"github.com/ReconfigureIO/regression/linear"
 )
 
@@ -22,17 +23,15 @@ func Top(
 	output2 uintptr,
 
 	// The second set of arguments will be the ports for interacting with memory
-	memReadAddr chan<- axiprotocol.Addr,
-	memReadData <-chan axiprotocol.ReadData,
+	readReqFlit chan<- protocol.Flit64,
+	readRespFlit <-chan protocol.Flit64,
 
-	memWriteAddr chan<- axiprotocol.Addr,
-	memWriteData chan<- axiprotocol.WriteData,
-	memWriteResp <-chan axiprotocol.WriteResp) {
+	writeReqFlit chan<- protocol.Flit64,
+	writeRespFlit <-chan protocol.Flit64) {
 
 	inputChannel := make(chan uint64)
 
-	go aximemory.ReadBurstUInt64(
-		memReadAddr, memReadData, true, inputData, inputLength, inputChannel)
+	go memory.ReadBurstUInt64(readReqFlit, readReqFlit, inputData, uint16(inputLength), inputChannel)
 
 	result := linear.Regression(inputLength, inputChannel)
 
@@ -40,9 +39,9 @@ func Top(
 	beta := result.Slope
 
 	// Write them back to the pointers the host requests
-	aximemory.WriteUInt32(
-		memWriteAddr, memWriteData, memWriteResp, false, output1, uint32(alpha))
-	aximemory.WriteUInt32(
-		memWriteAddr, memWriteData, memWriteResp, false, output2, uint32(beta))
+	memory.WriteUInt32(
+		writeReqFlit, writeRespFlit, output1, uint32(alpha))
+	memory.WriteUInt32(
+		writeReqFlit, writeRespFlit, output2, uint32(beta))
 
 }

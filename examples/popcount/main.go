@@ -3,9 +3,9 @@ package main
 import (
 	"teak"
 
-	// Import support for AXI memory access
-	aximemory "axi/memory"
-	axiprotocol "axi/protocol"
+	// Import support for SMI memory access
+	memory "smi/memory"
+	protocol "smi/protocol"
 	// Import the entire framework (including bundled verilog)
 	_ "sdaccel"
 )
@@ -20,15 +20,11 @@ func Top(
 	a uint32,
 	output uintptr,
 
-	memReadAddr chan<- axiprotocol.Addr,
-	memReadData <-chan axiprotocol.ReadData,
+	readReqFlit chan<- protocol.Flit64,
+	readRespFlit <-chan protocol.Flit64,
 
-	memWriteAddr chan<- axiprotocol.Addr,
-	memWriteData chan<- axiprotocol.WriteData,
-	memWriteResp <-chan axiprotocol.WriteResp) {
-
-	// Disable memory reads
-	go axiprotocol.ReadDisable(memReadAddr, memReadData)
+	writeReqFlit chan<- protocol.Flit64,
+	writeRespFlit <-chan protocol.Flit64) {
 
 	// This will create a [32]bool
 	var array [32]bool = teak.SmashU32(a)
@@ -39,12 +35,11 @@ func Top(
 	// We can now access each individual bit as a boolean
 	for i := 0; i < 32; i++ {
 		if array[i] {
-			sum += 1
+			sum++
 		}
 	}
 
 	// Write out the result.
-	aximemory.WriteUInt32(
-		memWriteAddr, memWriteData, memWriteResp, false, output, sum)
+	memory.WriteUInt32(writeReqFlit, writeRespFlit, output, sum)
 
 }

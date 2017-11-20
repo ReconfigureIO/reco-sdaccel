@@ -4,19 +4,14 @@ import (
 	// Import the entire framework (including bundled verilog)
 	_ "sdaccel"
 	// Use the new AXI protocol package
-	axiprotocol "axi/protocol"
+	protocol "smi/protocol"
 )
 
 // Magic identifier for exporting
 func Top(
-	memReadAddr chan<- axiprotocol.Addr,
-	memReadData <-chan axiprotocol.ReadData,
+	readReqFlit chan<- protocol.Flit64,
+	readRespFlit <-chan protocol.Flit64,
 
-	memWriteAddr chan<- axiprotocol.Addr,
-	memWriteData chan<- axiprotocol.WriteData,
-	memWriteResp <-chan axiprotocol.WriteResp) {
-
-	// Disable AXI memory accesses.
-	go axiprotocol.ReadDisable(memReadAddr, memReadData)
-	go axiprotocol.WriteDisable(memWriteAddr, memWriteData, memWriteResp)
+	writeReqFlit chan<- protocol.Flit64,
+	writeRespFlit <-chan protocol.Flit64) {
 }

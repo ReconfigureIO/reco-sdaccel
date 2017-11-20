@@ -7,8 +7,8 @@ import (
 	// import the entire framework (including bundled verilog)
 	_ "sdaccel"
 	// Use the new AXI protocol package
-	aximemory "axi/memory"
-	axiprotocol "axi/protocol"
+	memory "smi/memory"
+	protocol "smi/protocol"
 
 	"github.com/ReconfigureIO/crypto/md5"
 )
@@ -17,8 +17,9 @@ import (
 func ProcessMD5(
 	numBlocks uint,
 	inputData uintptr,
-	memReadAddr chan<- axiprotocol.Addr,
-	memReadData <-chan axiprotocol.ReadData) md5.Digest {
+
+	readReqFlit chan<- protocol.Flit64,
+	readRespFlit <-chan protocol.Flit64) md5.Digest {
 
 	d := md5.New()
 
@@ -30,8 +31,7 @@ func ProcessMD5(
 
 		data := make(chan uint32)
 
-		go aximemory.ReadBurstUInt32(
-			memReadAddr, memReadData, true, inputData, num32s, data)
+		go memory.ReadBurstUInt32(readReqFlit, readRespFlit, inputData, uint16(num32s), data)
 
 		for i := numBlocks; i != 0; i-- {
 			for j := 0; j != 16; j += 1 {
@@ -51,9 +51,9 @@ func ProcessMD5(
 func WriteSum(
 	d md5.Digest,
 	outputData uintptr,
-	memWriteAddr chan<- axiprotocol.Addr,
-	memWriteData chan<- axiprotocol.WriteData,
-	memWriteResp <-chan axiprotocol.WriteResp) {
+
+	writeReqFlit chan<- protocol.Flit64,
+	writeRespFlit <-chan protocol.Flit64) {
 
 	vals := d.Sum()
 	data := make(chan uint8)
@@ -63,8 +63,7 @@ func WriteSum(
 		}
 	}()
 
-	aximemory.WriteBurstUInt8(
-		memWriteAddr, memWriteData, memWriteResp, true, outputData, 16, data)
+	memory.WriteBurstUInt8(writeReqFlit, writeRespFlit, outputData, 16, data)
 }
 
 func Top(
@@ -74,13 +73,12 @@ func Top(
 	inputData uintptr,
 	outputData uintptr,
 
-	memReadAddr chan<- axiprotocol.Addr,
-	memReadData <-chan axiprotocol.ReadData,
+	readReqFlit chan<- protocol.Flit64,
+	readRespFlit <-chan protocol.Flit64,
 
-	memWriteAddr chan<- axiprotocol.Addr,
-	memWriteData chan<- axiprotocol.WriteData,
-	memWriteResp <-chan axiprotocol.WriteResp) {
+	writeReqFlit chan<- protocol.Flit64,
+	writeRespFlit <-chan protocol.Flit64) {
 
-	d := ProcessMD5(numBlocks, inputData, memReadAddr, memReadData)
-	WriteSum(d, outputData, memWriteAddr, memWriteData, memWriteResp)
+	d := ProcessMD5(numBlocks, inputData, readReqFlit, readRespFlit)
+	WriteSum(d, outputData, writeReqFlit, writeRespFlit)
 }
