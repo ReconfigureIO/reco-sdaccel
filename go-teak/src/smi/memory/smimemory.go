@@ -925,7 +925,7 @@ func WriteBurstUInt64(
 	writeAddr := writeAddrIn & 0xFFFFFFFFFFFFFFF8
 	writeLength := writeLengthIn << 3
 	burstOffset := uint16(writeAddr) & uint16(protocol.SmiMemBurstSize-1)
-	burstSize := protocol.SmiMemBurstSize - burstOffset
+	burstSize := uint16(protocol.SmiMemBurstSize) - burstOffset
 
 	for writeLength != 0 {
 		if writeLength < burstSize {
@@ -935,7 +935,7 @@ func WriteBurstUInt64(
 			smiRequest, smiResponse, writeAddr, burstSize, writeDataChan)
 		writeAddr += uintptr(burstSize)
 		writeLength -= burstSize
-		burstSize = protocol.SmiMemBurstSize
+		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return writeOk
 }
@@ -962,7 +962,7 @@ func WriteBurstUInt32(
 	writeAddr := writeAddrIn & 0xFFFFFFFFFFFFFFFC
 	writeLength := writeLengthIn << 2
 	burstOffset := uint16(writeAddr) & uint16(protocol.SmiMemBurstSize-1)
-	burstSize := protocol.SmiMemBurstSize - burstOffset
+	burstSize := uint16(protocol.SmiMemBurstSize) - burstOffset
 
 	for writeLength != 0 {
 		if writeLength < burstSize {
@@ -972,7 +972,7 @@ func WriteBurstUInt32(
 			smiRequest, smiResponse, writeAddr, burstSize, writeDataChan)
 		writeAddr += uintptr(burstSize)
 		writeLength -= burstSize
-		burstSize = protocol.SmiMemBurstSize
+		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return writeOk
 }
@@ -999,7 +999,7 @@ func WriteBurstUInt16(
 	writeAddr := writeAddrIn & 0xFFFFFFFFFFFFFFFE
 	writeLength := writeLengthIn << 1
 	burstOffset := uint16(writeAddr) & uint16(protocol.SmiMemBurstSize-1)
-	burstSize := protocol.SmiMemBurstSize - burstOffset
+	burstSize := uint16(protocol.SmiMemBurstSize) - burstOffset
 
 	for writeLength != 0 {
 		if writeLength < burstSize {
@@ -1009,7 +1009,7 @@ func WriteBurstUInt16(
 			smiRequest, smiResponse, writeAddr, burstSize, writeDataChan)
 		writeAddr += uintptr(burstSize)
 		writeLength -= burstSize
-		burstSize = protocol.SmiMemBurstSize
+		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return writeOk
 }
@@ -1034,7 +1034,7 @@ func WriteBurstUInt8(
 	writeAddr := writeAddrIn
 	writeLength := writeLengthIn
 	burstOffset := uint16(writeAddr) & uint16(protocol.SmiMemBurstSize-1)
-	burstSize := protocol.SmiMemBurstSize - burstOffset
+	burstSize := uint16(protocol.SmiMemBurstSize) - burstOffset
 
 	for writeLength != 0 {
 		if writeLength < burstSize {
@@ -1044,7 +1044,7 @@ func WriteBurstUInt8(
 			smiRequest, smiResponse, writeAddr, burstSize, writeDataChan)
 		writeAddr += uintptr(burstSize)
 		writeLength -= burstSize
-		burstSize = protocol.SmiMemBurstSize
+		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return writeOk
 }
@@ -1544,7 +1544,7 @@ func ReadBurstUInt64(
 	readAddr := readAddrIn & 0xFFFFFFFFFFFFFFF8
 	readLength := readLengthIn << 3
 	burstOffset := uint16(readAddr) & uint16(protocol.SmiMemBurstSize-1)
-	burstSize := protocol.SmiMemBurstSize - burstOffset
+	burstSize := uint16(protocol.SmiMemBurstSize) - burstOffset
 
 	for readLength != 0 {
 		if readLength < burstSize {
@@ -1554,7 +1554,7 @@ func ReadBurstUInt64(
 			smiRequest, smiResponse, readAddr, burstSize, readDataChan)
 		readAddr += uintptr(burstSize)
 		readLength -= burstSize
-		burstSize = protocol.SmiMemBurstSize
+		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return readOk
 }
@@ -1581,7 +1581,7 @@ func ReadBurstUInt32(
 	readAddr := readAddrIn & 0xFFFFFFFFFFFFFFFC
 	readLength := readLengthIn << 2
 	burstOffset := uint16(readAddr) & uint16(protocol.SmiMemBurstSize-1)
-	burstSize := protocol.SmiMemBurstSize - burstOffset
+	burstSize := uint16(protocol.SmiMemBurstSize) - burstOffset
 
 	for readLength != 0 {
 		if readLength < burstSize {
@@ -1591,7 +1591,7 @@ func ReadBurstUInt32(
 			smiRequest, smiResponse, readAddr, burstSize, readDataChan)
 		readAddr += uintptr(burstSize)
 		readLength -= burstSize
-		burstSize = protocol.SmiMemBurstSize
+		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return readOk
 }
@@ -1618,7 +1618,7 @@ func ReadBurstUInt16(
 	readAddr := readAddrIn & 0xFFFFFFFFFFFFFFFE
 	readLength := readLengthIn << 1
 	burstOffset := uint16(readAddr) & uint16(protocol.SmiMemBurstSize-1)
-	burstSize := protocol.SmiMemBurstSize - burstOffset
+	burstSize := uint16(protocol.SmiMemBurstSize) - burstOffset
 
 	for readLength != 0 {
 		if readLength < burstSize {
@@ -1628,7 +1628,7 @@ func ReadBurstUInt16(
 			smiRequest, smiResponse, readAddr, burstSize, readDataChan)
 		readAddr += uintptr(burstSize)
 		readLength -= burstSize
-		burstSize = protocol.SmiMemBurstSize
+		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return readOk
 }
@@ -1653,7 +1653,7 @@ func ReadBurstUInt8(
 	readAddr := readAddrIn
 	readLength := readLengthIn
 	burstOffset := uint16(readAddr) & uint16(protocol.SmiMemBurstSize-1)
-	burstSize := protocol.SmiMemBurstSize - burstOffset
+	burstSize := uint16(protocol.SmiMemBurstSize) - burstOffset
 
 	for readLength != 0 {
 		if readLength < burstSize {
@@ -1663,7 +1663,7 @@ func ReadBurstUInt8(
 			smiRequest, smiResponse, readAddr, burstSize, readDataChan)
 		readAddr += uintptr(burstSize)
 		readLength -= burstSize
-		burstSize = protocol.SmiMemBurstSize
+		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return readOk
 }
