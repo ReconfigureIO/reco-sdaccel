@@ -23,7 +23,7 @@ func Top(
 	// The host needs to provide the length we should read
 	for ; length > 0; length-- {
 		// First we'll read each sample
-		sample := memory.ReadUInt32(readReqFlit, readReqFlit, inputData)
+		sample := memory.ReadUInt32(readReqFlit, readRespFlit, inputData)
 
 		// If we think of external memory we are writing to as a
 		// [512]uint32, this would be the index we access, with an
