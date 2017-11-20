@@ -174,7 +174,7 @@ upload-docs: build-docs
 upload-docker: docker-image
 	docker tag $(DOCKER_NAME):latest ${PUBLISHED_DOCKER}
 	docker tag $(DEPLOY_NAME):latest ${PUBLISHED_DEPLOY}
-	$$(aws ecr get-login --region us-east-1)
+	$$(aws ecr get-login --no-include-email --region us-east-1)
 	docker push ${PUBLISHED_DOCKER}
 	docker push ${PUBLISHED_DEPLOY}
 
