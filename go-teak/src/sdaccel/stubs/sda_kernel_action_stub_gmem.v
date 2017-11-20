@@ -18,12 +18,13 @@ module teak__action__top__gmem
   s_axi_arvalid, s_axi_arready, s_axi_rdata, s_axi_rresp, s_axi_rvalid,
   s_axi_rready, s_axi_awaddr, s_axi_awcache, s_axi_awprot, s_axi_awvalid,
   s_axi_awready, s_axi_wdata, s_axi_wstrb, s_axi_wvalid, s_axi_wready,
-  s_axi_bresp, s_axi_bvalid, s_axi_bready, smi_port_a_req_ready,
-  smi_port_a_req_data, smi_port_a_req_stop,
-  smi_port_a_resp_ready, smi_port_a_resp_data,
-  smi_port_a_resp_stop, smi_port_b_req_ready,
-  smi_port_b_req_data, smi_port_b_req_stop, smi_port_b_resp_ready,
-  smi_port_b_resp_data, smi_port_b_resp_stop,
+  s_axi_bresp, s_axi_bvalid, s_axi_bready,
+  smiportareq_0Ready,
+  smiportareq_0Data, smiportareq_0Stop,
+  smiportaresp_0Ready, smiportaresp_0Data,
+  smiportaresp_0Stop, smiportbreq_0Ready,
+  smiportbreq_0Data, smiportbreq_0Stop, smiportbresp_0Ready,
+  smiportbresp_0Data, smiportbresp_0Stop,
   paramaddr_0Ready, paramaddr_0Data, paramaddr_0Stop, paramdata_0Ready,
   paramdata_0Data, paramdata_0Stop, clk, reset);
 // verilator lint_on DECLFILENAME
@@ -74,21 +75,21 @@ output        s_axi_bvalid;
 input         s_axi_bready;
 
 // SMI to Teak toplevel interconnect signals.
-output        smi_port_a_req_ready;
-output [71:0] smi_port_a_req_data;
-input         smi_port_a_req_stop;
+output        smiportareq_0Ready;
+output [71:0] smiportareq_0Data;
+input         smiportareq_0Stop;
 
-input         smi_port_a_resp_ready;
-input [71:0]  smi_port_a_resp_data;
-output        smi_port_a_resp_stop;
+input         smiportaresp_0Ready;
+input [71:0]  smiportaresp_0Data;
+output        smiportaresp_0Stop;
 
-output        smi_port_b_req_ready;
-output [71:0] smi_port_b_req_data;
-input         smi_port_b_req_stop;
+output        smiportbreq_0Ready;
+output [71:0] smiportbreq_0Data;
+input         smiportbreq_0Stop;
 
-input         smi_port_b_resp_ready;
-input  [71:0] smi_port_b_resp_data;
-output        smi_port_b_resp_stop;
+input         smiportbresp_0Ready;
+input  [71:0] smiportbresp_0Data;
+output        smiportbresp_0Stop;
 // verilator lint_on UNUSED
 
 // System level signals.
@@ -181,13 +182,12 @@ assign s_axi_bresp = 2'b0;
 assign s_axi_bvalid = s_axi_write_complete_q;
 
 // Tie off unused SMI output signals.
-assign smi_port_a_req_ready = 1'b0;
-assign smi_port_a_req_data = 72'd0;
-assign smi_port_a_resp_stop = 1'b0;
-
-assign smi_port_b_req_ready = 1'b0;
-assign smi_port_b_req_data = 72'd0;
-assign smi_port_b_resp_stop = 1'b0;
+assign smiportareq_0Ready = 1'b0;
+assign smiportareq_0Data = 72'd0;
+assign smiportaresp_0Stop = 1'b0;
+assign smiportbreq_0Ready = 1'b0;
+assign smiportbreq_0Data = 72'd0;
+assign smiportbresp_0Stop = 1'b0;
 
 // Tie off unused parameter access signals.
 assign paramaddr_0Ready = 1'b0;
