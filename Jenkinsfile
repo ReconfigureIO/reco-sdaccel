@@ -141,10 +141,10 @@ pipeline {
                     sh './ci/test_afi_generation.sh histogram-array test-histogram histogram "`git rev-parse HEAD`"'
                 },
                 memcopy: {
-                    sh './ci/test_build.sh memcopy test-memcopy memcopy "`git rev-parse HEAD`"'
+                    sh './ci/test_afi_generation.sh memcopy test-memcopy memcopy "`git rev-parse HEAD`"'
                 },
                 regression: {
-                    sh './ci/test_afi_generation.sh regression test-regression regression "`git rev-parse HEAD`"'
+                    sh './ci/test_build.sh regression test-regression regression "`git rev-parse HEAD`"'
                 },
                 "parallel histogram": {
                     sh './ci/test_build.sh histogram-parallel test-histogram histogram "`git rev-parse HEAD`"'
