@@ -78,7 +78,7 @@ build/reco/sdaccel-builder: sdaccel-builder | build/reco
 build/reco/sdaccel-builder.mk: sdaccel-builder.mk | build/reco
 	cp sdaccel-builder.mk build/reco
 
-build/reco/eTeak: build/reco eTeak/go-teak-sdaccel
+build/reco/eTeak: build/reco eTeak/go-teak-smi
 	cp -R eTeak build/reco
 	touch $@
 
@@ -138,7 +138,7 @@ build/reco/go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz build/reco
 eTeak:
 	mkdir -p eTeak
 
-eTeak/go-teak-sdaccel: | eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz
+eTeak/go-teak-smi: | eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz
 	tar -xf "downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz" -C eTeak
 	# So that it won't download again
 	touch $@
@@ -146,7 +146,7 @@ eTeak/go-teak-sdaccel: | eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-
 docs:
 	mkdir -p docs
 
-build-docs: | eTeak/go-teak-sdaccel docs
+build-docs: | eTeak/go-teak-smi docs
 	GOROOT=$$PWD/eTeak/go/ GOPATH=$$PWD/go-teak ./scripts/gendoc.sh docs/kernel
 	GOROOT=$$PWD/go/ ./scripts/gendoc.sh docs/host
 
