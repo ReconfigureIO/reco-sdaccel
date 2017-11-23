@@ -30,7 +30,7 @@ module smiAxiReadAdaptor
   (smiReqReady, smiReqEofc, smiReqData, smiReqStop, smiRespReady, smiRespEofc,
   smiRespData, smiRespStop, axiARValid, axiARReady, axiARId, axiARAddr,
   axiARLen, axiARSize, axiRValid, axiRReady, axiRId, axiRData, axiRResp,
-  axiRLast, clk, srst);
+  axiRLast, axiReset, clk, srst);
 
 // Specifies the number of bits required to address individual bytes within the
 // AXI data signal. This also determines the width of the data signal.
@@ -71,6 +71,7 @@ parameter [2:0]
 // Specifies the clock and active high synchronous reset signals.
 input clk;
 input srst;
+input axiReset;
 
 // Specifies the 'upstream' scalable memory interface ports.
 input                 smiReqReady;
@@ -105,15 +106,14 @@ reg [7:0]           smiReqEofc_q;
 reg [DataWidth-1:0] smiReqData_q;
 reg                 smiReqHalt;
 
-reg                  axiRValid_q;
-reg [AxiIdWidth-1:0] axiRId_q;
-reg [DataWidth-1:0]  axiRData_q;
-reg [1:0]            axiRResp_q;
-reg                  axiRLast_q;
-wire                 axiRHalt;
+wire                  axiRBufValid;
+wire [AxiIdWidth-1:0] axiRBufId;
+wire [DataWidth-1:0]  axiRBufData;
+wire [1:0]            axiRBufResp;
+wire                  axiRBufLast;
+wire                  axiRBufStop;
 
 // Forked control line signals for read data response input.
-wire [1:0] axiRVecValid;
 wire       axiRCtrlValid;
 reg        axiRCtrlHalt;
 wire       axiRDataValid;
@@ -186,22 +186,18 @@ wire        headerStop;
 // Miscellaneous signals.
 integer i;
 
-// Implement resettable SMI request and AXI read data control registers.
+// Implement resettable SMI request registers.
 always @(posedge clk)
 begin
   if (srst)
   begin
     smiReqReady_q <= 1'b0;
-    axiRValid_q <= 1'b0;
   end
-  else
-    if (~(smiReqReady_q & smiReqHalt))
-      smiReqReady_q <= smiReqReady;
-    if (~(axiRValid_q & axiRHalt))
-      axiRValid_q <= axiRValid;
+  else if (~(smiReqReady_q & smiReqHalt))
+    smiReqReady_q <= smiReqReady;
 end
 
-// Implement non-resettable SMI request and read data registers.
+// Implement non-resettable SMI request registers.
 always @(posedge clk)
 begin
   if (~(smiReqReady_q & smiReqHalt))
@@ -209,25 +205,19 @@ begin
     smiReqEofc_q <= smiReqEofc;
     smiReqData_q <= smiReqData;
   end
-  if (~(axiRValid_q & axiRHalt))
-  begin
-    axiRId_q <= axiRId;
-    axiRData_q <= axiRData;
-    axiRResp_q <= axiRResp;
-    axiRLast_q <= axiRLast;
-  end
 end
 
-// Assign SELF stop and AXI ready outputs.
 assign smiReqStop = smiReqReady_q & smiReqHalt;
-assign axiRReady = ~(axiRValid_q & axiRHalt);
+
+// Instantiate AXI read data input buffer.
+axiInputBuffer #(DataWidth+AxiIdWidth+3) axiReadBuffer
+  (axiRValid, {axiRId, axiRLast, axiRResp, axiRData}, axiRReady, axiRBufValid,
+  {axiRBufId, axiRBufLast, axiRBufResp, axiRBufData}, axiRBufStop, clk, axiReset);
 
 // Fork the AXI read data response signals.
 selfFlowForkControl #(2) readDataFork
-  (axiRValid_q, axiRHalt, axiRVecValid, {axiRCtrlHalt, axiRDataHalt}, clk, srst);
-
-assign axiRCtrlValid = axiRVecValid[1];
-assign axiRDataValid = axiRVecValid[0];
+  (axiRBufValid, axiRBufStop, {axiRCtrlValid, axiRDataValid},
+  {axiRCtrlHalt, axiRDataHalt}, clk, srst);
 
 // Implement combinatorial logic for read ID tracking FIFO.
 always @(readIdFifoEmpty_q, readIdFifoIndex_q, readIdFifoPush_q, readIdFifoPop)
@@ -298,9 +288,9 @@ begin
   end
   if (pCacheRead)
   begin
-    paramSmiTag <= pCacheSmiTags [axiRId_q];
-    paramAddrOffset <= pCacheAddrOffsets [axiRId_q];
-    paramDataLength <= pCacheDataLengths [axiRId_q];
+    paramSmiTag <= pCacheSmiTags [axiRBufId];
+    paramAddrOffset <= pCacheAddrOffsets [axiRBufId];
+    paramDataLength <= pCacheDataLengths [axiRBufId];
   end
 end
 
@@ -367,7 +357,7 @@ assign axiARLenBuf = (smiReqData_q [111:96] - 16'd1 +
 // Buffer the AXI read address output using a toggle buffer.
 always @(posedge clk)
 begin
-  if (srst)
+  if (axiReset)
   begin
     axiARValid_q <= 1'b0;
     axiARLen_q <= 8'd0;
@@ -397,7 +387,7 @@ assign axiARSize = DataIndexSize [2:0];
 
 // Combinatorial logic for read response processing state machine.
 always @(responseState_q, responseStatus_q, axiIdInit_q, readIdFifoInput_q,
-  axiRCtrlValid, axiRId_q, axiRResp_q, axiRLast_q, packSetupStop, headerStop)
+  axiRCtrlValid, axiRBufId, axiRBufResp, axiRBufLast, packSetupStop, headerStop)
 begin
 
   // Hold current state by default.
@@ -428,7 +418,7 @@ begin
     // Set the data packing parameters.
     ResponseSetPacking :
     begin
-      axiRCtrlHalt = axiRLast_q;
+      axiRCtrlHalt = axiRBufLast;
       packSetupValid = 1'b1;
       if (~packSetupStop)
         responseState_d = ResponseSetHeader;
@@ -437,7 +427,7 @@ begin
     // Set the header parameters.
     ResponseSetHeader :
     begin
-      axiRCtrlHalt = axiRLast_q;
+      axiRCtrlHalt = axiRBufLast;
       headerValid = 1'b1;
       if (~headerStop)
         responseState_d = ResponseDrain;
@@ -447,7 +437,7 @@ begin
     ResponseDrain :
     begin
       axiRCtrlHalt = 1'b0;
-      if (axiRCtrlValid & axiRLast_q)
+      if (axiRCtrlValid & axiRBufLast)
         responseState_d = ResponseIdle;
     end
 
@@ -455,9 +445,9 @@ begin
     default :
     begin
       pCacheRead = 1'b1;
-      axiRCtrlHalt = axiRLast_q;
-      responseStatus_d = axiRResp_q;
-      readIdFifoInput_d = axiRId_q;
+      axiRCtrlHalt = 1'b0;
+      responseStatus_d = axiRBufResp;
+      readIdFifoInput_d = axiRBufId;
       if (axiRCtrlValid)
       begin
         responseState_d = ResponseSetPacking;
@@ -498,7 +488,7 @@ assign headerData = { paramSmiTag, 6'd0, responseStatus_q, `READ_RESP_ID_BYTE };
 // Implement flit byte packing on the read data bus.
 smiFlitDataPack #(DataWidth/8, FifoSize, FifoIndexSize) flitDataPack
   (packSetupValid, paramAddrOffset, paramDataLength, packSetupStop,
-  axiRDataValid, axiRData_q, axiRLast_q, axiRDataHalt, dataFrameReady,
+  axiRDataValid, axiRBufData, axiRBufLast, axiRDataHalt, dataFrameReady,
   dataFrameEofc, dataFrameData, dataFrameStop, clk, srst);
 
 // Implement read frame header injection.

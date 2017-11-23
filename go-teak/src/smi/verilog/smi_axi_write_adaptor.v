@@ -30,7 +30,7 @@ module smiAxiWriteAdaptor
   (smiReqReady, smiReqEofc, smiReqData, smiReqStop, smiRespReady, smiRespEofc,
   smiRespData, smiRespStop, axiAWValid, axiAWReady, axiAWId, axiAWAddr,
   axiAWLen, axiAWSize, axiWValid, axiWReady, axiWData, axiWStrb, axiWLast,
-  axiBValid, axiBReady, axiBId, axiBResp, clk, srst);
+  axiBValid, axiBReady, axiBId, axiBResp, axiReset, clk, srst);
 
 // Specifies the number of bits required to address individual bytes within the
 // AXI data signal. This also determines the width of the data signal.
@@ -69,6 +69,7 @@ parameter [1:0]
 // Specifies the clock and active high synchronous reset signals.
 input clk;
 input srst;
+input axiReset;
 
 // Specifies the 'upstream' scalable memory interface ports.
 input                 smiReqReady;
@@ -101,10 +102,10 @@ input [AxiIdWidth-1:0] axiBId;
 input [1:0]            axiBResp;
 
 // Specifies the AXI write response input registers.
-reg                  axiBValid_q;
-reg [AxiIdWidth-1:0] axiBId_q;
-reg [1:0]            axiBResp_q;
-reg                  axiBHalt;
+wire                  axiBBufValid;
+wire [AxiIdWidth-1:0] axiBBufId;
+wire [1:0]            axiBBufResp;
+reg                   axiBBufStop;
 
 // Specifies the buffered AXI address signals.
 reg         axiAWBufValid;
@@ -167,6 +168,13 @@ reg          headerStop;
 reg          byteOffsetReady;
 wire         byteOffsetStop;
 
+// Specifies the signals used for the AXI write buffer.
+wire                   axiWBufValid;
+wire                   axiWBufStop;
+wire [DataWidth-1:0]   axiWBufData;
+wire [DataWidth/8-1:0] axiWBufStrb;
+wire                   axiWBufLast;
+
 // Specifies the signals used for the response buffer.
 reg                   smiBufRespReady;
 wire                  smiBufRespStop;
@@ -179,27 +187,10 @@ reg [1:0]  smiRespStatus_q;
 // Miscellaneous signals.
 integer i;
 
-// Implement resettable AXI response control registers.
-always @(posedge clk)
-begin
-  if (srst)
-    axiBValid_q <= 1'b0;
-  else if (~(axiBValid_q & axiBHalt))
-    axiBValid_q <= axiBValid;
-end
-
-// Implement non-resettable AXI response registers.
-always @(posedge clk)
-begin
-  if (~(axiBValid_q & axiBHalt))
-  begin
-    axiBId_q <= axiBId;
-    axiBResp_q <= axiBResp;
-  end
-end
-
-// Assign AXI response ready output.
-assign axiBReady = ~(axiBValid_q & axiBHalt);
+// Instantiate AXI response data input buffer.
+axiInputBuffer #(AxiIdWidth+2) axiReadBuffer
+  (axiBValid, {axiBId, axiBResp}, axiBReady, axiBBufValid,
+  {axiBBufId, axiBBufResp}, axiBBufStop, clk, axiReset);
 
 // Implement combinatorial logic for write ID tracking FIFO.
 always @(writeIdFifoEmpty_q, writeIdFifoIndex_q, writeIdFifoPush_q, writeIdFifoPop)
@@ -268,7 +259,7 @@ begin
   end
   if (pCacheRead)
   begin
-    paramSmiTag <= pCacheSmiTags [axiBId_q];
+    paramSmiTag <= pCacheSmiTags [axiBBufId];
   end
 end
 
@@ -346,7 +337,7 @@ assign axiAWLenBuf = (headerData [111:96] - 16'd1 +
 // Buffer the AXI write address output using a toggle buffer.
 always @(posedge clk)
 begin
-  if (srst)
+  if (axiReset)
   begin
     axiAWValid_q <= 1'b0;
     axiAWLen_q <= 8'd0;
@@ -376,8 +367,7 @@ assign axiAWSize = DataIndexSize [2:0];
 
 // Combinatorial logic for write response processing state machine.
 always @(responseState_q, responseStatus_q, axiIdInit_q, writeIdFifoInput_q,
-  axiBValid_q,
-  axiBId_q, axiBResp_q, smiBufRespStop)
+  axiBBufValid, axiBBufId, axiBBufResp, smiBufRespStop)
 begin
 
   // Hold current state by default.
@@ -387,7 +377,7 @@ begin
   writeIdFifoPush_d = 1'b0;
   writeIdFifoInput_d = writeIdFifoInput_q;
   pCacheRead = 1'b0;
-  axiBHalt = 1'b1;
+  axiBBufStop = 1'b1;
   smiBufRespReady = 1'b0;
 
   // Implement state machine.
@@ -416,10 +406,10 @@ begin
     default :
     begin
       pCacheRead = 1'b1;
-      axiBHalt = 1'b0;
-      responseStatus_d = axiBResp_q;
-      writeIdFifoInput_d = axiBId_q;
-      if (axiBValid_q)
+      axiBBufStop = 1'b0;
+      responseStatus_d = axiBBufResp;
+      writeIdFifoInput_d = axiBBufId;
+      if (axiBBufValid)
       begin
         responseState_d = ResponseSend;
         writeIdFifoPush_d = 1'b1;
@@ -489,7 +479,12 @@ smiHeaderExtractSf #(DataWidth/8, 14, FifoSize, FifoIndexSize) headerExtraction
 // Perform byte lane alignment on the data frame.
 smiByteDataAlign #(DataWidth/8, FifoSize, FifoIndexSize) byteAlignment
   (byteOffsetReady, byteOffset_q, byteOffsetStop, dataFrameReady, dataFrameEofc,
-  dataFrameData, dataFrameStop, axiWValid, axiWData, axiWStrb, axiWLast,
-  ~axiWReady, clk, srst);
+  dataFrameData, dataFrameStop, axiWBufValid, axiWBufData, axiWBufStrb, axiWBufLast,
+  axiWBufStop, clk, srst);
+
+// Add resettable AXI output buffer on all write data signals.
+axiOutputBuffer #(DataWidth+DataWidth/8+1) axiWriteBuffer
+  (axiWBufValid, {axiWBufLast, axiWBufStrb, axiWBufData}, axiWBufStop, axiWValid,
+  {axiWLast, axiWStrb, axiWData}, axiWReady, clk, axiReset);
 
 endmodule
