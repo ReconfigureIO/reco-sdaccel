@@ -158,6 +158,7 @@ wire reg_done_valid;
 wire reg_done_stop;
 wire kernel_reset;
 wire wrapper_reset;
+wire axi_reset;
 
 // AXI control interface master write address signals.
 wire [`AXI_SLAVE_ADDR_WIDTH-1:0] m_axi_control_AWADDR;
@@ -284,6 +285,8 @@ sda_kernel_reset_handler resetHandler_u
   go_0Stop, done_0Ready, done_0Stop, ~ap_rst_n, wrapper_reset, kernel_reset,
   ap_clk);
 
+assign axi_reset = ~ap_rst_n | wrapper_reset;
+
 // Instantiate the AXI slave register selection component.
 sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, `AXI_PARAM_MEM_ADDR_WIDTH,
   (1 << `AXI_PARAM_MEM_ADDR_WIDTH)-1) kernelCtrlRegSel_u
@@ -359,7 +362,8 @@ smiAxiBusAdaptor #(`AXI_MASTER_DATA_INDEX_WIDTH, `AXI_MASTER_ID_WIDTH) smiAxiAda
   .axiWData(m_axi_gmem_WDATA), .axiWStrb(m_axi_gmem_WSTRB),
   .axiWLast(m_axi_gmem_WLAST), .axiBValid(m_axi_gmem_BVALID),
   .axiBReady(m_axi_gmem_BREADY), .axiBId(m_axi_gmem_BID),
-  .axiBResp(m_axi_gmem_BRESP), .clk(ap_clk), .srst(wrapper_reset));
+  .axiBResp(m_axi_gmem_BRESP), .axiReset(axi_reset), .clk(ap_clk),
+  .srst(wrapper_reset));
 
 // Instantiate the simple generated action logic core.
 teak__action__top__gmem kernelActionTop_u
@@ -374,23 +378,15 @@ teak__action__top__gmem kernelActionTop_u
   .s_axi_wdata(m_axi_control_WDATA), .s_axi_wstrb(m_axi_control_WSTRB),
   .s_axi_wvalid(m_axi_control_WVALID), .s_axi_wready(m_axi_control_WREADY),
   .s_axi_bresp(m_axi_control_BRESP), .s_axi_bvalid(m_axi_control_BVALID),
-  .s_axi_bready(m_axi_control_BREADY),
-
-  .smiportareq_0Ready(smi_port_a_req_ready),
-
+  .s_axi_bready(m_axi_control_BREADY), .smiportareq_0Ready(smi_port_a_req_ready),
   .smiportareq_0Data({smi_port_a_req_eofc, smi_port_a_req_data}),
   .smiportareq_0Stop(smi_port_a_req_stop), .smiportaresp_0Ready(smi_port_a_resp_ready),
-
   .smiportaresp_0Data({smi_port_a_resp_eofc, smi_port_a_resp_data}),
   .smiportaresp_0Stop(smi_port_a_resp_stop), .smiportbreq_0Ready(smi_port_b_req_ready),
-
   .smiportbreq_0Data({smi_port_b_req_eofc, smi_port_b_req_data}),
   .smiportbreq_0Stop(smi_port_b_req_stop), .smiportbresp_0Ready(smi_port_b_resp_ready),
-
   .smiportbresp_0Data({smi_port_b_resp_eofc, smi_port_b_resp_data}),
-  .smiportbresp_0Stop(smi_port_b_resp_stop),
-
-  .paramaddr_0Ready(param_addr_valid),
+  .smiportbresp_0Stop(smi_port_b_resp_stop), .paramaddr_0Ready(param_addr_valid),
   .paramaddr_0Data(param_addr), .paramaddr_0Stop(param_addr_stop),
   .paramdata_0Ready(param_data_valid), .paramdata_0Data(param_data),
   .paramdata_0Stop(param_data_stop), .clk(ap_clk), .reset(kernel_reset));
