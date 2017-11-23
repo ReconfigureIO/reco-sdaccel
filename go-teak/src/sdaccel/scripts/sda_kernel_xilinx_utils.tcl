@@ -218,9 +218,9 @@ set Interfaces {
         type "native_axim"
         mode "master"
         port_prefix "m_axi_gmem"
-        data_width "64"
+        data_width "128"
         param_prefix "C_M_AXI_GMEM"
-        port_width "AWADDR 64 AWID 1 AWUSER 1 WDATA 64 WSTRB 8 WID 1 WUSER 1 ARADDR 64 ARID 1 ARUSER 1 RDATA 64 RID 1 RUSER 1 BID 1 BUSER 1"
+        port_width "AWADDR 64 AWID 1 AWUSER 1 WDATA 128 WSTRB 16 WID 1 WUSER 1 ARADDR 64 ARID 1 ARUSER 1 RDATA 128 RID 1 RUSER 1 BID 1 BUSER 1"
         ctype {
             AWLEN {
                 Type "integer unsigned"
@@ -389,13 +389,13 @@ set Interfaces {
             }
             WDATA {
                 Type "integer unsigned"
-                Width "64"
-                Bits "64"
+                Width "128"
+                Bits "128"
             }
             WSTRB {
                 Type "integer unsigned"
-                Width "8"
-                Bits "8"
+                Width "16"
+                Bits "16"
             }
             WID {
                 Type "integer unsigned"
@@ -424,8 +424,8 @@ set Interfaces {
             }
             RDATA {
                 Type "integer unsigned"
-                Width "64"
-                Bits "64"
+                Width "128"
+                Bits "128"
             }
             RID {
                 Type "integer unsigned"
@@ -452,10 +452,10 @@ set Interfaces {
         preferred_usage_value "MEMORY"
         has_dependant_on "0"
         offset_slave_name ""
-        NUM_READ_OUTSTANDING "16"
-        NUM_WRITE_OUTSTANDING "16"
-        MAX_READ_BURST_LENGTH "64"
-        MAX_WRITE_BURST_LENGTH "64"
+        NUM_READ_OUTSTANDING "8"
+        NUM_WRITE_OUTSTANDING "8"
+        MAX_READ_BURST_LENGTH "32"
+        MAX_WRITE_BURST_LENGTH "32"
     }
 }
 
