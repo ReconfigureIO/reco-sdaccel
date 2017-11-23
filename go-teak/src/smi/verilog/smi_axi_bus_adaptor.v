@@ -33,7 +33,7 @@ module smiAxiBusAdaptor
   axiARLen, axiARSize, axiRValid, axiRReady, axiRId, axiRData, axiRResp,
   axiRLast, axiAWValid, axiAWReady, axiAWId, axiAWAddr, axiAWLen, axiAWSize,
   axiWValid, axiWReady, axiWData, axiWStrb, axiWLast, axiBValid, axiBReady,
-  axiBId, axiBResp, clk, srst);
+  axiBId, axiBResp, axiReset, clk, srst);
 
 // Specifies the number of bits required to address individual bytes within the
 // AXI data signal. This also determines the width of the data signal. Minimum
@@ -61,6 +61,7 @@ parameter MaxReadIds = (1 << AxiIdWidth);
 // Specifies the clock and active high synchronous reset signals.
 input clk;
 input srst;
+input axiReset;
 
 // Specifies the 'upstream' combined read and write ports.
 input                   smiReqReady;
@@ -149,13 +150,13 @@ smiAxiReadAdaptor #(DataIndexSize, AxiIdWidth, FifoSize, FifoIndexSize) readAdap
   (readReqReady, readReqEofc, readReqData, readReqStop, readRespReady,
   readRespEofc, readRespData, readRespStop, axiARValid, axiARReady, axiARId,
   axiARAddr, axiARLen, axiARSize, axiRValid, axiRReady, axiRId, axiRData,
-  axiRResp, axiRLast, clk, srst);
+  axiRResp, axiRLast, axiReset, clk, srst);
 
 // Instantiate the AXI write adaptor.
 smiAxiWriteAdaptor #(DataIndexSize, AxiIdWidth, FifoSize, FifoIndexSize) writeAdaptor
   (writeReqReady, writeReqEofc, writeReqData, writeReqStop, writeRespReady,
   writeRespEofc, writeRespData, writeRespStop, axiAWValid, axiAWReady, axiAWId,
   axiAWAddr, axiAWLen, axiAWSize, axiWValid, axiWReady, axiWData, axiWStrb,
-  axiWLast, axiBValid, axiBReady, axiBId, axiBResp, clk, srst);
+  axiWLast, axiBValid, axiBReady, axiBId, axiBResp, axiReset, clk, srst);
 
 endmodule
