@@ -257,15 +257,15 @@ wire [31:0] m_axi_control_ext_ARADDR;
 
 // Tie off unused control interface signals.
 assign m_axi_control_AWCACHE = 4'b0000;
-assign m_axi_control_AWPROT = 3'b010;
+assign m_axi_control_AWPROT = 3'b000;
 assign m_axi_control_ARCACHE = 4'b0000;
-assign m_axi_control_ARPROT = 3'b010;
+assign m_axi_control_ARPROT = 3'b000;
 
 // Tie off unused or fixed value AXI memory master signals.
 assign m_axi_gmem_AWBURST = 2'b01;
 assign m_axi_gmem_AWLOCK = 2'b00;
 assign m_axi_gmem_AWCACHE = 4'b0011;
-assign m_axi_gmem_AWPROT = 3'b010;
+assign m_axi_gmem_AWPROT = 3'b000;
 assign m_axi_gmem_AWQOS = 4'b0000;
 assign m_axi_gmem_AWREGION = 4'b0000;
 assign m_axi_gmem_AWUSER = 0;
@@ -274,7 +274,7 @@ assign m_axi_gmem_WUSER = 0;
 assign m_axi_gmem_ARBURST = 2'b01;
 assign m_axi_gmem_ARLOCK = 2'b00;
 assign m_axi_gmem_ARCACHE = 4'b0011;
-assign m_axi_gmem_ARPROT = 3'b010;
+assign m_axi_gmem_ARPROT = 3'b000;
 assign m_axi_gmem_ARQOS = 4'b0000;
 assign m_axi_gmem_ARREGION = 4'b0000;
 assign m_axi_gmem_ARUSER = 0;
