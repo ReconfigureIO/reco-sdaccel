@@ -14,10 +14,26 @@ package protocol
 // Constants specifying the supported SMI frame type bytes.
 //
 const (
-	SmiMemWriteReq  = 0x01
-	SmiMemWriteResp = 0xFE
-	SmiMemReadReq   = 0x02
-	SmiMemReadResp  = 0xFD
+	SmiMemWriteReq  = 0x01 // SMI memory write request.
+	SmiMemWriteResp = 0xFE // SMI memory write response.
+	SmiMemReadReq   = 0x02 // SMI memory read request.
+	SmiMemReadResp  = 0xFD // SMI memory read response.
+)
+
+//
+// Constants specifying the supported SMI memory write options.
+//
+const (
+	SmiMemWriteOptDefault = 0x00 // Use default buffered write options.
+	SmiMemWriteOptDirect  = 0x01 // Perform direct unbuffered write.
+)
+
+//
+// Constants specifying the supported SMI memory read options.
+//
+const (
+	SmiMemReadOptDefault = 0x00 // Use default buffered read options.
+	SmiMemReadOptDirect  = 0x01 // Perform direct unbuffered read.
 )
 
 //

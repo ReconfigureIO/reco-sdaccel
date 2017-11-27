@@ -31,6 +31,7 @@ func WriteUInt64(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddr uintptr,
+	writeOptions uint8,
 	writeData uint64) bool {
 
 	// Assemble the request message.
@@ -38,7 +39,7 @@ func WriteUInt64(
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemWriteReq),
-			uint8(0),
+			uint8(writeOptions),
 			uint8(0),
 			uint8(0),
 			uint8(writeAddr) & 0xF8,
@@ -96,6 +97,7 @@ func WriteUInt32(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddr uintptr,
+	writeOptions uint8,
 	writeData uint32) bool {
 
 	// Assemble the request message.
@@ -103,7 +105,7 @@ func WriteUInt32(
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemWriteReq),
-			uint8(0),
+			uint8(writeOptions),
 			uint8(0),
 			uint8(0),
 			uint8(writeAddr) & 0xFC,
@@ -161,6 +163,7 @@ func WriteUInt16(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddr uintptr,
+	writeOptions uint8,
 	writeData uint16) bool {
 
 	// Assemble the request message.
@@ -168,7 +171,7 @@ func WriteUInt16(
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemWriteReq),
-			uint8(0),
+			uint8(writeOptions),
 			uint8(0),
 			uint8(0),
 			uint8(writeAddr) & 0xFE,
@@ -212,6 +215,7 @@ func WriteUInt8(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddr uintptr,
+	writeOptions uint8,
 	writeData uint8) bool {
 
 	// Assemble the request message.
@@ -219,7 +223,7 @@ func WriteUInt8(
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemWriteReq),
-			uint8(0),
+			uint8(writeOptions),
 			uint8(0),
 			uint8(0),
 			uint8(writeAddr),
@@ -264,14 +268,15 @@ func WriteUInt8(
 func ReadUInt64(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
-	readAddr uintptr) uint64 {
+	readAddr uintptr,
+	readOptions uint8) uint64 {
 
 	// Assemble the request message.
 	reqFlit1 := protocol.Flit64{
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemReadReq),
-			uint8(0),
+			uint8(readOptions),
 			uint8(0),
 			uint8(0),
 			uint8(readAddr) & 0xF8,
@@ -319,14 +324,15 @@ func ReadUInt64(
 func ReadUInt32(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
-	readAddr uintptr) uint32 {
+	readAddr uintptr,
+	readOptions uint8) uint32 {
 
 	// Assemble the request message.
 	reqFlit1 := protocol.Flit64{
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemReadReq),
-			uint8(0),
+			uint8(readOptions),
 			uint8(0),
 			uint8(0),
 			uint8(readAddr) & 0xFC,
@@ -369,14 +375,15 @@ func ReadUInt32(
 func ReadUInt16(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
-	readAddr uintptr) uint16 {
+	readAddr uintptr,
+	readOptions uint8) uint16 {
 
 	// Assemble the request message.
 	reqFlit1 := protocol.Flit64{
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemReadReq),
-			uint8(0),
+			uint8(readOptions),
 			uint8(0),
 			uint8(0),
 			uint8(readAddr) & 0xFE,
@@ -416,14 +423,15 @@ func ReadUInt16(
 func ReadUInt8(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
-	readAddr uintptr) uint8 {
+	readAddr uintptr,
+	readOptions uint8) uint8 {
 
 	// Assemble the request message.
 	reqFlit1 := protocol.Flit64{
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemReadReq),
-			uint8(0),
+			uint8(readOptions),
 			uint8(0),
 			uint8(0),
 			uint8(readAddr),
@@ -462,6 +470,7 @@ func writeSingleBurstUInt64(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddr uintptr,
+	writeOptions uint8,
 	writeLength uint16,
 	writeDataChan <-chan uint64) bool {
 
@@ -470,7 +479,7 @@ func writeSingleBurstUInt64(
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemWriteReq),
-			uint8(0),
+			uint8(writeOptions),
 			uint8(0),
 			uint8(0),
 			uint8(writeAddr),
@@ -546,6 +555,7 @@ func writeSingleBurstUInt32(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddr uintptr,
+	writeOptions uint8,
 	writeLength uint16,
 	writeDataChan <-chan uint32) bool {
 
@@ -554,7 +564,7 @@ func writeSingleBurstUInt32(
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemWriteReq),
-			uint8(0),
+			uint8(writeOptions),
 			uint8(0),
 			uint8(0),
 			uint8(writeAddr),
@@ -636,6 +646,7 @@ func writeSingleBurstUInt16(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddr uintptr,
+	writeOptions uint8,
 	writeLength uint16,
 	writeDataChan <-chan uint16) bool {
 
@@ -644,7 +655,7 @@ func writeSingleBurstUInt16(
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemWriteReq),
-			uint8(0),
+			uint8(writeOptions),
 			uint8(0),
 			uint8(0),
 			uint8(writeAddr),
@@ -718,6 +729,7 @@ func writeSingleBurstUInt8(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddr uintptr,
+	writeOptions uint8,
 	writeLength uint16,
 	writeDataChan <-chan uint8) bool {
 
@@ -726,7 +738,7 @@ func writeSingleBurstUInt8(
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemWriteReq),
-			uint8(0),
+			uint8(writeOptions),
 			uint8(0),
 			uint8(0),
 			uint8(writeAddr),
@@ -815,6 +827,7 @@ func WritePagedBurstUInt64(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddrIn uintptr,
+	writeOptions uint8,
 	writeLengthIn uint16,
 	writeDataChan <-chan uint64) bool {
 
@@ -824,7 +837,7 @@ func WritePagedBurstUInt64(
 	writeLength := writeLengthIn << 3
 
 	return writeSingleBurstUInt64(
-		smiRequest, smiResponse, writeAddr, writeLength, writeDataChan)
+		smiRequest, smiResponse, writeAddr, writeOptions, writeLength, writeDataChan)
 }
 
 //
@@ -842,6 +855,7 @@ func WritePagedBurstUInt32(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddrIn uintptr,
+	writeOptions uint8,
 	writeLengthIn uint16,
 	writeDataChan <-chan uint32) bool {
 
@@ -851,7 +865,7 @@ func WritePagedBurstUInt32(
 	writeLength := writeLengthIn << 2
 
 	return writeSingleBurstUInt32(
-		smiRequest, smiResponse, writeAddr, writeLength, writeDataChan)
+		smiRequest, smiResponse, writeAddr, writeOptions, writeLength, writeDataChan)
 }
 
 //
@@ -869,6 +883,7 @@ func WritePagedBurstUInt16(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddrIn uintptr,
+	writeOptions uint8,
 	writeLengthIn uint16,
 	writeDataChan <-chan uint16) bool {
 
@@ -878,7 +893,7 @@ func WritePagedBurstUInt16(
 	writeLength := writeLengthIn << 1
 
 	return writeSingleBurstUInt16(
-		smiRequest, smiResponse, writeAddr, writeLength, writeDataChan)
+		smiRequest, smiResponse, writeAddr, writeOptions, writeLength, writeDataChan)
 }
 
 //
@@ -894,13 +909,14 @@ func WritePagedBurstUInt8(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddrIn uintptr,
+	writeOptions uint8,
 	writeLengthIn uint16,
 	writeDataChan <-chan uint8) bool {
 
 	// TODO: Page boundary validation.
 
 	return writeSingleBurstUInt8(
-		smiRequest, smiResponse, writeAddrIn, writeLengthIn, writeDataChan)
+		smiRequest, smiResponse, writeAddrIn, writeOptions, writeLengthIn, writeDataChan)
 }
 
 //
@@ -918,6 +934,7 @@ func WriteBurstUInt64(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddrIn uintptr,
+	writeOptions uint8,
 	writeLengthIn uint16,
 	writeDataChan <-chan uint64) bool {
 
@@ -934,7 +951,7 @@ func WriteBurstUInt64(
 			burstSize = writeLength
 		}
 		writeOk = writeOk && writeSingleBurstUInt64(
-			smiWriteChan, smiResponse, writeAddr, burstSize, writeDataChan)
+			smiWriteChan, smiResponse, writeAddr, writeOptions, burstSize, writeDataChan)
 		writeAddr += uintptr(burstSize)
 		writeLength -= burstSize
 		burstSize = uint16(protocol.SmiMemBurstSize)
@@ -957,6 +974,7 @@ func WriteBurstUInt32(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddrIn uintptr,
+	writeOptions uint8,
 	writeLengthIn uint16,
 	writeDataChan <-chan uint32) bool {
 
@@ -973,7 +991,7 @@ func WriteBurstUInt32(
 			burstSize = writeLength
 		}
 		writeOk = writeOk && writeSingleBurstUInt32(
-			smiWriteChan, smiResponse, writeAddr, burstSize, writeDataChan)
+			smiWriteChan, smiResponse, writeAddr, writeOptions, burstSize, writeDataChan)
 		writeAddr += uintptr(burstSize)
 		writeLength -= burstSize
 		burstSize = uint16(protocol.SmiMemBurstSize)
@@ -996,6 +1014,7 @@ func WriteBurstUInt16(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddrIn uintptr,
+	writeOptions uint8,
 	writeLengthIn uint16,
 	writeDataChan <-chan uint16) bool {
 
@@ -1012,7 +1031,7 @@ func WriteBurstUInt16(
 			burstSize = writeLength
 		}
 		writeOk = writeOk && writeSingleBurstUInt16(
-			smiWriteChan, smiResponse, writeAddr, burstSize, writeDataChan)
+			smiWriteChan, smiResponse, writeAddr, writeOptions, burstSize, writeDataChan)
 		writeAddr += uintptr(burstSize)
 		writeLength -= burstSize
 		burstSize = uint16(protocol.SmiMemBurstSize)
@@ -1033,6 +1052,7 @@ func WriteBurstUInt8(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	writeAddrIn uintptr,
+	writeOptions uint8,
 	writeLengthIn uint16,
 	writeDataChan <-chan uint8) bool {
 
@@ -1049,7 +1069,7 @@ func WriteBurstUInt8(
 			burstSize = writeLength
 		}
 		writeOk = writeOk && writeSingleBurstUInt8(
-			smiWriteChan, smiResponse, writeAddr, burstSize, writeDataChan)
+			smiWriteChan, smiResponse, writeAddr, writeOptions, burstSize, writeDataChan)
 		writeAddr += uintptr(burstSize)
 		writeLength -= burstSize
 		burstSize = uint16(protocol.SmiMemBurstSize)
@@ -1066,6 +1086,7 @@ func readSingleBurstUInt64(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	readAddr uintptr,
+	readOptions uint8,
 	readLength uint16,
 	readDataChan chan<- uint64) bool {
 
@@ -1074,7 +1095,7 @@ func readSingleBurstUInt64(
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemReadReq),
-			uint8(0),
+			uint8(readOptions),
 			uint8(0),
 			uint8(0),
 			uint8(readAddr),
@@ -1147,6 +1168,7 @@ func readSingleBurstUInt32(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	readAddr uintptr,
+	readOptions uint8,
 	readLength uint16,
 	readDataChan chan<- uint32) bool {
 
@@ -1155,7 +1177,7 @@ func readSingleBurstUInt32(
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemReadReq),
-			uint8(0),
+			uint8(readOptions),
 			uint8(0),
 			uint8(0),
 			uint8(readAddr),
@@ -1234,6 +1256,7 @@ func readSingleBurstUInt16(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	readAddr uintptr,
+	readOptions uint8,
 	readLength uint16,
 	readDataChan chan<- uint16) bool {
 
@@ -1242,7 +1265,7 @@ func readSingleBurstUInt16(
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemReadReq),
-			uint8(0),
+			uint8(readOptions),
 			uint8(0),
 			uint8(0),
 			uint8(readAddr),
@@ -1331,6 +1354,7 @@ func readSingleBurstUInt8(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	readAddr uintptr,
+	readOptions uint8,
 	readLength uint16,
 	readDataChan chan<- uint8) bool {
 
@@ -1339,7 +1363,7 @@ func readSingleBurstUInt8(
 		Eofc: 0,
 		Data: [8]uint8{
 			uint8(protocol.SmiMemReadReq),
-			uint8(0),
+			uint8(readOptions),
 			uint8(0),
 			uint8(0),
 			uint8(readAddr),
@@ -1442,6 +1466,7 @@ func ReadPagedBurstUInt64(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	readAddrIn uintptr,
+	readOptions uint8,
 	readLengthIn uint16,
 	readDataChan chan<- uint64) bool {
 
@@ -1451,7 +1476,7 @@ func ReadPagedBurstUInt64(
 	readLength := readLengthIn << 3
 
 	return readSingleBurstUInt64(
-		smiRequest, smiResponse, readAddr, readLength, readDataChan)
+		smiRequest, smiResponse, readAddr, readOptions, readLength, readDataChan)
 }
 
 //
@@ -1469,6 +1494,7 @@ func ReadPagedBurstUInt32(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	readAddrIn uintptr,
+	readOptions uint8,
 	readLengthIn uint16,
 	readDataChan chan<- uint32) bool {
 
@@ -1478,7 +1504,7 @@ func ReadPagedBurstUInt32(
 	readLength := readLengthIn << 2
 
 	return readSingleBurstUInt32(
-		smiRequest, smiResponse, readAddr, readLength, readDataChan)
+		smiRequest, smiResponse, readAddr, readOptions, readLength, readDataChan)
 }
 
 //
@@ -1496,6 +1522,7 @@ func ReadPagedBurstUInt16(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	readAddrIn uintptr,
+	readOptions uint8,
 	readLengthIn uint16,
 	readDataChan chan<- uint16) bool {
 
@@ -1505,7 +1532,7 @@ func ReadPagedBurstUInt16(
 	readLength := readLengthIn << 1
 
 	return readSingleBurstUInt16(
-		smiRequest, smiResponse, readAddr, readLength, readDataChan)
+		smiRequest, smiResponse, readAddr, readOptions, readLength, readDataChan)
 }
 
 //
@@ -1521,13 +1548,14 @@ func ReadPagedBurstUInt8(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	readAddrIn uintptr,
+	readOptions uint8,
 	readLengthIn uint16,
 	readDataChan chan<- uint8) bool {
 
 	// TODO: Page boundary validation.
 
 	return readSingleBurstUInt8(
-		smiRequest, smiResponse, readAddrIn, readLengthIn, readDataChan)
+		smiRequest, smiResponse, readAddrIn, readOptions, readLengthIn, readDataChan)
 }
 
 //
@@ -1545,6 +1573,7 @@ func ReadBurstUInt64(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	readAddrIn uintptr,
+	readOptions uint8,
 	readLengthIn uint16,
 	readDataChan <-chan uint64) bool {
 
@@ -1561,7 +1590,7 @@ func ReadBurstUInt64(
 			burstSize = readLength
 		}
 		readOk = readOk && readSingleBurstUInt64(
-			smiRequest, smiReadChan, readAddr, burstSize, readDataChan)
+			smiRequest, smiReadChan, readAddr, readOptions, burstSize, readDataChan)
 		readAddr += uintptr(burstSize)
 		readLength -= burstSize
 		burstSize = uint16(protocol.SmiMemBurstSize)
@@ -1584,6 +1613,7 @@ func ReadBurstUInt32(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	readAddrIn uintptr,
+	readOptions uint8,
 	readLengthIn uint16,
 	readDataChan <-chan uint32) bool {
 
@@ -1600,7 +1630,7 @@ func ReadBurstUInt32(
 			burstSize = readLength
 		}
 		readOk = readOk && readSingleBurstUInt32(
-			smiRequest, smiReadChan, readAddr, burstSize, readDataChan)
+			smiRequest, smiReadChan, readAddr, readOptions, burstSize, readDataChan)
 		readAddr += uintptr(burstSize)
 		readLength -= burstSize
 		burstSize = uint16(protocol.SmiMemBurstSize)
@@ -1623,6 +1653,7 @@ func ReadBurstUInt16(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	readAddrIn uintptr,
+	readOptions uint8,
 	readLengthIn uint16,
 	readDataChan <-chan uint16) bool {
 
@@ -1639,7 +1670,7 @@ func ReadBurstUInt16(
 			burstSize = readLength
 		}
 		readOk = readOk && readSingleBurstUInt16(
-			smiRequest, smiReadChan, readAddr, burstSize, readDataChan)
+			smiRequest, smiReadChan, readAddr, readOptions, burstSize, readDataChan)
 		readAddr += uintptr(burstSize)
 		readLength -= burstSize
 		burstSize = uint16(protocol.SmiMemBurstSize)
@@ -1660,6 +1691,7 @@ func ReadBurstUInt8(
 	smiRequest chan<- protocol.Flit64,
 	smiResponse <-chan protocol.Flit64,
 	readAddrIn uintptr,
+	readOptions uint8,
 	readLengthIn uint16,
 	readDataChan <-chan uint8) bool {
 
@@ -1676,7 +1708,7 @@ func ReadBurstUInt8(
 			burstSize = readLength
 		}
 		readOk = readOk && readSingleBurstUInt8(
-			smiRequest, smiReadChan, readAddr, burstSize, readDataChan)
+			smiRequest, smiReadChan, readAddr, readOptions, burstSize, readDataChan)
 		readAddr += uintptr(burstSize)
 		readLength -= burstSize
 		burstSize = uint16(protocol.SmiMemBurstSize)
