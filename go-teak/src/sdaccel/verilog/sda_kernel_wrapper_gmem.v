@@ -264,7 +264,6 @@ assign m_axi_control_ARPROT = 3'b000;
 // Tie off unused or fixed value AXI memory master signals.
 assign m_axi_gmem_AWBURST = 2'b01;
 assign m_axi_gmem_AWLOCK = 2'b00;
-assign m_axi_gmem_AWCACHE = 4'b0011;
 assign m_axi_gmem_AWPROT = 3'b000;
 assign m_axi_gmem_AWQOS = 4'b0000;
 assign m_axi_gmem_AWREGION = 4'b0000;
@@ -273,7 +272,6 @@ assign m_axi_gmem_WID = 0;
 assign m_axi_gmem_WUSER = 0;
 assign m_axi_gmem_ARBURST = 2'b01;
 assign m_axi_gmem_ARLOCK = 2'b00;
-assign m_axi_gmem_ARCACHE = 4'b0011;
 assign m_axi_gmem_ARPROT = 3'b000;
 assign m_axi_gmem_ARQOS = 4'b0000;
 assign m_axi_gmem_ARREGION = 4'b0000;
@@ -352,12 +350,13 @@ smiAxiBusAdaptor #(`AXI_MASTER_DATA_INDEX_WIDTH, `AXI_MASTER_ID_WIDTH) smiAxiAda
   .axiARValid(m_axi_gmem_ARVALID), .axiARReady(m_axi_gmem_ARREADY),
   .axiARId(m_axi_gmem_ARID), .axiARAddr(m_axi_gmem_ARADDR),
   .axiARLen(m_axi_gmem_ARLEN), .axiARSize(m_axi_gmem_ARSIZE),
-  .axiRValid(m_axi_gmem_RVALID), .axiRReady(m_axi_gmem_RREADY),
-  .axiRId(m_axi_gmem_RID), .axiRData(m_axi_gmem_RDATA),
-  .axiRResp(m_axi_gmem_RRESP), .axiRLast(m_axi_gmem_RLAST),
-  .axiAWValid(m_axi_gmem_AWVALID), .axiAWReady(m_axi_gmem_AWREADY),
-  .axiAWId(m_axi_gmem_AWID), .axiAWAddr(m_axi_gmem_AWADDR),
-  .axiAWLen(m_axi_gmem_AWLEN), .axiAWSize(m_axi_gmem_AWSIZE),
+  .axiARCache(m_axi_gmem_ARCACHE), .axiRValid(m_axi_gmem_RVALID),
+  .axiRReady(m_axi_gmem_RREADY), .axiRId(m_axi_gmem_RID),
+  .axiRData(m_axi_gmem_RDATA), .axiRResp(m_axi_gmem_RRESP),
+  .axiRLast(m_axi_gmem_RLAST), .axiAWValid(m_axi_gmem_AWVALID),
+  .axiAWReady(m_axi_gmem_AWREADY), .axiAWId(m_axi_gmem_AWID),
+  .axiAWAddr(m_axi_gmem_AWADDR), .axiAWLen(m_axi_gmem_AWLEN),
+  .axiAWSize(m_axi_gmem_AWSIZE), .axiAWCache(m_axi_gmem_AWCACHE),
   .axiWValid(m_axi_gmem_WVALID), .axiWReady(m_axi_gmem_WREADY),
   .axiWData(m_axi_gmem_WDATA), .axiWStrb(m_axi_gmem_WSTRB),
   .axiWLast(m_axi_gmem_WLAST), .axiBValid(m_axi_gmem_BVALID),
