@@ -15,7 +15,6 @@
 //      Signal          Value
 //      AxBURST[1:0]    0b01 (Incremental Bursts Only)
 //      AxLOCK[1:0]     0b00
-//      AxCACHE[3:0]    0bXXXX (Implementation Specific)
 //      AxPROT[2:0]     0b000
 //      AxQOS[3:0]      0b0000
 //      AxREGION[3:0]   0b0000
@@ -29,8 +28,8 @@
 module smiAxiWriteAdaptor
   (smiReqReady, smiReqEofc, smiReqData, smiReqStop, smiRespReady, smiRespEofc,
   smiRespData, smiRespStop, axiAWValid, axiAWReady, axiAWId, axiAWAddr,
-  axiAWLen, axiAWSize, axiWValid, axiWReady, axiWData, axiWStrb, axiWLast,
-  axiBValid, axiBReady, axiBId, axiBResp, axiReset, clk, srst);
+  axiAWLen, axiAWSize, axiAWCache, axiWValid, axiWReady, axiWData, axiWStrb,
+  axiWLast, axiBValid, axiBReady, axiBId, axiBResp, axiReset, clk, srst);
 
 // Specifies the number of bits required to address individual bytes within the
 // AXI data signal. This also determines the width of the data signal.
@@ -89,6 +88,7 @@ output [AxiIdWidth-1:0] axiAWId;
 output [63:0]           axiAWAddr;
 output [7:0]            axiAWLen;
 output [2:0]            axiAWSize;
+output [3:0]            axiAWCache;
 
 output                   axiWValid;
 input                    axiWReady;
@@ -119,6 +119,7 @@ reg                  axiAWValid_q;
 reg [AxiIdWidth-1:0] axiAWId_q;
 reg [63:0]           axiAWAddr_q;
 reg [7:0]            axiAWLen_q;
+reg                  axiAWCacheBuf_q;
 
 // Specifies the signals used for write transaction ID tracking FIFO.
 reg                  writeIdFifoPop;
@@ -344,6 +345,7 @@ begin
     axiAWAddr_q <= 64'd0;
     for (i = 0; i < AxiIdWidth; i = i + 1)
       axiAWId_q [i] <= 1'b0;
+    axiAWCacheBuf_q <= 1'b0;
   end
   else if (axiAWValid_q)
   begin
@@ -355,6 +357,7 @@ begin
     axiAWLen_q <= axiAWLenBuf[7:0];
     axiAWAddr_q <= headerData [95:32];
     axiAWId_q <= writeIdFifoOutput;
+    axiAWCacheBuf_q <= ~headerData [8];
   end
 end
 
@@ -364,6 +367,7 @@ assign axiAWId = axiAWId_q;
 assign axiAWLen = axiAWLen_q;
 assign axiAWAddr = axiAWAddr_q;
 assign axiAWSize = DataIndexSize [2:0];
+assign axiAWCache = { 3'b001, axiAWCacheBuf_q };
 
 // Combinatorial logic for write response processing state machine.
 always @(responseState_q, responseStatus_q, axiIdInit_q, writeIdFifoInput_q,

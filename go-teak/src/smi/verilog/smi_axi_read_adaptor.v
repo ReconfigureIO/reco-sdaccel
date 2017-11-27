@@ -15,7 +15,6 @@
 //      Signal          Value
 //      AxBURST[1:0]    0b01 (Incremental Bursts Only)
 //      AxLOCK[1:0]     0b00
-//      AxCACHE[3:0]    0bXXXX (Implementation Specific)
 //      AxPROT[2:0]     0b000
 //      AxQOS[3:0]      0b0000
 //      AxREGION[3:0]   0b0000
@@ -29,8 +28,8 @@
 module smiAxiReadAdaptor
   (smiReqReady, smiReqEofc, smiReqData, smiReqStop, smiRespReady, smiRespEofc,
   smiRespData, smiRespStop, axiARValid, axiARReady, axiARId, axiARAddr,
-  axiARLen, axiARSize, axiRValid, axiRReady, axiRId, axiRData, axiRResp,
-  axiRLast, axiReset, clk, srst);
+  axiARLen, axiARSize, axiARCache, axiRValid, axiRReady, axiRId, axiRData,
+  axiRResp, axiRLast, axiReset, clk, srst);
 
 // Specifies the number of bits required to address individual bytes within the
 // AXI data signal. This also determines the width of the data signal.
@@ -91,6 +90,7 @@ output [AxiIdWidth-1:0] axiARId;
 output [63:0]           axiARAddr;
 output [7:0]            axiARLen;
 output [2:0]            axiARSize;
+output [3:0]            axiARCache;
 
 // Specifies the 'downstream' AXI read data ports.
 input                  axiRValid;
@@ -131,6 +131,7 @@ reg                  axiARValid_q;
 reg [AxiIdWidth-1:0] axiARId_q;
 reg [63:0]           axiARAddr_q;
 reg [7:0]            axiARLen_q;
+reg                  axiARCacheBuf_q;
 
 // Specifies the signals used for read transaction ID tracking FIFO.
 reg                  readIdFifoPop;
@@ -364,6 +365,7 @@ begin
     axiARAddr_q <= 64'd0;
     for (i = 0; i < AxiIdWidth; i = i + 1)
       axiARId_q [i] <= 1'b0;
+    axiARCacheBuf_q <= 1'b0;
   end
   else if (axiARValid_q)
   begin
@@ -375,6 +377,7 @@ begin
     axiARLen_q <= axiARLenBuf[7:0];
     axiARAddr_q <= smiReqData_q [95:32];
     axiARId_q <= readIdFifoOutput;
+    axiARCacheBuf_q <= ~smiReqData_q [8];
   end
 end
 
@@ -384,6 +387,7 @@ assign axiARId = axiARId_q;
 assign axiARLen = axiARLen_q;
 assign axiARAddr = axiARAddr_q;
 assign axiARSize = DataIndexSize [2:0];
+assign axiARCache = { 3'b001, axiARCacheBuf_q };
 
 // Combinatorial logic for read response processing state machine.
 always @(responseState_q, responseStatus_q, axiIdInit_q, readIdFifoInput_q,

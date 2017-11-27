@@ -14,7 +14,6 @@
 //      Signal          Value
 //      AxBURST[1:0]    0b01 (Incremental Bursts Only)
 //      AxLOCK[1:0]     0b00
-//      AxCACHE[3:0]    0bXXXX (Implementation Specific)
 //      AxPROT[2:0]     0b000
 //      AxQOS[3:0]      0b0000
 //      AxREGION[3:0]   0b0000
@@ -30,10 +29,10 @@
 module smiAxiBusAdaptor
   (smiReqReady, smiReqEofc, smiReqData, smiReqStop, smiRespReady, smiRespEofc,
   smiRespData, smiRespStop, axiARValid, axiARReady, axiARId, axiARAddr,
-  axiARLen, axiARSize, axiRValid, axiRReady, axiRId, axiRData, axiRResp,
-  axiRLast, axiAWValid, axiAWReady, axiAWId, axiAWAddr, axiAWLen, axiAWSize,
-  axiWValid, axiWReady, axiWData, axiWStrb, axiWLast, axiBValid, axiBReady,
-  axiBId, axiBResp, axiReset, clk, srst);
+  axiARLen, axiARSize, axiARCache, axiRValid, axiRReady, axiRId, axiRData,
+  axiRResp, axiRLast, axiAWValid, axiAWReady, axiAWId, axiAWAddr, axiAWLen,
+  axiAWSize, axiAWCache, axiWValid, axiWReady, axiWData, axiWStrb, axiWLast,
+  axiBValid, axiBReady, axiBId, axiBResp, axiReset, clk, srst);
 
 // Specifies the number of bits required to address individual bytes within the
 // AXI data signal. This also determines the width of the data signal. Minimum
@@ -81,6 +80,7 @@ output [AxiIdWidth-1:0] axiARId;
 output [63:0]           axiARAddr;
 output [7:0]            axiARLen;
 output [2:0]            axiARSize;
+output [3:0]            axiARCache;
 
 // Specifies the 'downstream' AXI read data ports.
 input                   axiRValid;
@@ -97,6 +97,7 @@ output [AxiIdWidth-1:0] axiAWId;
 output [63:0]           axiAWAddr;
 output [7:0]            axiAWLen;
 output [2:0]            axiAWSize;
+output [3:0]            axiAWCache;
 
 // Specifies the 'downstream' AXI write data ports.
 output                   axiWValid;
@@ -149,14 +150,14 @@ smiFrameArbiterX2 #(FlitWidth, FifoSize, FifoIndexSize) responseArbiter
 smiAxiReadAdaptor #(DataIndexSize, AxiIdWidth, FifoSize, FifoIndexSize) readAdaptor
   (readReqReady, readReqEofc, readReqData, readReqStop, readRespReady,
   readRespEofc, readRespData, readRespStop, axiARValid, axiARReady, axiARId,
-  axiARAddr, axiARLen, axiARSize, axiRValid, axiRReady, axiRId, axiRData,
-  axiRResp, axiRLast, axiReset, clk, srst);
+  axiARAddr, axiARLen, axiARSize, axiARCache, axiRValid, axiRReady, axiRId,
+  axiRData, axiRResp, axiRLast, axiReset, clk, srst);
 
 // Instantiate the AXI write adaptor.
 smiAxiWriteAdaptor #(DataIndexSize, AxiIdWidth, FifoSize, FifoIndexSize) writeAdaptor
   (writeReqReady, writeReqEofc, writeReqData, writeReqStop, writeRespReady,
   writeRespEofc, writeRespData, writeRespStop, axiAWValid, axiAWReady, axiAWId,
-  axiAWAddr, axiAWLen, axiAWSize, axiWValid, axiWReady, axiWData, axiWStrb,
-  axiWLast, axiBValid, axiBReady, axiBId, axiBResp, axiReset, clk, srst);
+  axiAWAddr, axiAWLen, axiAWSize, axiAWCache, axiWValid, axiWReady, axiWData,
+  axiWStrb, axiWLast, axiBValid, axiBReady, axiBId, axiBResp, axiReset, clk, srst);
 
 endmodule
