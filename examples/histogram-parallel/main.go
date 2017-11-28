@@ -15,11 +15,11 @@ func Top(
 	outputData uintptr,
 	length uint32,
 
-	readReqFlit chan<- protocol.Flit64,
-	readRespFlit <-chan protocol.Flit64,
+	portAReqFlit chan<- protocol.Flit64,
+	portARespFlit <-chan protocol.Flit64,
 
-	writeReqFlit chan<- protocol.Flit64,
-	writeRespFlit <-chan protocol.Flit64) {
+	portBReqFlit chan<- protocol.Flit64,
+	portBRespFlit <-chan protocol.Flit64) {
 
 	readRespChan := make(chan uint32)
 	incrRespChan := make(chan uint32)
@@ -28,7 +28,8 @@ func Top(
 		// Length is the number of addresses we are supposed to read
 		// so this block queues reads from each one in turn.
 		for i := length; i != 0; i-- {
-			readRespChan <- memory.ReadUInt32(readReqFlit, readRespFlit, inputData)
+			readRespChan <- memory.ReadUInt32(portAReqFlit, portARespFlit,
+				inputData, protocol.SmiMemReadOptDefault)
 			inputData += 4
 		}
 	}()
@@ -43,9 +44,11 @@ func Top(
 			// And this is that index as a pointer to external memory.
 			outputPointer := outputData + uintptr(index<<2)
 			// Perform an increment operation on that location.
-			current := memory.ReadUInt32(writeReqFlit, writeRespFlit, outputPointer)
+			current := memory.ReadUInt32(portBReqFlit, portBRespFlit,
+				outputPointer, protocol.SmiMemReadOptDefault)
 			current += 1
-			memory.WriteUInt32(writeReqFlit, writeRespFlit, outputPointer, current)
+			memory.WriteUInt32(portBReqFlit, portBRespFlit,
+				outputPointer, protocol.SmiMemWriteOptDirect, current)
 			incrRespChan <- current
 		}
 	}()

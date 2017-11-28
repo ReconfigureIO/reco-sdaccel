@@ -24,5 +24,6 @@ func Top(
 
 	val := addition.Add(a, b)
 
-	memory.WriteUInt32(writeReqFlit, writeRespFlit, addr, val)
+	memory.WriteUInt32(writeReqFlit, writeRespFlit, addr,
+		protocol.SmiMemWriteOptDirect, val)
 }

@@ -40,6 +40,7 @@ func Top(
 	}
 
 	// Write out the result.
-	memory.WriteUInt32(writeReqFlit, writeRespFlit, output, sum)
+	memory.WriteUInt32(writeReqFlit, writeRespFlit, output,
+		protocol.SmiMemWriteOptDirect, sum)
 
 }

@@ -31,7 +31,8 @@ func Top(
 
 	inputChannel := make(chan uint64)
 
-	go memory.ReadBurstUInt64(readReqFlit, readRespFlit, inputData, uint16(inputLength), inputChannel)
+	go memory.ReadBurstUInt64(readReqFlit, readRespFlit, inputData,
+		protocol.SmiMemReadOptDefault, uint16(inputLength), inputChannel)
 
 	result := linear.Regression(inputLength, inputChannel)
 
@@ -39,9 +40,9 @@ func Top(
 	beta := result.Slope
 
 	// Write them back to the pointers the host requests
-	memory.WriteUInt32(
-		writeReqFlit, writeRespFlit, output1, uint32(alpha))
-	memory.WriteUInt32(
-		writeReqFlit, writeRespFlit, output2, uint32(beta))
+	memory.WriteUInt32(writeReqFlit, writeRespFlit, output1,
+		protocol.SmiMemWriteOptDirect, uint32(alpha))
+	memory.WriteUInt32(writeReqFlit, writeRespFlit, output2,
+		protocol.SmiMemWriteOptDirect, uint32(beta))
 
 }

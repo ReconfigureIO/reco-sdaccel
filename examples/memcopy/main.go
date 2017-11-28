@@ -22,6 +22,8 @@ func Top(
 	writeRespFlit <-chan protocol.Flit64) {
 
 	data := make(chan uint64)
-	go memory.ReadBurstUInt64(readReqFlit, readRespFlit, inputData, uint16(length), data)
-	memory.WriteBurstUInt64(writeReqFlit, writeRespFlit, outputData, uint16(length), data)
+	go memory.ReadBurstUInt64(readReqFlit, readRespFlit, inputData,
+		protocol.SmiMemReadOptDefault, uint16(length), data)
+	memory.WriteBurstUInt64(writeReqFlit, writeRespFlit, outputData,
+		protocol.SmiMemWriteOptDirect, uint16(length), data)
 }

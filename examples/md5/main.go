@@ -31,7 +31,8 @@ func ProcessMD5(
 
 		data := make(chan uint32)
 
-		go memory.ReadBurstUInt32(readReqFlit, readRespFlit, inputData, uint16(num32s), data)
+		go memory.ReadBurstUInt32(readReqFlit, readRespFlit, inputData,
+			protocol.SmiMemReadOptDefault, uint16(num32s), data)
 
 		for i := numBlocks; i != 0; i-- {
 			for j := 0; j != 16; j += 1 {
@@ -63,7 +64,8 @@ func WriteSum(
 		}
 	}()
 
-	memory.WriteBurstUInt8(writeReqFlit, writeRespFlit, outputData, 16, data)
+	memory.WriteBurstUInt8(writeReqFlit, writeRespFlit, outputData,
+		protocol.SmiMemWriteOptDirect, 16, data)
 }
 
 func Top(
