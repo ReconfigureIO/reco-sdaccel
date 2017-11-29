@@ -21,8 +21,8 @@ func Top(
 	portBReqFlit chan<- protocol.Flit64,
 	portBRespFlit <-chan protocol.Flit64) {
 
-	readRespChan := make(chan uint32)
-	incrRespChan := make(chan uint32)
+	readRespChan := make(chan uint32, 16)
+	incrRespChan := make(chan uint32, 1)
 
 	go func() {
 		// Length is the number of addresses we are supposed to read
