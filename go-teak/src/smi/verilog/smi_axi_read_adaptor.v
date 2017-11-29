@@ -449,7 +449,7 @@ begin
     default :
     begin
       pCacheRead = 1'b1;
-      axiRCtrlHalt = 1'b0;
+      axiRCtrlHalt = axiRBufLast;
       responseStatus_d = axiRBufResp;
       readIdFifoInput_d = axiRBufId;
       if (axiRCtrlValid)
