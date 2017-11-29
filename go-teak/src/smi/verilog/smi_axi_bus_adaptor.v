@@ -54,9 +54,6 @@ parameter FifoIndexSize = 4;
 // Derives the flit width of the data input and output ports. Minimum 16 bytes.
 parameter FlitWidth = (1 << DataIndexSize);
 
-// Derives the maximum number of 'in flight' read transactions.
-parameter MaxReadIds = (1 << AxiIdWidth);
-
 // Specifies the clock and active high synchronous reset signals.
 input clk;
 input srst;
