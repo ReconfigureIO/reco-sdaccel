@@ -51,7 +51,11 @@ parameter FifoIndexSize = 4;
 parameter DataWidth = (1 << DataIndexSize) * 8;
 
 // Derives the maximum number of 'in flight' read transactions.
-parameter MaxReadIds = (1 << AxiIdWidth);
+// parameter MaxReadIds = (1 << AxiIdWidth);
+
+// TODO: This is a temporary measure to restrict the number of in-flight reads
+// to 1 as a potential fix for the SDAccel memory infrastructure issues.
+parameter MaxReadIds = 1;
 
 // Specifies the state space for the read request dispatch state machine.
 parameter [1:0]
