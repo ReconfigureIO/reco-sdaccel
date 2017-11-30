@@ -46,5 +46,5 @@ func Top(
 	}()
 
 	memory.WriteBurstUInt32(writeReqFlit, writeRespFlit, outputData,
-		protocol.SmiMemWriteOptDirect, 512, data)
+		protocol.SmiMemWriteOptDefault, 512, data)
 }

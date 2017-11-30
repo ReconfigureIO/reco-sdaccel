@@ -65,7 +65,7 @@ func WriteSum(
 	}()
 
 	memory.WriteBurstUInt8(writeReqFlit, writeRespFlit, outputData,
-		protocol.SmiMemWriteOptDirect, 16, data)
+		protocol.SmiMemWriteOptDefault, 16, data)
 }
 
 func Top(

@@ -35,7 +35,7 @@ func Top(
 			outputPointer, protocol.SmiMemReadOptDefault)
 
 		memory.WriteUInt32(readWriteReqFlit, readWriteRespFlit,
-			outputPointer, protocol.SmiMemWriteOptDirect, current+1)
+			outputPointer, protocol.SmiMemWriteOptDefault, current+1)
 
 		inputData += 4
 	}

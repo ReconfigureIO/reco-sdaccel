@@ -48,7 +48,7 @@ func Top(
 				outputPointer, protocol.SmiMemReadOptDefault)
 			current += 1
 			memory.WriteUInt32(portBReqFlit, portBRespFlit,
-				outputPointer, protocol.SmiMemWriteOptDirect, current)
+				outputPointer, protocol.SmiMemWriteOptDefault, current)
 			incrRespChan <- current
 		}
 	}()
