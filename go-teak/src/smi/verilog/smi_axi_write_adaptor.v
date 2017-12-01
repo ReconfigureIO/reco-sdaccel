@@ -51,7 +51,11 @@ parameter FifoIndexSize = 4;
 parameter DataWidth = (1 << DataIndexSize) * 8;
 
 // Derives the maximum number of 'in flight' write transactions.
-parameter MaxWriteIds = (1 << AxiIdWidth);
+// parameter MaxWriteIds = (1 << AxiIdWidth);
+
+// TODO: This is a temporary measure to restrict the number of in-flight writes
+// to 1 as a potential fix for the SDAccel memory infrastructure issues.
+parameter MaxWriteIds = 1;
 
 // Specifies the state space for the write request dispatch state machine.
 parameter [1:0]
@@ -367,7 +371,7 @@ assign axiAWId = axiAWId_q;
 assign axiAWLen = axiAWLen_q;
 assign axiAWAddr = axiAWAddr_q;
 assign axiAWSize = DataIndexSize [2:0];
-assign axiAWCache = { 3'b000, axiAWCacheBuf_q };
+assign axiAWCache = { 3'b001, axiAWCacheBuf_q };
 
 // Combinatorial logic for write response processing state machine.
 always @(responseState_q, responseStatus_q, axiIdInit_q, writeIdFifoInput_q,
