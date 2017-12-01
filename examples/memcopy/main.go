@@ -23,7 +23,7 @@ func Top(
 
 	data := make(chan uint64)
 	go memory.ReadBurstUInt64(readReqFlit, readRespFlit, inputData,
-		protocol.SmiMemReadOptDefault, uint16(length), data)
+		protocol.SmiMemReadOptDefault, length, data)
 	memory.WriteBurstUInt64(writeReqFlit, writeRespFlit, outputData,
-		protocol.SmiMemWriteOptDefault, uint16(length), data)
+		protocol.SmiMemWriteOptDefault, length, data)
 }

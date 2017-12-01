@@ -25,7 +25,7 @@ func Top(
 	// Read all of the input data into a channel
 	inputChan := make(chan uint32)
 	go memory.ReadBurstUInt32(readReqFlit, readRespFlit, inputData,
-		protocol.SmiMemReadOptDefault, uint16(length), inputChan)
+		protocol.SmiMemReadOptDefault, length, inputChan)
 
 	// The host needs to provide the length we should read
 	for ; length > 0; length-- {

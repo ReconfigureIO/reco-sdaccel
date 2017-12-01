@@ -32,7 +32,7 @@ func Top(
 	inputChannel := make(chan uint64)
 
 	go memory.ReadBurstUInt64(readReqFlit, readRespFlit, inputData,
-		protocol.SmiMemReadOptDefault, uint16(inputLength), inputChannel)
+		protocol.SmiMemReadOptDefault, inputLength, inputChannel)
 
 	result := linear.Regression(inputLength, inputChannel)
 
