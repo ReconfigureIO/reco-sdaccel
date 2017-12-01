@@ -924,7 +924,7 @@ func WritePagedBurstUInt8(
 // values to a word aligned address on the specified SMI memory endpoint, with
 // the bottom three address bits being ignored. The supplied burst length
 // specifies the number of 64-bit values to be transferred, up to a maximum of
-// 8191. The burst is automatically segmented to respect page boundaries and
+// 2^29-1. The burst is automatically segmented to respect page boundaries and
 // avoid blocking other transactions. In order to ensure optimum performance,
 // the write data channel should be a buffered channel that already contains
 // all the data to be written prior to invoking this function. The status of
@@ -935,7 +935,7 @@ func WriteBurstUInt64(
 	smiResponse <-chan protocol.Flit64,
 	writeAddrIn uintptr,
 	writeOptions uint8,
-	writeLengthIn uint16,
+	writeLengthIn uint32,
 	writeDataChan <-chan uint64) bool {
 
 	writeOk := true
@@ -947,13 +947,13 @@ func WriteBurstUInt64(
 
 	for writeLength != 0 {
 		go protocol.AssembleFrame64(smiWriteChan, smiRequest)
-		if writeLength < burstSize {
-			burstSize = writeLength
+		if writeLength < uint32(burstSize) {
+			burstSize = uint16(writeLength)
 		}
 		writeOk = writeOk && writeSingleBurstUInt64(
 			smiWriteChan, smiResponse, writeAddr, writeOptions, burstSize, writeDataChan)
 		writeAddr += uintptr(burstSize)
-		writeLength -= burstSize
+		writeLength -= uint32(burstSize)
 		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return writeOk
@@ -964,7 +964,7 @@ func WriteBurstUInt64(
 // values to a word aligned address on the specified SMI memory endpoint, with
 // the bottom two address bits being ignored. The supplied burst length
 // specifies the number of 32-bit values to be transferred, up to a maximum of
-// 16383. The burst is automatically segmented to respect page boundaries and
+// 2^30-1. The burst is automatically segmented to respect page boundaries and
 // avoid blocking other transactions. In order to ensure optimum performance,
 // the write data channel should be a buffered channel that already contains
 // all the data to be written prior to invoking this function. The status of
@@ -975,7 +975,7 @@ func WriteBurstUInt32(
 	smiResponse <-chan protocol.Flit64,
 	writeAddrIn uintptr,
 	writeOptions uint8,
-	writeLengthIn uint16,
+	writeLengthIn uint32,
 	writeDataChan <-chan uint32) bool {
 
 	writeOk := true
@@ -987,13 +987,13 @@ func WriteBurstUInt32(
 
 	for writeLength != 0 {
 		go protocol.AssembleFrame64(smiWriteChan, smiRequest)
-		if writeLength < burstSize {
-			burstSize = writeLength
+		if writeLength < uint32(burstSize) {
+			burstSize = uint16(writeLength)
 		}
 		writeOk = writeOk && writeSingleBurstUInt32(
 			smiWriteChan, smiResponse, writeAddr, writeOptions, burstSize, writeDataChan)
 		writeAddr += uintptr(burstSize)
-		writeLength -= burstSize
+		writeLength -= uint32(burstSize)
 		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return writeOk
@@ -1003,7 +1003,7 @@ func WriteBurstUInt32(
 // WriteBurstUInt16 writes an incrementing burst of 16-bit unsigned data
 // values to a word aligned address on the specified SMI memory endpoint, with
 // the bottom address bit being ignored. The supplied burst length specifies
-// the number of 16-bit values to be transferred, up to a maximum of 32767.
+// the number of 16-bit values to be transferred, up to a maximum of 2^31-1.
 // The burst is automatically segmented to respect page boundaries and avoid
 // blocking other transactions. In order to ensure optimum performance, the
 // write data channel should be a buffered channel that already contains all
@@ -1015,7 +1015,7 @@ func WriteBurstUInt16(
 	smiResponse <-chan protocol.Flit64,
 	writeAddrIn uintptr,
 	writeOptions uint8,
-	writeLengthIn uint16,
+	writeLengthIn uint32,
 	writeDataChan <-chan uint16) bool {
 
 	writeOk := true
@@ -1027,13 +1027,13 @@ func WriteBurstUInt16(
 
 	for writeLength != 0 {
 		go protocol.AssembleFrame64(smiWriteChan, smiRequest)
-		if writeLength < burstSize {
-			burstSize = writeLength
+		if writeLength < uint32(burstSize) {
+			burstSize = uint16(writeLength)
 		}
 		writeOk = writeOk && writeSingleBurstUInt16(
 			smiWriteChan, smiResponse, writeAddr, writeOptions, burstSize, writeDataChan)
 		writeAddr += uintptr(burstSize)
-		writeLength -= burstSize
+		writeLength -= uint32(burstSize)
 		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return writeOk
@@ -1053,7 +1053,7 @@ func WriteBurstUInt8(
 	smiResponse <-chan protocol.Flit64,
 	writeAddrIn uintptr,
 	writeOptions uint8,
-	writeLengthIn uint16,
+	writeLengthIn uint32,
 	writeDataChan <-chan uint8) bool {
 
 	writeOk := true
@@ -1065,13 +1065,13 @@ func WriteBurstUInt8(
 
 	for writeLength != 0 {
 		go protocol.AssembleFrame64(smiWriteChan, smiRequest)
-		if writeLength < burstSize {
-			burstSize = writeLength
+		if writeLength < uint32(burstSize) {
+			burstSize = uint16(writeLength)
 		}
 		writeOk = writeOk && writeSingleBurstUInt8(
 			smiWriteChan, smiResponse, writeAddr, writeOptions, burstSize, writeDataChan)
 		writeAddr += uintptr(burstSize)
-		writeLength -= burstSize
+		writeLength -= uint32(burstSize)
 		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return writeOk
@@ -1563,7 +1563,7 @@ func ReadPagedBurstUInt8(
 // values from a word aligned address on the specified SMI memory endpoint,
 // with the bottom three address bits being ignored. The supplied burst length
 // specifies the number of 64-bit values to be transferred, up to a maximum of
-// 8191. The burst is automatically segmented to respect page boundaries and
+// 2^29-1. The burst is automatically segmented to respect page boundaries and
 // avoid blocking other transactions. In order to ensure optimum performance,
 // the read data channel should be a buffered channel that has sufficient free
 // space to hold all the data to be transferred. The status of the read
@@ -1574,7 +1574,7 @@ func ReadBurstUInt64(
 	smiResponse <-chan protocol.Flit64,
 	readAddrIn uintptr,
 	readOptions uint8,
-	readLengthIn uint16,
+	readLengthIn uint32,
 	readDataChan <-chan uint64) bool {
 
 	readOk := true
@@ -1586,13 +1586,13 @@ func ReadBurstUInt64(
 
 	for readLength != 0 {
 		go protocol.ForwardFrame64(smiResponse, smiReadChan)
-		if readLength < burstSize {
-			burstSize = readLength
+		if readLength < uint32(burstSize) {
+			burstSize = uint16(readLength)
 		}
 		readOk = readOk && readSingleBurstUInt64(
 			smiRequest, smiReadChan, readAddr, readOptions, burstSize, readDataChan)
 		readAddr += uintptr(burstSize)
-		readLength -= burstSize
+		readLength -= uint32(burstSize)
 		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return readOk
@@ -1603,7 +1603,7 @@ func ReadBurstUInt64(
 // values from a word aligned address on the specified SMI memory endpoint,
 // with the bottom two address bits being ignored. The supplied burst length
 // specifies the number of 32-bit values to be transferred, up to a maximum of
-// 16383. The burst is automatically segmented to respect page boundaries and
+// 2^30-1. The burst is automatically segmented to respect page boundaries and
 // avoid blocking other transactions. In order to ensure optimum performance,
 // the read data channel should be a buffered channel that has sufficient free
 // space to hold all the data to be transferred. The status of the read
@@ -1614,7 +1614,7 @@ func ReadBurstUInt32(
 	smiResponse <-chan protocol.Flit64,
 	readAddrIn uintptr,
 	readOptions uint8,
-	readLengthIn uint16,
+	readLengthIn uint32,
 	readDataChan <-chan uint32) bool {
 
 	readOk := true
@@ -1626,13 +1626,13 @@ func ReadBurstUInt32(
 
 	for readLength != 0 {
 		go protocol.ForwardFrame64(smiResponse, smiReadChan)
-		if readLength < burstSize {
-			burstSize = readLength
+		if readLength < uint32(burstSize) {
+			burstSize = uint16(readLength)
 		}
 		readOk = readOk && readSingleBurstUInt32(
 			smiRequest, smiReadChan, readAddr, readOptions, burstSize, readDataChan)
 		readAddr += uintptr(burstSize)
-		readLength -= burstSize
+		readLength -= uint32(burstSize)
 		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return readOk
@@ -1643,7 +1643,7 @@ func ReadBurstUInt32(
 // values from a word aligned address on the specified SMI memory endpoint,
 // with the bottom address bit being ignored. The supplied burst length
 // specifies the number of 16-bit values to be transferred, up to a maximum of
-// 32767. The burst is automatically segmented to respect page boundaries and
+// 2^31-1. The burst is automatically segmented to respect page boundaries and
 // avoid blocking other transactions. In order to ensure optimum performance,
 // the read data channel should be a buffered channel that has sufficient free
 // space to hold all the data to be transferred. The status of the read
@@ -1654,7 +1654,7 @@ func ReadBurstUInt16(
 	smiResponse <-chan protocol.Flit64,
 	readAddrIn uintptr,
 	readOptions uint8,
-	readLengthIn uint16,
+	readLengthIn uint32,
 	readDataChan <-chan uint16) bool {
 
 	readOk := true
@@ -1666,13 +1666,13 @@ func ReadBurstUInt16(
 
 	for readLength != 0 {
 		go protocol.ForwardFrame64(smiResponse, smiReadChan)
-		if readLength < burstSize {
-			burstSize = readLength
+		if readLength < uint32(burstSize) {
+			burstSize = uint16(readLength)
 		}
 		readOk = readOk && readSingleBurstUInt16(
 			smiRequest, smiReadChan, readAddr, readOptions, burstSize, readDataChan)
 		readAddr += uintptr(burstSize)
-		readLength -= burstSize
+		readLength -= uint32(burstSize)
 		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return readOk
@@ -1692,7 +1692,7 @@ func ReadBurstUInt8(
 	smiResponse <-chan protocol.Flit64,
 	readAddrIn uintptr,
 	readOptions uint8,
-	readLengthIn uint16,
+	readLengthIn uint32,
 	readDataChan <-chan uint8) bool {
 
 	readOk := true
@@ -1704,13 +1704,13 @@ func ReadBurstUInt8(
 
 	for readLength != 0 {
 		go protocol.ForwardFrame64(smiResponse, smiReadChan)
-		if readLength < burstSize {
-			burstSize = readLength
+		if readLength < uint32(burstSize) {
+			burstSize = uint16(readLength)
 		}
 		readOk = readOk && readSingleBurstUInt8(
 			smiRequest, smiReadChan, readAddr, readOptions, burstSize, readDataChan)
 		readAddr += uintptr(burstSize)
-		readLength -= burstSize
+		readLength -= uint32(burstSize)
 		burstSize = uint16(protocol.SmiMemBurstSize)
 	}
 	return readOk
