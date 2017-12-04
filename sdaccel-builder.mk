@@ -27,9 +27,11 @@ endif
 
 ifeq ($(MEMORY_PROTOCOL), smi)
 	GO_TEAK_CMD := go-teak-smi
+	GO_TEAK_PATH := ${DIR}/go-teak
 	AXI_DATA_WIDTH := 128
 else
 	GO_TEAK_CMD := go-teak-sdaccel
+	GO_TEAK_PATH := ${DIR}/go-teak-axi
 	AXI_DATA_WIDTH := 64
 endif
 
@@ -93,10 +95,10 @@ VERILOG_SOURCES := $(shell find ${DIR}/eTeak/verilog/SELF_files/ -type f)
 INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/includes/%,$(VERILOG_SOURCES))
 
 ${VERILOG_DIR}/main.v: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src
-	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak:${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./${GO_TEAK_CMD} build ${GO_TEAK_FLAGS} $< -o $@
+	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${GO_TEAK_PATH}:${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./${GO_TEAK_CMD} build ${GO_TEAK_FLAGS} $< -o $@
 
 ${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src
-	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak:${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak graph ${GO_TEAK_FLAGS} $< -o $@
+	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${GO_TEAK_PATH}:${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak graph ${GO_TEAK_FLAGS} $< -o $@
 
 ${VERILOG_DIR}/includes: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/includes
