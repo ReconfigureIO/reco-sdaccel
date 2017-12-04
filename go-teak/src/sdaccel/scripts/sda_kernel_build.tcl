@@ -104,6 +104,7 @@ set paramArgsFileName "param_args.xmldef"
 # Selects a generic Kintex Ultrascale part as the nominal target.
 set partName "xcku115-flvf1924-1-c"
 set partFamily "kintexu"
+set axiDataWidth 128
 
 #
 # Extract the TCL command line arguments.
@@ -256,7 +257,8 @@ if {0 != [file exists $constraintFileName]} {
 # Run the standard Xilinx HLS IP packaging flow.
 #
 cd $ipDirPath
-configure_ip_core $moduleName $vendorName $libraryName $kernelName $versionNumber $partFamily
+configure_ip_core $moduleName $vendorName $libraryName $kernelName \
+  $versionNumber $axiDataWidth $partFamily
 cd $buildDirPath
 
 #
@@ -264,4 +266,4 @@ cd $buildDirPath
 # core to create an SDAccel kernel object.
 #
 sda_kernel_packaging $moduleName $vendorName $libraryName $kernelName \
-  $versionNumber $paramArgsFileName $ipDirPath $buildDirPath
+  $versionNumber $axiDataWidth $paramArgsFileName $ipDirPath $buildDirPath
