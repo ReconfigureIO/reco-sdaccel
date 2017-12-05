@@ -58,8 +58,8 @@ pipeline {
             steps {
                 sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck sdaccel-builder'
                 sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-jarvice/reco-jarvice'
-                sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall -Wno-DECLFILENAME go-teak/src/smi/verilog/*.v go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
-                sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall -Wno-DECLFILENAME go-teak/src/axi/verilog/*.v go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+                sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall -Wno-DECLFILENAME go-teak/src/smi/verilog/*.v go-teak/src/smi/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+                sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall -Wno-DECLFILENAME go-teak/src/axi/verilog/*.v go-teak/src/axi/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
             }
         }
 
