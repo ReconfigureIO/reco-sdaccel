@@ -204,7 +204,7 @@ if {0 == [info exists versionNumber]} {
 #
 # Check for valid AXI data bus width.
 #
-if {64 != $axiDataWidth && 128 != $axiDataWidth && \\
+if {64 != $axiDataWidth && 128 != $axiDataWidth && \
   256 != $axiDataWidth && 512 != $axiDataWidth} {
   puts "Invalid AXI data width : $axiDataWidth"
   exit -1
