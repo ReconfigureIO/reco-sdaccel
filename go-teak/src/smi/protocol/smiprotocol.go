@@ -10,6 +10,8 @@
 //
 package protocol
 
+//
+// Import the SMI specific Verilog code.
 // #include ../verilog/smi_axi_bus_adaptor.v
 // #include ../verilog/smi_axi_read_adaptor.v
 // #include ../verilog/smi_axi_write_adaptor.v
@@ -33,6 +35,7 @@ package protocol
 // #include ../verilog/smi_scaling_arbiter_x4.v
 // #include ../verilog/smi_transaction_matcher.v
 // #include ../verilog/sda_kernel_wrapper_gmem.v
+//
 
 //
 // Constants specifying the supported SMI frame type bytes.
