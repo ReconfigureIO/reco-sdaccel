@@ -32,6 +32,7 @@ package protocol
 // #include ../verilog/smi_scaling_arbiter_x2.v
 // #include ../verilog/smi_scaling_arbiter_x4.v
 // #include ../verilog/smi_transaction_matcher.v
+// #include ../verilog/sda_kernel_wrapper_gmem.v
 
 //
 // Constants specifying the supported SMI frame type bytes.
