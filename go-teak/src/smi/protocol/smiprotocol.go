@@ -10,6 +10,29 @@
 //
 package protocol
 
+// #include ../verilog/smi_axi_bus_adaptor.v
+// #include ../verilog/smi_axi_read_adaptor.v
+// #include ../verilog/smi_axi_write_adaptor.v
+// #include ../verilog/smi_byte_data_align.v
+// #include ../verilog/smi_flit_data_pack.v
+// #include ../verilog/smi_flit_scale_d2.v
+// #include ../verilog/smi_flit_scale_d4.v
+// #include ../verilog/smi_flit_scale_d8.v
+// #include ../verilog/smi_flit_scale_stage_d2.v
+// #include ../verilog/smi_flit_scale_stage_x2.v
+// #include ../verilog/smi_flit_scale_x2.v
+// #include ../verilog/smi_flit_scale_x4.v
+// #include ../verilog/smi_flit_scale_x8.v
+// #include ../verilog/smi_frame_arbiter_x2.v
+// #include ../verilog/smi_frame_arbiter_x4.v
+// #include ../verilog/smi_frame_steer_x2.v
+// #include ../verilog/smi_frame_steer_x4.v
+// #include ../verilog/smi_header_extract_sf.v
+// #include ../verilog/smi_header_inject_sf.v
+// #include ../verilog/smi_scaling_arbiter_x2.v
+// #include ../verilog/smi_scaling_arbiter_x4.v
+// #include ../verilog/smi_transaction_matcher.v
+
 //
 // Constants specifying the supported SMI frame type bytes.
 //
