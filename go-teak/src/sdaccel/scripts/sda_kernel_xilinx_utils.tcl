@@ -221,7 +221,7 @@ set Interfaces {
         type "native_axim"
         mode "master"
         port_prefix "m_axi_gmem"
-        data_width [subst "\"$MemDataBusWidth\""}]
+        data_width [subst "\"$MemDataBusWidth\""]
         param_prefix "C_M_AXI_GMEM"
         port_width [subst "\"AWADDR 64 AWID 1 AWUSER 1 WDATA $MemDataBusWidth WSTRB $MemStrbBusWidth WID 1 WUSER 1 ARADDR 64 ARID 1 ARUSER 1 RDATA $MemDataBusWidth RID 1 RUSER 1 BID 1 BUSER 1\""]
         ctype {
