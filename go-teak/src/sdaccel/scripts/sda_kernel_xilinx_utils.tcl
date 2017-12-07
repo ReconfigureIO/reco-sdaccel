@@ -66,7 +66,7 @@ set MiscFiles [glob -nocomplain misc/*]
 
 ## TODO: The interface block hard-codes a lot of kernel I/O parameters. A more
 ## flexible approach is required to support different I/O bus widths, etc.
-set Interfaces {
+set Interfaces [ subst {
     s_axi_control {
         type "axi4lite"
         mode "slave"
@@ -460,7 +460,7 @@ set Interfaces {
         MAX_READ_BURST_LENGTH "32"
         MAX_WRITE_BURST_LENGTH "32"
     }
-}
+} ]
 
 set vivado_ver [version -short]
 if {[regexp -nocase {2015\.1.*} $vivado_ver match]} {
