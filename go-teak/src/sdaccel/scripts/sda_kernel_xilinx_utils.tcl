@@ -221,9 +221,9 @@ set Interfaces {
         type "native_axim"
         mode "master"
         port_prefix "m_axi_gmem"
-        data_width [subst "\"$MemDataBusWidth\""}]
+        data_width "$MemDataBusWidth"
         param_prefix "C_M_AXI_GMEM"
-        port_width [subst "\"AWADDR 64 AWID 1 AWUSER 1 WDATA $MemDataBusWidth WSTRB $MemStrbBusWidth WID 1 WUSER 1 ARADDR 64 ARID 1 ARUSER 1 RDATA $MemDataBusWidth RID 1 RUSER 1 BID 1 BUSER 1\""]
+        port_width "AWADDR 64 AWID 1 AWUSER 1 WDATA $MemDataBusWidth WSTRB $MemStrbBusWidth WID 1 WUSER 1 ARADDR 64 ARID 1 ARUSER 1 RDATA $MemDataBusWidth RID 1 RUSER 1 BID 1 BUSER 1"
         ctype {
             AWLEN {
                 Type "integer unsigned"
@@ -392,13 +392,13 @@ set Interfaces {
             }
             WDATA {
                 Type "integer unsigned"
-                Width [subst "\"$MemDataBusWidth\""]
-                Bits [subst "\"$MemDataBusWidth\""]
+                Width "$MemDataBusWidth"
+                Bits "$MemDataBusWidth"
             }
             WSTRB {
                 Type "integer unsigned"
-                Width [subst "\"$MemStrbBusWidth\""]
-                Bits [subst "\"$MemStrbBusWidth\""]
+                Width "$MemStrbBusWidth"
+                Bits "$MemStrbBusWidth"
             }
             WID {
                 Type "integer unsigned"
@@ -427,8 +427,8 @@ set Interfaces {
             }
             RDATA {
                 Type "integer unsigned"
-                Width [subst "\"$MemDataBusWidth\""]
-                Bits [subst "\"$MemDataBusWidth\""]
+                Width "$MemDataBusWidth"
+                Bits "$MemDataBusWidth"
             }
             RID {
                 Type "integer unsigned"
