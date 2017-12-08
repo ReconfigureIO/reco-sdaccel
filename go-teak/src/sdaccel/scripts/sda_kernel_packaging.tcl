@@ -8,7 +8,7 @@
 # Implements SDAccel kernel packaging phase.
 #
 proc sda_kernel_packaging {moduleName vendorName libraryName kernelName
-  versionNumber argsFileName ipDirPath pkgDirPath} {
+  versionNumber axiDataWidth argsFileName ipDirPath pkgDirPath} {
 
 #
 # Open Kernel skeleton XML file and append common header fields.
@@ -36,7 +36,7 @@ puts $fileId "    <ports>"
 puts $fileId "    <port name=\"m_axi_gmem\""
 puts $fileId "        mode=\"master\""
 puts $fileId "        range=\"0xFFFFFFFF\""
-puts $fileId "        dataWidth=\"128\""
+puts $fileId "        dataWidth=\"$axiDataWidth\""
 puts $fileId "        portType=\"addressable\""
 puts $fileId "        base=\"0x0\"/>"
 puts $fileId "    <port name=\"s_axi_control\""

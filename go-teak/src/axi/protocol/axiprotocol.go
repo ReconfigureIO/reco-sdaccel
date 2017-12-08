@@ -13,12 +13,17 @@
 // corresponds to the largest Go primitive data types.
 //
 
-/*
+//
+// Package axi/protocol provides low level primitives and data types for working
+// directly with the AXI4 memory access protocol.
+//
 
-Package protocol provides low level primitives for working the AXI4 protocol
-
-*/
 package protocol
+
+//
+// Import the AXI specific Verilog code.
+// #include ../verilog/sda_kernel_wrapper_gmem.v
+//
 
 //
 // Type Addr specifies AXI memory address channel fields.
