@@ -1,9 +1,9 @@
 #!/bin/bash
 set -x
-VERSION=1.3.3
+VERSION=1.3.4
 mkdir -p /tmp/aws-fpga
 cd /tmp/aws-fpga
-aws s3 cp --quiet s3://nerabus/platform/aws-fpga-$VERSION.zip .
+wget -O aws-fpga-$VERSION.zip https://github.com/aws/aws-fpga/archive/v$VERSION.zip
 unzip aws-fpga-$VERSION.zip
 cd aws-fpga-$VERSION
 export XILINX_SDX=/opt/Xilinx/SDx/2017.1.op
