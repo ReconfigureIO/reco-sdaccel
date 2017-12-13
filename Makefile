@@ -41,7 +41,6 @@ go: downloads
 	wget https://github.com/ReconfigureIO/sdaccel/archive/v$(SDACCEL_VERSION).tar.gz -O downloads/v$(SDACCEL_VERSION).tar.gz
 	mkdir -p go 
 	tar -xf downloads/v$(SDACCEL_VERSION).tar.gz -C ./go/
-	rm v$(SDACCEL_VERSION).tar.gz
 
 package/reco: dist/${NAME}-${VERSION}.tar.gz
 
