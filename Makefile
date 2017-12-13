@@ -2,7 +2,6 @@
 NAME := sdaccel-builder
 DESC := build scripts for integrating eTeak & SDAccel
 PREFIX ?= usr/local
-SDACCEL_VERSION := 0.15.0
 VERSION := $(shell git describe --tags --always --dirty)
 BUILDTIME := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 BUILDDATE := $(shell date -u +"%B %d, %Y")
@@ -25,10 +24,10 @@ BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "${PU
 DEPLOY_JOB := $(shell cat aws/deploy.json | jq '.containerProperties.image = "${PUBLISHED_DEPLOY}"')
 
 export SDACCEL_WRAPPER_VERSION := v0.18.2
-
 GO_VERSION := 1.7.4
+SDACCEL_VERSION := 0.15.0
 
-.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws upload-docker test
+.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws upload-docker test go/src/github.com/ReconfigureIO/sdaccel
 
 all: package/reco package/reco-jarvice
 
@@ -37,10 +36,10 @@ print-% : ; @echo $($*)
 test:
 	find examples/ -maxdepth 1 -mindepth 1 -type d | PATH=$$PWD:$$PWD/ci/:$$PATH xargs -L1 test.sh
 
-go: downloads
-	wget https://github.com/ReconfigureIO/sdaccel/archive/v$(SDACCEL_VERSION).tar.gz -O downloads/v$(SDACCEL_VERSION).tar.gz
-	mkdir -p go 
-	tar -xf downloads/v$(SDACCEL_VERSION).tar.gz -C ./go/
+go/src/github.com/ReconfigureIO/sdaccel: | downloads/sdaccel-v$(SDACCEL_VERSION).tar.gz
+	rm -rf $@
+	mkdir -p $@
+	tar -xf downloads/sdaccel-v$(SDACCEL_VERSION).tar.gz --strip-components=1 -C ./$@
 
 package/reco: dist/${NAME}-${VERSION}.tar.gz
 
@@ -50,7 +49,7 @@ bundle/reco: build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco
 
 bundle/reco-jarvice: build/reco-jarvice/reco-jarvice
 
-build/reco: go
+build/reco: go/src/github.com/ReconfigureIO/sdaccel
 	mkdir -p build/reco
 
 dist:
@@ -91,7 +90,7 @@ build/reco/eTeak: build/reco eTeak/go-teak-sdaccel
 build/reco/go-teak: build/reco
 	cp -R go-teak build/reco
 
-build/reco/go: build/reco
+build/reco/go: build/reco go/src/github.com/ReconfigureIO/sdaccel
 	cp -R go build/reco
 
 build/reco-jarvice/reco-jarvice: build/reco-jarvice reco-jarvice/reco-jarvice
@@ -135,6 +134,9 @@ downloads/go-${GO_VERSION}.linux-amd64.tar.gz: | downloads
 	wget -O $@ https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz
 	# So that it won't download again
 	touch $@
+
+downloads/sdaccel-v$(SDACCEL_VERSION).tar.gz: | downloads
+	wget -O $@ https://github.com/ReconfigureIO/sdaccel/archive/v$(SDACCEL_VERSION).tar.gz
 
 build/reco/go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz build/reco
 	mkdir -p $@
