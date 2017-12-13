@@ -51,7 +51,7 @@ bundle/reco: build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco
 
 bundle/reco-jarvice: build/reco-jarvice/reco-jarvice
 
-build/reco:
+build/reco: go
 	mkdir -p build/reco
 
 dist:
