@@ -2,6 +2,8 @@
 NAME := sdaccel-builder
 DESC := build scripts for integrating eTeak & SDAccel
 PREFIX ?= usr/local
+SDACCEL_VERSION := 0.15.0
+FOOBAR := $(shell wget https://github.com/ReconfigureIO/sdaccel/archive/v$(SDACCEL_VERSION).tar.gz && mkdir ./go/ && tar -xf v$(SDACCEL_VERSION).tar.gz -C ./go/)
 VERSION := $(shell git describe --tags --always --dirty)
 BUILDTIME := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 BUILDDATE := $(shell date -u +"%B %d, %Y")
@@ -194,3 +196,5 @@ release: upload-reco-check-bundle upload
 	sed 's/$$VERSION/$(VERSION)/' RELEASE.md > RELEASE_NOTES.md
 	hub release create -d -F "RELEASE_NOTES.md" -a "dist/${NAME}-${VERSION}.tar.gz" -a "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" -a "dist/${NAME}-deploy-${VERSION}.tar.gz" "$(VERSION)"
 	rm RELEASE_NOTES.md
+
+glide: glide install
