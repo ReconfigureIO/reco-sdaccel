@@ -3,7 +3,6 @@ NAME := sdaccel-builder
 DESC := build scripts for integrating eTeak & SDAccel
 PREFIX ?= usr/local
 SDACCEL_VERSION := 0.15.0
-FOOBAR := $(shell wget https://github.com/ReconfigureIO/sdaccel/archive/v$(SDACCEL_VERSION).tar.gz && mkdir ./go/ && tar -xf v$(SDACCEL_VERSION).tar.gz -C ./go/)
 VERSION := $(shell git describe --tags --always --dirty)
 BUILDTIME := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 BUILDDATE := $(shell date -u +"%B %d, %Y")
@@ -37,6 +36,12 @@ print-% : ; @echo $($*)
 
 test:
 	find examples/ -maxdepth 1 -mindepth 1 -type d | PATH=$$PWD:$$PWD/ci/:$$PATH xargs -L1 test.sh
+
+go: 
+	wget https://github.com/ReconfigureIO/sdaccel/archive/v$(SDACCEL_VERSION).tar.gz 
+	mkdir -p go 
+	tar -xf v$(SDACCEL_VERSION).tar.gz -C ./go/
+	rm v$(SDACCEL_VERSION).tar.gz
 
 package/reco: dist/${NAME}-${VERSION}.tar.gz
 
