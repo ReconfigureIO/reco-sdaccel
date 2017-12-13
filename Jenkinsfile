@@ -5,7 +5,7 @@ pipeline {
     parameters {
         string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: '')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
-        booleanParam(name: 'SIMULATION', defaultValue: false, description: 'Force a simulation')
+        booleanParam(name: 'SIMULATE', defaultValue: false, description: 'Force a simulation')
     }
     environment {
         VERSION = "${env.BRANCH_NAME}"
