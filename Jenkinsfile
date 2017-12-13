@@ -5,6 +5,7 @@ pipeline {
     parameters {
         string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: '')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
+        booleanParam(name: 'SIMULATE', defaultValue: false, description: 'Force a simulation')
     }
     environment {
         VERSION = "${env.BRANCH_NAME}"
@@ -76,7 +77,7 @@ pipeline {
 
         stage('deploy examples') {
             when {
-                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || params.SIMULATE }
             }
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} aws"
@@ -85,7 +86,7 @@ pipeline {
 
         stage('test simulation') {
             when {
-                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || params.SIMULATE }
             }
             steps {
                 parallel "histogram array": {

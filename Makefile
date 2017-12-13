@@ -23,11 +23,11 @@ JOB_DEFINITION := sdaccel-builder-build-staging
 BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "${PUBLISHED_DOCKER}" | .jobDefinitionName = "${JOB_DEFINITION}"')
 DEPLOY_JOB := $(shell cat aws/deploy.json | jq '.containerProperties.image = "${PUBLISHED_DEPLOY}"')
 
-export SDACCEL_WRAPPER_VERSION := v0.18.2
-
+export SDACCEL_WRAPPER_VERSION := v0.18.3
 GO_VERSION := 1.7.4
+SDACCEL_VERSION := 0.15.1
 
-.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws build-docs upload-docs upload-docker test
+.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws upload-docker test go/src/github.com/ReconfigureIO/sdaccel
 
 all: package/reco package/reco-jarvice
 
@@ -35,6 +35,17 @@ print-% : ; @echo $($*)
 
 test:
 	find examples/ -maxdepth 1 -mindepth 1 -type d | PATH=$$PWD:$$PWD/ci/:$$PATH xargs -L1 test.sh
+
+go/bin:
+	mkdir -p $@
+
+go/bin/reco-fix: downloads/reco-fix-v$(SDACCEL_VERSION) | go/bin
+	cp downloads/reco-fix-v$(SDACCEL_VERSION) go/bin/reco-fix
+	chmod +x go/bin/reco-fix
+
+go/src/github.com/ReconfigureIO/sdaccel: | downloads/sdaccel-v$(SDACCEL_VERSION).tar.gz
+	mkdir -p $@
+	tar -xf downloads/sdaccel-v$(SDACCEL_VERSION).tar.gz --strip-components=1 -C ./$@
 
 package/reco: dist/${NAME}-${VERSION}.tar.gz
 
@@ -44,7 +55,7 @@ bundle/reco: build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco
 
 bundle/reco-jarvice: build/reco-jarvice/reco-jarvice
 
-build/reco:
+build/reco: go/src/github.com/ReconfigureIO/sdaccel go/bin/reco-fix
 	mkdir -p build/reco
 
 dist:
@@ -85,7 +96,7 @@ build/reco/eTeak: build/reco eTeak/go-teak-sdaccel
 build/reco/go-teak: build/reco
 	cp -R go-teak build/reco
 
-build/reco/go: build/reco
+build/reco/go: build/reco go/src/github.com/ReconfigureIO/sdaccel
 	cp -R go build/reco
 
 build/reco-jarvice/reco-jarvice: build/reco-jarvice reco-jarvice/reco-jarvice
@@ -111,7 +122,7 @@ dist/${NAME}-reco-jarvice-${VERSION}.tar.gz: bundle/reco-jarvice dist
 	cd build/reco-jarvice && tar czf ../../$@ *
 
 clean:
-	rm -rf build dist downloads eTeak docs
+	rm -rf build dist downloads eTeak go/bin go/src/github.com
 	$(MAKE) -C reco-check-bundle clean
 
 deploy: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows
@@ -130,6 +141,12 @@ downloads/go-${GO_VERSION}.linux-amd64.tar.gz: | downloads
 	# So that it won't download again
 	touch $@
 
+downloads/sdaccel-v$(SDACCEL_VERSION).tar.gz: | downloads
+	wget -O $@ https://github.com/ReconfigureIO/sdaccel/archive/v$(SDACCEL_VERSION).tar.gz
+
+downloads/reco-fix-v$(SDACCEL_VERSION): | downloads
+	wget -O $@ https://github.com/ReconfigureIO/sdaccel/releases/download/v$(SDACCEL_VERSION)/fix
+
 build/reco/go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz build/reco
 	mkdir -p $@
 	tar -xf $< -C $@ --strip-components=1
@@ -142,13 +159,6 @@ eTeak/go-teak-sdaccel: | eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-
 	tar -xf "downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz" -C eTeak
 	# So that it won't download again
 	touch $@
-
-docs:
-	mkdir -p docs
-
-build-docs: | eTeak/go-teak-sdaccel docs
-	GOROOT=$$PWD/eTeak/go/ GOPATH=$$PWD/go-teak ./scripts/gendoc.sh docs/kernel
-	GOROOT=$$PWD/go/ ./scripts/gendoc.sh docs/host
 
 update-changelog:
 	sed -i 's/$$VERSION/$(VERSION)/' RELEASE.md
@@ -168,9 +178,6 @@ docker-image: bundle/reco
 	docker build -t $(DOCKER_NAME):latest .
 	docker build -t $(DEPLOY_NAME):latest docker-staging-deploy
 
-upload-docs: build-docs
-	aws s3 sync docs "s3://godoc.reconfigure.io/${VERSION}/"
-
 upload-docker: docker-image
 	docker tag $(DOCKER_NAME):latest ${PUBLISHED_DOCKER}
 	docker tag $(DEPLOY_NAME):latest ${PUBLISHED_DEPLOY}
@@ -178,7 +185,7 @@ upload-docker: docker-image
 	docker push ${PUBLISHED_DOCKER}
 	docker push ${PUBLISHED_DEPLOY}
 
-upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz dist/${NAME}-deploy-${VERSION}.tar.gz upload-docs docker-image
+upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz dist/${NAME}-deploy-${VERSION}.tar.gz docker-image
 	aws s3 cp --quiet "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
 	aws s3 cp --quiet "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
 	aws s3 cp --quiet "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
