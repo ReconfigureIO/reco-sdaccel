@@ -191,5 +191,3 @@ release: upload-reco-check-bundle upload
 	sed 's/$$VERSION/$(VERSION)/' RELEASE.md > RELEASE_NOTES.md
 	hub release create -d -F "RELEASE_NOTES.md" -a "dist/${NAME}-${VERSION}.tar.gz" -a "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" -a "dist/${NAME}-deploy-${VERSION}.tar.gz" "$(VERSION)"
 	rm RELEASE_NOTES.md
-
-glide: glide install
