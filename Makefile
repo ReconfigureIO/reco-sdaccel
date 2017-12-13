@@ -28,7 +28,7 @@ export SDACCEL_WRAPPER_VERSION := v0.18.2
 
 GO_VERSION := 1.7.4
 
-.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws build-docs upload-docs upload-docker test
+.PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws upload-docker test
 
 all: package/reco package/reco-jarvice
 
@@ -118,7 +118,7 @@ dist/${NAME}-reco-jarvice-${VERSION}.tar.gz: bundle/reco-jarvice dist
 	cd build/reco-jarvice && tar czf ../../$@ *
 
 clean:
-	rm -rf build dist downloads eTeak docs
+	rm -rf build dist downloads eTeak
 	$(MAKE) -C reco-check-bundle clean
 
 deploy: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows
@@ -150,13 +150,6 @@ eTeak/go-teak-sdaccel: | eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-
 	# So that it won't download again
 	touch $@
 
-docs:
-	mkdir -p docs
-
-build-docs: | eTeak/go-teak-sdaccel docs
-	GOROOT=$$PWD/eTeak/go/ GOPATH=$$PWD/go-teak go doc docs/kernel
-	GOROOT=$$PWD/go/ go doc docs/host
-
 update-changelog:
 	sed -i 's/$$VERSION/$(VERSION)/' RELEASE.md
 	tail -n +3 RELEASE.md > next.md
@@ -175,9 +168,6 @@ docker-image: bundle/reco
 	docker build -t $(DOCKER_NAME):latest .
 	docker build -t $(DEPLOY_NAME):latest docker-staging-deploy
 
-upload-docs: build-docs
-	aws s3 sync docs "s3://godoc.reconfigure.io/${VERSION}/"
-
 upload-docker: docker-image
 	docker tag $(DOCKER_NAME):latest ${PUBLISHED_DOCKER}
 	docker tag $(DEPLOY_NAME):latest ${PUBLISHED_DEPLOY}
@@ -185,7 +175,7 @@ upload-docker: docker-image
 	docker push ${PUBLISHED_DOCKER}
 	docker push ${PUBLISHED_DEPLOY}
 
-upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz dist/${NAME}-deploy-${VERSION}.tar.gz upload-docs docker-image
+upload: dist/${NAME}-${VERSION}.tar.gz dist/${NAME}-reco-jarvice-${VERSION}.tar.gz dist/${NAME}-deploy-${VERSION}.tar.gz docker-image
 	aws s3 cp --quiet "dist/${NAME}-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-$(VERSION).tar.gz"
 	aws s3 cp --quiet "dist/${NAME}-deploy-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-deploy-$(VERSION).tar.gz"
 	aws s3 cp --quiet "dist/${NAME}-reco-jarvice-${VERSION}.tar.gz" "s3://nerabus/$(NAME)/releases/$(NAME)-reco-jarvice-$(VERSION).tar.gz"
