@@ -77,7 +77,7 @@ pipeline {
 
         stage('deploy examples') {
             when {
-                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || env.SIMULATE }
             }
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} aws"
