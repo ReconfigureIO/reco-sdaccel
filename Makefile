@@ -37,10 +37,10 @@ print-% : ; @echo $($*)
 test:
 	find examples/ -maxdepth 1 -mindepth 1 -type d | PATH=$$PWD:$$PWD/ci/:$$PATH xargs -L1 test.sh
 
-go: 
-	wget https://github.com/ReconfigureIO/sdaccel/archive/v$(SDACCEL_VERSION).tar.gz 
+go: downloads
+	wget https://github.com/ReconfigureIO/sdaccel/archive/v$(SDACCEL_VERSION).tar.gz -O downloads/v$(SDACCEL_VERSION).tar.gz
 	mkdir -p go 
-	tar -xf v$(SDACCEL_VERSION).tar.gz -C ./go/
+	tar -xf downloads/v$(SDACCEL_VERSION).tar.gz -C ./go/
 	rm v$(SDACCEL_VERSION).tar.gz
 
 package/reco: dist/${NAME}-${VERSION}.tar.gz
