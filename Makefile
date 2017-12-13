@@ -55,7 +55,7 @@ bundle/reco: build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco
 
 bundle/reco-jarvice: build/reco-jarvice/reco-jarvice
 
-build/reco: go/src/github.com/ReconfigureIO/sdaccel
+build/reco: go/src/github.com/ReconfigureIO/sdaccel go/bin/reco-fix
 	mkdir -p build/reco
 
 dist:
