@@ -31,7 +31,7 @@ func ProcessMD5(
 		data := make(chan uint32)
 
 		go aximemory.ReadBurstUInt32(
-			memReadAddr, memReadData, true, inputData, num32s, data)
+			memReadAddr, memReadData, true, inputData, uint32(num32s), data)
 
 		for i := numBlocks; i != 0; i-- {
 			for j := 0; j != 16; j += 1 {
