@@ -77,7 +77,7 @@ pipeline {
 
         stage('deploy examples') {
             when {
-                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || env.SIMULATE }
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || params.SIMULATE }
             }
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} aws"
@@ -86,7 +86,7 @@ pipeline {
 
         stage('test simulation') {
             when {
-                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || env.SIMULATE }
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || params.SIMULATE }
             }
             steps {
                 parallel "histogram array": {
