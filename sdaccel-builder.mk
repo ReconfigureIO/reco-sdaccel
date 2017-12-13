@@ -27,7 +27,7 @@ endif
 PART := "xcku115-flvf1924-1-c"
 PART_FAMILY := "kintexu"
 
-.PHONY: kernel xo clean cmds sim verilog graph
+.PHONY: kernel xo clean cmds sim verilog graph fix
 
 kernel: ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin
 
@@ -55,17 +55,24 @@ ${DIST_DIR}/emconfig.json: ${DIST_DIR}
 
 sim: ${DIST_DIR}/emconfig.json
 
+fix:
+	${DIR}/go/bin/reco-fix .
+
 ${DIST_DIR}:
 	mkdir -p "${DIST_DIR}"
 
 ${REPORTS_DIR}:
 	mkdir -p "${REPORTS_DIR}"
 
-${DIST_DIR}/vendor/src:
+${DIST_DIR}/vendor/src: ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel
 	mkdir -p "${VENDOR_DIR}"
 	ln -sf "${ROOT_DIR}/vendor" "${VENDOR_DIR}/src"
 
-${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR} | ${DIST_DIR}/vendor/src
+${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel:
+	mkdir -p ${ROOT_DIR}/vendor/github.com/ReconfigureIO
+	ln -sf "${DIR}/go/src/github.com/ReconfigureIO/sdaccel" ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel
+
+${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR} | ${DIST_DIR}/vendor/src fix
 	LIBRARY_PATH=${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH} CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ GOPATH=${DIR}/go:${VENDOR_DIR} go build -o $@ $<
 
 CMD_SOURCES := $(shell find ${ROOT_DIR}/cmd/ -name main.go)
@@ -79,11 +86,11 @@ ${VERILOG_DIR}:
 VERILOG_SOURCES := $(shell find ${DIR}/eTeak/verilog/SELF_files/ -type f)
 INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/includes/%,$(VERILOG_SOURCES))
 
-${VERILOG_DIR}/main.v: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src
-	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak:${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak-sdaccel build ${GO_TEAK_FLAGS} $< -o $@
+${VERILOG_DIR}/main.v: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
+	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak-sdaccel build ${GO_TEAK_FLAGS} $< -o $@
 
-${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src
-	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${DIR}/go-teak:${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak graph ${GO_TEAK_FLAGS} $< -o $@
+${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
+	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak graph ${GO_TEAK_FLAGS} $< -o $@
 
 ${VERILOG_DIR}/includes: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/includes
