@@ -149,8 +149,8 @@ docs:
 	mkdir -p docs
 
 build-docs: | eTeak/go-teak-sdaccel docs
-	GOROOT=$$PWD/eTeak/go/ GOPATH=$$PWD/go-teak ./scripts/gendoc.sh docs/kernel
-	GOROOT=$$PWD/go/ ./scripts/gendoc.sh docs/host
+	GOROOT=$$PWD/eTeak/go/ GOPATH=$$PWD/go-teak go doc docs/kernel
+	GOROOT=$$PWD/go/ go doc docs/host
 
 update-changelog:
 	sed -i 's/$$VERSION/$(VERSION)/' RELEASE.md
