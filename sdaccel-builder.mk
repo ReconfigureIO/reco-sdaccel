@@ -26,6 +26,13 @@ endif
 
 PART := "xcku115-flvf1924-1-c"
 PART_FAMILY := "kintexu"
+INPUT := go
+
+ifeq ($(INPUT),go)
+	SOURCE_FILE := main.go
+else
+	SOURCE_FILE := main.v
+endif
 
 .PHONY: kernel xo clean cmds sim verilog graph fix
 
@@ -86,8 +93,12 @@ ${VERILOG_DIR}:
 VERILOG_SOURCES := $(shell find ${DIR}/eTeak/verilog/SELF_files/ -type f)
 INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/includes/%,$(VERILOG_SOURCES))
 
-${VERILOG_DIR}/main.v: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
+${VERILOG_DIR}/main.v: ${ROOT_DIR}/${SOURCE_FILE} $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
+ifeq ($(INPUT),go)
 	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak-sdaccel build --full-imports ${GO_TEAK_FLAGS} $< -o $@
+else
+	cp ${ROOT_DIR}/main.v $@
+endif
 
 ${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
 	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak graph ${GO_TEAK_FLAGS} $< -o $@
