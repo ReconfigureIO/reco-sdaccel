@@ -8,6 +8,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 export ROOT_DIR="$PWD"
 reco_optimize="yes"
+reco_memory_interface="axi"
 
 function parse_yaml {
     local prefix="$2"
@@ -37,23 +38,23 @@ if [ -e 'reco.yml' ]; then
 fi
 
 function graph {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" graph
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" graph
 }
 
 function build {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" kernel sim
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" kernel sim
 }
 
 function image {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" kernel
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" kernel
 }
 
 function test_go {
-    make -e -f "$DIR/sdaccel-builder.mk" OPTIMIZE="$reco_optimize" verilog
+    make -e -f "$DIR/sdaccel-builder.mk" OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" verilog
 }
 
 function simulate {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" sim cmds kernel
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" sim cmds kernel
     export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
     # This is for the emconfig.json
     cd "$PWD/.reco-work/sdaccel/dist/"
