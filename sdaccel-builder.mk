@@ -6,7 +6,6 @@ XCLBIN_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin"
 VERILOG_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/verilog"
 VENDOR_DIR := "$(ROOT_DIR)/.reco-work/vendor"
 
-
 XO_NAME := "reconfigure_io_sdaccel_builder_stub_0_1.xo"
 
 KERNEL_NAME := "kernel_test"
@@ -23,6 +22,8 @@ ifeq ($(OPTIMIZE), yes)
 else
 	GO_TEAK_FLAGS :=
 endif
+
+AXI_DATA_WIDTH := 64
 
 PART := "xcku115-flvf1924-1-c"
 PART_FAMILY := "kintexu"
@@ -41,7 +42,11 @@ ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
 ${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v
-	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" vivado -notrace -mode batch -source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs -action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" -param_args_file "${VERILOG_DIR}/main.v.xmldef" -vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part ${PART} -part_family ${PART_FAMILY}
+	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" vivado -notrace -mode batch \
+		-source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs \
+		-action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" \
+		-param_args_file "${VERILOG_DIR}/main.v.xmldef" -vendor reconfigure.io -library sdaccel-builder \
+		-name stub -version 0.1 -part ${PART} -part_family ${PART_FAMILY} -axi_data_width ${AXI_DATA_WIDTH}
 	cp ${BUILD_DIR}/reports/* ${REPORTS_DIR}
 
 ${XCLBIN_DIR}:
