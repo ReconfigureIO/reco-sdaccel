@@ -3,7 +3,7 @@ set -e
 export PATH=$XILINX_SDX/bin:$XILINX_VIVADO/bin:$XILINX_SDX/runtime/bin:$PATH
 source "/opt/sdaccel-builder/settings.sh"
 function post_event {
-    curl -XPOST -H "Content-Type: application/json"  -d '{"status": "'"$1"'", "message": "'"$2"'", "code": '$3'}' "$CALLBACK_URL" &> /dev/null
+    curl -XPOST -H "Content-Type: application/json"  -d '{"status": "'"$1"'", "message": "'"$2"'", "code": '${3-0}'}' "$CALLBACK_URL" &> /dev/null
 }
 
 post_event STARTED
