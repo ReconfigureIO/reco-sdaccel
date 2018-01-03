@@ -17,10 +17,14 @@ timeout -k 1m 60m /opt/sdaccel-builder/sdaccel-builder simulate "$CMD"
 exit="$?"
 
 if [ $exit -ne 0 ]; then
-    zip -qr artifacts.zip /tmp/workspace/.reco-work
-    aws s3 cp --quiet "artifacts.zip" "$OUTPUT_URL"
+    if [ $exit -eq 124 ]; then
+    	curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED", "message": "Simulation timed out", "code": 1}' "$CALLBACK_URL" &> /dev/null
+    else
+    	zip -qr artifacts.zip /tmp/workspace/.reco-work
+    	aws s3 cp --quiet "artifacts.zip" "$OUTPUT_URL"
 
-    curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
+    	curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
+    fi
     exit "$exit"
 fi
 
