@@ -2,7 +2,11 @@
 set -e
 export PATH=$XILINX_SDX/bin:$XILINX_VIVADO/bin:$XILINX_SDX/runtime/bin:$PATH
 source "/opt/sdaccel-builder/settings.sh"
-curl -XPOST -H "Content-Type: application/json"  -d '{"status": "STARTED"}' "$CALLBACK_URL" &> /dev/null
+function post_event {
+    curl -XPOST -H "Content-Type: application/json"  -d '{"status": "'"$1"'", "message": "'"$2"'", "code": '$3'}' "$CALLBACK_URL" &> /dev/null
+}
+
+post_event STARTED
 
 set +e
 aws s3 cp --quiet "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
@@ -10,7 +14,7 @@ aws s3 cp --quiet "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-trans
 exit="$?"
 
 if [ $exit -ne 0 ]; then
-    curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
+    post_event ERRORED "Source code download failed"
     exit "$exit"
 fi
 
@@ -25,9 +29,9 @@ fi
 
 if [ $exit -ne 0 ]; then
     if [ $exit -eq 124 ]; then
-        curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED", "message": "Build timed out", "code": 1}' "$CALLBACK_URL" &> /dev/null
+        post_event ERRORED "Build timed out" "$exit"
     else
-        curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
+        post_event ERRORED "Unknown error" "$exit"
     fi
     exit "$exit"
 fi
@@ -49,7 +53,7 @@ zip -qr dist.zip .reco-work/sdaccel/dist
 aws s3 cp --quiet "dist.zip" "$OUTPUT_URL"
 
 if [ "$GENERATE_AFI" = "yes" ]; then
-    curl -XPOST -H "Content-Type: application/json"  -d "{\"status\": \"CREATING_IMAGE\", \"message\": \"$AGFI\"}" "$CALLBACK_URL" &> /dev/null
+    post_event CREATING_IMAGE "$AGFI"
 else
-    curl -XPOST -H "Content-Type: application/json"  -d '{"status": "COMPLETED"}' "$CALLBACK_URL" &> /dev/null
+    post_event COMPLETED
 fi
