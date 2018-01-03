@@ -30,7 +30,7 @@ exit="$?"
 
 if [ $exit -ne 0 ]; then
     if [ $exit -eq 124 ]; then
-    	curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED", "message": "Graph generation timed out"}' "$CALLBACK_URL" &> /dev/null
+    	curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED", "message": "Graph generation timed out", "code": 1}' "$CALLBACK_URL" &> /dev/null
     else
     	curl -XPOST -H "Content-Type: application/json"  -d '{"status": "ERRORED"}' "$CALLBACK_URL" &> /dev/null
     exit "$exit"
