@@ -61,8 +61,7 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	burstCount := uint32(B.N)
 
 	krnl.SetMemoryArg(0, inputBuff)
-	// non inclusive upper limit of memory
-	//	krnl.SetMemoryArg(1, outputBuff)
+	krnl.SetArg(1, DATA_WIDTH)
 	krnl.SetArg(2, burstCount)
 	krnl.SetMemoryArg(3, outputBuff)
 
