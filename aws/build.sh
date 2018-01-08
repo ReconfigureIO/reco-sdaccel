@@ -23,8 +23,13 @@ timeout -k 1m 12h /opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdaccel-buil
 exit="$?"
 
 if [ -n "$DEBUG_URL" ]; then
-    zip -qr artifacts.zip /tmp/workspace/.reco-work
-    aws s3 cp --quiet "artifacts.zip" "$DEBUG_URL"
+    if [ ! -d /tmp/workspace/.reco-work ]; then
+        post_event ERRORED "Cmd compilation failed. Check your host-side code" "$exit"
+        exit "$exit"
+    else
+        zip -qr artifacts.zip /tmp/workspace/.reco-work
+        aws s3 cp --quiet "artifacts.zip" "$DEBUG_URL"
+    fi
 fi
 
 if [ $exit -ne 0 ]; then

@@ -25,8 +25,13 @@ if [ $exit -ne 0 ]; then
     	post_event ERRORED "Simulation timed out" "$exit"
     else
         if [ -n "$OUTPUT_URL" ]; then
-            zip -qr artifacts.zip /tmp/workspace/.reco-work
-            aws s3 cp --quiet "artifacts.zip" "$OUTPUT_URL"
+            if [ ! -d /tmp/workspace/.reco-work ]; then
+                post_event ERRORED "Cmd compilation failed. Check your host-side code" "$exit"
+                exit "$exit"
+            else
+                zip -qr artifacts.zip /tmp/workspace/.reco-work
+                aws s3 cp --quiet "artifacts.zip" "$OUTPUT_URL"
+            fi
         fi
 
     	post_event ERRORED "Unknown error" "$exit"
