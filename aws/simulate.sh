@@ -24,8 +24,10 @@ if [ $exit -ne 0 ]; then
     if [ $exit -eq 124 ]; then
     	post_event ERRORED "Simulation timed out" "$exit"
     else
-    	zip -qr artifacts.zip /tmp/workspace/.reco-work
-    	aws s3 cp --quiet "artifacts.zip" "$OUTPUT_URL"
+        if [ -n "$OUTPUT_URL" ]; then
+            zip -qr artifacts.zip /tmp/workspace/.reco-work
+            aws s3 cp --quiet "artifacts.zip" "$OUTPUT_URL"
+        fi
 
     	post_event ERRORED "Unknown error" "$exit"
     fi
