@@ -5,7 +5,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"testing"
-	"xcl"
+
+	"github.com/ReconfigureIO/sdaccel/xcl"
 
 	"ReconfigureIO/reco-sdaccel/benchmarks"
 )
@@ -39,9 +40,10 @@ func main() {
 }
 
 func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
-	B.SetBytes(BURST_WIDTH * B.N)
+	B.SetBytes(int64(BURST_WIDTH * B.N))
 	B.ReportAllocs()
 
+	byteLength := B.N
 	input := make([]byte, byteLength)
 	_, err := rand.Read(input)
 

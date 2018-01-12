@@ -3,7 +3,8 @@ package main
 import (
 	"encoding/binary"
 	"log"
-	"xcl"
+
+	"github.com/ReconfigureIO/sdaccel/xcl"
 )
 
 type Result struct {
@@ -41,8 +42,4 @@ func main() {
 	if err != nil {
 		log.Fatal("binary.Read failed:", err)
 	}
-
-	// TODO add some test to verify it ran
-	return true
-
 }
