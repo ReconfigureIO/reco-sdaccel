@@ -8,7 +8,57 @@
 // Provides the kernel action logic for a single 64-bit wide SMI/AXI test.
 //
 
+
+`include "smiAxiInputBuffer.v"
+`include "smiAxiMemBusAdaptor.v"
+`include "smiAxiMemReadAdaptor.v"
+`include "smiAxiMemWriteAdaptor.v"
+`include "smiAxiOutputBuffer.v"
+`include "smiByteDataAlign.v"
+`include "smiFlitDataPack.v"
+`include "smiFlitScaleD2.v"
+`include "smiFlitScaleD4.v"
+`include "smiFlitScaleD8.v"
+`include "smiFlitScaleStageD2.v"
+`include "smiFlitScaleStageX2.v"
+`include "smiFlitScaleX2.v"
+`include "smiFlitScaleX4.v"
+`include "smiFlitScaleX8.v"
+`include "smiFrameArbiterX2.v"
+`include "smiFrameArbiterX4.v"
+`include "smiFrameAssembler.v"
+`include "smiFrameBuffer.v"
+`include "smiFrameSteerX2.v"
+`include "smiFrameSteerX4.v"
+`include "smiHeaderExtractPf1.v"
+`include "smiHeaderExtractPf2.v"
+`include "smiHeaderInjectPf1.v"
+`include "smiHeaderInjectPf2.v"
+`include "smiMemLibFuzzTestBurst64.v"
+`include "smiMemLibFuzzTestParamGen.v"
+`include "smiMemLibReadBurstCore.v"
+`include "smiMemLibReadBurstSegmented64.v"
+`include "smiMemLibReadBurstSingle64.v"
+`include "smiMemLibReadBurstTestCheck64.v"
+`include "smiMemLibWriteBurstCore.v"
+`include "smiMemLibWriteBurstSegmented64.v"
+`include "smiMemLibWriteBurstSingle64.v"
+`include "smiMemLibWriteBurstTestSource64.v"
+`include "smiSelfFlowForkControl.v"
+`include "smiSelfLinkBufferFifoL.v"
+`include "smiSelfLinkBufferFifoS.v"
+`include "smiSelfLinkDoubleBuffer.v"
+`include "smiSelfLinkToggleBuffer.v"
+`include "smiSelfRandSource.v"
+`include "smiTransactionArbiterX2.v"
+`include "smiTransactionArbiterX4.v"
+`include "smiTransactionMatcher.v"
+`include "smiTransactionScaledArbiterX2.v"
+`include "smiTransactionScaledArbiterX4.v"
+
 `timescale 1ns/1ps
+
+
 
 // Can be redefined on the synthesis command line.
 `define AXI_MASTER_ADDR_WIDTH 64
@@ -66,6 +116,7 @@ input         paramdata_0Ready;
 input [31:0]  paramdata_0Data;
 output        paramdata_0Stop;
 
+/* verilator lint_off UNUSED */
 // Specifies the AXI slave bus signals.
 input [31:0]  s_axi_araddr;
 input [3:0]   s_axi_arcache;
@@ -88,6 +139,7 @@ output        s_axi_wready;
 output [1:0]  s_axi_bresp;
 output        s_axi_bvalid;
 input         s_axi_bready;
+/* verilator lint_on UNUSED */
 
 // Specifies the AXI master write address signals.
 output [`AXI_MASTER_ADDR_WIDTH-1:0] m_axi_gmem_awaddr;
@@ -114,10 +166,13 @@ input                                 m_axi_gmem_wready;
 
 // Specifies the AXI master write response signals.
 input [1:0]                        m_axi_gmem_bresp;
+/* verilator lint_off UNUSED */
 input [`AXI_MASTER_USER_WIDTH-1:0] m_axi_gmem_buser;
+/* verilator lint_on UNUSED */
 input [`AXI_MASTER_ID_WIDTH-1:0]   m_axi_gmem_bid;
 input                              m_axi_gmem_bvalid;
 output                             m_axi_gmem_bready;
+
 
 // Specifies the AXI master read address signals.
 output [`AXI_MASTER_ADDR_WIDTH-1:0] m_axi_gmem_araddr;
@@ -138,7 +193,9 @@ input                               m_axi_gmem_arready;
 input [`AXI_MASTER_DATA_WIDTH-1:0] m_axi_gmem_rdata;
 input [1:0]                        m_axi_gmem_rresp;
 input                              m_axi_gmem_rlast;
+/* verilator lint_off UNUSED */
 input [`AXI_MASTER_USER_WIDTH-1:0] m_axi_gmem_ruser;
+/* verilator lint_on UNUSED */
 input [`AXI_MASTER_ID_WIDTH-1:0]   m_axi_gmem_rid;
 input                              m_axi_gmem_rvalid;
 output                             m_axi_gmem_rready;
