@@ -12,7 +12,7 @@ import (
 )
 
 type Result struct {
-	something uint32
+	Something uint32
 }
 
 const (
