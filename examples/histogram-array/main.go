@@ -21,7 +21,7 @@ func Top(
 	memWriteData chan<- axiprotocol.WriteData,
 	memWriteResp <-chan axiprotocol.WriteResp) {
 
-	var histogram [512]uint32
+	histogram := [512]uint32{}
 
 	// Read all of the input data into a channel
 	inputChan := make(chan uint32)
