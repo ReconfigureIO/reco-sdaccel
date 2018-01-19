@@ -8,7 +8,7 @@ import (
 )
 
 type Result struct {
-	Something uint32
+	Something uint64
 }
 
 const DATA_WIDTH = 1024
@@ -23,22 +23,31 @@ func main() {
 	inputBuff := world.Malloc(xcl.WriteOnly, DATA_WIDTH)
 	defer inputBuff.Free()
 
-	var result Result
+	var errResult Result
+	var dcountResult Result
 
-	outputBuff := world.Malloc(xcl.WriteOnly, uint(binary.Size(result)))
-	defer outputBuff.Free()
+	errOutBuff := world.Malloc(xcl.WriteOnly, uint(binary.Size(errResult)))
+	defer errOutBuff.Free()
+
+	dcountOutBuff := world.Malloc(xcl.WriteOnly, uint(binary.Size(dcountResult)))
+	defer dcountOutBuff.Free()
 
 	burstCount := uint32(DATA_WIDTH / 64)
 
 	krnl.SetMemoryArg(0, inputBuff)
 	krnl.SetArg(1, DATA_WIDTH)
 	krnl.SetArg(2, burstCount)
-	krnl.SetMemoryArg(3, outputBuff)
+	krnl.SetMemoryArg(3, errOutBuff)
+	krnl.SetMemoryArg(4, dcountOutBuff)
 
 	krnl.Run(1, 1, 1)
 
-	err := binary.Read(outputBuff.Reader(), binary.LittleEndian, &result)
+	err := binary.Read(errOutBuff.Reader(), binary.LittleEndian, &errResult)
+	if err != nil {
+		log.Fatal("binary.Read failed:", err)
+	}
 
+	err := binary.Read(dcountOutBuff.Reader(), binary.LittleEndian, &dcountResult)
 	if err != nil {
 		log.Fatal("binary.Read failed:", err)
 	}
