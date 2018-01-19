@@ -7,10 +7,6 @@ import (
 	"github.com/ReconfigureIO/sdaccel/xcl"
 )
 
-type Result struct {
-	Something uint64
-}
-
 const DATA_WIDTH = 1024
 
 func main() {
@@ -23,8 +19,8 @@ func main() {
 	inputBuff := world.Malloc(xcl.WriteOnly, DATA_WIDTH)
 	defer inputBuff.Free()
 
-	var errResult Result
-	var dcountResult Result
+	var errResult uint64
+	var dcountResult uint64
 
 	errOutBuff := world.Malloc(xcl.WriteOnly, uint(binary.Size(errResult)))
 	defer errOutBuff.Free()

@@ -4,16 +4,13 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"fmt"
+	"log"
 	"testing"
 
 	"github.com/ReconfigureIO/sdaccel/xcl"
 
 	"ReconfigureIO/reco-sdaccel/benchmarks"
 )
-
-type Result struct {
-	Something uint64
-}
 
 const (
 	DATA_WIDTH = 1024
@@ -40,7 +37,6 @@ func main() {
 }
 
 func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
-	B.SetBytes(int64(BURST_WIDTH * B.N))
 	B.ReportAllocs()
 
 	byteLength := B.N
@@ -55,8 +51,8 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	inputBuff := world.Malloc(xcl.WriteOnly, DATA_WIDTH)
 	defer inputBuff.Free()
 
-	var errResult Result
-	var dcountResult Result
+	var errResult uint64
+	var dcountResult uint64
 
 	errOutBuff := world.Malloc(xcl.WriteOnly, uint(binary.Size(errResult)))
 	defer errOutBuff.Free()
@@ -76,7 +72,7 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	krnl.Run(1, 1, 1)
 	B.StopTimer()
 
-	err := binary.Read(errOutBuff.Reader(), binary.LittleEndian, &errResult)
+	err = binary.Read(errOutBuff.Reader(), binary.LittleEndian, &errResult)
 	if err != nil {
 		log.Fatal("binary.Read failed:", err)
 	}
@@ -85,4 +81,7 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	if err != nil {
 		log.Fatal("binary.Read failed:", err)
 	}
+
+	B.SetBytes(int64(dcountResult))
+
 }
