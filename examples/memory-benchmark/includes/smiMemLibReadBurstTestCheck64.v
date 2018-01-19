@@ -91,11 +91,8 @@ reg [63:0] dataCounterVal_q;
 reg [63:0] dataCounterIncr_q;
 reg [31:0] readDataCounter_q;
 
-reg testParamsHalt;
 reg readParamsReady;
 reg readDataHalt;
-reg testDoneReady;
-reg readDoneHalt;
 
 // Implement combinatorial logic for read burst test state machine.
 always @(testState_q, testPassed_q, burstAddr_q, burstLen_q, burstOpts_q,
@@ -115,11 +112,8 @@ begin
   dataCounterIncr_d = dataCounterIncr_q;
   readDataCounter_d = readDataCounter_q;
 
-  testParamsHalt = 1'b1;
   readParamsReady = 1'b0;
   readDataHalt = 1'b1;
-  testDoneReady = 1'b0;
-  readDoneHalt = 1'b1;
 
   // Implement state machine.
   case (testState_q)
@@ -150,8 +144,6 @@ begin
     // Forward the status signals.
     TestGetStatus :
     begin
-      testDoneReady = readDoneValid;
-      readDoneHalt = testDoneStop;
       if (readDoneValid & ~testDoneStop)
         testState_d = TestIdle;
     end
@@ -159,7 +151,6 @@ begin
     // From the default idle state, wait for a new set of test parameters.
     default :
     begin
-      testParamsHalt = 1'b0;
       testPassed_d = 1'b1;
       burstAddr_d = testParamBurstAddr;
       burstLen_d = testParamBurstLen;
@@ -195,14 +186,14 @@ begin
   readDataCounter_q <= readDataCounter_d;
 end
 
-assign testParamsStop = testParamsHalt;
+assign testParamsStop = (testState_q == TestIdle) ? 1'b0 : 1'b1;
 assign readParamsValid = readParamsReady;
 assign readParamBurstAddr = burstAddr_q;
 assign readParamBurstLen = burstLen_q;
 assign readParamBurstOpts = burstOpts_q;
 assign readDataStop = readDataHalt;
-assign testDoneValid = testDoneReady;
+assign testDoneValid = (testState_q == TestGetStatus) ? readDoneValid : 1'b0;
 assign testDoneStatusOk = readDoneStatusOk & testPassed_q;
-assign readDoneStop = readDoneHalt;
+assign readDoneStop = (testState_q == TestGetStatus) ? testDoneStop : 1'b1;
 
 endmodule
