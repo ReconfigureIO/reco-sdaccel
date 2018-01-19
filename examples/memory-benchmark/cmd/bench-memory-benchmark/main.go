@@ -81,7 +81,7 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 		log.Fatal("binary.Read failed:", err)
 	}
 
-	err := binary.Read(dcountOutBuff.Reader(), binary.LittleEndian, &dcountResult)
+	err = binary.Read(dcountOutBuff.Reader(), binary.LittleEndian, &dcountResult)
 	if err != nil {
 		log.Fatal("binary.Read failed:", err)
 	}
