@@ -47,4 +47,6 @@ func main() {
 	if err != nil {
 		log.Fatal("binary.Read failed:", err)
 	}
+
+	log.Printf("Read %d bytes with %d errors", dcountResult, errResult)
 }
