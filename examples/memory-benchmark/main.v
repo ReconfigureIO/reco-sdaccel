@@ -55,6 +55,8 @@
 `include "smiTransactionMatcher.v"
 `include "smiTransactionScaledArbiterX2.v"
 `include "smiTransactionScaledArbiterX4.v"
+`include "smiMemLibWriteWord32.v"
+`include "smiMemLibWriteWord64.v"
 
 `timescale 1ns/1ps
 
@@ -73,10 +75,14 @@
 `define AXI_MASTER_USER_WIDTH 1
 
 // Specify the control register offsets.
-`define AXI_CONTROL_OFFSET_MEM_BASE_ADDR_L 32'h40
-`define AXI_CONTROL_OFFSET_MEM_BASE_ADDR_H 32'h44
-`define AXI_CONTROL_OFFSET_MEM_BLOCK_SIZE  32'h48
-`define AXI_CONTROL_OFFSET_TEST_COUNT      32'h4C
+`define AXI_CONTROL_OFFSET_MEM_BASE_ADDR_L      32'h40
+`define AXI_CONTROL_OFFSET_MEM_BASE_ADDR_H      32'h44
+`define AXI_CONTROL_OFFSET_MEM_BLOCK_SIZE       32'h48
+`define AXI_CONTROL_OFFSET_TEST_COUNT           32'h4C
+`define AXI_CONTROL_OFFSET_ERR_RESULT_ADDR_L    32'h50
+`define AXI_CONTROL_OFFSET_ERR_RESULT_ADDR_H    32'h54
+`define AXI_CONTROL_OFFSET_DCOUNT_RESULT_ADDR_L 32'h58
+`define AXI_CONTROL_OFFSET_DCOUNT_RESULT_ADDR_H 32'h5C
 
 // The module name is common for different kernel action toplevel entities.
 module teak__action__top__gmem
@@ -116,7 +122,6 @@ input         paramdata_0Ready;
 input [31:0]  paramdata_0Data;
 output        paramdata_0Stop;
 
-/* verilator lint_off UNUSED */
 // Specifies the AXI slave bus signals.
 input [31:0]  s_axi_araddr;
 input [3:0]   s_axi_arcache;
@@ -139,7 +144,6 @@ output        s_axi_wready;
 output [1:0]  s_axi_bresp;
 output        s_axi_bvalid;
 input         s_axi_bready;
-/* verilator lint_on UNUSED */
 
 // Specifies the AXI master write address signals.
 output [`AXI_MASTER_ADDR_WIDTH-1:0] m_axi_gmem_awaddr;
@@ -166,13 +170,10 @@ input                                 m_axi_gmem_wready;
 
 // Specifies the AXI master write response signals.
 input [1:0]                        m_axi_gmem_bresp;
-/* verilator lint_off UNUSED */
 input [`AXI_MASTER_USER_WIDTH-1:0] m_axi_gmem_buser;
-/* verilator lint_on UNUSED */
 input [`AXI_MASTER_ID_WIDTH-1:0]   m_axi_gmem_bid;
 input                              m_axi_gmem_bvalid;
 output                             m_axi_gmem_bready;
-
 
 // Specifies the AXI master read address signals.
 output [`AXI_MASTER_ADDR_WIDTH-1:0] m_axi_gmem_araddr;
@@ -193,9 +194,7 @@ input                               m_axi_gmem_arready;
 input [`AXI_MASTER_DATA_WIDTH-1:0] m_axi_gmem_rdata;
 input [1:0]                        m_axi_gmem_rresp;
 input                              m_axi_gmem_rlast;
-/* verilator lint_off UNUSED */
 input [`AXI_MASTER_USER_WIDTH-1:0] m_axi_gmem_ruser;
-/* verilator lint_on UNUSED */
 input [`AXI_MASTER_ID_WIDTH-1:0]   m_axi_gmem_rid;
 input                              m_axi_gmem_rvalid;
 output                             m_axi_gmem_rready;
@@ -205,34 +204,49 @@ input clk;
 input reset;
 
 // Specify state space for test runner state machine.
-parameter [3:0]
+parameter [4:0]
   TestStateReset = 0,
   TestStateIdle = 1,
-  TestStateGetParam1a = 2,
-  TestStateGetParam1b = 3,
-  TestStateGetParam1c = 4,
-  TestStateGetParam1d = 5,
-  TestStateGetParam2a = 6,
-  TestStateGetParam2b = 7,
-  TestStateGetParam3a = 8,
-  TestStateGetParam3b = 9,
+  TestStateGetParam1l = 2,
+  TestStateGetParam1h = 3,
+  TestStateGetParam2 = 4,
+  TestStateGetParam3 = 5,
+  TestStateGetParam4l = 6,
+  TestStateGetParam4h = 7,
+  TestStateGetParam5l = 8,
+  TestStateGetParam5h = 9,
   TestStateSetConfig = 10,
   TestStateGetStatus = 11,
-  TestStateReportResult = 12;
+  TestStateWriteErrCountReq = 12,
+  TestStateWriteErrCountDone = 13,
+  TestStateWriteDataCountReq = 14,
+  TestStateWriteDataCountDone = 15,
+  TestStateReportResult = 16;
+
+// Parameter request state machine signals.
+reg [3:0] paramReqCount_d;
+reg [3:0] paramReqCount_q;
 
 // Action execution state machine signals.
-reg [3:0]  testState_d;
+reg [4:0]  testState_d;
 reg [63:0] memBaseAddr_d;
 reg [31:0] memBlockLength_d;
 reg [31:0] fuzzTestCount_d;
+reg [63:0] errResultAddr_d;
+reg [63:0] dcountResultAddr_d;
 reg [31:0] errorCount_d;
+reg [63:0] dataCount_d;
 
-reg [3:0]  testState_q;
+reg [4:0]  testState_q;
 reg [63:0] memBaseAddr_q;
 reg [31:0] memBlockLength_q;
 reg [31:0] fuzzTestCount_q;
+reg [63:0] errResultAddr_q;
+reg [63:0] dcountResultAddr_q;
 reg [31:0] errorCount_q;
+reg [63:0] dataCount_q;
 
+reg        paramReq;
 reg        goHalt;
 reg        doneReady;
 reg        paramAddrReady;
@@ -240,6 +254,24 @@ reg [31:0] paramAddrData;
 reg        paramReadHalt;
 
 // Specifies internal SMI memory bus signals.
+wire        smiStatReqReady;
+wire [7:0]  smiStatReqEofc;
+wire [63:0] smiStatReqData;
+wire        smiStatReqStop;
+wire        smiStatRespReady;
+wire [7:0]  smiStatRespEofc;
+wire [63:0] smiStatRespData;
+wire        smiStatRespStop;
+
+wire        smiTestReqReady;
+wire [7:0]  smiTestReqEofc;
+wire [63:0] smiTestReqData;
+wire        smiTestReqStop;
+wire        smiTestRespReady;
+wire [7:0]  smiTestRespEofc;
+wire [63:0] smiTestRespData;
+wire        smiTestRespStop;
+
 wire        smiReqReady;
 wire [7:0]  smiReqEofc;
 wire [63:0] smiReqData;
@@ -253,8 +285,17 @@ wire        smiRespStop;
 reg  configValid;
 wire configStop;
 
+reg        statusWriteValid;
+reg [63:0] statusWriteData;
+reg [63:0] statusWriteAddr;
+wire       statusWriteStop;
+wire       statusWriteDoneValid;
+wire       statusWriteDoneStatusOk;
+reg        statusWriteDoneStop;
+
 wire        statusValid;
 wire [31:0] statusErrorCount;
+wire [63:0] statusDataCount;
 reg         statusStop;
 
 // AXI slave loopback signals. Initialised to zero to avoid locking the slave
@@ -264,10 +305,53 @@ reg s_axi_read_complete_q = 1'b0;
 reg s_axi_write_ready_q = 1'b0;
 reg s_axi_write_complete_q = 1'b0;
 
+// Implement combinatorial logic for parameter request state machine.
+always @(paramReqCount_q, paramReq, paramaddr_0Stop)
+begin
+
+  // Hold current state by default.
+  paramReqCount_d = paramReqCount_q;
+  paramAddrReady = 1'b0;
+  paramAddrData = 32'd0;
+
+  // From the idle state, wait for parameter request to be initiated.
+  if (paramReqCount_q == 4'd0)
+  begin
+    if (paramReq)
+      paramReqCount_d = 4'd1;
+  end
+
+  // Issue parameter requests.
+  else if (paramReqCount_q <= 4'd8)
+  begin
+    paramAddrReady = 1'b1;
+    case (paramReqCount_q)
+      4'd1 : paramAddrData = `AXI_CONTROL_OFFSET_MEM_BASE_ADDR_L;
+      4'd2 : paramAddrData = `AXI_CONTROL_OFFSET_MEM_BASE_ADDR_H;
+      4'd3 : paramAddrData = `AXI_CONTROL_OFFSET_MEM_BLOCK_SIZE;
+      4'd4 : paramAddrData = `AXI_CONTROL_OFFSET_TEST_COUNT;
+      4'd5 : paramAddrData = `AXI_CONTROL_OFFSET_ERR_RESULT_ADDR_L;
+      4'd6 : paramAddrData = `AXI_CONTROL_OFFSET_ERR_RESULT_ADDR_H;
+      4'd7 : paramAddrData = `AXI_CONTROL_OFFSET_DCOUNT_RESULT_ADDR_L;
+      4'd8 : paramAddrData = `AXI_CONTROL_OFFSET_DCOUNT_RESULT_ADDR_H;
+    endcase
+    if (~paramaddr_0Stop)
+      paramReqCount_d = paramReqCount_q + 4'd1;
+  end
+
+  // Revert to idle state.
+  else
+  begin
+    paramReqCount_d = 4'd0;
+  end
+
+end
+
 // Implement combinatorial logic for action execution state machine.
 always @(testState_q, memBaseAddr_q, memBlockLength_q, fuzzTestCount_q,
-  errorCount_q, go_0Ready, done_0Stop, paramaddr_0Stop, paramdata_0Ready,
-  paramdata_0Data, configStop, statusValid, statusErrorCount)
+  errResultAddr_q, dcountResultAddr_q, errorCount_q, dataCount_q, go_0Ready,
+  done_0Stop, paramdata_0Ready, paramdata_0Data, configStop, statusValid,
+  statusErrorCount, statusDataCount, statusWriteStop, statusWriteDoneValid)
 begin
 
   // Hold current state by default.
@@ -275,14 +359,20 @@ begin
   memBaseAddr_d = memBaseAddr_q;
   memBlockLength_d = memBlockLength_q;
   fuzzTestCount_d = fuzzTestCount_q;
+  errResultAddr_d = errResultAddr_q;
+  dcountResultAddr_d = dcountResultAddr_q;
   errorCount_d = errorCount_q;
+  dataCount_d = dataCount_q;
 
   goHalt = 1'b1;
   doneReady = 1'b0;
-  paramAddrReady = 1'b0;
-  paramAddrData = 32'd0;
+  paramReq = 1'b0;
   paramReadHalt = 1'b1;
   configValid = 1'b0;
+  statusWriteValid = 1'b0;
+  statusWriteData = 64'd0;
+  statusWriteAddr = 64'd0;
+  statusWriteDoneStop = 1'b1;
   statusStop = 1'b1;
 
   // Implement state machine.
@@ -294,74 +384,77 @@ begin
       goHalt = 1'b0;
       if (go_0Ready)
       begin
-        testState_d = TestStateGetParam1a;
+        testState_d = TestStateGetParam1l;
         errorCount_d = 32'd0;
+        paramReq = 1'b1;
       end
     end
 
     // Get parameter 1 (64-bit test memory block base address).
-    TestStateGetParam1a :
-    begin
-      paramAddrReady = 1'b1;
-      paramAddrData = `AXI_CONTROL_OFFSET_MEM_BASE_ADDR_L;
-      if (~paramaddr_0Stop)
-        testState_d = TestStateGetParam1b;
-    end
-
-    TestStateGetParam1b :
+    TestStateGetParam1l :
     begin
       paramReadHalt = 1'b0;
       memBaseAddr_d [31:0] = paramdata_0Data;
       if (paramdata_0Ready)
-        testState_d = TestStateGetParam1c;
+        testState_d = TestStateGetParam1h;
     end
 
-    TestStateGetParam1c :
-    begin
-      paramAddrReady = 1'b1;
-      paramAddrData = `AXI_CONTROL_OFFSET_MEM_BASE_ADDR_H;
-      if (~paramaddr_0Stop)
-        testState_d = TestStateGetParam1d;
-    end
-
-    TestStateGetParam1d :
+    TestStateGetParam1h :
     begin
       paramReadHalt = 1'b0;
       memBaseAddr_d [63:32] = paramdata_0Data;
       if (paramdata_0Ready)
-        testState_d = TestStateGetParam2a;
+        testState_d = TestStateGetParam2;
     end
 
     // Get parameter 2 (32-bit test memory block length).
-    TestStateGetParam2a :
-    begin
-      paramAddrReady = 1'b1;
-      paramAddrData = `AXI_CONTROL_OFFSET_MEM_BLOCK_SIZE;
-      if (~paramaddr_0Stop)
-        testState_d = TestStateGetParam2b;
-    end
-
-    TestStateGetParam2b :
+    TestStateGetParam2 :
     begin
       paramReadHalt = 1'b0;
       memBlockLength_d = paramdata_0Data;
       if (paramdata_0Ready)
-        testState_d = TestStateGetParam3a;
+        testState_d = TestStateGetParam3;
     end
 
     // Get parameter 3 (32-bit test count).
-   TestStateGetParam3a :
-    begin
-      paramAddrReady = 1'b1;
-      paramAddrData = `AXI_CONTROL_OFFSET_TEST_COUNT;
-      if (~paramaddr_0Stop)
-        testState_d = TestStateGetParam3b;
-    end
-
-    TestStateGetParam3b :
+    TestStateGetParam3 :
     begin
       paramReadHalt = 1'b0;
       fuzzTestCount_d = paramdata_0Data;
+      if (paramdata_0Ready)
+        testState_d = TestStateGetParam4l;
+    end
+
+    // Get parameter 4 (64-bit error count result base address).
+    TestStateGetParam4l :
+    begin
+      paramReadHalt = 1'b0;
+      errResultAddr_d [31:0] = paramdata_0Data;
+      if (paramdata_0Ready)
+        testState_d = TestStateGetParam4h;
+    end
+
+    TestStateGetParam4h :
+    begin
+      paramReadHalt = 1'b0;
+      errResultAddr_d [63:32] = paramdata_0Data;
+      if (paramdata_0Ready)
+        testState_d = TestStateGetParam5l;
+    end
+
+    // Get parameter 5 (64-bit data count result base address).
+    TestStateGetParam5l :
+    begin
+      paramReadHalt = 1'b0;
+      dcountResultAddr_d [31:0] = paramdata_0Data;
+      if (paramdata_0Ready)
+        testState_d = TestStateGetParam5h;
+    end
+
+    TestStateGetParam5h :
+    begin
+      paramReadHalt = 1'b0;
+      dcountResultAddr_d [63:32] = paramdata_0Data;
       if (paramdata_0Ready)
         testState_d = TestStateSetConfig;
     end
@@ -379,7 +472,42 @@ begin
     begin
       statusStop = 1'b0;
       errorCount_d = statusErrorCount;
+      dataCount_d = statusDataCount;
       if (statusValid)
+        testState_d = TestStateWriteErrCountReq;
+    end
+
+    // Write the status error count value to the return location in shared memory.
+    TestStateWriteErrCountReq :
+    begin
+      statusWriteValid = 1'b1;
+      statusWriteAddr = errResultAddr_q;
+      statusWriteData = { 32'd0, errorCount_q };
+      if (~statusWriteStop)
+        testState_d = TestStateWriteErrCountDone;
+    end
+
+    TestStateWriteErrCountDone :
+    begin
+      statusWriteDoneStop = 1'b0;
+      if (statusWriteDoneValid)
+        testState_d = TestStateWriteDataCountReq;
+    end
+
+    // Write the status data count value to the return location in shared memory.
+    TestStateWriteDataCountReq :
+    begin
+      statusWriteValid = 1'b1;
+      statusWriteAddr = dcountResultAddr_q;
+      statusWriteData = dataCount_q;
+      if (~statusWriteStop)
+        testState_d = TestStateWriteDataCountDone;
+    end
+
+    TestStateWriteDataCountDone :
+    begin
+      statusWriteDoneStop = 1'b0;
+      if (statusWriteDoneValid)
         testState_d = TestStateReportResult;
     end
 
@@ -404,9 +532,15 @@ end
 always @(posedge clk)
 begin
   if (reset)
+  begin
     testState_q <= TestStateReset;
+    paramReqCount_q <= 4'd0;
+  end
   else
+  begin
     testState_q <= testState_d;
+    paramReqCount_q <= paramReqCount_d;
+  end
 end
 
 // Implement non-resettable data registers for test control state machine.
@@ -415,7 +549,10 @@ begin
   memBaseAddr_q <= memBaseAddr_d;
   memBlockLength_q <= memBlockLength_d;
   fuzzTestCount_q <= fuzzTestCount_d;
+  errResultAddr_q <= errResultAddr_d;
+  dcountResultAddr_q <= dcountResultAddr_d;
   errorCount_q <= errorCount_d;
+  dataCount_q <= dataCount_d;
 end
 
 // Connect external handshake signals.
@@ -474,10 +611,27 @@ assign s_axi_bvalid = s_axi_write_complete_q;
 
 // Instantiate the SMI memory fuzz test module.
 smiMemLibFuzzTestBurst64 smiMemLibFuzzTestBurst64
-  (configValid, memBaseAddr_q, memBlockLength_q, fuzzTestCount_q,
-  configStop, statusValid, statusErrorCount, statusStop, smiReqReady, smiReqEofc,
-  smiReqData, smiReqStop, smiRespReady, smiRespEofc, smiRespData, smiRespStop,
+  (configValid, memBaseAddr_q, memBlockLength_q, fuzzTestCount_q, configStop,
+  statusValid, statusErrorCount, statusDataCount, statusStop, smiTestReqReady,
+  smiTestReqEofc, smiTestReqData, smiTestReqStop, smiTestRespReady,
+  smiTestRespEofc, smiTestRespData, smiTestRespStop, clk, reset);
+
+// Instantiate the status memory write module.
+smiMemLibWriteWord64 statusWriter
+  (statusWriteValid, statusWriteAddr, 8'h01, statusWriteData, statusWriteStop,
+  statusWriteDoneValid, statusWriteDoneStatusOk, statusWriteDoneStop,
+  smiStatReqReady, smiStatReqEofc, smiStatReqData, smiStatReqStop,
+  smiStatRespReady, smiStatRespEofc, smiStatRespData, smiStatRespStop,
   clk, reset);
+
+// Instantiate two-way SMI transaction arbiter.
+smiTransactionArbiterX2 #(8, 2, 64, 4) transactionArbiter
+  (smiTestReqReady, smiTestReqEofc, smiTestReqData, smiTestReqStop,
+  smiTestRespReady, smiTestRespEofc, smiTestRespData, smiTestRespStop,
+  smiStatReqReady, smiStatReqEofc, smiStatReqData, smiStatReqStop,
+  smiStatRespReady, smiStatRespEofc, smiStatRespData, smiStatRespStop,
+  smiReqReady, smiReqEofc, smiReqData, smiReqStop, smiRespReady, smiRespEofc,
+  smiRespData, smiRespStop, clk, reset);
 
 // Instantiate the SMI/AXI bus adapter.
 smiAxiMemBusAdaptor #(3, `AXI_MASTER_ID_WIDTH) smiAxiMemBusAdaptor
@@ -491,7 +645,7 @@ smiAxiMemBusAdaptor #(3, `AXI_MASTER_ID_WIDTH) smiAxiMemBusAdaptor
   m_axi_gmem_wdata, m_axi_gmem_wstrb, m_axi_gmem_wlast, m_axi_gmem_bvalid,
   m_axi_gmem_bready, m_axi_gmem_bid, m_axi_gmem_bresp, reset, clk, reset);
 
-// Tie of unused AXI memory access signals.
+// Tie off unused AXI memory access signals.
 assign m_axi_gmem_awburst = 2'b1;
 assign m_axi_gmem_awlock = 1'b0;
 assign m_axi_gmem_awprot = 3'b0;
