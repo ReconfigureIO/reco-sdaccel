@@ -1,9 +1,7 @@
 package main
 
 import (
-	"crypto/rand"
 	"encoding/binary"
-	"fmt"
 	"log"
 	"testing"
 
@@ -39,15 +37,6 @@ func main() {
 func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	B.ReportAllocs()
 
-	byteLength := B.N
-	input := make([]byte, byteLength)
-	_, err := rand.Read(input)
-
-	if err != nil {
-		fmt.Println("error:", err)
-		return
-	}
-
 	inputBuff := world.Malloc(xcl.WriteOnly, DATA_WIDTH)
 	defer inputBuff.Free()
 
@@ -72,7 +61,7 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	krnl.Run(1, 1, 1)
 	B.StopTimer()
 
-	err = binary.Read(errOutBuff.Reader(), binary.LittleEndian, &errResult)
+	err := binary.Read(errOutBuff.Reader(), binary.LittleEndian, &errResult)
 	if err != nil {
 		log.Fatal("binary.Read failed:", err)
 	}
@@ -82,6 +71,7 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 		log.Fatal("binary.Read failed:", err)
 	}
 
-	B.SetBytes(int64(dcountResult))
+	B.SetBytes(int64(dcountResult) / int64(B.N))
+	log.Printf("bytes=%d errors=%d iterations=%d", dcountResult, errResult, B.N)
 
 }
