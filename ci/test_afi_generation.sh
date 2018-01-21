@@ -24,7 +24,10 @@ set -e
 
 mkdir -p ../../bench_tmp
 TMPFILE=$(mktemp --suffix ".log" -p ../../bench_tmp)
-cat $ERRFILE | grep "verilog," -A2 | awk -F"," "{print \"buildTime/\" \$1 \"/$NAME\" \";\" \$2}" | tee -a "$TMPFILE"
-rm $ERRFILE
+if [ ! -e "main.v" ]
+then
+    cat "$ERRFILE" | grep "verilog," -A2 | awk -F"," "{print \"buildTime/\" \$1 \"/$NAME\" \";\" \$2}" | tee -a "$TMPFILE"
+fi
+rm "$ERRFILE"
 ../../reco-aws/reco-aws run "$NUMBER" "$EXAMPLE"
 ../../reco-aws/reco-aws run "$NUMBER" "bench-$BENCH" 2>&1 | tee -a "$TMPFILE"
