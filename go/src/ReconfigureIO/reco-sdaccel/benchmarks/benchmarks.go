@@ -20,4 +20,5 @@ func GipedaResults(suffix string, r testing.BenchmarkResult) {
 	}
 	fmt.Printf("allocs/%s;%d\n", suffix, r.AllocsPerOp())
 	fmt.Printf("bytes/%s;%d\n", suffix, r.AllocedBytesPerOp())
+	fmt.Printf("n/%s;%d\n", suffix, r.N)
 }

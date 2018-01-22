@@ -1,9 +1,8 @@
 package main
 
 import (
-	"crypto/rand"
 	"encoding/binary"
-	"fmt"
+	"log"
 	"testing"
 
 	"github.com/ReconfigureIO/sdaccel/xcl"
@@ -11,12 +10,7 @@ import (
 	"ReconfigureIO/reco-sdaccel/benchmarks"
 )
 
-type Result struct {
-	Something uint64
-}
-
 const (
-	DATA_WIDTH = 1024
 	// Burst width in bytes
 	BURST_WIDTH = 8
 )
@@ -31,32 +25,30 @@ func main() {
 	krnl := program.GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
 	defer krnl.Release()
 
-	f := func(B *testing.B) {
-		doit(world, krnl, B)
+	f := func(dataWidth uint) func(B *testing.B) {
+		return func(B *testing.B) {
+			doit(world, krnl, dataWidth, B)
+		}
 	}
 
-	bm := testing.Benchmark(f)
-	benchmarks.GipedaResults("memcopy", bm)
+	bm := testing.Benchmark(f(1024))
+	benchmarks.GipedaResults("memcopy-kb", bm)
+
+	bm = testing.Benchmark(f(1024 * 1024))
+	benchmarks.GipedaResults("memcopy-mb", bm)
+
+	bm = testing.Benchmark(f(1024 * 1024 * 1024))
+	benchmarks.GipedaResults("memcopy-gb", bm)
 }
 
-func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
-	B.SetBytes(int64(BURST_WIDTH * B.N))
+func doit(world xcl.World, krnl *xcl.Kernel, dataWidth uint, B *testing.B) {
 	B.ReportAllocs()
 
-	byteLength := B.N
-	input := make([]byte, byteLength)
-	_, err := rand.Read(input)
-
-	if err != nil {
-		fmt.Println("error:", err)
-		return
-	}
-
-	inputBuff := world.Malloc(xcl.WriteOnly, DATA_WIDTH)
+	inputBuff := world.Malloc(xcl.WriteOnly, dataWidth)
 	defer inputBuff.Free()
 
-	var errResult Result
-	var dcountResult Result
+	var errResult uint64
+	var dcountResult uint64
 
 	errOutBuff := world.Malloc(xcl.WriteOnly, uint(binary.Size(errResult)))
 	defer errOutBuff.Free()
@@ -67,7 +59,7 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	burstCount := uint32(B.N)
 
 	krnl.SetMemoryArg(0, inputBuff)
-	krnl.SetArg(1, DATA_WIDTH)
+	krnl.SetArg(1, uint32(dataWidth))
 	krnl.SetArg(2, burstCount)
 	krnl.SetMemoryArg(3, errOutBuff)
 	krnl.SetMemoryArg(4, dcountOutBuff)
@@ -85,4 +77,8 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	if err != nil {
 		log.Fatal("binary.Read failed:", err)
 	}
+
+	B.SetBytes(int64(dcountResult) / int64(B.N))
+	log.Printf("bytes=%d errors=%d iterations=%d", dcountResult, errResult, B.N)
+
 }
