@@ -1,0 +1,5 @@
+<arg addressQualifier="1" hostOffset="0x0" hostSize="0x8" id="0" name="0" offset="0x40" port="m_axi_gmem" size="0x8" type="uintptr"></arg>
+<arg addressQualifier="0" hostOffset="0x0" hostSize="0x4" id="1" name="1" offset="0x48" port="s_axi_control" size="0x4" type="uint32"></arg>
+<arg addressQualifier="0" hostOffset="0x0" hostSize="0x4" id="2" name="2" offset="0x4c" port="s_axi_control" size="0x4" type="uint32"></arg>
+<arg addressQualifier="1" hostOffset="0x0" hostSize="0x8" id="3" name="3" offset="0x50" port="m_axi_gmem" size="0x8" type="uintptr"></arg>
+<arg addressQualifier="1" hostOffset="0x0" hostSize="0x8" id="4" name="4" offset="0x58" port="m_axi_gmem" size="0x8" type="uintptr"></arg>

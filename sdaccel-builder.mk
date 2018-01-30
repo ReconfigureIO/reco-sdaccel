@@ -103,6 +103,7 @@ ifeq ($(INPUT),go)
 	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak-sdaccel build --full-imports ${GO_TEAK_FLAGS} $< -o $@
 else
 	cp ${ROOT_DIR}/main.v $@
+	cp ${ROOT_DIR}/main.v.xmldef ${VERILOG_DIR}
 endif
 
 ${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
@@ -110,8 +111,9 @@ ${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR
 
 ${VERILOG_DIR}/includes: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/includes
+	if [ -d "${ROOT_DIR}/includes/" ]; then cp ${ROOT_DIR}/includes/* ${VERILOG_DIR}/includes; fi
 
-${VERILOG_DIR}/includes/%: ${DIR}/eTeak/verilog/SELF_files/% ${VERILOG_DIR}/includes
+${VERILOG_DIR}/includes/%: ${DIR}/eTeak/verilog/SELF_files/% | ${VERILOG_DIR}/includes
 	@cp $< $@
 
 clean:

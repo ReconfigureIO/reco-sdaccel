@@ -124,6 +124,11 @@ pipeline {
                         sh '../../reco-aws/reco-aws test test-md5'
                     }
                 },
+                "memory benchmark": {
+                    dir('examples/memory-benchmark'){
+                        sh '../../reco-aws/reco-aws test test-memory-benchmark'
+                    }
+                },
                 "noop": {
                     dir('examples/noop'){
                         sh '../../reco-aws/reco-aws test test-noop'
@@ -140,6 +145,9 @@ pipeline {
             steps {
                 parallel "histogram array": {
                     sh './ci/test_afi_generation.sh histogram-array test-histogram histogram "`git rev-parse HEAD`"'
+                },
+                "memory benchmark": {
+                    sh './ci/test_afi_generation.sh memory-benchmark test-memory-benchmark memory-benchmark "`git rev-parse HEAD`"'
                 },
                 memcopy: {
                     sh './ci/test_build.sh memcopy test-memcopy memcopy "`git rev-parse HEAD`"'
