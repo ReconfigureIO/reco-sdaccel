@@ -1575,7 +1575,7 @@ func ReadBurstUInt64(
 	readAddrIn uintptr,
 	readOptions uint8,
 	readLengthIn uint32,
-	readDataChan <-chan uint64) bool {
+	readDataChan chan<- uint64) bool {
 
 	readOk := true
 	readAddr := readAddrIn & 0xFFFFFFFFFFFFFFF8
@@ -1615,7 +1615,7 @@ func ReadBurstUInt32(
 	readAddrIn uintptr,
 	readOptions uint8,
 	readLengthIn uint32,
-	readDataChan <-chan uint32) bool {
+	readDataChan chan<- uint32) bool {
 
 	readOk := true
 	readAddr := readAddrIn & 0xFFFFFFFFFFFFFFFC
@@ -1655,7 +1655,7 @@ func ReadBurstUInt16(
 	readAddrIn uintptr,
 	readOptions uint8,
 	readLengthIn uint32,
-	readDataChan <-chan uint16) bool {
+	readDataChan chan<- uint16) bool {
 
 	readOk := true
 	readAddr := readAddrIn & 0xFFFFFFFFFFFFFFFE
@@ -1693,7 +1693,7 @@ func ReadBurstUInt8(
 	readAddrIn uintptr,
 	readOptions uint8,
 	readLengthIn uint32,
-	readDataChan <-chan uint8) bool {
+	readDataChan chan<- uint8) bool {
 
 	readOk := true
 	readAddr := readAddrIn
