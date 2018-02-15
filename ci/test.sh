@@ -5,6 +5,8 @@ set -ex
 
 cd "$1"
 
+glide install
+
 INPUT="go"
 if [ -e "main.v" ]
 then

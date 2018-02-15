@@ -18,19 +18,24 @@ OPTIMIZE_LEVEL := 100
 CLFLAGS :=
 CPUS := 4
 
+GO_TEAK_BUILD_FLAGS :=
+
 ifeq ($(OPTIMIZE), yes)
 	GO_TEAK_FLAGS := -O -p${OPTIMIZE_LEVEL}
 else
 	GO_TEAK_FLAGS :=
 endif
 
+AXI_DATA_WIDTH := 64
+
 ifeq ($(MEMORY_INTERFACE), axi)
 	GO_TEAK_BIN := go-teak-sdaccel
 else
 	GO_TEAK_BIN := go-teak-smi
+	AXI_DATA_WIDTH := 512
+	GO_TEAK_BUILD_FLAGS += --ports ${PORTS}
 endif
 
-AXI_DATA_WIDTH := 64
 
 PART := "xcku115-flvf1924-1-c"
 PART_FAMILY := "kintexu"
@@ -107,7 +112,7 @@ INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/i
 
 ${VERILOG_DIR}/main.v: ${ROOT_DIR}/${SOURCE_FILE} $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
 ifeq ($(INPUT),go)
-	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./${GO_TEAK_BIN} build --full-imports ${GO_TEAK_FLAGS} $< -o $@
+	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./${GO_TEAK_BIN} build --full-imports ${GO_TEAK_FLAGS} ${GO_TEAK_BUILD_FLAGS} $< -o $@
 else
 	cp ${ROOT_DIR}/main.v $@
 	cp ${ROOT_DIR}/main.v.xmldef ${VERILOG_DIR}
