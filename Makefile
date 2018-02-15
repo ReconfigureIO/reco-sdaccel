@@ -142,7 +142,7 @@ downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz: | downlo
 	touch $@
 
 downloads/smi-${SMI_WRAPPER_VERSION}-linux.tar.gz: | downloads
-	aws s3 cp --quiet "s3://nerabus/eTeak/releases/eTeak-${SDACCEL_WRAPPER_VERSION}-x86_64-unknown-linux-release.tar.gz" $@
+	aws s3 cp --quiet "s3://nerabus/smi/releases/smi-${SMI_WRAPPER_VERSION}-linux.tar.gz" $@
 	# So that it won't download again
 	touch $@
 
