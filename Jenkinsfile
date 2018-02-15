@@ -43,7 +43,9 @@ pipeline {
         }
 
         stage('install') {
-            sh 'docker-compose build'
+            steps {
+                sh 'docker-compose build'
+            }
         }
 
         stage('pre clean') {
