@@ -51,7 +51,7 @@ pipeline {
         stage('pre clean') {
             steps {
                 sh 'git clean -fdx'
-                sh 'docker-compose make clean'
+                sh 'docker-compose run --rm make clean'
             }
         }
 
