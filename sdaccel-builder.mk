@@ -124,7 +124,7 @@ ${VERILOG_DIR}/includes: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/includes
 	if [ -d "${ROOT_DIR}/includes/" ]; then cp ${ROOT_DIR}/includes/* ${VERILOG_DIR}/includes; fi
 	cp ${DIR}/smi/verilog/* ${VERILOG_DIR}/includes
-	cd ${VERILOG_DIR}/includes && smiMemWrapperGen --numMemPorts ${PORTS}
+	if [ "${MEMORY_INTERFACE}" = "smi" ]; then cd ${VERILOG_DIR}/includes && smiMemWrapperGen --numMemPorts ${PORTS}; fi
 
 ${VERILOG_DIR}/includes/%: ${DIR}/eTeak/verilog/SELF_files/% | ${VERILOG_DIR}/includes
 	@cp $< $@
