@@ -38,6 +38,8 @@ if [ -e 'reco.yml' ]; then
    eval "$(parse_yaml 'reco.yml' 'reco_')"
 fi
 
+export PATH="$DIR/smi/bin":$PATH
+
 function graph {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" PORTS="$reco_ports" graph
 }

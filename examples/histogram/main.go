@@ -1,6 +1,8 @@
 package main
 
 import (
+	// Import the framework
+	_ "github.com/ReconfigureIO/sdaccel"
 	// Use the new AXI protocol package
 	"github.com/ReconfigureIO/sdaccel/smi"
 )
