@@ -42,24 +42,20 @@ pipeline {
             }
         }
 
+        stage('install') {
+            sh 'docker-compose build'
+        }
+
         stage('pre clean') {
             steps {
                 sh 'git clean -fdx'
-                sh 'make clean'
-            }
-        }
-
-        stage('build verilator image') {
-            steps {
-                sh 'docker build -t "verilator:latest" docker-verilator'
+                sh 'docker-compose make clean'
             }
         }
 
         stage('lint') {
             steps {
-                sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck sdaccel-builder'
-                sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-jarvice/reco-jarvice'
-                sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+                sh 'docker-compose run --rm test make lint'
             }
         }
 
@@ -71,7 +67,7 @@ pipeline {
 
         stage('test go') {
             steps {
-                sh "make test"
+                sh "docker-compose run --rm test make test"
             }
         }
 

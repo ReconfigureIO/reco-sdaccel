@@ -35,7 +35,11 @@ all: package/reco package/reco-jarvice
 print-% : ; @echo $($*)
 
 test:
-	find examples/ -maxdepth 1 -mindepth 1 -type d | PATH=$$PWD:$$PWD/ci/:$$PATH xargs -L1 test.sh
+	find examples/ -maxdepth 1 -mindepth 1 -type d | PATH=$$PWD/ci/:$$PATH xargs -L1 test.sh
+
+lint:
+	shellcheck sdaccel-builder
+	verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat
 
 go/bin:
 	mkdir -p $@
