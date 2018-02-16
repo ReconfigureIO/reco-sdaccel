@@ -1,22 +1,36 @@
 package main
 
 import (
-	// Import the framework
+	//  Import the entire framework for interracting with SDAccel from Go (including bundled verilog)
 	_ "github.com/ReconfigureIO/sdaccel"
+
 	// Use the new SMI protocol package
 	"github.com/ReconfigureIO/sdaccel/smi"
 )
 
-// Magic identifier for exporting
 func Top(
+	// The first set of arguments to this function can be any number
+	// of Go primitive types and can be provided via `SetArg` on the host.
+
+	// For this example, we have 3 arguments: two operands to add
+	// together and an address in shared memory where the FPGA will
+	// store the output.
 	a uint32,
 	b uint32,
 	addr uintptr,
 
+	// Set up channels for interacting with the shared memory
 	request chan<- smi.Flit64,
 	response <-chan smi.Flit64) {
 
-	val := addition.Add(a, b)
+	// Add the two input integers together
+	val := Add(a, b)
 
+	// Write the result of the addition to the shared memory address provided by the host
 	smi.WriteUInt32(request, response, addr, smi.DefaultOptions, val)
+}
+
+// function to add two uint32s
+func Add(a uint32, b uint32) uint32 {
+	return a + b
 }
