@@ -1,5 +1,6 @@
 
 BUILD_DIR := "/tmp/workspace/.reco-work/sdaccel/build"
+LOGS_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/logs"
 DIST_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist"
 REPORTS_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/reports"
 XCLBIN_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin"
@@ -59,12 +60,12 @@ verilog: ${VERILOG_DIR}/main.v ${VERILOG_DIR}/includes
 ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
-${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v
+${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v | ${REPORTS_DIR} ${LOGS_DIR}
 	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" vivado -notrace -mode batch \
 		-source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs \
 		-action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" \
 		-param_args_file "${VERILOG_DIR}/main.v.xmldef" -vendor reconfigure.io -library sdaccel-builder \
-		-name stub -version 0.1 -part ${PART} -part_family ${PART_FAMILY} -axi_data_width ${AXI_DATA_WIDTH}
+		-name stub -version 0.1 -part ${PART} -part_family ${PART_FAMILY} -axi_data_width ${AXI_DATA_WIDTH} > ${LOGS_DIR}/synthesis_log.txt
 	cp ${BUILD_DIR}/reports/* ${REPORTS_DIR}
 
 ${XCLBIN_DIR}:
@@ -86,6 +87,9 @@ ${DIST_DIR}:
 
 ${REPORTS_DIR}:
 	mkdir -p "${REPORTS_DIR}"
+
+${LOGS_DIR}:
+	mkdir -p "${LOGS_DIR}"
 
 ${DIST_DIR}/vendor/src: ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel
 	mkdir -p "${VENDOR_DIR}"
