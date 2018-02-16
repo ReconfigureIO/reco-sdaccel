@@ -107,7 +107,7 @@ set paramArgsFileName "param_args.xmldef"
 # Selects a generic Kintex Ultrascale part as the nominal target.
 set partName "xcku115-flvf1924-1-c"
 set partFamily "kintexu"
-set axiDataWidth 128
+set axiDataWidth 512
 
 #
 # Extract the TCL command line arguments.
@@ -245,7 +245,8 @@ set synFileName [file join $synDirPath "${moduleName}.v"]
 set constraintFileName [file join $synDirPath "${moduleName}.xdc"]
 if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
-  sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath $partName
+  sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath \
+    $partName $axiDataWidth
   sda_kernel_report $moduleName $partName $reportDirPath
   if {0 != $doRelativePlacement} {
     sda_kernel_constrain $moduleName

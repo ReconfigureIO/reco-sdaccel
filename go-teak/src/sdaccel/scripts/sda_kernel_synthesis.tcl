@@ -43,7 +43,7 @@ proc load_ip_cores {ipSourceDirPath buildDirPath} {
 # Run main kernel synthesis in project flow.
 #
 proc sda_kernel_synthesis {
-  sourceFileName moduleName includeCodePath partName} {
+  sourceFileName moduleName includeCodePath partName axiDataWidth} {
 set_part $partName
 
 #
@@ -75,7 +75,8 @@ synth_design \
   -no_lc \
   -keep_equivalent_registers \
   -top sda_kernel_wrapper_gmem \
-  -include_dirs $includeCodePath
+  -include_dirs $includeCodePath \
+  -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth
 
 #
 # Prefix all the module names with the unique kernel name string.
