@@ -34,10 +34,11 @@
 # -action_source_file <source_file>
 #   This is a path to the generated action code source, which should be a single
 #   Verilog file containing all the modules required. This option is mandatory.
-# -include_source_dir <wrapper_dir>
-#   This is a path to the included verilog source code directory, which contains
-#   the Verilog source code files to be included in the build. If not specified,
-#   the 'verilog' subdirectory will be used.
+# -include_source_dir <include_dir>
+#   This is a path to an included verilog source code directory, which contains
+#   the Verilog source code files to be included in the build. This option may
+#   be specified multiple times to add multiple source code directories. If not
+#   specified, only the 'verilog' subdirectory will be used.
 # -build_dir <build_dir>
 #   This is a path to the netlist build directory, into which the output netlist
 #   will be placed. If not specified, the current directory will be used.
@@ -99,7 +100,7 @@ source [file join [file dirname [info script]] sda_kernel_packaging.tcl]
 source [file join [file dirname [info script]] sda_kernel_xilinx_utils.tcl]
 
 # Specify default parameter values.
-set includeCodePath "verilog"
+set includeCodePath [list "verilog"]
 set skipResynthesis 0
 set doRelativePlacement 0
 set paramArgsFileName "param_args.xmldef"
@@ -146,7 +147,7 @@ while {$argIndex < $argc} {
       incr argIndex
     }
     "-include_source_dir" {
-      set includeCodePath [lindex $argv $argIndex]
+      set includeCodePath [lappend $includeCodePath [lindex $argv $argIndex]]
       incr argIndex
     }
     "-param_args_file" {
