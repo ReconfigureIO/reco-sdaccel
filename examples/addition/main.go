@@ -1,13 +1,10 @@
 package main
 
 import (
-	// Import the entire framework (including bundled verilog)
-	_ "sdaccel"
-	// Use the new AXI protocol package
-	aximemory "axi/memory"
-	axiprotocol "axi/protocol"
-
-	"github.com/ReconfigureIO/addition"
+	// Import the framework
+	_ "github.com/ReconfigureIO/sdaccel"
+	// Use the new SMI protocol package
+	"github.com/ReconfigureIO/sdaccel/smi"
 )
 
 // Magic identifier for exporting
@@ -16,18 +13,10 @@ func Top(
 	b uint32,
 	addr uintptr,
 
-	memReadAddr chan<- axiprotocol.Addr,
-	memReadData <-chan axiprotocol.ReadData,
-
-	memWriteAddr chan<- axiprotocol.Addr,
-	memWriteData chan<- axiprotocol.WriteData,
-	memWriteResp <-chan axiprotocol.WriteResp) {
-
-	// Disable memory reads
-	go axiprotocol.ReadDisable(memReadAddr, memReadData)
+	request chan<- smi.Flit64,
+	response <-chan smi.Flit64) {
 
 	val := addition.Add(a, b)
 
-	aximemory.WriteUInt32(
-		memWriteAddr, memWriteData, memWriteResp, false, addr, val)
+	smi.WriteUInt32(request, response, addr, smi.DefaultOptions, val)
 }
