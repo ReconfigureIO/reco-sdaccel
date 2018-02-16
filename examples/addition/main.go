@@ -5,6 +5,8 @@ import (
 	_ "github.com/ReconfigureIO/sdaccel"
 	// Use the new SMI protocol package
 	"github.com/ReconfigureIO/sdaccel/smi"
+	// Demo external package use
+	"github.com/ReconfigureIO/addition"
 )
 
 // Magic identifier for exporting
