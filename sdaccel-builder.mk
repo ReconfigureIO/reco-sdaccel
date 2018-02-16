@@ -112,8 +112,10 @@ INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/i
 ${VERILOG_DIR}/main.v: ${ROOT_DIR}/${SOURCE_FILE} $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
 ifeq ($(INPUT),go)
 	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./${GO_TEAK_BIN} build --full-imports ${GO_TEAK_FLAGS} ${GO_TEAK_BUILD_FLAGS} $< -o $@
-	if [ "${MEMORY_INTERFACE}" = "smi" ]; then smiMemWrapperGen -numMemPorts ${PORTS} && cat smi_mem_arbitration_tree.v teak_action_wrapper.v >> $@; fi
-
+ifeq ($(MEMORY_INTERFACE),smi)
+	smiMemWrapperGen -numMemPorts ${PORTS} && cat smi_mem_arbitration_tree.v teak_action_wrapper.v >> $@
+	@rm -rf smi_mem_arbitration_tree.v teak_action_wrapper.v
+endif
 else
 	cp ${ROOT_DIR}/main.v $@
 	cp ${ROOT_DIR}/main.v.xmldef ${VERILOG_DIR}

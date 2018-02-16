@@ -20,10 +20,6 @@ fi
 
 export INPUT=$INPUT
 
-sdaccel-builder test-go
-
-# If we're using SMI, use these options
-
 sdaccel-builder lint
 
 #docker run --rm -i -v "$PWD":/mnt sdaccel-builder:latest /opt/sdaccel-builder/sdaccel-builder graph
