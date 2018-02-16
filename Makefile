@@ -145,8 +145,8 @@ downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz: | downlo
 	# So that it won't download again
 	touch $@
 
-downloads/smi-${SMI_WRAPPER_VERSION}-linux.tar.gz: | downloads
-	aws s3 cp --quiet "s3://nerabus/smi/releases/smi-${SMI_WRAPPER_VERSION}-linux.tar.gz" $@
+downloads/smi-${SMI_WRAPPER_VERSION}-x86_64-unknown-linux.tar.gz: | downloads
+	aws s3 cp --quiet "s3://nerabus/smi/releases/smi-${SMI_WRAPPER_VERSION}-x86_64-unknown-linux.tar.gz" $@
 	# So that it won't download again
 	touch $@
 
@@ -169,9 +169,9 @@ build/reco/go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz build/reco
 eTeak:
 	mkdir -p eTeak
 
-smi: downloads/smi-${SMI_WRAPPER_VERSION}-linux.tar.gz
+smi: downloads/smi-${SMI_WRAPPER_VERSION}-x86_64-unknown-linux.tar.gz
 	mkdir -p smi
-	tar -xf downloads/smi-${SMI_WRAPPER_VERSION}-linux.tar.gz -C smi
+	tar -xf downloads/smi-${SMI_WRAPPER_VERSION}-x86_64-unknown-linux.tar.gz -C smi
 
 eTeak/go-teak-sdaccel: | eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz
 	tar -xf "downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz" -C eTeak
