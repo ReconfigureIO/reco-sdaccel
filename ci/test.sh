@@ -23,9 +23,10 @@ export INPUT=$INPUT
 sdaccel-builder test-go
 
 EXTRA=""
+# If we're using SMI, use these options
 if [ -e ".reco-work/sdaccel/verilog/includes/teak_action_wrapper.v" ]
 then
-    EXTRA=".reco-work/sdaccel/verilog/includes/teak_action_wrapper.v"
+    EXTRA="-DAXI_MASTER_DATA_WIDTH=512 .reco-work/sdaccel/verilog/includes/teak_action_wrapper.v .reco-work/sdaccel/verilog/includes/smi_mem_arbitration_tree.v"
 fi
 
 verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v $EXTRA --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNUSED -Wno-UNDRIVEN -Wno-REDEFMACRO -Wno-DECLFILENAME
