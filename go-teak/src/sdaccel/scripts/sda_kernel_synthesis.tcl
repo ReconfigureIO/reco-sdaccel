@@ -50,12 +50,12 @@ set_part $partName
 # Attempt to build the IP cores if present.
 # TODO: Architecture path is hard-coded here.
 #
-# set includeArchPath [file join $includeCodePath ".." "SELF_arch" "xilinx" "ultrascale"]
-# set ipSourceDirPath [file join $includeArchPath "ip"]
-# if {0 != [file exists $ipSourceDirPath]} {
-#   set includeCodePath {$includeCodePath $includeArchPath}
-#   load_ip_cores $ipSourceDirPath [pwd]
-# }
+set includeArchPath [file join $includeCodePath ".." "SELF_arch" "xilinx" "ultrascale"]
+set ipSourceDirPath [file join $includeArchPath "ip"]
+if {0 != [file exists $ipSourceDirPath]} {
+  set includeCodePath {$includeCodePath $includeArchPath}
+  load_ip_cores $ipSourceDirPath [pwd]
+}
 
 #
 # Load the file containing the generated action code.
