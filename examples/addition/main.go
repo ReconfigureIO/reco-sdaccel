@@ -8,6 +8,11 @@ import (
 	"github.com/ReconfigureIO/sdaccel/smi"
 )
 
+// function to add two uint32s
+func Add(a uint32, b uint32) uint32 {
+	return a + b
+}
+
 func Top(
 	// The first set of arguments to this function can be any number
 	// of Go primitive types and can be provided via `SetArg` on the host.
@@ -28,9 +33,4 @@ func Top(
 
 	// Write the result of the addition to the shared memory address provided by the host
 	smi.WriteUInt32(request, response, addr, smi.DefaultOptions, val)
-}
-
-// function to add two uint32s
-func Add(a uint32, b uint32) uint32 {
-	return a + b
 }
