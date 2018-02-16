@@ -112,6 +112,8 @@ INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/i
 ${VERILOG_DIR}/main.v: ${ROOT_DIR}/${SOURCE_FILE} $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
 ifeq ($(INPUT),go)
 	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./${GO_TEAK_BIN} build --full-imports ${GO_TEAK_FLAGS} ${GO_TEAK_BUILD_FLAGS} $< -o $@
+	if [ "${MEMORY_INTERFACE}" = "smi" ]; then smiMemWrapperGen -numMemPorts ${PORTS} && cat smi_mem_arbitration_tree.v teak_action_wrapper.v >> $@; fi
+
 else
 	cp ${ROOT_DIR}/main.v $@
 	cp ${ROOT_DIR}/main.v.xmldef ${VERILOG_DIR}
@@ -124,7 +126,6 @@ ${VERILOG_DIR}/includes: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/includes
 	if [ -d "${ROOT_DIR}/includes/" ]; then cp ${ROOT_DIR}/includes/* ${VERILOG_DIR}/includes; fi
 	cp ${DIR}/smi/verilog/* ${VERILOG_DIR}/includes
-	if [ "${MEMORY_INTERFACE}" = "smi" ]; then cd ${VERILOG_DIR}/includes && smiMemWrapperGen -numMemPorts ${PORTS}; fi
 
 ${VERILOG_DIR}/includes/%: ${DIR}/eTeak/verilog/SELF_files/% | ${VERILOG_DIR}/includes
 	@cp $< $@

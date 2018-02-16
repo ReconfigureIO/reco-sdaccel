@@ -75,6 +75,17 @@ function clean {
     make -e -f "$DIR/sdaccel-builder.mk" clean
 }
 
+function lint {
+    test_go
+    EXTRA=""
+    if [ "$reco_memory_interface" == "smi" ]
+    then
+        EXTRA="-DAXI_MASTER_DATA_WIDTH=512"
+    fi
+
+    verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v "$EXTRA" --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNUSED -Wno-UNDRIVEN -Wno-REDEFMACRO -Wno-DECLFILENAME
+}
+
 function main {
     case "$1" in
         "build")
@@ -97,6 +108,9 @@ function main {
             ;;
         "clean")
             clean "${@:2}"
+            ;;
+        "lint")
+            lint "${@:2}"
             ;;
         *)
             echo "unrecognized command: $1";
