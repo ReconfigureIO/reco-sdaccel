@@ -129,7 +129,7 @@ ${VERILOG_DIR}/includes: ${VERILOG_DIR}
 	if [ -d "${ROOT_DIR}/includes/" ]; then cp ${ROOT_DIR}/includes/* ${VERILOG_DIR}/includes; fi
 ifeq ($(MEMORY_INTERFACE),smi)
 	cp ${DIR}/smi/verilog/* ${VERILOG_DIR}/includes
-	cd ${VERILOG_DIR}/includes; smiMemWrapperGen -numMemPorts ${PORTS}; mv teak_action_wrapper.v teak__action__top__gmem.v
+	cd ${VERILOG_DIR}/includes; smiMemWrapperGen -numMemPorts ${PORTS}
 endif
 
 ${VERILOG_DIR}/includes/%: ${DIR}/eTeak/verilog/SELF_files/% | ${VERILOG_DIR}/includes
