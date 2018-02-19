@@ -43,19 +43,19 @@ proc load_ip_cores {ipSourceDirPath buildDirPath} {
 # Run main kernel synthesis in project flow.
 #
 proc sda_kernel_synthesis {
-  sourceFileName moduleName includeCodePath partName axiDataWidth} {
+  sourceFileName moduleName importCodePath partName axiDataWidth} {
 set_part $partName
 
 #
 # Attempt to build the IP cores if present.
 # TODO: Architecture path is hard-coded here.
 #
-set includeArchPath [file join $includeCodePath ".." "SELF_arch" "xilinx" "ultrascale"]
-set ipSourceDirPath [file join $includeArchPath "ip"]
-if {0 != [file exists $ipSourceDirPath]} {
-  set includeCodePath {$includeCodePath $includeArchPath}
-  load_ip_cores $ipSourceDirPath [pwd]
-}
+# set includeArchPath [file join $importCodePath ".." "SELF_arch" "xilinx" "ultrascale"]
+# set ipSourceDirPath [file join $includeArchPath "ip"]
+# if {0 != [file exists $ipSourceDirPath]} {
+#   set importCodePath {$importCodePath $includeArchPath}
+#   load_ip_cores $ipSourceDirPath [pwd]
+# }
 
 #
 # Load the file containing the generated action code.
@@ -67,6 +67,13 @@ if {0 == [info exists sourceFileName]} {
 add_files -norecurse $sourceFileName
 
 #
+# Load all Verilog files in the imported source code directories.
+#
+foreach importCodeDir $importCodePath {
+  add_files -quiet $importCodeDir
+}
+
+#
 # Generate the synthesised netlist for the IP core.
 #
 synth_design \
@@ -75,7 +82,6 @@ synth_design \
   -no_lc \
   -keep_equivalent_registers \
   -top sda_kernel_wrapper_gmem \
-  -include_dirs $includeCodePath \
   -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth
 
 #
