@@ -45,5 +45,5 @@ func Top(
 	}()
 
 	smi.WriteBurstUInt32(
-		readReq, readResp, outputData, smi.DefaultOptions, 512, data)
+		writeReq, writeResp, outputData, smi.DefaultOptions, 512, data)
 }
