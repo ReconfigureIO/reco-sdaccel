@@ -60,7 +60,7 @@ verilog: ${VERILOG_DIR}/main.v ${VERILOG_DIR}/includes ${VERILOG_DIR}/library
 ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
-${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v | ${REPORTS_DIR} ${LOGS_DIR}
+${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v ${VERILOG_DIR}/library | ${REPORTS_DIR} ${LOGS_DIR}
 	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" vivado -notrace -mode batch \
 		-source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs \
 		-action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" \
