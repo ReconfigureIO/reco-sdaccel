@@ -55,7 +55,7 @@ xo: ${BUILD_DIR}/${XO_NAME}
 
 graph: ${ROOT_DIR}/main-graph.pdf
 
-verilog: ${VERILOG_DIR}/main.v ${VERILOG_DIR}/includes
+verilog: ${VERILOG_DIR}/main.v ${VERILOG_DIR}/includes ${VERILOG_DIR}/library
 
 ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
@@ -64,8 +64,9 @@ ${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v | ${RE
 	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" vivado -notrace -mode batch \
 		-source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs \
 		-action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" \
-		-param_args_file "${VERILOG_DIR}/main.v.xmldef" -vendor reconfigure.io -library sdaccel-builder \
-		-name stub -version 0.1 -part ${PART} -part_family ${PART_FAMILY} -axi_data_width ${AXI_DATA_WIDTH} > ${LOGS_DIR}/synthesis_log.txt
+		-library_source_dir "${VERILOG_DIR}/library" -param_args_file "${VERILOG_DIR}/main.v.xmldef" \
+		-vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part ${PART} \
+		-part_family ${PART_FAMILY} -axi_data_width ${AXI_DATA_WIDTH} > ${LOGS_DIR}/synthesis_log.txt
 	cp ${BUILD_DIR}/reports/* ${REPORTS_DIR}
 
 ${XCLBIN_DIR}:
@@ -127,9 +128,12 @@ ${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR
 ${VERILOG_DIR}/includes: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/includes
 	if [ -d "${ROOT_DIR}/includes/" ]; then cp ${ROOT_DIR}/includes/* ${VERILOG_DIR}/includes; fi
+
+${VERILOG_DIR}/library: ${VERILOG_DIR}
+	mkdir -p ${VERILOG_DIR}/library
 ifeq ($(MEMORY_INTERFACE),smi)
-	cp ${DIR}/smi/verilog/* ${VERILOG_DIR}/includes
-	cd ${VERILOG_DIR}/includes; smiMemWrapperGen -numMemPorts ${PORTS}
+	cp ${DIR}/smi/verilog/* ${VERILOG_DIR}/library
+	cd ${VERILOG_DIR}/library; smiMemWrapperGen -numMemPorts ${PORTS}
 endif
 
 ${VERILOG_DIR}/includes/%: ${DIR}/eTeak/verilog/SELF_files/% | ${VERILOG_DIR}/includes
