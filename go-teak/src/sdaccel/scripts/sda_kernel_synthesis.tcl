@@ -42,18 +42,18 @@ proc load_ip_cores {ipSourceDirPath buildDirPath} {
 #
 # Run main kernel synthesis in project flow.
 #
-proc sda_kernel_synthesis {
-  sourceFileName moduleName importCodePath partName axiDataWidth} {
+proc sda_kernel_synthesis {sourceFileName moduleName
+  includeCodePath libraryCodePath partName axiDataWidth} {
 set_part $partName
 
 #
 # Attempt to build the IP cores if present.
 # TODO: Architecture path is hard-coded here.
 #
-# set includeArchPath [file join $importCodePath ".." "SELF_arch" "xilinx" "ultrascale"]
+# set includeArchPath [file join $libraryCodePath ".." "SELF_arch" "xilinx" "ultrascale"]
 # set ipSourceDirPath [file join $includeArchPath "ip"]
 # if {0 != [file exists $ipSourceDirPath]} {
-#   set importCodePath {$importCodePath $includeArchPath}
+#   set libraryCodePath {$libraryCodePath $includeArchPath}
 #   load_ip_cores $ipSourceDirPath [pwd]
 # }
 
@@ -69,8 +69,8 @@ add_files -norecurse $sourceFileName
 #
 # Load all Verilog files in the imported source code directories.
 #
-foreach importCodeDir $importCodePath {
-  add_files -quiet $importCodeDir
+foreach libraryCodeDir $libraryCodePath {
+  add_files -quiet $libraryCodeDir
 }
 
 #
@@ -82,6 +82,7 @@ synth_design \
   -no_lc \
   -keep_equivalent_registers \
   -top sda_kernel_wrapper_gmem \
+  -include_dirs $includeCodePath \
   -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth
 
 #
