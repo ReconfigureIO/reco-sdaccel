@@ -1,6 +1,6 @@
 #!/bin/bash
 set -ex
-aws s3 cp "$DIST_URL" /tmp/bundle.zip --region us-east-1
+aws s3 cp --quiet "$DIST_URL" /tmp/bundle.zip --region us-east-1
 unzip /tmp/bundle.zip -d "$PWD"
 
 fpga-clear-local-image -S 0

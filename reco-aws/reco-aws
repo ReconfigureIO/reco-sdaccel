@@ -150,7 +150,7 @@ function afi_id_from_build_id {
 function get_afi_logs {
     AFI=$(afi_id_from_build_id "$1")
     LOGFILE=$(aws s3 ls s3://reconfigureio-builds/tmp/dcp-logs/"$1"/"$AFI"/ | grep "\.log" | awk '{print $4}' | head -n1)
-    aws s3 cp s3://reconfigureio-builds/tmp/dcp-logs/"$1"/"$AFI"/"$LOGFILE" -
+    aws s3 cp --quiet s3://reconfigureio-builds/tmp/dcp-logs/"$1"/"$AFI"/"$LOGFILE" -
 }
 
 function generate_job_id {
