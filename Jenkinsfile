@@ -6,6 +6,7 @@ pipeline {
         string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: '')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
         booleanParam(name: 'SIMULATE', defaultValue: false, description: 'Force a simulation')
+        booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Force a deploy for testing')
     }
     environment {
         VERSION = "${env.BRANCH_NAME}"
@@ -75,7 +76,7 @@ pipeline {
 
         stage('deploy examples') {
             when {
-                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || params.SIMULATE }
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || params.SIMULATE || params.DEPLOY}
             }
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} aws"
