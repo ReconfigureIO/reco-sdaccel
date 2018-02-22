@@ -2,11 +2,13 @@ package main
 
 import (
 	"encoding/binary"
+	"flag"
 	"fmt"
 	"log"
 	"math/rand"
 	"reflect"
-	"xcl"
+
+	"github.com/ReconfigureIO/sdaccel/xcl"
 )
 
 const (
@@ -19,6 +21,9 @@ const (
 )
 
 func main() {
+	samples := flag.Uint("samples", 20, "number of samples to test")
+	flag.Parse()
+
 	// Setup a new world for accessing our kernel
 	world := xcl.NewWorld()
 	defer world.Release()
@@ -30,7 +35,7 @@ func main() {
 	defer krnl.Release()
 
 	// The data we'll send to the kernel for processing
-	input := make([]uint32, 20)
+	input := make([]uint32, *samples, *samples)
 
 	// seed it with 20 random values, bound to 0 - 2**16
 	for i, _ := range input {
