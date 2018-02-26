@@ -80,7 +80,7 @@ function lint {
     EXTRA=""
     if [ "$reco_memory_interface" == "smi" ]
     then
-        EXTRA="-DAXI_MASTER_DATA_WIDTH=512"
+        EXTRA="-DAXI_MASTER_DATA_WIDTH=64"
     fi
 
     verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" -I".reco-work/sdaccel/verilog/library" .reco-work/sdaccel/verilog/main.v "$EXTRA" --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNUSED -Wno-UNDRIVEN -Wno-REDEFMACRO -Wno-DECLFILENAME

@@ -33,7 +33,7 @@ ifeq ($(MEMORY_INTERFACE), axi)
 	GO_TEAK_BIN := go-teak-sdaccel
 else
 	GO_TEAK_BIN := go-teak-smi
-	AXI_DATA_WIDTH := 512
+	AXI_DATA_WIDTH := 64
 	GO_TEAK_BUILD_FLAGS += --ports ${PORTS}
 endif
 
