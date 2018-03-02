@@ -6,6 +6,7 @@ pipeline {
         string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: '')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
         booleanParam(name: 'SIMULATE', defaultValue: false, description: 'Force a simulation')
+        booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Force a deploy for testing')
     }
     environment {
         VERSION = "${env.BRANCH_NAME}"
@@ -42,24 +43,22 @@ pipeline {
             }
         }
 
-        stage('pre clean') {
+        stage('install') {
             steps {
-                sh 'git clean -fdx'
-                sh 'make clean'
+                sh 'docker-compose build'
             }
         }
 
-        stage('build verilator image') {
+        stage('pre clean') {
             steps {
-                sh 'docker build -t "verilator:latest" docker-verilator'
+                sh 'git clean -fdx'
+                sh 'docker-compose run --rm test make clean'
             }
         }
 
         stage('lint') {
             steps {
-                sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck sdaccel-builder'
-                sh 'docker run --rm -i -v $(pwd):/mnt nlknguyen/alpine-shellcheck reco-jarvice/reco-jarvice'
-                sh 'docker run --rm -i -v $(pwd):/mnt verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat'
+                sh 'docker-compose run --rm test make lint'
             }
         }
 
@@ -71,13 +70,13 @@ pipeline {
 
         stage('test go') {
             steps {
-                sh "make test"
+                sh "docker-compose run --rm test make test"
             }
         }
 
         stage('deploy examples') {
             when {
-                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || params.SIMULATE }
+                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || params.SIMULATE || params.DEPLOY}
             }
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} aws"

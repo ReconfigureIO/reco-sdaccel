@@ -23,7 +23,8 @@ JOB_DEFINITION := sdaccel-builder-build-staging
 BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "${PUBLISHED_DOCKER}" | .jobDefinitionName = "${JOB_DEFINITION}"')
 DEPLOY_JOB := $(shell cat aws/deploy.json | jq '.containerProperties.image = "${PUBLISHED_DEPLOY}"')
 
-export SDACCEL_WRAPPER_VERSION := v0.19.4
+export SDACCEL_WRAPPER_VERSION := v0.20.0
+export SMI_WRAPPER_VERSION := v0.3.0
 GO_VERSION := 1.7.4
 SDACCEL_VERSION := 0.15.1
 
@@ -34,7 +35,11 @@ all: package/reco package/reco-jarvice
 print-% : ; @echo $($*)
 
 test:
-	find examples/ -maxdepth 1 -mindepth 1 -type d | PATH=$$PWD:$$PWD/ci/:$$PATH xargs -L1 test.sh
+	find examples/ -maxdepth 1 -mindepth 1 -type d | PATH=$$PWD/ci/:$$PATH xargs -L1 test.sh
+
+lint:
+	shellcheck sdaccel-builder
+	verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat
 
 go/bin:
 	mkdir -p $@
@@ -51,7 +56,7 @@ package/reco: dist/${NAME}-${VERSION}.tar.gz
 
 package/reco-jarvice: dist/${NAME}-deploy-${VERSION}.tar.gz
 
-bundle/reco: build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco/go-teak build/reco/go build/reco/eTeak build/reco/go-root bundle/reco/workflows build/reco/settings.sh
+bundle/reco: build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco/go-teak build/reco/smi build/reco/go build/reco/eTeak build/reco/go-root bundle/reco/workflows build/reco/settings.sh
 
 bundle/reco-jarvice: build/reco-jarvice/reco-jarvice
 
@@ -91,6 +96,10 @@ build/reco/sdaccel-builder.mk: sdaccel-builder.mk | build/reco
 
 build/reco/eTeak: build/reco eTeak/go-teak-sdaccel
 	cp -R eTeak build/reco
+	touch $@
+
+build/reco/smi: build/reco smi
+	cp -R smi build/reco
 	touch $@
 
 build/reco/go-teak: build/reco
@@ -136,6 +145,11 @@ downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz: | downlo
 	# So that it won't download again
 	touch $@
 
+downloads/smi-${SMI_WRAPPER_VERSION}-x86_64-unknown-linux.tar.gz: | downloads
+	aws s3 cp --quiet "s3://nerabus/smi/releases/smi-${SMI_WRAPPER_VERSION}-x86_64-unknown-linux.tar.gz" $@
+	# So that it won't download again
+	touch $@
+
 downloads/go-${GO_VERSION}.linux-amd64.tar.gz: | downloads
 	wget -O $@ https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz
 	# So that it won't download again
@@ -154,6 +168,10 @@ build/reco/go-root: downloads/go-${GO_VERSION}.linux-amd64.tar.gz build/reco
 
 eTeak:
 	mkdir -p eTeak
+
+smi: downloads/smi-${SMI_WRAPPER_VERSION}-x86_64-unknown-linux.tar.gz
+	mkdir -p smi
+	tar -xf downloads/smi-${SMI_WRAPPER_VERSION}-x86_64-unknown-linux.tar.gz -C smi
 
 eTeak/go-teak-sdaccel: | eTeak downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz
 	tar -xf "downloads/eTeak-${SDACCEL_WRAPPER_VERSION}-linux-x86_64-release.tar.gz" -C eTeak

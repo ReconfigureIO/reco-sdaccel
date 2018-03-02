@@ -8,6 +8,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 export ROOT_DIR="$PWD"
 reco_optimize="yes"
+reco_memory_interface="axi"
+reco_ports=2
 
 function parse_yaml {
     local prefix="$2"
@@ -36,24 +38,26 @@ if [ -e 'reco.yml' ]; then
    eval "$(parse_yaml 'reco.yml' 'reco_')"
 fi
 
+export PATH="$DIR/smi/bin":$PATH
+
 function graph {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" graph
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" PORTS="$reco_ports" graph
 }
 
 function build {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" kernel sim
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" PORTS="$reco_ports" kernel sim
 }
 
 function image {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" kernel
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" PORTS="$reco_ports" kernel
 }
 
 function test_go {
-    make -e -f "$DIR/sdaccel-builder.mk" OPTIMIZE="$reco_optimize" verilog
+    make -e -f "$DIR/sdaccel-builder.mk" OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" PORTS="$reco_ports" verilog
 }
 
 function simulate {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" sim cmds kernel
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" PORTS="$reco_ports" sim cmds kernel
     export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
     # This is for the emconfig.json
     cd "$PWD/.reco-work/sdaccel/dist/"
@@ -69,6 +73,17 @@ function cmds {
 
 function clean {
     make -e -f "$DIR/sdaccel-builder.mk" clean
+}
+
+function lint {
+    test_go
+    EXTRA=""
+    if [ "$reco_memory_interface" == "smi" ]
+    then
+        EXTRA="-DAXI_MASTER_DATA_WIDTH=64"
+    fi
+
+    verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" -I".reco-work/sdaccel/verilog/library" .reco-work/sdaccel/verilog/main.v "$EXTRA" --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNUSED -Wno-UNDRIVEN -Wno-REDEFMACRO -Wno-DECLFILENAME
 }
 
 function main {
@@ -93,6 +108,9 @@ function main {
             ;;
         "clean")
             clean "${@:2}"
+            ;;
+        "lint")
+            lint "${@:2}"
             ;;
         *)
             echo "unrecognized command: $1";

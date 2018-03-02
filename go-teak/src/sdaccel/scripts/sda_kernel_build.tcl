@@ -34,10 +34,14 @@
 # -action_source_file <source_file>
 #   This is a path to the generated action code source, which should be a single
 #   Verilog file containing all the modules required. This option is mandatory.
-# -include_source_dir <wrapper_dir>
-#   This is a path to the included verilog source code directory, which contains
-#   the Verilog source code files to be included in the build. If not specified,
-#   the 'verilog' subdirectory will be used.
+# -include_source_dir <include_dir>
+#   This is a path to a Verilog source code directory which contains Verilog
+#   source code files to be included via include directives. This option may be
+#   used multiple times to specify multiple source directories.
+# -library_source_dir <library_dir>
+#   This is a path to a Verilog source code directory which contains Verilog
+#   source code files to be loaded as library modules. This option may be
+#   used multiple times to specify multiple source directories.
 # -build_dir <build_dir>
 #   This is a path to the netlist build directory, into which the output netlist
 #   will be placed. If not specified, the current directory will be used.
@@ -99,7 +103,8 @@ source [file join [file dirname [info script]] sda_kernel_packaging.tcl]
 source [file join [file dirname [info script]] sda_kernel_xilinx_utils.tcl]
 
 # Specify default parameter values.
-set includeCodePath "verilog"
+set includeCodePath [list "."]
+set libraryCodePath [list "."]
 set skipResynthesis 0
 set doRelativePlacement 0
 set paramArgsFileName "param_args.xmldef"
@@ -107,7 +112,7 @@ set paramArgsFileName "param_args.xmldef"
 # Selects a generic Kintex Ultrascale part as the nominal target.
 set partName "xcku115-flvf1924-1-c"
 set partFamily "kintexu"
-set axiDataWidth 128
+set axiDataWidth 512
 
 #
 # Extract the TCL command line arguments.
@@ -146,7 +151,11 @@ while {$argIndex < $argc} {
       incr argIndex
     }
     "-include_source_dir" {
-      set includeCodePath [lindex $argv $argIndex]
+      set includeCodePath [lappend $includeCodePath [lindex $argv $argIndex]]
+      incr argIndex
+    }
+    "-library_source_dir" {
+      set libraryCodePath [lappend $libraryCodePath [lindex $argv $argIndex]]
       incr argIndex
     }
     "-param_args_file" {
@@ -245,7 +254,8 @@ set synFileName [file join $synDirPath "${moduleName}.v"]
 set constraintFileName [file join $synDirPath "${moduleName}.xdc"]
 if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
-  sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath $partName
+  sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath \
+    $libraryCodePath $partName $axiDataWidth
   sda_kernel_report $moduleName $partName $reportDirPath
   if {0 != $doRelativePlacement} {
     sda_kernel_constrain $moduleName

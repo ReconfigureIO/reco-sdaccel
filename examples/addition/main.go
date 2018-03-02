@@ -1,33 +1,36 @@
 package main
 
 import (
-	// Import the entire framework (including bundled verilog)
-	_ "sdaccel"
-	// Use the new AXI protocol package
-	aximemory "axi/memory"
-	axiprotocol "axi/protocol"
+	//  Import the entire framework for interracting with SDAccel from Go (including bundled verilog)
+	_ "github.com/ReconfigureIO/sdaccel"
 
-	"github.com/ReconfigureIO/addition"
+	// Use the new SMI protocol package
+	"github.com/ReconfigureIO/sdaccel/smi"
 )
 
-// Magic identifier for exporting
+// function to add two uint32s
+func Add(a uint32, b uint32) uint32 {
+	return a + b
+}
+
 func Top(
+	// The first set of arguments to this function can be any number
+	// of Go primitive types and can be provided via `SetArg` on the host.
+
+	// For this example, we have 3 arguments: two operands to add
+	// together and an address in shared memory where the FPGA will
+	// store the output.
 	a uint32,
 	b uint32,
 	addr uintptr,
 
-	memReadAddr chan<- axiprotocol.Addr,
-	memReadData <-chan axiprotocol.ReadData,
+	// Set up channels for interacting with the shared memory
+	request chan<- smi.Flit64,
+	response <-chan smi.Flit64) {
 
-	memWriteAddr chan<- axiprotocol.Addr,
-	memWriteData chan<- axiprotocol.WriteData,
-	memWriteResp <-chan axiprotocol.WriteResp) {
+	// Add the two input integers together
+	val := Add(a, b)
 
-	// Disable memory reads
-	go axiprotocol.ReadDisable(memReadAddr, memReadData)
-
-	val := addition.Add(a, b)
-
-	aximemory.WriteUInt32(
-		memWriteAddr, memWriteData, memWriteResp, false, addr, val)
+	// Write the result of the addition to the shared memory address provided by the host
+	smi.WriteUInt32(request, response, addr, smi.DefaultOptions, val)
 }

@@ -1,5 +1,6 @@
 
 BUILD_DIR := "/tmp/workspace/.reco-work/sdaccel/build"
+LOGS_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/logs"
 DIST_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist"
 REPORTS_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/reports"
 XCLBIN_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin"
@@ -12,10 +13,13 @@ KERNEL_NAME := "kernel_test"
 DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_3"
 DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.3"
 TARGET := "hw_emu"
+MEMORY_INTERFACE="axi"
 OPTIMIZE := "no"
 OPTIMIZE_LEVEL := 100
 CLFLAGS :=
 CPUS := 4
+
+GO_TEAK_BUILD_FLAGS :=
 
 ifeq ($(OPTIMIZE), yes)
 	GO_TEAK_FLAGS := -O -p${OPTIMIZE_LEVEL}
@@ -24,6 +28,14 @@ else
 endif
 
 AXI_DATA_WIDTH := 64
+
+ifeq ($(MEMORY_INTERFACE), axi)
+	GO_TEAK_BIN := go-teak-sdaccel
+else
+	GO_TEAK_BIN := go-teak-smi
+	AXI_DATA_WIDTH := 64
+	GO_TEAK_BUILD_FLAGS += --ports ${PORTS}
+endif
 
 PART := "xcku115-flvf1924-1-c"
 PART_FAMILY := "kintexu"
@@ -43,17 +55,18 @@ xo: ${BUILD_DIR}/${XO_NAME}
 
 graph: ${ROOT_DIR}/main-graph.pdf
 
-verilog: ${VERILOG_DIR}/main.v ${VERILOG_DIR}/includes
+verilog: ${VERILOG_DIR}/main.v ${VERILOG_DIR}/includes ${VERILOG_DIR}/library
 
 ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
-${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v
+${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v ${VERILOG_DIR}/library | ${REPORTS_DIR} ${LOGS_DIR}
 	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" vivado -notrace -mode batch \
 		-source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs \
 		-action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" \
-		-param_args_file "${VERILOG_DIR}/main.v.xmldef" -vendor reconfigure.io -library sdaccel-builder \
-		-name stub -version 0.1 -part ${PART} -part_family ${PART_FAMILY} -axi_data_width ${AXI_DATA_WIDTH}
+		-library_source_dir "${VERILOG_DIR}/library" -param_args_file "${VERILOG_DIR}/main.v.xmldef" \
+		-vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part ${PART} \
+		-part_family ${PART_FAMILY} -axi_data_width ${AXI_DATA_WIDTH} > ${LOGS_DIR}/synthesis_log.txt
 	cp ${BUILD_DIR}/reports/* ${REPORTS_DIR}
 
 ${XCLBIN_DIR}:
@@ -75,6 +88,9 @@ ${DIST_DIR}:
 
 ${REPORTS_DIR}:
 	mkdir -p "${REPORTS_DIR}"
+
+${LOGS_DIR}:
+	mkdir -p "${LOGS_DIR}"
 
 ${DIST_DIR}/vendor/src: ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel
 	mkdir -p "${VENDOR_DIR}"
@@ -100,7 +116,7 @@ INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/i
 
 ${VERILOG_DIR}/main.v: ${ROOT_DIR}/${SOURCE_FILE} $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
 ifeq ($(INPUT),go)
-	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./go-teak-sdaccel build --full-imports ${GO_TEAK_FLAGS} $< -o $@
+	cd ${DIR}/eTeak && PATH=${DIR}/eTeak/bin:${PATH} GOPATH=${VENDOR_DIR} /usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" ./${GO_TEAK_BIN} build --full-imports ${GO_TEAK_FLAGS} ${GO_TEAK_BUILD_FLAGS} $< -o $@
 else
 	cp ${ROOT_DIR}/main.v $@
 	cp ${ROOT_DIR}/main.v.xmldef ${VERILOG_DIR}
@@ -112,6 +128,13 @@ ${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR
 ${VERILOG_DIR}/includes: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/includes
 	if [ -d "${ROOT_DIR}/includes/" ]; then cp ${ROOT_DIR}/includes/* ${VERILOG_DIR}/includes; fi
+
+${VERILOG_DIR}/library: ${VERILOG_DIR}
+	mkdir -p ${VERILOG_DIR}/library
+ifeq ($(MEMORY_INTERFACE),smi)
+	cp ${DIR}/smi/verilog/* ${VERILOG_DIR}/library
+	cd ${VERILOG_DIR}/library; smiMemWrapperGen -numMemPorts ${PORTS}
+endif
 
 ${VERILOG_DIR}/includes/%: ${DIR}/eTeak/verilog/SELF_files/% | ${VERILOG_DIR}/includes
 	@cp $< $@
