@@ -21,7 +21,7 @@ const (
 )
 
 func main() {
-	samples := flag.Uint("samples", 20, "number of samples to test")
+	samples := flag.Uint("samples", 400, "number of samples to test")
 	flag.Parse()
 
 	// Setup a new world for accessing our kernel
