@@ -4,3 +4,6 @@ import:
   subpackages:
   - smi
   - xcl
+- package: github.com/ReconfigureIO/math
+- package: github.com/ReconfigureIO/fixed
+
