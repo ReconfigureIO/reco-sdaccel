@@ -8,6 +8,7 @@ import (
 )
 
 const DATA_WIDTH = 4096
+const ITERATIONS = 4
 
 func main() {
 	world := xcl.NewWorld()
@@ -28,7 +29,7 @@ func main() {
 	dcountOutBuff := world.Malloc(xcl.WriteOnly, uint(binary.Size(dcountResult)))
 	defer dcountOutBuff.Free()
 
-	burstCount := uint32(DATA_WIDTH / 64)
+	burstCount := uint32(ITERATIONS)
 
 	krnl.SetMemoryArg(0, inputBuff)
 	krnl.SetArg(1, DATA_WIDTH)
