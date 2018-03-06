@@ -94,7 +94,7 @@ func checkBurstUint8(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64
 		}
 		checkData += incrVal
 	}
-	return uint32(0) // errorCount
+	return 0 // errorCount
 }
 
 // Function for checking the specified number of counter values in successive
@@ -114,7 +114,7 @@ func checkBurstUint16(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit6
 		}
 		checkData += incrVal
 	}
-	return uint32(0) // errorCount
+	return 0 // errorCount
 }
 
 // Function for checking the specified number of counter values in successive
@@ -134,7 +134,7 @@ func checkBurstUint32(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit6
 		}
 		checkData += incrVal
 	}
-	return uint32(0) // errorCount
+	return 0 // errorCount
 }
 
 // Function for checking the specified number of counter values in successive
@@ -154,7 +154,7 @@ func checkBurstUint64(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit6
 		}
 		checkData += incrVal
 	}
-	return uint32(0) // errorCount
+	return 0 // errorCount
 }
 
 // Run the specified number of 8-bit memory access tests.

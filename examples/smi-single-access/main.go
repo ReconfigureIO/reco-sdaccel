@@ -94,7 +94,7 @@ func checkSeqUint8(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 		readAddr += 1
 		checkData += incrVal
 	} */
-	return uint32(0) // errorCount
+	return 0 // errorCount
 }
 
 // Function for checking the specified number of counter values in successive
@@ -114,7 +114,7 @@ func checkSeqUint16(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 		readAddr += 2
 		checkData += incrVal
 	} */
-	return uint32(0) // errorCount
+	return 0 // errorCount
 }
 
 // Function for checking the specified number of counter values in successive
@@ -134,7 +134,7 @@ func checkSeqUint32(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 		readAddr += 4
 		checkData += incrVal
 	} */
-	return uint32(0) // errorCount
+	return 0 // errorCount
 }
 
 // Function for checking the specified number of counter values in successive
@@ -154,7 +154,7 @@ func checkSeqUint64(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 		readAddr += 8
 		checkData += incrVal
 	} */
-	return uint32(0) // errorCount
+	return 0 // errorCount
 }
 
 // Run the specified number of 8-bit memory access tests.
