@@ -24,7 +24,7 @@ BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "${PU
 DEPLOY_JOB := $(shell cat aws/deploy.json | jq '.containerProperties.image = "${PUBLISHED_DEPLOY}"')
 
 export SDACCEL_WRAPPER_VERSION := v0.20.0
-export SMI_WRAPPER_VERSION := v0.3.0
+export SMI_WRAPPER_VERSION := v0.3.1
 GO_VERSION := 1.7.4
 SDACCEL_VERSION := 0.15.1
 
