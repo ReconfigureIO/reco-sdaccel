@@ -93,46 +93,6 @@ pipeline {
                         sh '../../reco-aws/reco-aws test test-histogram'
                     }
                 },
-                addition: {
-                    dir('examples/addition'){
-                        sh '../../reco-aws/reco-aws test test-addition'
-                    }
-                },
-                memcopy: {
-                    dir('examples/memcopy'){
-                        sh '../../reco-aws/reco-aws test test-memcopy'
-                    }
-                },
-                regression: {
-                    dir('examples/regression'){
-                        sh '../../reco-aws/reco-aws test test-regression'
-                    }
-                },
-                popcount: {
-                    dir('examples/popcount'){
-                        sh '../../reco-aws/reco-aws test test-popcount'
-                    }
-                },
-                "parallel histogram": {
-                    dir('examples/histogram-parallel'){
-                        sh '../../reco-aws/reco-aws test test-histogram'
-                    }
-                },
-                "md5": {
-                    dir('examples/md5'){
-                        sh '../../reco-aws/reco-aws test test-md5'
-                    }
-                },
-                "memory benchmark": {
-                    dir('examples/memory-benchmark'){
-                        sh '../../reco-aws/reco-aws test test-memory-benchmark'
-                    }
-                },
-                "noop": {
-                    dir('examples/noop'){
-                        sh '../../reco-aws/reco-aws test test-noop'
-                    }
-                },
                 "smi single access": {
                     dir('examples/smi-single-access'){
                         sh '../../reco-aws/reco-aws test smi-single-access-test'
