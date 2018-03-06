@@ -81,7 +81,7 @@ func writeSeqUint64(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 // 8-bit memory locations.
 func checkSeqUint8(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 	baseAddr uintptr, length uint32, initVal uint8, incrVal uint8) uint32 {
-/*
+
 	readAddr := baseAddr
 	checkData := initVal
 	errorCount := uint32(0)
@@ -93,15 +93,15 @@ func checkSeqUint8(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 		}
 		readAddr += 1
 		checkData += incrVal
-	} */
-	return 0 // errorCount
+	}
+	return errorCount
 }
 
 // Function for checking the specified number of counter values in successive
 // 16-bit memory locations.
 func checkSeqUint16(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 	baseAddr uintptr, length uint32, initVal uint16, incrVal uint16) uint32 {
-/*
+
 	readAddr := baseAddr
 	checkData := initVal
 	errorCount := uint32(0)
@@ -113,15 +113,15 @@ func checkSeqUint16(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 		}
 		readAddr += 2
 		checkData += incrVal
-	} */
-	return 0 // errorCount
+	}
+	return errorCount
 }
 
 // Function for checking the specified number of counter values in successive
 // 32-bit memory locations.
 func checkSeqUint32(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 	baseAddr uintptr, length uint32, initVal uint32, incrVal uint32) uint32 {
-/*
+
 	readAddr := baseAddr
 	checkData := initVal
 	errorCount := uint32(0)
@@ -133,15 +133,15 @@ func checkSeqUint32(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 		}
 		readAddr += 4
 		checkData += incrVal
-	} */
-	return 0 // errorCount
+	}
+	return errorCount
 }
 
 // Function for checking the specified number of counter values in successive
 // 64-bit memory locations.
 func checkSeqUint64(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 	baseAddr uintptr, length uint32, initVal uint64, incrVal uint64) uint32 {
-/*
+
 	readAddr := baseAddr
 	checkData := initVal
 	errorCount := uint32(0)
@@ -153,8 +153,8 @@ func checkSeqUint64(smiRequest chan<- smi.Flit64, smiResponse <-chan smi.Flit64,
 		}
 		readAddr += 8
 		checkData += incrVal
-	} */
-	return 0 // errorCount
+	}
+	return errorCount
 }
 
 // Run the specified number of 8-bit memory access tests.
