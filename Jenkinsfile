@@ -132,6 +132,16 @@ pipeline {
                     dir('examples/noop'){
                         sh '../../reco-aws/reco-aws test test-noop'
                     }
+                },
+                "smi single access": {
+                    dir('examples/smi-single-access'){
+                        sh '../../reco-aws/reco-aws test smi-single-access-test'
+                    }
+                },
+                "smi burst access": {
+                    dir('examples/smi-burst-access'){
+                        sh '../../reco-aws/reco-aws test smi-burst-access-test'
+                    }
                 }
             }
         }

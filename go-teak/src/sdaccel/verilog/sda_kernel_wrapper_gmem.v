@@ -42,6 +42,11 @@
 `endif
 
 // Can be redefined on the synthesis command line.
+`ifndef AXI_MASTER_CACHE_MASK
+`define AXI_MASTER_CACHE_MASK 4'b0001
+`endif
+
+// Can be redefined on the synthesis command line.
 `ifndef AXI_PARAM_MEM_ADDR_WIDTH
 `define AXI_PARAM_MEM_ADDR_WIDTH 12
 `endif
@@ -196,6 +201,10 @@ wire [1:0]  m_axi_control_RRESP;
 wire        m_axi_control_RVALID;
 wire        m_axi_control_RREADY;
 
+// AXI master interface intermediate signals.
+wire [3:0] m_axi_gmem_local_ARCACHE;
+wire [3:0] m_axi_gmem_local_AWCACHE;
+
 // Wrapper control register interface signals.
 wire                                 reg_req;
 wire                                 reg_ack;
@@ -240,6 +249,11 @@ assign m_axi_gmem_ARLOCK[1] = 1'b0;
 
 // Tie off unused WID signal
 assign m_axi_gmem_WID = 1'b0;
+
+// Apply cache mask to restrict memory access modes if required. The default
+// is to restrict accesses to device mode only, as required by the AWS shell.
+assign m_axi_gmem_ARCACHE = m_axi_gmem_local_ARCACHE & `AXI_MASTER_CACHE_MASK;
+assign m_axi_gmem_AWCACHE = m_axi_gmem_local_AWCACHE & `AXI_MASTER_CACHE_MASK;
 
 // Instantiate the reset controller.
 sda_kernel_reset_handler resetHandler_u
@@ -303,7 +317,7 @@ teak__action__top__gmem kernelActionTop_u
   .s_axi_bready(m_axi_control_BREADY), .m_axi_gmem_awaddr(m_axi_gmem_AWADDR),
   .m_axi_gmem_awlen(m_axi_gmem_AWLEN), .m_axi_gmem_awsize(m_axi_gmem_AWSIZE),
   .m_axi_gmem_awburst(m_axi_gmem_AWBURST), .m_axi_gmem_awlock(m_axi_gmem_AWLOCK[0]),
-  .m_axi_gmem_awcache(m_axi_gmem_AWCACHE), .m_axi_gmem_awprot(m_axi_gmem_AWPROT),
+  .m_axi_gmem_awcache(m_axi_gmem_local_AWCACHE), .m_axi_gmem_awprot(m_axi_gmem_AWPROT),
   .m_axi_gmem_awqos(m_axi_gmem_AWQOS), .m_axi_gmem_awregion(m_axi_gmem_AWREGION),
   .m_axi_gmem_awid(m_axi_gmem_AWID), .m_axi_gmem_awuser(m_axi_gmem_AWUSER),
   .m_axi_gmem_awvalid(m_axi_gmem_AWVALID), .m_axi_gmem_awready(m_axi_gmem_AWREADY),
@@ -315,7 +329,7 @@ teak__action__top__gmem kernelActionTop_u
   .m_axi_gmem_bvalid(m_axi_gmem_BVALID), .m_axi_gmem_bready(m_axi_gmem_BREADY),
   .m_axi_gmem_araddr(m_axi_gmem_ARADDR), .m_axi_gmem_arlen(m_axi_gmem_ARLEN),
   .m_axi_gmem_arsize(m_axi_gmem_ARSIZE), .m_axi_gmem_arburst(m_axi_gmem_ARBURST),
-  .m_axi_gmem_arlock(m_axi_gmem_ARLOCK[0]), .m_axi_gmem_arcache(m_axi_gmem_ARCACHE),
+  .m_axi_gmem_arlock(m_axi_gmem_ARLOCK[0]), .m_axi_gmem_arcache(m_axi_gmem_local_ARCACHE),
   .m_axi_gmem_arprot(m_axi_gmem_ARPROT), .m_axi_gmem_arqos(m_axi_gmem_ARQOS),
   .m_axi_gmem_arregion(m_axi_gmem_ARREGION), .m_axi_gmem_arid(m_axi_gmem_ARID),
   .m_axi_gmem_aruser(m_axi_gmem_ARUSER), .m_axi_gmem_arvalid(m_axi_gmem_ARVALID),

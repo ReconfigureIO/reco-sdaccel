@@ -1,0 +1,9 @@
+package: .
+import:
+- package: github.com/ReconfigureIO/sdaccel
+  subpackages:
+  - smi
+  - xcl
+- package: github.com/ReconfigureIO/math
+- package: github.com/ReconfigureIO/fixed
+
