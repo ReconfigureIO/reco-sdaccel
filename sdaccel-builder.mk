@@ -15,6 +15,7 @@ DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.3"
 TARGET := "hw_emu"
 MEMORY_INTERFACE="axi"
 AXI_DATA_WIDTH := 64
+PORTS := 2
 OPTIMIZE := "no"
 OPTIMIZE_LEVEL := 100
 CLFLAGS :=
