@@ -41,26 +41,24 @@ fi
 
 export PATH="$DIR/smi/bin":$PATH
 
-common_params="OPTIMIZE=$reco_optimize MEMORY_INTERFACE=$reco_memory_interface AXI_DATA_WIDTH=$reco_memory_width PORTS=$reco_ports"
-
 function graph {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw "$common_params" graph
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" graph
 }
 
 function build {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu "$common_params" kernel sim
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" kernel sim
 }
 
 function image {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw "$common_params" kernel
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" kernel
 }
 
 function test_go {
-    make -e -f "$DIR/sdaccel-builder.mk" "$common_params" verilog
+    make -e -f "$DIR/sdaccel-builder.mk" OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" verilog
 }
 
 function simulate {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu "$common_params" sim cmds kernel
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" sim cmds kernel
     export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
     # This is for the emconfig.json
     cd "$PWD/.reco-work/sdaccel/dist/"
