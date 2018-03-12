@@ -8,7 +8,7 @@ import (
 )
 
 const DATA_WIDTH = 512
-const ITERATIONS = 4
+const ITERATIONS = 2
 
 func main() {
 	world := xcl.NewWorld()
