@@ -14,6 +14,8 @@ DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_3"
 DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.3"
 TARGET := "hw_emu"
 MEMORY_INTERFACE="axi"
+AXI_DATA_WIDTH := 64
+PORTS := 2
 OPTIMIZE := "no"
 OPTIMIZE_LEVEL := 100
 CLFLAGS :=
@@ -27,13 +29,10 @@ else
 	GO_TEAK_FLAGS :=
 endif
 
-AXI_DATA_WIDTH := 64
-
 ifeq ($(MEMORY_INTERFACE), axi)
 	GO_TEAK_BIN := go-teak-sdaccel
 else
 	GO_TEAK_BIN := go-teak-smi
-	AXI_DATA_WIDTH := 64
 	GO_TEAK_BUILD_FLAGS += --ports ${PORTS}
 endif
 
@@ -133,7 +132,7 @@ ${VERILOG_DIR}/library: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/library
 ifeq ($(MEMORY_INTERFACE),smi)
 	cp ${DIR}/smi/verilog/* ${VERILOG_DIR}/library
-	cd ${VERILOG_DIR}/library; smiMemWrapperGen -numMemPorts ${PORTS}
+	cd ${VERILOG_DIR}/library; smiMemWrapperGen -numMemPorts ${PORTS} -axiBusWidth ${AXI_DATA_WIDTH}
 endif
 
 ${VERILOG_DIR}/includes/%: ${DIR}/eTeak/verilog/SELF_files/% | ${VERILOG_DIR}/includes

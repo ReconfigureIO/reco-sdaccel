@@ -207,7 +207,7 @@ func runTestUint16(readUint16Req chan<- smi.Flit64, readUint16Resp <-chan smi.Fl
 			transferLength, initVal, incrVal)
 		errorCount := checkSeqUint16(readUint16Req, readUint16Resp,
 			baseAddr, transferLength, initVal, incrVal)
-		result.byteCount += transferLength
+		result.byteCount += transferLength * 2
 		result.errorCount += errorCount
 	}
 	resultChan <- result
@@ -235,7 +235,7 @@ func runTestUint32(readUint32Req chan<- smi.Flit64, readUint32Resp <-chan smi.Fl
 			transferLength, initVal, incrVal)
 		errorCount := checkSeqUint32(readUint32Req, readUint32Resp,
 			baseAddr, transferLength, initVal, incrVal)
-		result.byteCount += transferLength
+		result.byteCount += transferLength * 4
 		result.errorCount += errorCount
 	}
 	resultChan <- result
@@ -263,7 +263,7 @@ func runTestUint64(readUint64Req chan<- smi.Flit64, readUint64Resp <-chan smi.Fl
 			transferLength, initVal, incrVal)
 		errorCount := checkSeqUint64(readUint64Req, readUint64Resp,
 			baseAddr, transferLength, initVal, incrVal)
-		result.byteCount += transferLength
+		result.byteCount += transferLength * 8
 		result.errorCount += errorCount
 	}
 	resultChan <- result

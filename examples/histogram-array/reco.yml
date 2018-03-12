@@ -1,2 +1,3 @@
 memory_interface: smi
+memory_width: 128
 ports: 2
