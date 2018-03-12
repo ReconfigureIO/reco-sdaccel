@@ -14,6 +14,7 @@ DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_3"
 DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.3"
 TARGET := "hw_emu"
 MEMORY_INTERFACE="axi"
+AXI_DATA_WIDTH := 64
 OPTIMIZE := "no"
 OPTIMIZE_LEVEL := 100
 CLFLAGS :=
@@ -27,13 +28,10 @@ else
 	GO_TEAK_FLAGS :=
 endif
 
-AXI_DATA_WIDTH := 64
-
 ifeq ($(MEMORY_INTERFACE), axi)
 	GO_TEAK_BIN := go-teak-sdaccel
 else
 	GO_TEAK_BIN := go-teak-smi
-	AXI_DATA_WIDTH := 128
 	GO_TEAK_BUILD_FLAGS += --ports ${PORTS}
 endif
 
