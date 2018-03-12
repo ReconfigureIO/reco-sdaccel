@@ -41,7 +41,7 @@ fi
 
 export PATH="$DIR/smi/bin":$PATH
 
-common_params = "OPTIMIZE=$reco_optimize MEMORY_INTERFACE=$reco_memory_interface AXI_DATA_WIDTH=$reco_memory_width PORTS=$reco_ports"
+common_params="OPTIMIZE=$reco_optimize MEMORY_INTERFACE=$reco_memory_interface AXI_DATA_WIDTH=$reco_memory_width PORTS=$reco_ports"
 
 function graph {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw "$common_params" graph
