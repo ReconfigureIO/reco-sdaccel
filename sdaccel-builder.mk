@@ -133,7 +133,7 @@ ${VERILOG_DIR}/library: ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/library
 ifeq ($(MEMORY_INTERFACE),smi)
 	cp ${DIR}/smi/verilog/* ${VERILOG_DIR}/library
-	cd ${VERILOG_DIR}/library; smiMemWrapperGen -numMemPorts ${PORTS}
+	cd ${VERILOG_DIR}/library; smiMemWrapperGen -numMemPorts ${PORTS} -axiBusWidth ${AXI_DATA_WIDTH}
 endif
 
 ${VERILOG_DIR}/includes/%: ${DIR}/eTeak/verilog/SELF_files/% | ${VERILOG_DIR}/includes
