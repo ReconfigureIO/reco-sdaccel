@@ -7,7 +7,7 @@ import (
 	"github.com/ReconfigureIO/sdaccel/xcl"
 )
 
-const DATA_WIDTH = 512
+const DATA_WIDTH = 256
 const ITERATIONS = 2
 
 func main() {
