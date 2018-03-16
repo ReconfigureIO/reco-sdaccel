@@ -1,6 +1,6 @@
 package: .
 import:
 - package: github.com/ReconfigureIO/sdaccel
-  subpakages:
+  subpackages:
   - smi
   - xcl
