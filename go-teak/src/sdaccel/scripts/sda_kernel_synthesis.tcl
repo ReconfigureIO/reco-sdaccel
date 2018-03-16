@@ -42,8 +42,8 @@ proc load_ip_cores {ipSourceDirPath buildDirPath} {
 #
 # Run main kernel synthesis in project flow.
 #
-proc sda_kernel_synthesis {sourceFileName moduleName
-  includeCodePath libraryCodePath partName axiDataWidth} {
+proc sda_kernel_synthesis {sourceFileName moduleName includeCodePath
+  libraryCodePath partName axiDataWidth enableAxiWid} {
 set_part $partName
 
 #
@@ -76,6 +76,11 @@ foreach libraryCodeDir $libraryCodePath {
 #
 # Generate the synthesised netlist for the IP core.
 #
+set extraFlags "-verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth"
+if 0 != $enableAxiWid {
+  set extraFlags "$extraFlags -verilog_define AXI_MASTER_HAS_WID=1"
+}
+
 synth_design \
   -mode out_of_context \
   -directive runtimeoptimized \
@@ -83,7 +88,7 @@ synth_design \
   -keep_equivalent_registers \
   -top sda_kernel_wrapper_gmem \
   -include_dirs $includeCodePath \
-  -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth
+  $extraFlags
 
 #
 # Prefix all the module names with the unique kernel name string.

@@ -69,6 +69,9 @@
 # -axi_data_width <data_bus_width>
 #   The width of the external AXI data bus to be used for memory access. If
 #   not provided, defaults to 128.
+# -enable_axi_wid
+#   When present, indicates that the kernel code supports the AXI WID output
+#   signal.
 #
 # The build script can be run from the command line using the Vivado batch mode
 # as follows, where <tcl_script_args> is replaced by the arguments specified
@@ -113,6 +116,7 @@ set paramArgsFileName "param_args.xmldef"
 set partName "xcku115-flvf1924-1-c"
 set partFamily "kintexu"
 set axiDataWidth 512
+set enableAxiWid 0
 
 #
 # Extract the TCL command line arguments.
@@ -181,6 +185,9 @@ while {$argIndex < $argc} {
     "-axi_data_width" {
       set axiDataWidth [lindex $argv $argIndex]
       incr argIndex
+    }
+    "-enable_axi_wid" {
+      set enableAxiWid 1
     }
     default {
       puts "Invalid TCL batch script argument : $arg"
@@ -255,7 +262,7 @@ set constraintFileName [file join $synDirPath "${moduleName}.xdc"]
 if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
   sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath \
-    $libraryCodePath $partName $axiDataWidth
+    $libraryCodePath $partName $axiDataWidth $enableAxiWid
   sda_kernel_report $moduleName $partName $reportDirPath
   if {0 != $doRelativePlacement} {
     sda_kernel_constrain $moduleName
