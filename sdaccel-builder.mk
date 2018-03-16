@@ -22,6 +22,7 @@ CLFLAGS :=
 CPUS := 4
 
 GO_TEAK_BUILD_FLAGS :=
+AXI_CONFIG_FLAGS := -axi_data_width ${AXI_DATA_WIDTH}
 
 ifeq ($(OPTIMIZE), yes)
 	GO_TEAK_FLAGS := -O -p${OPTIMIZE_LEVEL}
@@ -34,6 +35,7 @@ ifeq ($(MEMORY_INTERFACE), axi)
 else
 	GO_TEAK_BIN := go-teak-smi
 	GO_TEAK_BUILD_FLAGS += --ports ${PORTS}
+	AXI_CONFIG_FLAGS += -enable_axi_wid
 endif
 
 PART := "xcku115-flvf1924-1-c"
@@ -65,7 +67,7 @@ ${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v ${VERI
 		-action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" \
 		-library_source_dir "${VERILOG_DIR}/library" -param_args_file "${VERILOG_DIR}/main.v.xmldef" \
 		-vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part ${PART} \
-		-part_family ${PART_FAMILY} -axi_data_width ${AXI_DATA_WIDTH} > ${LOGS_DIR}/synthesis_log.txt
+		-part_family ${PART_FAMILY} ${AXI_CONFIG_FLAGS} > ${LOGS_DIR}/synthesis_log.txt
 	cp ${BUILD_DIR}/reports/* ${REPORTS_DIR}
 
 ${XCLBIN_DIR}:
