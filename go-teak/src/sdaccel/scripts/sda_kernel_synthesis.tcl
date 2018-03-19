@@ -77,7 +77,7 @@ foreach libraryCodeDir $libraryCodePath {
 # Generate the synthesised netlist for the IP core.
 #
 set extraFlags "-verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth"
-if 0 != $enableAxiWid {
+if {0 != $enableAxiWid} {
   set extraFlags "$extraFlags -verilog_define AXI_MASTER_HAS_WID=1"
 }
 
