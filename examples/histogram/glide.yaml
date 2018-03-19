@@ -5,3 +5,5 @@ import:
   subpackages:
   - smi
   - xcl
+ignore:
+- ReconfigureIO/reco-sdaccel/benchmarks
