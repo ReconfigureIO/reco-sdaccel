@@ -26,7 +26,7 @@ DEPLOY_JOB := $(shell cat aws/deploy.json | jq '.containerProperties.image = "${
 export SDACCEL_WRAPPER_VERSION := v0.20.1
 export SMI_WRAPPER_VERSION := v0.3.3
 GO_VERSION := 1.7.4
-SDACCEL_VERSION := 0.15.1
+SDACCEL_VERSION := 0.17.1
 
 .PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws upload-docker test go/src/github.com/ReconfigureIO/sdaccel
 
