@@ -84,7 +84,7 @@ function lint {
         EXTRA="-DAXI_MASTER_DATA_WIDTH=$reco_memory_width -DAXI_MASTER_HAS_WID=1"
     fi
 
-    verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" -I".reco-work/sdaccel/verilog/library" .reco-work/sdaccel/verilog/main.v "$EXTRA" --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNUSED -Wno-UNDRIVEN -Wno-REDEFMACRO -Wno-DECLFILENAME
+    verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" -I".reco-work/sdaccel/verilog/library" .reco-work/sdaccel/verilog/main.v $EXTRA --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNUSED -Wno-UNDRIVEN -Wno-REDEFMACRO -Wno-DECLFILENAME
 }
 
 function main {
