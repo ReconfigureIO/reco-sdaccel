@@ -76,20 +76,26 @@ foreach libraryCodeDir $libraryCodePath {
 #
 # Generate the synthesised netlist for the IP core.
 #
-set enableAxiWidFlag ""
 if {0 != $enableAxiWid} {
-  set enableAxiWidFlag "-verilog_define AXI_MASTER_HAS_WID=1"
+  synth_design \
+    -mode out_of_context \
+    -directive runtimeoptimized \
+    -no_lc \
+    -keep_equivalent_registers \
+    -top sda_kernel_wrapper_gmem \
+    -include_dirs $includeCodePath \
+    -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth \
+    -verilog_define AXI_MASTER_HAS_WID=1
+} else {
+  synth_design \
+    -mode out_of_context \
+    -directive runtimeoptimized \
+    -no_lc \
+    -keep_equivalent_registers \
+    -top sda_kernel_wrapper_gmem \
+    -include_dirs $includeCodePath \
+    -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth
 }
-
-synth_design \
-  -mode out_of_context \
-  -directive runtimeoptimized \
-  -no_lc \
-  -keep_equivalent_registers \
-  -top sda_kernel_wrapper_gmem \
-  -include_dirs $includeCodePath \
-  -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth \
-  $enableAxiWidFlag
 
 #
 # Prefix all the module names with the unique kernel name string.
