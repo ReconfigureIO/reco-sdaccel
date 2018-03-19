@@ -5,7 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"testing"
-	"xcl"
+	"github.com/ReconfigureIO/sdaccel/xcl"
 
 	"ReconfigureIO/reco-sdaccel/benchmarks"
 )

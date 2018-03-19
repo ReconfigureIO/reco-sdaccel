@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
-	"xcl"
+	"github.com/ReconfigureIO/sdaccel/xcl"
 )
 
 func main() {
