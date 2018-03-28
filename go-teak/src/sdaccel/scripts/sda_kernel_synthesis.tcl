@@ -79,9 +79,6 @@ foreach libraryCodeDir $libraryCodePath {
 if {0 != $enableAxiWid} {
   synth_design \
     -mode out_of_context \
-    -directive runtimeoptimized \
-    -no_lc \
-    -keep_equivalent_registers \
     -top sda_kernel_wrapper_gmem \
     -include_dirs $includeCodePath \
     -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth \
@@ -89,9 +86,6 @@ if {0 != $enableAxiWid} {
 } else {
   synth_design \
     -mode out_of_context \
-    -directive runtimeoptimized \
-    -no_lc \
-    -keep_equivalent_registers \
     -top sda_kernel_wrapper_gmem \
     -include_dirs $includeCodePath \
     -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth
