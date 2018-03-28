@@ -18,7 +18,7 @@ AXI_DATA_WIDTH := 64
 PORTS := 2
 OPTIMIZE := "no"
 OPTIMIZE_LEVEL := 100
-CLFLAGS := "--optimizes"
+CLFLAGS := "--optimize s"
 CPUS := 4
 
 GO_TEAK_BUILD_FLAGS :=
