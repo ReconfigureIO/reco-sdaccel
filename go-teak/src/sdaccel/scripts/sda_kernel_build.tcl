@@ -34,10 +34,14 @@
 # -action_source_file <source_file>
 #   This is a path to the generated action code source, which should be a single
 #   Verilog file containing all the modules required. This option is mandatory.
-# -include_source_dir <wrapper_dir>
-#   This is a path to the included verilog source code directory, which contains
-#   the Verilog source code files to be included in the build. If not specified,
-#   the 'verilog' subdirectory will be used.
+# -include_source_dir <include_dir>
+#   This is a path to a Verilog source code directory which contains Verilog
+#   source code files to be included via include directives. This option may be
+#   used multiple times to specify multiple source directories.
+# -library_source_dir <library_dir>
+#   This is a path to a Verilog source code directory which contains Verilog
+#   source code files to be loaded as library modules. This option may be
+#   used multiple times to specify multiple source directories.
 # -build_dir <build_dir>
 #   This is a path to the netlist build directory, into which the output netlist
 #   will be placed. If not specified, the current directory will be used.
@@ -62,6 +66,12 @@
 # -part_family <part_family>
 #   The part family to synthesize for. If not provided, defaults to
 #   "kintexu"
+# -axi_data_width <data_bus_width>
+#   The width of the external AXI data bus to be used for memory access. If
+#   not provided, defaults to 128.
+# -enable_axi_wid
+#   When present, indicates that the kernel code supports the AXI WID output
+#   signal.
 #
 # The build script can be run from the command line using the Vivado batch mode
 # as follows, where <tcl_script_args> is replaced by the arguments specified
@@ -96,7 +106,8 @@ source [file join [file dirname [info script]] sda_kernel_packaging.tcl]
 source [file join [file dirname [info script]] sda_kernel_xilinx_utils.tcl]
 
 # Specify default parameter values.
-set includeCodePath "verilog"
+set includeCodePath [list "."]
+set libraryCodePath [list "."]
 set skipResynthesis 0
 set doRelativePlacement 0
 set paramArgsFileName "param_args.xmldef"
@@ -104,6 +115,8 @@ set paramArgsFileName "param_args.xmldef"
 # Selects a generic Kintex Ultrascale part as the nominal target.
 set partName "xcku115-flvf1924-1-c"
 set partFamily "kintexu"
+set axiDataWidth 512
+set enableAxiWid 0
 
 #
 # Extract the TCL command line arguments.
@@ -142,7 +155,11 @@ while {$argIndex < $argc} {
       incr argIndex
     }
     "-include_source_dir" {
-      set includeCodePath [lindex $argv $argIndex]
+      set includeCodePath [lappend $includeCodePath [lindex $argv $argIndex]]
+      incr argIndex
+    }
+    "-library_source_dir" {
+      set libraryCodePath [lappend $libraryCodePath [lindex $argv $argIndex]]
       incr argIndex
     }
     "-param_args_file" {
@@ -164,6 +181,13 @@ while {$argIndex < $argc} {
     "-part_family" {
       set partFamily [lindex $argv $argIndex]
       incr argIndex
+    }
+    "-axi_data_width" {
+      set axiDataWidth [lindex $argv $argIndex]
+      incr argIndex
+    }
+    "-enable_axi_wid" {
+      set enableAxiWid 1
     }
     default {
       puts "Invalid TCL batch script argument : $arg"
@@ -190,6 +214,15 @@ if {0 == [info exists kernelName]} {
 }
 if {0 == [info exists versionNumber]} {
   puts "Missing VLNV -version argument"
+  exit -1
+}
+
+#
+# Check for valid AXI data bus width.
+#
+if {64 != $axiDataWidth && 128 != $axiDataWidth && \
+  256 != $axiDataWidth && 512 != $axiDataWidth} {
+  puts "Invalid AXI data width : $axiDataWidth"
   exit -1
 }
 
@@ -228,7 +261,8 @@ set synFileName [file join $synDirPath "${moduleName}.v"]
 set constraintFileName [file join $synDirPath "${moduleName}.xdc"]
 if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
-  sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath $partName
+  sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath \
+    $libraryCodePath $partName $axiDataWidth $enableAxiWid
   sda_kernel_report $moduleName $partName $reportDirPath
   if {0 != $doRelativePlacement} {
     sda_kernel_constrain $moduleName
@@ -256,7 +290,8 @@ if {0 != [file exists $constraintFileName]} {
 # Run the standard Xilinx HLS IP packaging flow.
 #
 cd $ipDirPath
-configure_ip_core $moduleName $vendorName $libraryName $kernelName $versionNumber $partFamily
+configure_ip_core $moduleName $vendorName $libraryName $kernelName \
+  $versionNumber $axiDataWidth $partFamily
 cd $buildDirPath
 
 #
@@ -264,4 +299,4 @@ cd $buildDirPath
 # core to create an SDAccel kernel object.
 #
 sda_kernel_packaging $moduleName $vendorName $libraryName $kernelName \
-  $versionNumber $paramArgsFileName $ipDirPath $buildDirPath
+  $versionNumber $axiDataWidth $paramArgsFileName $ipDirPath $buildDirPath

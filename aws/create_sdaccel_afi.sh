@@ -248,7 +248,7 @@ tar -cf ${timestamp}_Developer_SDAccel_Kernel.tar to_aws/${timestamp}_SH_CL_rout
 #Call create-fpga-image
 if [ "$aws_profile_name" == "" ]
 then
-  aws s3 cp ${timestamp}_Developer_SDAccel_Kernel.tar s3://${s3_bucket}/${s3_dcps}/
+  aws s3 cp --quiet ${timestamp}_Developer_SDAccel_Kernel.tar s3://${s3_bucket}/${s3_dcps}/
   aws ec2 create-fpga-image --name ${xclbin} --description ${xclbin} --input-storage-location Bucket=${s3_bucket},Key=${s3_dcps}/${timestamp}_Developer_SDAccel_Kernel.tar --logs-storage-location Bucket=${s3_bucket},Key=${s3_logs} > ${timestamp}_afi_id.txt
 else
   aws s3 --profile ${aws_profile_name} cp ${timestamp}_Developer_SDAccel_Kernel.tar s3://${s3_bucket}/${s3_dcps}/

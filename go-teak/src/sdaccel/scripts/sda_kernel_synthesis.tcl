@@ -42,20 +42,20 @@ proc load_ip_cores {ipSourceDirPath buildDirPath} {
 #
 # Run main kernel synthesis in project flow.
 #
-proc sda_kernel_synthesis {
-  sourceFileName moduleName includeCodePath partName} {
+proc sda_kernel_synthesis {sourceFileName moduleName includeCodePath
+  libraryCodePath partName axiDataWidth enableAxiWid} {
 set_part $partName
 
 #
 # Attempt to build the IP cores if present.
 # TODO: Architecture path is hard-coded here.
 #
-set includeArchPath [file join $includeCodePath ".." "SELF_arch" "xilinx" "ultrascale"]
-set ipSourceDirPath [file join $includeArchPath "ip"]
-if {0 != [file exists $ipSourceDirPath]} {
-  set includeCodePath {$includeCodePath $includeArchPath}
-  load_ip_cores $ipSourceDirPath [pwd]
-}
+# set includeArchPath [file join $libraryCodePath ".." "SELF_arch" "xilinx" "ultrascale"]
+# set ipSourceDirPath [file join $includeArchPath "ip"]
+# if {0 != [file exists $ipSourceDirPath]} {
+#   set libraryCodePath {$libraryCodePath $includeArchPath}
+#   load_ip_cores $ipSourceDirPath [pwd]
+# }
 
 #
 # Load the file containing the generated action code.
@@ -67,15 +67,35 @@ if {0 == [info exists sourceFileName]} {
 add_files -norecurse $sourceFileName
 
 #
+# Load all Verilog files in the imported source code directories.
+#
+foreach libraryCodeDir $libraryCodePath {
+  add_files -quiet $libraryCodeDir
+}
+
+#
 # Generate the synthesised netlist for the IP core.
 #
-synth_design \
-  -mode out_of_context \
-  -directive runtimeoptimized \
-  -no_lc \
-  -keep_equivalent_registers \
-  -top sda_kernel_wrapper_gmem \
-  -include_dirs $includeCodePath
+if {0 != $enableAxiWid} {
+  synth_design \
+    -mode out_of_context \
+    -directive runtimeoptimized \
+    -no_lc \
+    -keep_equivalent_registers \
+    -top sda_kernel_wrapper_gmem \
+    -include_dirs $includeCodePath \
+    -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth \
+    -verilog_define AXI_MASTER_HAS_WID=1
+} else {
+  synth_design \
+    -mode out_of_context \
+    -directive runtimeoptimized \
+    -no_lc \
+    -keep_equivalent_registers \
+    -top sda_kernel_wrapper_gmem \
+    -include_dirs $includeCodePath \
+    -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth
+}
 
 #
 # Prefix all the module names with the unique kernel name string.

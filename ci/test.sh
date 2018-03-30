@@ -4,7 +4,23 @@ set -ex
 # Do as much local testing as we can locally
 
 cd "$1"
-sdaccel-builder test-go
-docker run --rm -i -v "$PWD":/mnt verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" .reco-work/sdaccel/verilog/main.v --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNDRIVEN
+
+if [ -e "glide.yaml" ]
+then
+    glide install
+fi
+
+INPUT="go"
+if [ -e "main.v" ]
+then
+    INPUT="verilog"
+fi
+
+
+
+export INPUT=$INPUT
+
+sdaccel-builder lint
+
 #docker run --rm -i -v "$PWD":/mnt sdaccel-builder:latest /opt/sdaccel-builder/sdaccel-builder graph
 #test -f main-graph.pdf
