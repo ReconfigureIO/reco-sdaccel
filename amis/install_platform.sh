@@ -1,6 +1,6 @@
 #!/bin/bash
 set -x
-VERSION=1.3.4
+VERSION=1.3.6d
 mkdir -p /tmp/aws-fpga
 cd /tmp/aws-fpga
 wget -O aws-fpga-$VERSION.zip https://github.com/aws/aws-fpga/archive/v$VERSION.zip
