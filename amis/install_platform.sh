@@ -18,5 +18,5 @@ cd ..
 # This isn't correctly generated in sdaccel_setup.sh
 PATH=/usr/bin:$PATH source sdaccel_setup.sh
 cp SDAccel/tools/create_sdaccel_afi.sh "$XILINX_SDX/bin"
-cp -R SDAccel/aws_platform/xilinx_aws-vu9p-f1_4ddr-xpr-2pr_4_0/ "$XILINX_SDX/platforms"
+cp -R SDAccel/aws_platform/xilinx_aws-vu9p-f1_1ddr-xpr-2pr_4_0/ "$XILINX_SDX/platforms"
 rm -rf /tmp/aws-fpga
