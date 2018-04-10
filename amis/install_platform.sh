@@ -1,9 +1,9 @@
 #!/bin/bash
 set -x
-VERSION=1.3.3
+VERSION=1.3.6d
 mkdir -p /tmp/aws-fpga
 cd /tmp/aws-fpga
-aws s3 cp --quiet s3://nerabus/platform/aws-fpga-$VERSION.zip .
+wget -O aws-fpga-$VERSION.zip https://github.com/aws/aws-fpga/archive/v$VERSION.zip
 unzip aws-fpga-$VERSION.zip
 cd aws-fpga-$VERSION
 export XILINX_SDX=/opt/Xilinx/SDx/2017.1.op
@@ -18,5 +18,6 @@ cd ..
 # This isn't correctly generated in sdaccel_setup.sh
 PATH=/usr/bin:$PATH source sdaccel_setup.sh
 cp SDAccel/tools/create_sdaccel_afi.sh "$XILINX_SDX/bin"
+cp -R SDAccel/aws_platform/xilinx_aws-vu9p-f1_4ddr-xpr-2pr_4_0/ "$XILINX_SDX/platforms"
 cp -R SDAccel/aws_platform/xilinx_aws-vu9p-f1_1ddr-xpr-2pr_4_0/ "$XILINX_SDX/platforms"
 rm -rf /tmp/aws-fpga
