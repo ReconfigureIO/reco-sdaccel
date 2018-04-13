@@ -74,7 +74,7 @@ ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
 
 ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME} ${XCLBIN_DIR}
-	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xclbin,%e,%M" xocc -j${CPUS} -Oquick -t "${TARGET}" $(CLFLAGS) --xdevice ${DEVICE_FULL} -l $< -o $@ -r system
+	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xclbin,%e,%M" xocc -j${CPUS} -O3 -t "${TARGET}" $(CLFLAGS) --xdevice ${DEVICE_FULL} -l $< -o $@ -r system
 
 ${DIST_DIR}/emconfig.json: ${DIST_DIR}
 	cd ${DIST_DIR} && XCL_EMULATION_MODE=${TARGET} emconfigutil --xdevice ${DEVICE_FULL} --nd 1
