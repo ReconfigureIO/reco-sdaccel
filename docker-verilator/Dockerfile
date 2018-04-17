@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     time \
     wget \
+    python3 \
     awscli \
     libcairo2-dev libpango1.0-dev libpangocairo-1.0-0 libgtk2.0-dev
 
