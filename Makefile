@@ -35,7 +35,7 @@ all: package/reco package/reco-jarvice
 print-% : ; @echo $($*)
 
 test:
-	find examples/ -maxdepth 1 -mindepth 1 -type d | PATH=$$PWD/ci/:$$PATH xargs -L1 test.sh
+	set -eux; for example in examples/*; do PATH=$$PWD/ci/:$$PATH test.sh "$$example"; done
 
 lint:
 	shellcheck sdaccel-builder
