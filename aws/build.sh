@@ -18,6 +18,10 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
+if [ -f $PWD/reco.yml ]; then
+   dos2unix $PWD/reco.yml
+fi
+
 timeout -k 1m 12h /opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdaccel-builder/sdaccel-builder image
 
 exit="$?"
