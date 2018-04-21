@@ -113,7 +113,7 @@ function wait_for_afi {
 }
 
 function submit_job {
-    SUBMIT=$(cat "$DIR/../aws/job_submit.json" | jq ".containerOverrides.command[0] = \"$2\" | .containerOverrides.memory = \"$MEMORY\" | .containerOverrides.environment[2].value = \"s3://reconfigureio-builds/tmp/$1.tar.gz\" | .containerOverrides.environment[7].value = \"s3://reconfigureio-builds/tmp/$1.dist.zip\" | .containerOverrides.environment[4].value = \"${@:3}\" | .containerOverrides.environment[8].value = \"tmp/dcp/$1.tar\" | .containerOverrides.environment[9].value = \"tmp/dcp-logs/$1\" | .containerOverrides.environment[10].value = \"$GENERATE_AFI\" | .containerOverrides.environment[11].value = \"s3://reconfigureio-builds/tmp/$1.debug.zip\" | .containerOverrides.environment[12].value = \"$INPUT\"")
+    SUBMIT=$(cat "$DIR/../aws/job_submit.json" | jq ".containerOverrides.command[0] = \"$2\" | .containerOverrides.memory = $MEMORY | .containerOverrides.environment[2].value = \"s3://reconfigureio-builds/tmp/$1.tar.gz\" | .containerOverrides.environment[7].value = \"s3://reconfigureio-builds/tmp/$1.dist.zip\" | .containerOverrides.environment[4].value = \"${@:3}\" | .containerOverrides.environment[8].value = \"tmp/dcp/$1.tar\" | .containerOverrides.environment[9].value = \"tmp/dcp-logs/$1\" | .containerOverrides.environment[10].value = \"$GENERATE_AFI\" | .containerOverrides.environment[11].value = \"s3://reconfigureio-builds/tmp/$1.debug.zip\" | .containerOverrides.environment[12].value = \"$INPUT\"")
     aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
 }
 
