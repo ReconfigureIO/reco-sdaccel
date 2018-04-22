@@ -10,9 +10,6 @@
         "command": [
             "/run.sh"
         ],
-        "timeout": {
-            "attemptDurationSeconds": 300
-        },
         "volumes": [
             {
                 "host": {
