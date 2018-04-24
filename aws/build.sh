@@ -46,6 +46,13 @@ cat times.out
 if [ "$GENERATE_AFI" = "yes" ]; then
     echo "generating afi"
     create_sdaccel_afi.sh -s3_bucket="$DCP_BUCKET" -s3_dcp_key="$DCP_KEY" -s3_logs_key="$LOG_KEY" -xclbin=".reco-work/sdaccel/dist/xclbin/kernel_test.hw.$DEVICE.xclbin" -o=".reco-work/sdaccel/dist/xclbin/kernel_test.hw.$DEVICE"
+
+    exit="$?"
+    if [ $exit -ne 0 ]; then
+        post_event ERRORED "Unknown error" "$exit"
+    fi
+    exit "$exit"
+
     mv ".reco-work/sdaccel/dist/xclbin/kernel_test.hw.$DEVICE.xclbin" ".reco-work/sdaccel/dist/xclbin/kernel_test.hw.$DEVICE.xclbin.raw"
     mv ".reco-work/sdaccel/dist/xclbin/kernel_test.hw.$DEVICE.awsxclbin" ".reco-work/sdaccel/dist/xclbin/kernel_test.hw.$DEVICE.xclbin"
     AGFI=$(cat ./*_agfi_id.txt)
