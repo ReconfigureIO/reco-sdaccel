@@ -41,6 +41,10 @@ fi
 
 export PATH="$DIR/smi/bin:$DIR/bin:$PATH"
 
+# Merge timing and utilization reports.
+# Exposed as the command report for easier testing without the full xocc flow.
+# e.g. sdaccel-builder report
+# Primarily will be used by the build & simulate commands
 function report {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" report
 
