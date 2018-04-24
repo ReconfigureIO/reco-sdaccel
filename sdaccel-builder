@@ -39,7 +39,12 @@ if [ -e 'reco.yml' ]; then
    eval "$(parse_yaml 'reco.yml' 'reco_')"
 fi
 
-export PATH="$DIR/smi/bin":$PATH
+export PATH="$DIR/smi/bin:$DIR/bin:$PATH"
+
+function report {
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" report
+
+}
 
 function graph {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" graph
@@ -47,6 +52,8 @@ function graph {
 
 function build {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" kernel sim
+    # run reports after everything
+    report
 }
 
 function image {
@@ -59,6 +66,8 @@ function test_go {
 
 function simulate {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" sim cmds kernel
+    # run reports after everything
+    report
     export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
     # This is for the emconfig.json
     cd "$PWD/.reco-work/sdaccel/dist/"
@@ -91,6 +100,9 @@ function main {
     case "$1" in
         "build")
             build "${@:2}"
+            ;;
+        "report")
+            report "${@:2}"
             ;;
         "simulate")
             simulate "${@:2}"
