@@ -3,6 +3,8 @@ set -e
 export PATH=$XILINX_SDX/bin:$XILINX_VIVADO/bin:$XILINX_SDX/runtime/bin:$PATH
 source "/opt/sdaccel-builder/settings.sh"
 
+TIMEOUT="${TIMEOUT:-12h}"
+
 function post_event {
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "'"$1"'", "message": "'"$2"'", "code": '${3-0}'}' "$CALLBACK_URL" &> /dev/null
 }
@@ -30,7 +32,7 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
-timeout -k 1m 12h /opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdaccel-builder/sdaccel-builder image
+timeout -k 1m "$TIMEOUT" /opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdaccel-builder/sdaccel-builder image
 
 exit="$?"
 
