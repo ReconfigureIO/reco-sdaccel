@@ -58,6 +58,10 @@
             {
                 "name": "INPUT",
                 "value": "go"
+            },
+            {
+                "name": "REPORT_URL",
+                "value": "s3://reconfigureio-builds/utilization.json"
             }
         ]
     }
