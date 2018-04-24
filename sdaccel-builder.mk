@@ -79,8 +79,8 @@ ${BUILD_DIR}/reports: | ${BUILD_DIR}
 ${BUILD_DIR}/reports/timing.json: | ${BUILD_DIR}/reports
 	parse_times times.out > $@
 
-${REPORTS_DIR}/utilization.json: ${BUILD_DIR}/timing.json | ${REPORTS_DIR}
-	merge_reports ${BUILD_DIR}/reports/reconfigure_io_sdaccel_builder_stub_0_1_util.json ${BUILD_DIR}/timing.json
+${REPORTS_DIR}/utilization.json: ${BUILD_DIR}/reports/timing.json | ${REPORTS_DIR}
+	merge_reports ${BUILD_DIR}/reports/reconfigure_io_sdaccel_builder_stub_0_1_util.json ${BUILD_DIR}/reports/timing.json > $@
 
 report: ${REPORTS_DIR}/utilization.json
 
