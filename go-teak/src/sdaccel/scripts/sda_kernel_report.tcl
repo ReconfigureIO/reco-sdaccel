@@ -125,14 +125,14 @@ proc sda_kernel_report_summary {moduleName partName reportDirPath} {
       } elseif {$lineCount == 7} {
         set lutLogicList [parse_summary_table_row $reportLine]
         lappend detailList [list "@" "blockRamB36" $lutLogicList]
-      } elseif {$lineCount == 8} {
+      } elseif {$lineCount == 9} {
         set lutMemoryList [parse_summary_table_row $reportLine]
         lappend detailList [list "@" "blockRamB18" $lutMemoryList]
         lappend toplevelList [list "@" "detail" $detailList]
         lappend kvList [list "@" "blockRamSummary" $toplevelList]
         set toplevelList {}
         set detailList {}
-      } elseif {$lineCount == 9} {
+      } elseif {$lineCount == 10} {
         set toplevelList [parse_summary_table_row $reportLine]
         set uramUsed [lindex [lindex $toplevelList 1] 2]
         set uramAvailable [lindex [lindex $toplevelList 2] 2]
