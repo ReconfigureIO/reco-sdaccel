@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         time \
         rsync \
         graphviz \
+        jq \
 	&& rm -rf /var/lib/apt/lists/* \
     && pip install awscli
 COPY build/reco /opt/sdaccel-builder
