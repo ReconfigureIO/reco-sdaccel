@@ -3,6 +3,7 @@
     "jobQueue": "staging-build-jobs",
     "jobDefinition": "sdaccel-builder-build-staging",
     "containerOverrides": {
+        "memory": 32000,
         "command": [
             "/opt/build.sh"
         ],
@@ -58,6 +59,10 @@
             {
                 "name": "INPUT",
                 "value": "go"
+            },
+            {
+                "name": "TIMEOUT",
+                "value": "24h"
             }
         ]
     }
