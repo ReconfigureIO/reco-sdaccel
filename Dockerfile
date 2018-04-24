@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         unzip \
         time \
         rsync \
+        python-yaml \
+        python3 \
         graphviz \
 	&& rm -rf /var/lib/apt/lists/* \
     && pip install awscli
