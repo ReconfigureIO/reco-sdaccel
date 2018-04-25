@@ -122,7 +122,7 @@ function submit_job {
 # Download a report off of s3, and output to stdout.
 # Exposed as the command download-report.
 # e.g. reco-aws download-report $build_id
-function report {
+function download_report {
     aws s3 cp "s3://reconfigureio-builds/tmp/$1.utilization.json" -
 }
 
@@ -238,7 +238,7 @@ function main {
             stream_batch_logs "${@:2}"
             ;;
         "download-report")
-            report "${@:2}"
+            download_report "${@:2}"
             ;;
         *)
             echo "unrecognized command: $1";
