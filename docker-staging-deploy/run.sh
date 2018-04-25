@@ -15,10 +15,11 @@ export RTE="${XILINX_SDX%.op}.rte"
 # Check if we have a 1DDR, and load that RTE instead
 if compgen -G "$XCL_BINDIR/*-f1_1ddr-xpr-2pr_4_0.xclbin" > /dev/null; then
     export RTE="${XILINX_SDX%.op}.rte.1ddr"
+
+    # for some reason the .rte only accepts 1ddr formats, so rename them
+    for file in "$XCL_BINDIR"/*.xclbin ; do mv "$file" "${file//f1_1ddr/f1_4ddr}"; done
 fi
 
-# for some reason the .rte only accepts 1ddr formats, so rename them
-for file in "$XCL_BINDIR"/*.xclbin ; do mv "$file" "${file//f1_1ddr/f1_4ddr}"; done
 
 # Setup environment
 source "${XILINX_SDX}/settings64.sh"
