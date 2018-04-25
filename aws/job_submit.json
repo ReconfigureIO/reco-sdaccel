@@ -29,11 +29,11 @@
             },
             {
                 "name": "DEVICE",
-                "value": "xilinx_aws-vu9p-f1_1ddr-xpr-2pr_4_0"
+                "value": "xilinx_aws-vu9p-f1_4ddr-xpr-2pr_4_0"
             },
             {
                 "name": "DEVICE_FULL",
-                "value": "xilinx:aws-vu9p-f1:1ddr-xpr-2pr:4.0"
+                "value": "xilinx:aws-vu9p-f1:4ddr-xpr-2pr:4.0"
             },
             {
                 "name": "OUTPUT_URL",
