@@ -22,5 +22,5 @@ cp -R SDAccel/aws_platform/xilinx_aws-vu9p-f1_1ddr-xpr-2pr_4_0/ "$XILINX_SDX/pla
 
 # We depend on the bare 2017.1 rte, but the ami splits it out into 1ddr and 4ddr versions.
 # Symlink to keep backwards compatability
-ln -s /opt/Xilinx/SDx/2017.1.rte.4ddr/ /opt/Xilinx/SDx/2017.1.rte/
+ln -s /opt/Xilinx/SDx/2017.1.rte.4ddr /opt/Xilinx/SDx/2017.1.rte
 rm -rf /tmp/aws-fpga
