@@ -57,12 +57,12 @@ package/reco: dist/${NAME}-${VERSION}.tar.gz
 package/reco-jarvice: dist/${NAME}-deploy-${VERSION}.tar.gz
 
 BIN_SOURCES := $(shell find bin -type f)
-BIN_TARGETS:= $(patsubst bin/%,build/bin/%,$(BIN_SOURCES))
+BIN_TARGETS:= $(patsubst bin/%,build/reco/bin/%,$(BIN_SOURCES))
 
-build/bin:
+build/reco/bin:
 	mkdir -p $@
 
-build/bin/%: bin/% | build/bin
+build/reco/bin/%: bin/% | build/reco/bin
 	cp $< $@
 
 bundle/reco: $(BIN_TARGETS) build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco/go-teak build/reco/smi build/reco/go build/reco/eTeak build/reco/go-root bundle/reco/workflows build/reco/settings.sh
