@@ -68,7 +68,6 @@ ${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v ${VERI
 		-library_source_dir "${VERILOG_DIR}/library" -param_args_file "${VERILOG_DIR}/main.v.xmldef" \
 		-vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part ${PART} \
 		-part_family ${PART_FAMILY} ${AXI_CONFIG_FLAGS} > ${LOGS_DIR}/synthesis_log.txt
-	cp ${BUILD_DIR}/reports/* ${REPORTS_DIR}
 
 ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
