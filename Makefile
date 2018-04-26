@@ -131,7 +131,7 @@ dist/${NAME}-reco-jarvice-${VERSION}.tar.gz: bundle/reco-jarvice dist
 	cd build/reco-jarvice && tar czf ../../$@ *
 
 clean:
-	rm -rf build dist downloads eTeak go/bin go/src/github.com
+	rm -rf build dist downloads eTeak go/bin go/src/github.com bench_tmp benchmarks/logs
 	$(MAKE) -C reco-check-bundle clean
 
 deploy: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows
