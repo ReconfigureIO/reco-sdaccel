@@ -10,10 +10,10 @@ function post_event {
 }
 
 function post_report {
-    $url = "$1"
-    $file = "$2"
+    url="$1"
+    file="$2"
 
-    if [[ $url == "s3:*" ]] ; then
+    if [[ $url == s3:* ]] ; then
         aws s3 cp --quiet "$url" "$file"
     else
         curl -XPOST -H "Content-Type: application/vnd.reconfigure.io/reports-v1+json" -d @"$file" "$url" &> /dev/null
