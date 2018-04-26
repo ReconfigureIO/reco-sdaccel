@@ -8,13 +8,17 @@ BENCH=$3
 SHA=$4
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-export PATH="$DIR:$PATH"
+
+# Add in the the local scripts, and reco-aws to the PATH
+export PATH="$DIR:$DIR/../reco-aws:$PATH"
+which reco-aws > /dev/null || (echo "reco-aws not found on PATH" && exit 1)
+which format_build_report.sh > /dev/null || (echo "format_build_report.sh not found on PATH" && exit 1)
 
 ERRFILE=$(mktemp --suffix ".log")
 
 cd "examples/$NAME"
 set +e
-NUMBER=$(../../reco-aws/reco-aws build 2>$ERRFILE)
+NUMBER=$(reco-aws build 2>$ERRFILE)
 
 exit="$?"
 cat $ERRFILE
@@ -28,6 +32,6 @@ mkdir -p ../../bench_tmp
 
 # write build report to a tmp file for later pickup
 TMPFILE=$(mktemp --suffix ".log" -p ../../bench_tmp)
-reco-aws download-build-report "$NUMBER" | format_build_report.sh "$NAME" | tee -a "$TMPFILE"
+reco-aws download-report "$NUMBER" | format_build_report.sh "$NAME" | tee -a "$TMPFILE"
 
 rm $ERRFILE
