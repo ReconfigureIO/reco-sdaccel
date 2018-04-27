@@ -62,6 +62,8 @@ function build {
 
 function image {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" kernel
+    # run reports after everything
+    report
 }
 
 function test_go {
