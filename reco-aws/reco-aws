@@ -38,6 +38,8 @@ Where <command> is one of the following:
 
     afi-logs <build_id>     Retrieve logs from AFI generation.
 
+    download-report <build_id>     Download JSON formatted build report.
+
     Other:
 
     help    Display this help output
@@ -113,8 +115,15 @@ function wait_for_afi {
 }
 
 function submit_job {
-    SUBMIT=$(cat "$DIR/../aws/job_submit.json" | jq ".containerOverrides.command[0] = \"$2\" | .containerOverrides.memory = $MEMORY | .containerOverrides.environment[2].value = \"s3://reconfigureio-builds/tmp/$1.tar.gz\" | .containerOverrides.environment[7].value = \"s3://reconfigureio-builds/tmp/$1.dist.zip\" | .containerOverrides.environment[4].value = \"${@:3}\" | .containerOverrides.environment[8].value = \"tmp/dcp/$1.tar\" | .containerOverrides.environment[9].value = \"tmp/dcp-logs/$1\" | .containerOverrides.environment[10].value = \"$GENERATE_AFI\" | .containerOverrides.environment[11].value = \"s3://reconfigureio-builds/tmp/$1.debug.zip\" | .containerOverrides.environment[12].value = \"$INPUT\"")
+    SUBMIT=$(cat "$DIR/../aws/job_submit.json" | jq ".containerOverrides.command[0] = \"$2\" | .containerOverrides.memory = $MEMORY | .containerOverrides.environment[2].value = \"s3://reconfigureio-builds/tmp/$1.tar.gz\" | .containerOverrides.environment[7].value = \"s3://reconfigureio-builds/tmp/$1.dist.zip\" | .containerOverrides.environment[4].value = \"${@:3}\" | .containerOverrides.environment[8].value = \"tmp/dcp/$1.tar\" | .containerOverrides.environment[9].value = \"tmp/dcp-logs/$1\" | .containerOverrides.environment[10].value = \"$GENERATE_AFI\" | .containerOverrides.environment[11].value = \"s3://reconfigureio-builds/tmp/$1.debug.zip\" | .containerOverrides.environment[12].value = \"$INPUT\" | .containerOverrides.environment[14].value = \"s3://reconfigureio-builds/tmp/$1.utilization.json\"")
     aws batch submit-job --cli-input-json "$SUBMIT" | jq -r ".jobId"
+}
+
+# Download a report off of s3, and output to stdout.
+# Exposed as the command download-report.
+# e.g. reco-aws download-report $build_id
+function download_report {
+    aws s3 cp "s3://reconfigureio-builds/tmp/$1.utilization.json" -
 }
 
 function submit_deploy {
@@ -227,6 +236,9 @@ function main {
             ;;
         "stream-batch-logs")
             stream_batch_logs "${@:2}"
+            ;;
+        "download-report")
+            download_report "${@:2}"
             ;;
         *)
             echo "unrecognized command: $1";

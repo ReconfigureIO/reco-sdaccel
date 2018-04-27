@@ -36,7 +36,16 @@ if [ -e 'reco.yml' ]; then
     reco_ports="$(parse_yaml reco.yml ports "$reco_ports")"
 fi
 
-export PATH="$DIR/smi/bin":$PATH
+export PATH="$DIR/smi/bin:$DIR/bin:$PATH"
+
+# Merge timing and utilization reports.
+# Exposed as the command report for easier testing without the full xocc flow.
+# e.g. sdaccel-builder report
+# Primarily will be used by the build & simulate commands
+function report {
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" report
+
+}
 
 function graph {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" graph
@@ -44,10 +53,14 @@ function graph {
 
 function build {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" kernel sim
+    # run reports after everything
+    report
 }
 
 function image {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" kernel
+    # run reports after everything
+    report
 }
 
 function test_go {
@@ -56,6 +69,8 @@ function test_go {
 
 function simulate {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" sim cmds kernel
+    # run reports after everything
+    report
     export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
     # This is for the emconfig.json
     cd "$PWD/.reco-work/sdaccel/dist/"
@@ -88,6 +103,9 @@ function main {
     case "$1" in
         "build")
             build "${@:2}"
+            ;;
+        "report")
+            report "${@:2}"
             ;;
         "simulate")
             simulate "${@:2}"

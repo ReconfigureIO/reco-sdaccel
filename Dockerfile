@@ -14,7 +14,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3 \
         graphviz \
 	&& rm -rf /var/lib/apt/lists/* \
-    && pip install awscli
+    && pip install awscli \
+    && curl -L /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 > /usr/bin/jq \
+    && chmod +x /usr/bin/jq
 COPY build/reco /opt/sdaccel-builder
 COPY aws/*.sh /opt/
 ENV USER=root

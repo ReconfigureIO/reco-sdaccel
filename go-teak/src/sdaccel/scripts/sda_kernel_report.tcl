@@ -116,31 +116,37 @@ proc sda_kernel_report_summary {moduleName partName reportDirPath} {
       } else {
         incr lineCount
       }
-      if {$lineCount == 6} {
-        set toplevelList [parse_summary_table_row $reportLine]
-        set bramUsed [lindex [lindex $toplevelList 1] 2]
-        set bramAvailable [lindex [lindex $toplevelList 2] 2]
-        incr utilNumerator [expr int($utilWeightBram * $bramUsed)]
-        incr utilDenominator [expr int($utilWeightBram * $bramAvailable)]
-      } elseif {$lineCount == 7} {
-        set lutLogicList [parse_summary_table_row $reportLine]
-        lappend detailList [list "@" "blockRamB36" $lutLogicList]
-      } elseif {$lineCount == 8} {
-        set lutMemoryList [parse_summary_table_row $reportLine]
-        lappend detailList [list "@" "blockRamB18" $lutMemoryList]
-        lappend toplevelList [list "@" "detail" $detailList]
-        lappend kvList [list "@" "blockRamSummary" $toplevelList]
-        set toplevelList {}
-        set detailList {}
-      } elseif {$lineCount == 9} {
-        set toplevelList [parse_summary_table_row $reportLine]
-        set uramUsed [lindex [lindex $toplevelList 1] 2]
-        set uramAvailable [lindex [lindex $toplevelList 2] 2]
-        incr utilNumerator [expr int($utilWeightUram * $uramUsed)]
-        incr utilDenominator [expr int($utilWeightUram * $uramAvailable)]
-        lappend kvList [list "@" "ultraRamSummary" $toplevelList]
-      } elseif {$lineCount == 11} {
-        incr parsingPhase
+      if {$lineCount >= 6} {
+          set parsedLine [parse_summary_table_row $reportLine]
+          set rowDescription [lindex [lindex $parsedLine 0] 2]
+          switch $rowDescription {
+              "Block RAM Tile" {
+                  set toplevelList $parsedLine
+                  set bramUsed [lindex [lindex $toplevelList 1] 2]
+                  set bramAvailable [lindex [lindex $toplevelList 2] 2]
+                  incr utilNumerator [expr int($utilWeightBram * $bramUsed)]
+                  incr utilDenominator [expr int($utilWeightBram * $bramAvailable)]
+              }
+              "RAMB36/FIFO" {
+                  lappend detailList [list "@" "blockRamB36" $parsedLine]
+              }
+              "RAMB18" {
+                  lappend detailList [list "@" "blockRamB18" $parsedLine]
+                  lappend toplevelList [list "@" "detail" $detailList]
+                  lappend kvList [list "@" "blockRamSummary" $toplevelList]
+                  set toplevelList {}
+                  set detailList {}
+              }
+              "URAM" {
+                  set toplevelList $parsedLine
+                  set uramUsed [lindex [lindex $toplevelList 1] 2]
+                  set uramAvailable [lindex [lindex $toplevelList 2] 2]
+                  incr utilNumerator [expr int($utilWeightUram * $uramUsed)]
+                  incr utilDenominator [expr int($utilWeightUram * $uramAvailable)]
+                  lappend kvList [list "@" "ultraRamSummary" $toplevelList]
+                  incr parsingPhase
+              }
+          }
       }
 
     # Extract the numbers for the DSP section.

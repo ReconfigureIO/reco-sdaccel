@@ -63,6 +63,10 @@
             {
                 "name": "TIMEOUT",
                 "value": "24h"
+            },
+            {
+                "name": "REPORT_URL",
+                "value": "s3://reconfigureio-builds/utilization.json"
             }
         ]
     }
