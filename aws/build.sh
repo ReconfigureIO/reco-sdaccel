@@ -14,7 +14,7 @@ function post_report {
     file="$2"
 
     if [[ $url == s3:* ]] ; then
-        aws s3 cp --quiet "$url" "$file"
+        aws s3 cp --quiet "$file" "$url" 
     else
         curl -XPOST -H "Content-Type: application/vnd.reconfigure.io/reports-v1+json" -d @"$file" "$url" &> /dev/null
     fi
