@@ -14,7 +14,7 @@ function post_report {
     file="$2"
 
     if [[ $url == s3:* ]] ; then
-        aws s3 cp --quiet "$file" "$url" 
+        aws s3 cp --quiet "$file" "$url"
     else
         curl -XPOST -H "Content-Type: application/vnd.reconfigure.io/reports-v1+json" -d @"$file" "$url" &> /dev/null
     fi
@@ -57,7 +57,7 @@ fi
 
 if [ "$GENERATE_AFI" = "yes" ]; then
     echo "generating afi"
-    create_sdaccel_afi.sh -s3_bucket="$DCP_BUCKET" -s3_dcp_key="$DCP_KEY" -s3_logs_key="$LOG_KEY" -xclbin=".reco-work/sdaccel/dist/xclbin/kernel_test.hw.$DEVICE.xclbin" -o=".reco-work/sdaccel/dist/xclbin/kernel_test.hw.$DEVICE"
+    /opt/create_sdaccel_afi.sh -s3_bucket="$DCP_BUCKET" -s3_dcp_key="$DCP_KEY" -s3_logs_key="$LOG_KEY" -xclbin=".reco-work/sdaccel/dist/xclbin/kernel_test.hw.$DEVICE.xclbin" -o=".reco-work/sdaccel/dist/xclbin/kernel_test.hw.$DEVICE"
 
     # Ideally we'd exit here, but this might be an issue. Seeing exits on this codepath that should not happen
     #exit="$?"

@@ -11,6 +11,7 @@ pipeline {
     }
     environment {
         VERSION = "${env.BRANCH_NAME}"
+        AWS_DEFAULT_REGION = "us-east-1"
     }
     options {
         buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '20'))

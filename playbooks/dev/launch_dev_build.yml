@@ -2,7 +2,7 @@
   gather_facts: False
 
   vars:
-    version: 2016.3
+    version: 2017.1
     dev_build_hostname: dev-build.reconfigureio-infra.com
 
   tasks:
@@ -40,7 +40,7 @@
              device_type: gp2
          instance_profile_name: batch-builder
       register: ec2
-        
+
     - name: Wait for SSH to come up
       wait_for: host="{{ item.public_dns_name }}" port=22 delay=60 timeout=320 state=started
       when: ec2.changed and item.state != "terminated"
