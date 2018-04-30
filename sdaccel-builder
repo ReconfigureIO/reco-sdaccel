@@ -13,33 +13,39 @@ reco_memory_width=64
 reco_ports=2
 
 function parse_yaml {
-    local prefix="$2"
-    local s='[[:space:]]*'
-    local w='[a-zA-Z0-9_]*'
-    local fs
-    fs=$(echo @|tr @ '\034')
-    set +e
-    # shellcheck disable=SC1117
-    sed -ne "s|^\($s\):|\1|" \
-        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
-        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  "$1" |
-        awk -F"$fs" '{
-      indent = length($1)/2;
-      vname[indent] = $2;
-      for (i in vname) {if (i > indent) {delete vname[i]}}
-      if (length($3) > 0) {
-         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-         printf("%s%s%s=\"%s\"\n", "'"$prefix"'",vn, $2, $3);
-      }
-   }'
-   set -e
+    local file="$1"
+    local lookup_var="$2"
+    local default="$3"
+    # Parse stdin as yaml, grab key according to first argument from dict
+    # and print it; if that key is missing print a default value.
+    local prog='
+import yaml, sys
+filename, key, default = sys.argv[1:]
+with open(filename, "rU") as fd: # universal newlines
+    parsed = yaml.load(fd)
+    print(parsed.get(key, default))
+'
+    python3 -c "$prog" "$file" "$lookup_var" "$default"
 }
 
+
 if [ -e 'reco.yml' ]; then
-   eval "$(parse_yaml 'reco.yml' 'reco_')"
+    reco_optimize="$(parse_yaml reco.yml optimize "$reco_optimize")"
+    reco_memory_interface="$(parse_yaml reco.yml memory_interface "$reco_memory_interface")"
+    reco_memory_width="$(parse_yaml reco.yml memory_width "$reco_memory_width")"
+    reco_ports="$(parse_yaml reco.yml ports "$reco_ports")"
 fi
 
-export PATH="$DIR/smi/bin":$PATH
+export PATH="$DIR/smi/bin:$DIR/bin:$PATH"
+
+# Merge timing and utilization reports.
+# Exposed as the command report for easier testing without the full xocc flow.
+# e.g. sdaccel-builder report
+# Primarily will be used by the build & simulate commands
+function report {
+    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" report
+
+}
 
 function graph {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" graph
@@ -47,10 +53,14 @@ function graph {
 
 function build {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" kernel sim
+    # run reports after everything
+    report
 }
 
 function image {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" kernel
+    # run reports after everything
+    report
 }
 
 function test_go {
@@ -59,6 +69,8 @@ function test_go {
 
 function simulate {
     make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" sim cmds kernel
+    # run reports after everything
+    report
     export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
     # This is for the emconfig.json
     cd "$PWD/.reco-work/sdaccel/dist/"
@@ -91,6 +103,9 @@ function main {
     case "$1" in
         "build")
             build "${@:2}"
+            ;;
+        "report")
+            report "${@:2}"
             ;;
         "simulate")
             simulate "${@:2}"

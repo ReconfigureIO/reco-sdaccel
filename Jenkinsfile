@@ -4,6 +4,7 @@ pipeline {
     agent { label "master" }
     parameters {
         string(name: 'SDACCEL_WRAPPER_VERSION', defaultValue: '')
+        booleanParam(name: 'FORCE_HARDWARE_TEST', defaultValue: false, description: 'Force this to build hardware if on master.')
         booleanParam(name: 'UPLOAD', defaultValue: true, description: 'Upload this after building')
         booleanParam(name: 'SIMULATE', defaultValue: false, description: 'Force a simulation')
         booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Force a deploy for testing')
@@ -77,7 +78,7 @@ pipeline {
 
         stage('deploy examples') {
             when {
-                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || params.SIMULATE || params.DEPLOY}
+                expression { env.BRANCH_NAME in ["auto", "rollup", "try"] || params.SIMULATE || params.DEPLOY || params.FORCE_HARDWARE_TEST}
             }
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} aws"
@@ -86,7 +87,7 @@ pipeline {
 
         stage('test simulation') {
             when {
-                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] || params.SIMULATE }
+                expression { env.BRANCH_NAME in ["auto", "rollup", "try"] || params.SIMULATE || params.FORCE_HARDWARE_TEST }
             }
             steps {
                 parallel "histogram array": {
@@ -150,7 +151,7 @@ pipeline {
 
         stage('test hw builds') {
             when {
-                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] && !params.TEST_AFI}
+                expression { (env.BRANCH_NAME in ["auto", "rollup", "try"]  || params.FORCE_HARDWARE_TEST) && !params.TEST_AFI}
             }
             steps {
                 parallel "histogram array": {
@@ -171,12 +172,24 @@ pipeline {
             }
         }
 
+        // We'll upload from auto, which if merged, will have the same SHA as master
         stage('show benchmarks'){
             when {
-                expression { env.BRANCH_NAME in ["master", "auto", "rollup", "try"] }
+                expression { env.BRANCH_NAME in ["auto", "rollup", "try"] }
             }
             steps {
                 sh 'cat bench_tmp/* | ./benchmarks/log2csv -'
+                sh './ci/upload_benchmarks.sh'
+            }
+        }
+
+        // We'll only publish benchmarks from master
+        stage('trigger benchmarks job'){
+            when {
+                expression { env.BRANCH_NAME in ["master"] }
+            }
+            steps {
+                build job: 'reco-sdaccel-publish-benchmarks', wait: false
             }
         }
 
@@ -192,15 +205,12 @@ pipeline {
             }
             steps {
                 sh "make SDACCEL_WRAPPER_VERSION=${SDACCEL_WRAPPER_VERSION} VERSION=${env.VERSION} upload"
-                sh './ci/upload_benchmarks.sh'
-                build job: 'reco-sdaccel-publish-benchmarks', wait: false
             }
         }
 
         stage('clean') {
             steps {
                 sh 'make clean'
-                sh 'rm -rf bench_tmp'
             }
         }
     }

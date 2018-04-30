@@ -23,7 +23,7 @@ JOB_DEFINITION := sdaccel-builder-build-staging
 BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "${PUBLISHED_DOCKER}" | .jobDefinitionName = "${JOB_DEFINITION}"')
 DEPLOY_JOB := $(shell cat aws/deploy.json | jq '.containerProperties.image = "${PUBLISHED_DEPLOY}"')
 
-export SDACCEL_WRAPPER_VERSION := v0.20.2
+export SDACCEL_WRAPPER_VERSION := v0.20.3
 export SMI_WRAPPER_VERSION := v0.3.3
 GO_VERSION := 1.7.4
 SDACCEL_VERSION := 0.17.1
@@ -35,7 +35,7 @@ all: package/reco package/reco-jarvice
 print-% : ; @echo $($*)
 
 test:
-	find examples/ -maxdepth 1 -mindepth 1 -type d | PATH=$$PWD/ci/:$$PATH xargs -L1 test.sh
+	set -eux; for example in examples/*; do PATH=$$PWD/ci/:$$PATH test.sh "$$example"; done
 
 lint:
 	shellcheck sdaccel-builder
@@ -56,7 +56,16 @@ package/reco: dist/${NAME}-${VERSION}.tar.gz
 
 package/reco-jarvice: dist/${NAME}-deploy-${VERSION}.tar.gz
 
-bundle/reco: build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco/go-teak build/reco/smi build/reco/go build/reco/eTeak build/reco/go-root bundle/reco/workflows build/reco/settings.sh
+BIN_SOURCES := $(shell find bin -type f)
+BIN_TARGETS:= $(patsubst bin/%,build/reco/bin/%,$(BIN_SOURCES))
+
+build/reco/bin:
+	mkdir -p $@
+
+build/reco/bin/%: bin/% | build/reco/bin
+	cp $< $@
+
+bundle/reco: $(BIN_TARGETS) build/reco/sdaccel-builder build/reco/sdaccel-builder.mk build/reco/go-teak build/reco/smi build/reco/go build/reco/eTeak build/reco/go-root bundle/reco/workflows build/reco/settings.sh
 
 bundle/reco-jarvice: build/reco-jarvice/reco-jarvice
 
@@ -131,7 +140,7 @@ dist/${NAME}-reco-jarvice-${VERSION}.tar.gz: bundle/reco-jarvice dist
 	cd build/reco-jarvice && tar czf ../../$@ *
 
 clean:
-	rm -rf build dist downloads eTeak go/bin go/src/github.com
+	rm -rf build dist downloads eTeak go/bin go/src/github.com bench_tmp benchmarks/logs
 	$(MAKE) -C reco-check-bundle clean
 
 deploy: build/deploy/${NAME}-${VERSION}.tar.gz build/deploy/${VERSION}/workflows

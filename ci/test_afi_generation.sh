@@ -7,12 +7,18 @@ EXAMPLE=$2
 BENCH=$3
 SHA=$4
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Add in the the local scripts, and reco-aws to the PATH
+export PATH="$DIR:$DIR/../reco-aws:$PATH"
+which reco-aws > /dev/null || (echo "reco-aws not found on PATH" && exit 1)
+which format_build_report.sh > /dev/null || (echo "format_build_report.sh not found on PATH" && exit 1)
+
 ERRFILE=$(mktemp --suffix ".log")
 
 cd "examples/$NAME"
 set +e
 export GENERATE_AFI=yes
-NUMBER=$(../../reco-aws/reco-aws build 2>$ERRFILE)
+NUMBER=$(reco-aws build 2>$ERRFILE)
 
 exit="$?"
 cat $ERRFILE
@@ -23,11 +29,11 @@ fi
 set -e
 
 mkdir -p ../../bench_tmp
+
+# write build report to a tmp file for later pickup
 TMPFILE=$(mktemp --suffix ".log" -p ../../bench_tmp)
-if [ ! -e "main.v" ]
-then
-    cat "$ERRFILE" | grep "verilog," -A2 | awk -F"," "{print \"buildTime/\" \$1 \"/$NAME\" \";\" \$2}" | tee -a "$TMPFILE"
-fi
+reco-aws download-report "$NUMBER" | format_build_report.sh "$NAME" | tee -a "$TMPFILE"
+
 rm "$ERRFILE"
-../../reco-aws/reco-aws run "$NUMBER" "$EXAMPLE"
-../../reco-aws/reco-aws run "$NUMBER" "bench-$BENCH" 2>&1 | tee -a "$TMPFILE"
+reco-aws run "$NUMBER" "$EXAMPLE"
+reco-aws run "$NUMBER" "bench-$BENCH" 2>&1 | tee -a "$TMPFILE"

@@ -48,7 +48,7 @@ else
 	SOURCE_FILE := main.v
 endif
 
-.PHONY: kernel xo clean cmds sim verilog graph fix
+.PHONY: kernel xo clean cmds sim verilog graph fix report
 
 kernel: ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin
 
@@ -61,17 +61,27 @@ verilog: ${VERILOG_DIR}/main.v ${VERILOG_DIR}/includes ${VERILOG_DIR}/library
 ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
-${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v ${VERILOG_DIR}/library | ${REPORTS_DIR} ${LOGS_DIR}
+${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v ${VERILOG_DIR}/library | ${LOGS_DIR}
 	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" vivado -notrace -mode batch \
 		-source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs \
 		-action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" \
 		-library_source_dir "${VERILOG_DIR}/library" -param_args_file "${VERILOG_DIR}/main.v.xmldef" \
 		-vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part ${PART} \
 		-part_family ${PART_FAMILY} ${AXI_CONFIG_FLAGS} > ${LOGS_DIR}/synthesis_log.txt
-	cp ${BUILD_DIR}/reports/* ${REPORTS_DIR}
 
 ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
+
+${BUILD_DIR}/reports: | ${BUILD_DIR}
+	mkdir -p $@
+
+${BUILD_DIR}/reports/timing.json: | ${BUILD_DIR}/reports
+	parse_times times.out > $@
+
+${REPORTS_DIR}/utilization.json: ${BUILD_DIR}/reports/timing.json | ${REPORTS_DIR}
+	merge_reports ${BUILD_DIR}/reports/reconfigure_io_sdaccel_builder_stub_0_1_util.json ${BUILD_DIR}/reports/timing.json > $@
+
+report: ${REPORTS_DIR}/utilization.json
 
 ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME} ${XCLBIN_DIR}
 	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xclbin,%e,%M" xocc -j${CPUS} -O3 -t "${TARGET}" $(CLFLAGS) --xdevice ${DEVICE_FULL} -l $< -o $@ -r system
@@ -86,6 +96,7 @@ fix:
 
 ${DIST_DIR}:
 	mkdir -p "${DIST_DIR}"
+
 
 ${REPORTS_DIR}:
 	mkdir -p "${REPORTS_DIR}"

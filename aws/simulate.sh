@@ -2,6 +2,7 @@
 set -e
 export PATH=$XILINX_SDX/bin:$XILINX_VIVADO/bin:$PATH
 source "/opt/sdaccel-builder/settings.sh"
+
 function post_event {
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "'"$1"'", "message": "'"$2"'", "code": '${3-0}'}' "$CALLBACK_URL" &> /dev/null
 }
@@ -38,7 +39,5 @@ if [ $exit -ne 0 ]; then
     fi
     exit "$exit"
 fi
-
-cat times.out
 
 post_event COMPLETED

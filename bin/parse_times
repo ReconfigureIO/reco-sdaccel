@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ -f "$1" ]; then
+    grep -P '^(.+),(.+),(.+)' "$1" |  jq -Rsn '
+  {"timing":
+    [inputs
+     | . / "\n"
+     | (.[] | select((. | length) > 0) | . / ",") as $input
+     | {"step": $input[0], "seconds": $input[1], "kb": $input[2]}]}
+'
+
+else
+     echo "{}"
+fi
