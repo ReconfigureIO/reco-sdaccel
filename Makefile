@@ -23,7 +23,7 @@ JOB_DEFINITION := sdaccel-builder-build-staging
 BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "${PUBLISHED_DOCKER}" | .jobDefinitionName = "${JOB_DEFINITION}"')
 DEPLOY_JOB := $(shell cat aws/deploy.json | jq '.containerProperties.image = "${PUBLISHED_DEPLOY}"')
 
-export SDACCEL_WRAPPER_VERSION := v0.20.3
+export SDACCEL_WRAPPER_VERSION := v0.21.0
 export SMI_WRAPPER_VERSION := v0.3.3
 GO_VERSION := 1.7.4
 SDACCEL_VERSION := 0.17.1
