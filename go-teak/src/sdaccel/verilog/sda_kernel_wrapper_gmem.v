@@ -43,7 +43,7 @@
 
 // Can be redefined on the synthesis command line.
 `ifndef AXI_MASTER_CACHE_MASK
-`define AXI_MASTER_CACHE_MASK 4'b0011
+`define AXI_MASTER_CACHE_MASK 4'b0001
 `endif
 
 // Can be redefined on the synthesis command line.
@@ -167,10 +167,6 @@ wire reg_go_valid;
 wire reg_go_holdoff;
 wire reg_done_valid;
 wire reg_done_stop;
-wire rst_go_valid;
-wire rst_go_holdoff;
-wire rst_done_valid;
-wire rst_done_stop;
 wire kernel_reset;
 wire wrapper_reset;
 
@@ -263,17 +259,9 @@ assign m_axi_gmem_AWCACHE = m_axi_gmem_local_AWCACHE & `AXI_MASTER_CACHE_MASK;
 
 // Instantiate the reset controller.
 sda_kernel_reset_handler resetHandler_u
-  (reg_go_valid, reg_go_holdoff, reg_done_valid, reg_done_stop, rst_go_valid,
-  rst_go_holdoff, rst_done_valid, rst_done_stop, ~ap_rst_n, wrapper_reset,
-  kernel_reset, ap_clk);
-
-// Insert toggle buffers on go and done lines to deal with fully synchronous
-// kernel implementations.
-selfLinkTokenToggle goCtrlToggle
-  (rst_go_valid, rst_go_holdoff, go_0Ready, go_0Stop, ap_clk, kernel_reset);
-
-selfLinkTokenToggle doneCtrlToggle
-  (done_0Ready, done_0Stop, rst_done_valid, rst_done_stop, ap_clk, kernel_reset);
+  (reg_go_valid, reg_go_holdoff, reg_done_valid, reg_done_stop, go_0Ready,
+  go_0Stop, done_0Ready, done_0Stop, ~ap_rst_n, wrapper_reset, kernel_reset,
+  ap_clk);
 
 // Instantiate the AXI slave register selection component.
 sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, `AXI_PARAM_MEM_ADDR_WIDTH,
