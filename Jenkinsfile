@@ -168,6 +168,9 @@ pipeline {
                 },
                 "parallel histogram": {
                     sh './ci/test_build.sh histogram-parallel test-histogram histogram "`git rev-parse HEAD`"'
+                },
+                md5: {
+                    sh './ci/test_build.sh md5 test-md5 md5 "`git rev-parse HEAD`"'
                 }
             }
         }
