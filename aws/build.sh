@@ -14,7 +14,11 @@ function post_report {
     file="$2"
 
     if [[ $url == s3:* ]] ; then
-        aws s3 cp --quiet "$file" "$url"
+        if [[ -n "$S3_ENDPOINT" ]]; then
+            aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "$file" "$url"
+        else
+            aws s3 cp --quiet "$file" "$url"
+        fi
     else
         curl -XPOST -H "Content-Type: application/vnd.reconfigure.io/reports-v1+json" -d @"$file" "$url" &> /dev/null
     fi
@@ -23,7 +27,11 @@ function post_report {
 post_event STARTED
 
 set +e
-aws s3 cp --quiet "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
+if [[ -n "$S3_ENDPOINT" ]]; then
+    aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
+else
+    aws s3 cp --quiet "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
+fi
 
 exit="$?"
 
@@ -42,7 +50,11 @@ if [ -n "$DEBUG_URL" ]; then
         exit "$exit"
     else
         zip -qr artifacts.zip /tmp/workspace/.reco-work
-        aws s3 cp --quiet "artifacts.zip" "$DEBUG_URL"
+        if [[ -n "$S3_ENDPOINT" ]]; then
+            aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "artifacts.zip" "$DEBUG_URL"
+        else
+            aws s3 cp --quiet "artifacts.zip" "$DEBUG_URL"
+        fi
     fi
 fi
 
@@ -75,7 +87,12 @@ REPORT_FILE=$(find .reco-work/sdaccel/reports/ -name 'utilization.json' -print)
 post_report "$REPORT_URL" "$REPORT_FILE"
 
 zip -qr dist.zip .reco-work/sdaccel/dist
-aws s3 cp --quiet "dist.zip" "$OUTPUT_URL"
+if [[ -n "$S3_ENDPOINT" ]]; then
+    aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "dist.zip" "$OUTPUT_URL"
+else
+    aws s3 cp --quiet "dist.zip" "$OUTPUT_URL"
+fi
+
 
 if [ "$GENERATE_AFI" = "yes" ]; then
     post_event CREATING_IMAGE "$AGFI"

@@ -10,8 +10,8 @@ function post_event {
 post_event STARTED
 
 set +e
-if [[ -v "$AWS_S3_ENDPOINT" ]]; then
-    aws s3 cp --quiet --endpoint="$AWS_S3_ENDPOINT" "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
+if [[ -n "$S3_ENDPOINT" ]]; then
+    aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
 else
     aws s3 cp --quiet "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
 fi
@@ -35,8 +35,8 @@ if [ $exit -ne 0 ]; then
                 exit "$exit"
             else
                 zip -qr artifacts.zip /tmp/workspace/.reco-work
-                if [[ -v "$AWS_S3_ENDPOINT" ]]; then
-                    aws s3 cp --quiet --endpoint="$AWS_S3_ENDPOINT" "artifacts.zip" "$OUTPUT_URL"
+                if [[ -n "$S3_ENDPOINT" ]]; then
+                    aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "artifacts.zip" "$OUTPUT_URL"
                 else
                     aws s3 cp --quiet "artifacts.zip" "$OUTPUT_URL"
                 fi

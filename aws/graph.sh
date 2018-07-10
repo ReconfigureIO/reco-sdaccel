@@ -10,8 +10,8 @@ function post_event {
 post_event STARTED
 
 set +e
-if [[ -v "$AWS_S3_ENDPOINT" ]]; then
-    aws s3 cp --quiet --endpoint="$AWS_S3_ENDPOINT" "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
+if [[ -n "$S3_ENDPOINT" ]]; then
+    aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
 else
     aws s3 cp --quiet "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
 fi
@@ -37,8 +37,8 @@ if [ $exit -ne 0 ]; then
 fi
 
 gzip -q main-graph.pdf
-if [[ -v "$AWS_S3_ENDPOINT" ]]; then
-    aws s3 cp --quiet --endpoint="$AWS_S3_ENDPOINT" "main-graph.pdf.gz" "$OUTPUT_URL"
+if [[ -n "$S3_ENDPOINT" ]]; then
+    aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "main-graph.pdf.gz" "$OUTPUT_URL"
 else
     aws s3 cp --quiet "main-graph.pdf.gz" "$OUTPUT_URL"
 fi
