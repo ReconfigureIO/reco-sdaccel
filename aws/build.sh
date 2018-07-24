@@ -83,6 +83,20 @@ if [ "$GENERATE_AFI" = "yes" ]; then
     AGFI=$(cat ./*_agfi_id.txt)
 fi
 
+if [ "$GENERATE_ON_PREM_BITSTREAM" = "yes" ]; then
+    echo "generating on-prem bitstream"
+    /opt/create_on_prem_bitstream.sh -s3_url="$DEBUG_URL" -endpoint="$S3_ENDPOINT"
+
+    # Ideally we'd exit here, but this might be an issue. Seeing exits on this codepath that should not happen
+    #exit="$?"
+    #if [ $exit -ne 0 ]; then
+    #    post_event ERRORED "Unknown error" "$exit"
+    #fi
+    #exit "$exit"
+
+    AGFI=$(cat ./*_agfi_id.txt)
+fi
+
 REPORT_FILE=$(find .reco-work/sdaccel/reports/ -name 'utilization.json' -print)
 post_report "$REPORT_URL" "$REPORT_FILE"
 
