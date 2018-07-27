@@ -3,6 +3,11 @@ set -e
 export PATH=$XILINX_SDX/bin:$XILINX_VIVADO/bin:$XILINX_SDX/runtime/bin:$PATH
 source "/opt/sdaccel-builder/settings.sh"
 
+S3_ARGS=""
+if [[ -n "$S3_ENDPOINT" ]]; then
+    S3_ARGS="--endpoint=$S3_ENDPOINT"
+fi
+
 function post_event {
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "'"$1"'", "message": "'"$2"'", "code": '${3-0}'}' "$CALLBACK_URL" &> /dev/null
 }
@@ -10,11 +15,7 @@ function post_event {
 post_event STARTED
 
 set +e
-if [[ -n "$S3_ENDPOINT" ]]; then
-    aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
-else
-    aws s3 cp --quiet "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
-fi
+aws s3 cp --quiet $S3_ARGS "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
 
 exit="$?"
 
@@ -37,11 +38,7 @@ if [ $exit -ne 0 ]; then
 fi
 
 gzip -q main-graph.pdf
-if [[ -n "$S3_ENDPOINT" ]]; then
-    aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "main-graph.pdf.gz" "$OUTPUT_URL"
-else
-    aws s3 cp --quiet "main-graph.pdf.gz" "$OUTPUT_URL"
-fi
+aws s3 cp --quiet $S3_ARGS "main-graph.pdf.gz" "$OUTPUT_URL"
 
 exit="$?"
 

@@ -5,6 +5,11 @@ source "/opt/sdaccel-builder/settings.sh"
 
 TIMEOUT="${TIMEOUT:-12h}"
 
+S3_ARGS=""
+if [[ -n "$S3_ENDPOINT" ]]; then
+    S3_ARGS="--endpoint=$S3_ENDPOINT"
+fi
+
 function post_event {
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "'"$1"'", "message": "'"$2"'", "code": '${3-0}'}' "$CALLBACK_URL" &> /dev/null
 }
@@ -14,11 +19,7 @@ function post_report {
     file="$2"
 
     if [[ $url == s3:* ]] ; then
-        if [[ -n "$S3_ENDPOINT" ]]; then
-            aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "$file" "$url"
-        else
-            aws s3 cp --quiet "$file" "$url"
-        fi
+        aws s3 cp --quiet $S3_ARGS "$file" "$url"
     else
         curl -XPOST -H "Content-Type: application/vnd.reconfigure.io/reports-v1+json" -d @"$file" "$url" &> /dev/null
     fi
@@ -27,11 +28,8 @@ function post_report {
 post_event STARTED
 
 set +e
-if [[ -n "$S3_ENDPOINT" ]]; then
-    aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
-else
-    aws s3 cp --quiet "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
-fi
+aws s3 cp --quiet $S3_ARGS "$INPUT_URL" - | tar zxf - --transform='s,\\,/,g' --show-transformed-names
+
 
 exit="$?"
 
@@ -50,11 +48,7 @@ if [ -n "$DEBUG_URL" ]; then
         exit "$exit"
     else
         zip -qr artifacts.zip /tmp/workspace/.reco-work
-        if [[ -n "$S3_ENDPOINT" ]]; then
-            aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "artifacts.zip" "$DEBUG_URL"
-        else
-            aws s3 cp --quiet "artifacts.zip" "$DEBUG_URL"
-        fi
+        aws s3 cp --quiet $S3_ARGS "artifacts.zip" "$DEBUG_URL"
     fi
 fi
 
@@ -101,11 +95,7 @@ REPORT_FILE=$(find .reco-work/sdaccel/reports/ -name 'utilization.json' -print)
 post_report "$REPORT_URL" "$REPORT_FILE"
 
 zip -qr dist.zip .reco-work/sdaccel/dist
-if [[ -n "$S3_ENDPOINT" ]]; then
-    aws s3 cp --quiet --endpoint="$S3_ENDPOINT" "dist.zip" "$OUTPUT_URL"
-else
-    aws s3 cp --quiet "dist.zip" "$OUTPUT_URL"
-fi
+aws s3 cp --quiet $S3_ARGS "dist.zip" "$OUTPUT_URL"
 
 
 if [ "$GENERATE_AFI" = "yes" ]; then
