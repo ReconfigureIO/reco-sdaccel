@@ -32,7 +32,7 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
-timeout -k 1m "$TIMEOUT" /opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdaccel-builder/sdaccel-builder image
+timeout -k 1m "$TIMEOUT" /opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdaccel-builder/sdaccel-builder image && /opt/sdaccel-builder/sdaccel-builder report
 
 exit="$?"
 
