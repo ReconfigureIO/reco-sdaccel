@@ -32,7 +32,7 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
-timeout -k 1m "$TIMEOUT" /opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdaccel-builder/sdaccel-builder image
+timeout -k 1m "$TIMEOUT" /opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdaccel-builder/sdaccel-builder image && /opt/sdaccel-builder/sdaccel-builder report
 
 exit="$?"
 
@@ -71,7 +71,7 @@ if [ "$GENERATE_AFI" = "yes" ]; then
     AGFI=$(cat ./*_agfi_id.txt)
 fi
 
-REPORT_FILE=$(find .reco-work/sdaccel/build/reports/ -name 'reconfigure_io_sdaccel_builder_stub_0_1_util.json' -print)
+REPORT_FILE=$(find .reco-work/sdaccel/reports/ -name 'utilization.json' -print)
 post_report "$REPORT_URL" "$REPORT_FILE"
 
 zip -qr dist.zip .reco-work/sdaccel/dist
