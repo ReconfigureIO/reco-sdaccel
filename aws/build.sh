@@ -74,6 +74,9 @@ fi
 REPORT_FILE=$(find .reco-work/sdaccel/reports/ -name 'utilization.json' -print)
 post_report "$REPORT_URL" "$REPORT_FILE"
 
+echo "Utilisation Report:"
+cat "$REPORT_FILE"
+
 zip -qr dist.zip .reco-work/sdaccel/dist
 aws s3 cp --quiet "dist.zip" "$OUTPUT_URL"
 
