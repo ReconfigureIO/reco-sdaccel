@@ -113,7 +113,7 @@ ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel:
 	ln -sf "${DIR}/go/src/github.com/ReconfigureIO/sdaccel" ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel
 
 ${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR} | ${DIST_DIR}/vendor/src fix
-	LIBRARY_PATH=${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH} CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ GOPATH=${DIR}/go:${VENDOR_DIR} go build -tags opencl -o $@ $<
+	LIBRARY_PATH=${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH} CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ GOPATH=${VENDOR_DIR}:${DIR}/go go build -tags opencl -o $@ $<
 
 CMD_SOURCES := $(shell find ${ROOT_DIR}/cmd/ -name main.go)
 CMD_TARGETS := $(patsubst ${ROOT_DIR}/cmd/%/main.go,${DIST_DIR}/%,$(CMD_SOURCES))
