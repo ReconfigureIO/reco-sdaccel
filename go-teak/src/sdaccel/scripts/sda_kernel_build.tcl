@@ -270,9 +270,12 @@ set synFileName [file join $synDirPath "${moduleName}.v"]
 set constraintFileName [file join $synDirPath "${moduleName}.xdc"]
 if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
+
   sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath \
-    $libraryCodePath $partName $axiDataWidth $enableAxiWid $wrapperTop $kernelArgWith
+    $libraryCodePath $partName $axiDataWidth $enableAxiWid $wrapperTop $kernelArgWidth
+
   sda_kernel_report $moduleName $partName $reportDirPath
+
   if {0 != $doRelativePlacement} {
     sda_kernel_constrain $moduleName
   }
