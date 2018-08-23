@@ -43,7 +43,7 @@ proc load_ip_cores {ipSourceDirPath buildDirPath} {
 # Run main kernel synthesis in project flow.
 #
 proc sda_kernel_synthesis {sourceFileName moduleName includeCodePath
-  libraryCodePath partName axiDataWidth enableAxiWid} {
+  libraryCodePath partName axiDataWidth enableAxiWid wrapperTop kernelArgWidth} {
 set_part $partName
 
 #
@@ -82,19 +82,21 @@ if {0 != $enableAxiWid} {
     -directive runtimeoptimized \
     -no_lc \
     -keep_equivalent_registers \
-    -top sda_kernel_wrapper_gmem \
+    -top $wrapperTop \
     -include_dirs $includeCodePath \
     -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth \
-    -verilog_define AXI_MASTER_HAS_WID=1
+    -verilog_define AXI_MASTER_HAS_WID=1 \
+    -verilog_define KERNEL_ARGUMENT_WIDTH=$kernelArgWidth
 } else {
   synth_design \
     -mode out_of_context \
     -directive runtimeoptimized \
     -no_lc \
     -keep_equivalent_registers \
-    -top sda_kernel_wrapper_gmem \
+    -top $wrapperTop \
     -include_dirs $includeCodePath \
-    -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth
+    -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth \
+    -verilog_define KERNEL_ARGUMENT_WIDTH=$kernelArgWidth
 }
 
 #

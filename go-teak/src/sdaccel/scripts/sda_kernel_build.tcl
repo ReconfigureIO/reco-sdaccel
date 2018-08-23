@@ -117,6 +117,8 @@ set partName "xcku115-flvf1924-1-c"
 set partFamily "kintexu"
 set axiDataWidth 512
 set enableAxiWid 0
+set wrapperTop "sda_kernel_wrapper_gmem"
+set kernelArgWidth 8
 
 #
 # Extract the TCL command line arguments.
@@ -188,6 +190,13 @@ while {$argIndex < $argc} {
     }
     "-enable_axi_wid" {
       set enableAxiWid 1
+    }
+    "-enable_rio" {
+      set wrapperTop sda_kernel_wrapper_rio
+    }
+    "-kernel_arg_width" {
+      set kernelArgWidth [lindex $argv $argIndex]
+      incr argIndex
     }
     default {
       puts "Invalid TCL batch script argument : $arg"
@@ -262,7 +271,7 @@ set constraintFileName [file join $synDirPath "${moduleName}.xdc"]
 if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
   sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath \
-    $libraryCodePath $partName $axiDataWidth $enableAxiWid
+    $libraryCodePath $partName $axiDataWidth $enableAxiWid $wrapperTop $kernelArgWith
   sda_kernel_report $moduleName $partName $reportDirPath
   if {0 != $doRelativePlacement} {
     sda_kernel_constrain $moduleName
