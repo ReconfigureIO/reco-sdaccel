@@ -72,6 +72,10 @@
 # -enable_axi_wid
 #   When present, indicates that the kernel code supports the AXI WID output
 #   signal.
+# -enable_rio
+#   When present, will use the wrapper for rio kernels
+# -kernel_arg_width
+#   The width as a multiple of 4 bytes for the kernel arguments.
 #
 # The build script can be run from the command line using the Vivado batch mode
 # as follows, where <tcl_script_args> is replaced by the arguments specified
