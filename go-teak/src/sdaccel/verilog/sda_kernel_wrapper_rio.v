@@ -233,7 +233,9 @@ wire        param_data_stop;
 
 // Action control signals.
 wire argsReady;
+`ifdef KERNEL_ARGS_DATA
 wire [`KERNEL_ARGUMENT_WIDTH * 32-1:0] argsData;
+`endif
 wire argsStop;
 
 wire retVal_0Ready;
@@ -294,10 +296,12 @@ sda_kernel_ctrl_reg #(`AXI_PARAM_MEM_ADDR_WIDTH, 63) kernelCtrlReg_u
   wrapper_reset);
 
 // Instantiate the kernel parameter memory.
+`ifdef KERNEL_ARGS_DATA
 sda_kernel_args #(`AXI_PARAM_MEM_ADDR_WIDTH, 64,
   `KERNEL_ARGUMENT_WIDTH) kernelCtrlParam_u
   (reg_req, reg_ack_1, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata_1,
   argsData, ap_clk, wrapper_reset);
+`endif
 
 assign reg_ack = reg_ack_0 | reg_ack_1;
 assign reg_rdata = reg_rdata_0 | reg_rdata_1 | zeros;
@@ -312,7 +316,9 @@ assign m_axi_control_ext_ARADDR =
 // Instantiate the simple generated action logic core.
 teak___x24_main_x2e_Top_x3a_public kernelActionTop_u (
   argsReady,
+`ifdef KERNEL_ARGS_DATA
   argsData,
+`endif
   argsStop,
   retVal_0Ready,
   retVal_0Stop,

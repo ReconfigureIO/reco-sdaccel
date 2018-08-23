@@ -76,28 +76,26 @@ foreach libraryCodeDir $libraryCodePath {
 #
 # Generate the synthesised netlist for the IP core.
 #
+set extra_args {}
+
 if {0 != $enableAxiWid} {
-  synth_design \
-    -mode out_of_context \
-    -directive runtimeoptimized \
-    -no_lc \
-    -keep_equivalent_registers \
-    -top $wrapperTop \
-    -include_dirs $includeCodePath \
-    -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth \
-    -verilog_define AXI_MASTER_HAS_WID=1 \
-    -verilog_define KERNEL_ARGUMENT_WIDTH=$kernelArgWidth
-} else {
-  synth_design \
-    -mode out_of_context \
-    -directive runtimeoptimized \
-    -no_lc \
-    -keep_equivalent_registers \
-    -top $wrapperTop \
-    -include_dirs $includeCodePath \
-    -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth \
-    -verilog_define KERNEL_ARGUMENT_WIDTH=$kernelArgWidth
+    lappend extra_args -verilog_define AXI_MASTER_HAS_WID=1
 }
+
+if {$kernelArgWidth > 0} {
+    lappend extra_args -verilog_define KERNEL_ARGS_DATA=1
+}
+
+synth_design \
+    -mode out_of_context \
+    -directive runtimeoptimized \
+    -no_lc \
+    -keep_equivalent_registers \
+    -top $wrapperTop \
+    -include_dirs $includeCodePath \
+    -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth \
+    -verilog_define KERNEL_ARGUMENT_WIDTH=$kernelArgWidth \
+    {*}$extra_args
 
 #
 # Prefix all the module names with the unique kernel name string.

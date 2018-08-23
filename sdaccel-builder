@@ -11,6 +11,7 @@ reco_optimize="yes"
 reco_memory_interface="axi"
 reco_memory_width=64
 reco_ports=2
+reco_arg_width=0
 
 function parse_yaml {
     local file="$1"
@@ -34,6 +35,7 @@ if [ -e 'reco.yml' ]; then
     reco_memory_interface="$(parse_yaml reco.yml memory_interface "$reco_memory_interface")"
     reco_memory_width="$(parse_yaml reco.yml memory_width "$reco_memory_width")"
     reco_ports="$(parse_yaml reco.yml ports "$reco_ports")"
+    reco_arg_width="$(parse_yaml reco.yml arg_width "$reco_arg_width")"
 fi
 
 export PATH="$DIR/smi/bin:$DIR/bin:$PATH"
@@ -94,6 +96,10 @@ function lint {
     if [ "$reco_memory_interface" == "smi" ]
     then
         EXTRA=("-DAXI_MASTER_DATA_WIDTH=$reco_memory_width" "-DAXI_MASTER_HAS_WID=1")
+    fi
+    if [ $reco_arg_width -gt 0 ]
+    then
+        EXTRA+=("-DKERNEL_ARGS_DATA=1")
     fi
 
     verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" -I".reco-work/sdaccel/verilog/library" .reco-work/sdaccel/verilog/main.v "${EXTRA[@]}" --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNUSED -Wno-UNDRIVEN -Wno-REDEFMACRO -Wno-DECLFILENAME
