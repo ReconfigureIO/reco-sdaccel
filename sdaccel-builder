@@ -97,7 +97,7 @@ function lint {
     then
         EXTRA=("-DAXI_MASTER_DATA_WIDTH=$reco_memory_width" "-DAXI_MASTER_HAS_WID=1")
     fi
-    if [ $reco_arg_width -gt 0 ]
+    if [ "$reco_arg_width" -gt 0 ]
     then
         EXTRA+=("-DKERNEL_ARGS_DATA=1")
     fi
