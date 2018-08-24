@@ -62,7 +62,7 @@ ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
 ${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v ${VERILOG_DIR}/library | ${LOGS_DIR}
-	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" make_xo ${VERILOG_DIR} ${PART} ${PART_FAMILY} ${AXI_CONFIG_FLAGS} >
+	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" make_xo ${VERILOG_DIR} ${PART} ${PART_FAMILY} ${AXI_CONFIG_FLAGS} > ${LOGS_DIR}/synthesis_log.txt
 
 ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
