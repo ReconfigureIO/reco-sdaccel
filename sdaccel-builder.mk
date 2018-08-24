@@ -62,12 +62,7 @@ ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
 ${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v ${VERILOG_DIR}/library | ${LOGS_DIR}
-	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" vivado -notrace -mode batch \
-		-source "${DIR}/go-teak/src/sdaccel/scripts/sda_kernel_build.tcl" -tclargs \
-		-action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" \
-		-library_source_dir "${VERILOG_DIR}/library" -param_args_file "${VERILOG_DIR}/main.v.xmldef" \
-		-vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part ${PART} \
-		-part_family ${PART_FAMILY} ${AXI_CONFIG_FLAGS} > ${LOGS_DIR}/synthesis_log.txt
+	cd ${BUILD_DIR} && /usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" make_xo ${VERILOG_DIR} ${PART} ${PART_FAMILY} ${AXI_CONFIG_FLAGS} >
 
 ${XCLBIN_DIR}:
 	mkdir -p "${XCLBIN_DIR}"
