@@ -12,6 +12,7 @@ reco_memory_interface="axi"
 reco_memory_width=64
 reco_ports=2
 reco_arg_width=0
+reco_compiler=teak
 
 function parse_yaml {
     local file="$1"
@@ -36,6 +37,7 @@ if [ -e 'reco.yml' ]; then
     reco_memory_width="$(parse_yaml reco.yml memory_width "$reco_memory_width")"
     reco_ports="$(parse_yaml reco.yml ports "$reco_ports")"
     reco_arg_width="$(parse_yaml reco.yml arg_width "$reco_arg_width")"
+    reco_compiler="$(parse_yaml reco.yml compiler "$reco_compiler")"
 fi
 
 RECO_ARGS=(
@@ -43,6 +45,7 @@ RECO_ARGS=(
     MEMORY_INTERFACE="$reco_memory_interface"
     AXI_DATA_WIDTH="$reco_memory_width"
     PORTS="$reco_ports"
+    COMPILER="$reco_compiler"
 )
 
 MAKE=(
