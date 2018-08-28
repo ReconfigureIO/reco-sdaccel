@@ -47,12 +47,8 @@
 `endif
 
 // Can be redefined on the synthesis command line.
-`ifndef AXI_PARAM_MEM_ADDR_WIDTH
-`define AXI_PARAM_MEM_ADDR_WIDTH 12
-`endif
-
 `ifndef KERNEL_ARGUMENT_WIDTH
-`define KERNEL_ARGUMENT_WIDTH 5
+`define KERNEL_ARGUMENT_WIDTH 8
 `endif
 
 // Module name to be substituted in post-synthesis netlist.
@@ -75,6 +71,14 @@ module sda_kernel_wrapper_rio
   m_axi_gmem_ARREADY, m_axi_gmem_RDATA, m_axi_gmem_RRESP, m_axi_gmem_RLAST,
   m_axi_gmem_RID, m_axi_gmem_RUSER, m_axi_gmem_RVALID, m_axi_gmem_RREADY,
   ap_clk, ap_rst_n, interrupt);
+
+// Derives a valid kernel argument width parameter.
+parameter KernelArgsWidth =
+  (`KERNEL_ARGUMENT_WIDTH > 0) ? `KERNEL_ARGUMENT_WIDTH : 1;
+
+// Derives the address bus width required to access the kernel arguments.
+parameter KernelArgsAddrWidth = (KernelArgsWidth <= 16) ? 7 :
+  (KernelArgsWidth <= 48) ? 8 : (KernelArgsWidth <= 112) ? 9 : -1;
 
 // Specifies the AXI slave write address signals.
 input [`AXI_SLAVE_ADDR_WIDTH-1:0] s_axi_control_AWADDR;
@@ -210,17 +214,17 @@ wire [3:0] m_axi_gmem_local_ARCACHE;
 wire [3:0] m_axi_gmem_local_AWCACHE;
 
 // Wrapper control register interface signals.
-wire                                 reg_req;
-wire                                 reg_ack;
-wire                                 reg_ack_0;
-wire                                 reg_ack_1;
-wire                                 reg_write_en;
-wire [`AXI_PARAM_MEM_ADDR_WIDTH-1:0] reg_addr;
-wire [31:0]                          reg_wdata;
-wire [3:0]                           reg_wstrb;
-wire [31:0]                          reg_rdata;
-wire [31:0]                          reg_rdata_0;
-wire [31:0]                          reg_rdata_1;
+wire                           reg_req;
+wire                           reg_ack;
+wire                           reg_ack_0;
+wire                           reg_ack_1;
+wire                           reg_write_en;
+wire [KernelArgsAddrWidth-1:0] reg_addr;
+wire [31:0]                    reg_wdata;
+wire [3:0]                     reg_wstrb;
+wire [31:0]                    reg_rdata;
+wire [31:0]                    reg_rdata_0;
+wire [31:0]                    reg_rdata_1;
 
 // Kernel interface parameter access signals.
 wire        param_addr_valid;
@@ -233,9 +237,7 @@ wire        param_data_stop;
 
 // Action control signals.
 wire argsReady;
-`ifdef KERNEL_ARGS_DATA
-wire [`KERNEL_ARGUMENT_WIDTH * 32-1:0] argsData;
-`endif
+wire [KernelArgsWidth * 32-1:0] argsData;
 wire argsStop;
 
 wire retVal_0Ready;
@@ -273,8 +275,8 @@ sda_kernel_reset_handler resetHandler_u
   ap_clk);
 
 // Instantiate the AXI slave register selection component.
-sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, `AXI_PARAM_MEM_ADDR_WIDTH,
-  (1 << `AXI_PARAM_MEM_ADDR_WIDTH)-1) kernelCtrlRegSel_u
+sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, KernelArgsAddrWidth,
+  (1 << KernelArgsAddrWidth)-1) kernelCtrlRegSel_u
   (s_axi_control_AWVALID, s_axi_control_AWREADY, s_axi_control_AWADDR,
   s_axi_control_WVALID, s_axi_control_WREADY, s_axi_control_WDATA,
   s_axi_control_WSTRB, s_axi_control_BVALID, s_axi_control_BREADY,
@@ -290,18 +292,16 @@ sda_kernel_ctrl_reg_sel #(`AXI_SLAVE_ADDR_WIDTH, `AXI_PARAM_MEM_ADDR_WIDTH,
   reg_wstrb, reg_rdata, ap_clk, wrapper_reset);
 
 // Instantiate the kernel control registers at slave address offset 0.
-sda_kernel_ctrl_reg #(`AXI_PARAM_MEM_ADDR_WIDTH, 63) kernelCtrlReg_u
+sda_kernel_ctrl_reg #(KernelArgsAddrWidth, 63) kernelCtrlReg_u
   (reg_req, reg_ack_0, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata_0,
   reg_go_valid, reg_go_holdoff, reg_retVal_valid, reg_retVal_stop, interrupt, ap_clk,
   wrapper_reset);
 
 // Instantiate the kernel parameter memory.
-`ifdef KERNEL_ARGS_DATA
-sda_kernel_args #(`AXI_PARAM_MEM_ADDR_WIDTH, 64,
-  `KERNEL_ARGUMENT_WIDTH) kernelCtrlParam_u
+sda_kernel_args #(KernelArgsAddrWidth, 64, (1 << KernelArgsAddrWidth) - 1,
+  KernelArgsWidth) kernelCtrlParam_u
   (reg_req, reg_ack_1, reg_write_en, reg_addr, reg_wdata, reg_wstrb, reg_rdata_1,
   argsData, ap_clk, wrapper_reset);
-`endif
 
 assign reg_ack = reg_ack_0 | reg_ack_1;
 assign reg_rdata = reg_rdata_0 | reg_rdata_1 | zeros;
@@ -372,7 +372,6 @@ teak___x24_main_x2e_Top_x3a_public kernelActionTop_u (
    m_axi_gmem_BID,
    m_axi_gmem_BUSER},
   ~m_axi_gmem_BREADY,
-
 
   ap_clk,
   kernel_reset
