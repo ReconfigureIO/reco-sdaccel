@@ -38,6 +38,12 @@ else
 	AXI_CONFIG_FLAGS += -enable_axi_wid
 endif
 
+ifeq ($(COMPILER), rio)
+	GO_TEAK_BIN := go-rio
+	AXI_CONFIG_FLAGS += -enable_rio
+	# AXI_CONFIG_FLAGS += -kernel_arg_width=TODO(pwaller)
+endif
+
 PART := "xcku115-flvf1924-1-c"
 PART_FAMILY := "kintexu"
 INPUT := go
