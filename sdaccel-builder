@@ -38,6 +38,20 @@ if [ -e 'reco.yml' ]; then
     reco_arg_width="$(parse_yaml reco.yml arg_width "$reco_arg_width")"
 fi
 
+RECO_ARGS=(
+    OPTIMIZE="$reco_optimize"
+    MEMORY_INTERFACE="$reco_memory_interface"
+    AXI_DATA_WIDTH="$reco_memory_width"
+    PORTS="$reco_ports"
+)
+
+MAKE=(
+    make
+    --environment-overrides
+    --file "$DIR/sdaccel-builder.mk"
+    "${RECO_ARGS[@]}"
+)
+
 export PATH="$DIR/smi/bin:$DIR/bin:$PATH"
 
 # Merge timing and utilization reports.
@@ -45,32 +59,31 @@ export PATH="$DIR/smi/bin:$DIR/bin:$PATH"
 # e.g. sdaccel-builder report
 # Primarily will be used by the build & simulate commands
 function report {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" report
-
+    "${MAKE[@]}" TARGET=hw_emu report
 }
 
 function graph {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" graph
+    "${MAKE[@]}" TARGET=hw graph
 }
 
 function build {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" kernel sim
+    "${MAKE[@]}" TARGET=hw_emu kernel sim
     # run reports after everything
     report
 }
 
 function image {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" kernel
+    "${MAKE[@]}" TARGET=hw kernel
     # run reports after everything
     report
 }
 
 function test_go {
-    make -e -f "$DIR/sdaccel-builder.mk" OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" verilog
+    "${MAKE[@]}" verilog
 }
 
 function simulate {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" sim cmds kernel
+    "${MAKE[@]}" TARGET=hw_emu sim cmds kernel
     # run reports after everything
     report
     export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
@@ -79,15 +92,17 @@ function simulate {
 
     # shellcheck source=/dev/null
     source "$XILINX_SDACCEL"/settings64.sh
-    XCL_EMULATION_MODE=hw_emu XCL_BINDIR="$PWD/.reco-work/sdaccel/dist/xclbin" bash -c "$@"
+    XCL_EMULATION_MODE=hw_emu \
+    XCL_BINDIR="$PWD/.reco-work/sdaccel/dist/xclbin" \
+        bash -c "$@"
 }
 
 function cmds {
-    make -e -f "$DIR/sdaccel-builder.mk" cmds
+    "${MAKE[@]}" cmds
 }
 
 function clean {
-    make -e -f "$DIR/sdaccel-builder.mk" clean
+    "${MAKE[@]}" clean
 }
 
 function lint {
@@ -95,14 +110,29 @@ function lint {
     EXTRA=()
     if [ "$reco_memory_interface" == "smi" ]
     then
-        EXTRA=("-DAXI_MASTER_DATA_WIDTH=$reco_memory_width" "-DAXI_MASTER_HAS_WID=1")
+        EXTRA=(
+            "-DAXI_MASTER_DATA_WIDTH=$reco_memory_width"
+            "-DAXI_MASTER_HAS_WID=1"
+        )
     fi
     if [ "$reco_arg_width" -gt 0 ]
     then
         EXTRA+=("-DKERNEL_ARGS_DATA=1")
     fi
 
-    verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" -I".reco-work/sdaccel/verilog/library" .reco-work/sdaccel/verilog/main.v "${EXTRA[@]}" --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNUSED -Wno-UNDRIVEN -Wno-REDEFMACRO -Wno-DECLFILENAME
+    verilator
+        -Wall \
+        --lint-only \
+        -I".reco-work/sdaccel/verilog/includes" \
+        -I".reco-work/sdaccel/verilog/library" \
+        .reco-work/sdaccel/verilog/main.v \
+        "${EXTRA[@]}" \
+        --top-module sda_kernel_wrapper_gmem \
+        --report-unoptflat \
+        -Wno-UNUSED \
+        -Wno-UNDRIVEN \
+        -Wno-REDEFMACRO \
+        -Wno-DECLFILENAME
 }
 
 function main {
