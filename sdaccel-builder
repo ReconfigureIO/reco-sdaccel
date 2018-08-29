@@ -110,6 +110,7 @@ function clean {
 
 function lint {
     test_go
+    TOP=sda_kernel_wrapper_gmem
     EXTRA=()
     if [ "$reco_memory_interface" == "smi" ]
     then
@@ -120,20 +121,31 @@ function lint {
     fi
     if [ "$reco_arg_width" -gt 0 ]
     then
-        EXTRA+=("-DKERNEL_ARGS_DATA=1")
+        EXTRA+=(
+            "-DKERNEL_ARGS_DATA=1"
+            "-DKERNEL_ARGUMENT_WIDTH=$reco_arg_width"
+        )
     fi
 
-    verilator
+    if [ "$reco_compiler" == "rio" ]
+    then
+        TOP=sda_kernel_wrapper_rio
+        # Include gmem stub
+        EXTRA+=("$DIR/go-teak/src/sdaccel/stubs/sda_kernel_action_stub_gmem.v")
+    else
+        # Include rio stub
+        EXTRA+=("$DIR/go-teak/src/sdaccel/stubs/rio_kernel_action_stub.v")
+    fi
+
+    verilator \
         -Wall \
         --lint-only \
         -I".reco-work/sdaccel/verilog/includes" \
-        -I".reco-work/sdaccel/verilog/library" \
+        .reco-work/sdaccel/verilog/library/* \
         .reco-work/sdaccel/verilog/main.v \
         "${EXTRA[@]}" \
-        --top-module sda_kernel_wrapper_gmem \
+        --top-module "$TOP" \
         --report-unoptflat \
-        -Wno-UNUSED \
-        -Wno-UNDRIVEN \
         -Wno-REDEFMACRO \
         -Wno-DECLFILENAME
 }
