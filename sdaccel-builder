@@ -41,11 +41,11 @@ if [ -e 'reco.yml' ]; then
 fi
 
 RECO_ARGS=(
-    OPTIMIZE="$reco_optimize"
-    MEMORY_INTERFACE="$reco_memory_interface"
-    AXI_DATA_WIDTH="$reco_memory_width"
-    PORTS="$reco_ports"
-    COMPILER="$reco_compiler"
+    "OPTIMIZE=$reco_optimize"
+    "MEMORY_INTERFACE=$reco_memory_interface"
+    "AXI_DATA_WIDTH=$reco_memory_width"
+    "PORTS=$reco_ports"
+    "COMPILER=$reco_compiler"
 )
 
 MAKE=(
