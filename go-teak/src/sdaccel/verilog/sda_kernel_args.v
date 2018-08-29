@@ -118,8 +118,10 @@ begin
     // discarded, forcing 32-bit alignment.
     default :
     begin
+       /* verilator lint_off CMPCONST */
       if (regReq && (regAddr >= ParamAddrBase [RegAddrWidth-1:0]) &&
         (regAddr <= ParamAddrTop [RegAddrWidth-1:0]))
+       /* verilator lint_on CMPCONST */
       begin
         if (regWriteEn)
           argsAccessState_d = ArgsWrite;

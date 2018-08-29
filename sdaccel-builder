@@ -147,7 +147,10 @@ function lint {
         --top-module "$TOP" \
         --report-unoptflat \
         -Wno-REDEFMACRO \
-        -Wno-DECLFILENAME
+        -Wno-DECLFILENAME \
+        -Wno-UNUSED \
+        -Wno-UNDRIVEN
+
 }
 
 function main {
