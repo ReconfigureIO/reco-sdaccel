@@ -1,11 +1,11 @@
 
-BUILD_DIR := "/tmp/workspace/.reco-work/sdaccel/build"
-LOGS_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/logs"
-DIST_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist"
-REPORTS_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/reports"
-XCLBIN_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin"
-VERILOG_DIR := "$(ROOT_DIR)/.reco-work/sdaccel/verilog"
-VENDOR_DIR := "$(ROOT_DIR)/.reco-work/vendor"
+BUILD_DIR := /tmp/workspace/.reco-work/sdaccel/build
+LOGS_DIR := $(ROOT_DIR)/.reco-work/sdaccel/logs
+DIST_DIR := $(ROOT_DIR)/.reco-work/sdaccel/dist
+REPORTS_DIR := $(ROOT_DIR)/.reco-work/sdaccel/reports
+XCLBIN_DIR := $(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin
+VERILOG_DIR := $(ROOT_DIR)/.reco-work/sdaccel/verilog
+export VENDOR_DIR := $(ROOT_DIR)/.reco-work/vendor
 
 XO_NAME := "reconfigure_io_sdaccel_builder_stub_0_1.xo"
 
@@ -30,16 +30,15 @@ else
 	GO_TEAK_FLAGS :=
 endif
 
-ifeq ($(MEMORY_INTERFACE), axi)
-	GO_TEAK_BIN := go-teak-sdaccel
-else
+export GO_TEAK_BIN := go-teak-sdaccel
+
+ifneq ($(MEMORY_INTERFACE), axi)
 	GO_TEAK_BIN := go-teak-smi
 	GO_TEAK_BUILD_FLAGS += --ports ${PORTS}
 	AXI_CONFIG_FLAGS += -enable_axi_wid
 endif
 
 ifeq ($(COMPILER), rio)
-	GO_TEAK_BIN := go-rio
 	AXI_CONFIG_FLAGS += -enable_rio
 	# AXI_CONFIG_FLAGS += -kernel_arg_width=TODO(pwaller)
 endif
@@ -126,7 +125,7 @@ ${LOGS_DIR}:
 
 ${DIST_DIR}/vendor/src: ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel
 	mkdir -p "${VENDOR_DIR}"
-	ln -sf "${ROOT_DIR}/vendor" "${VENDOR_DIR}/src"
+	ln -sfT "${ROOT_DIR}/vendor" "${VENDOR_DIR}/src"
 
 ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel:
 	mkdir -p ${ROOT_DIR}/vendor/github.com/ReconfigureIO
@@ -151,16 +150,7 @@ INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/i
 
 ${VERILOG_DIR}/main.v: ${ROOT_DIR}/${SOURCE_FILE} $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
 ifeq ($(INPUT),go)
-	cd ${DIR}/eTeak && \
-	PATH=${DIR}/eTeak/bin:${PATH} \
-	GOPATH=${VENDOR_DIR} \
-	/usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" \
-		./${GO_TEAK_BIN} \
-			build \
-			--full-imports \
-			${GO_TEAK_FLAGS} \
-			${GO_TEAK_BUILD_FLAGS} \
-			"$<" -o "$@"
+	/usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" build_go $< $@
 else
 	cp ${ROOT_DIR}/main.v $@
 	cp ${ROOT_DIR}/main.v.xmldef ${VERILOG_DIR}

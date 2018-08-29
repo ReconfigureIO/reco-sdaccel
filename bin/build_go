@@ -1,0 +1,26 @@
+#!/bin/bash
+set -e
+
+INPUT="$1"
+OUTPUT="$2"
+
+PATH=${DIR}/eTeak:${DIR}/eTeak/bin:${PATH}
+GOPATH=${VENDOR_DIR}
+
+if [ "$COMPILER" == "rio" ]
+then
+    # TODO: This is used to generate the xmldef. Replace this with something better.
+    cd ${DIR}/eTeak && go-teak-sdaccel build --full-imports "$INPUT" -o "$OUTPUT"
+    cd -
+    go2ll "$INPUT" > "$INPUT.ll"
+    rio "$INPUT.ll"
+    mv "$INPUT.ll.v" "$OUTPUT"
+else
+	cd ${DIR}/eTeak &&
+		${GO_TEAK_BIN} \
+			build \
+			--full-imports \
+			${GO_TEAK_FLAGS} \
+			${GO_TEAK_BUILD_FLAGS} \
+			"$INPUT" -o "$OUTPUT"
+fi
