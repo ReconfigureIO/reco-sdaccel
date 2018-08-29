@@ -343,7 +343,7 @@ teak___x24_main_x2e_Top_x3a_public kernelActionTop_u (
    m_axi_gmem_RLAST,
    m_axi_gmem_RID,
    m_axi_gmem_RUSER},
-  m_axi_gmem_RREADY,
+  ~m_axi_gmem_RREADY,
 
   m_axi_gmem_AWVALID,
   {m_axi_gmem_AWADDR,
