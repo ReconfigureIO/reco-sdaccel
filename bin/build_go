@@ -10,9 +10,9 @@ export GOPATH=${VENDOR_DIR}
 if [ "$COMPILER" == "rio" ]
 then
     # TODO: This is used to generate the xmldef. Replace this with something better.
-    cd ${DIR}/eTeak && go-teak-sdaccel build --full-imports "$INPUT" -o "$OUTPUT"
-    cd -
     go2ll "$INPUT" > "$INPUT.ll"
+    ll2xmldef main.Top < "$INPUT.ll" > "$OUTPUT.xmldef"
+
     rio "$INPUT.ll"
     mv "$INPUT.ll.v" "$OUTPUT"
 else

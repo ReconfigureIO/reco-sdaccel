@@ -11,7 +11,6 @@ reco_optimize="yes"
 reco_memory_interface="axi"
 reco_memory_width=64
 reco_ports=2
-reco_arg_width=0
 reco_compiler=teak
 
 function parse_yaml {
@@ -36,7 +35,6 @@ if [ -e 'reco.yml' ]; then
     reco_memory_interface="$(parse_yaml reco.yml memory_interface "$reco_memory_interface")"
     reco_memory_width="$(parse_yaml reco.yml memory_width "$reco_memory_width")"
     reco_ports="$(parse_yaml reco.yml ports "$reco_ports")"
-    reco_arg_width="$(parse_yaml reco.yml arg_width "$reco_arg_width")"
     reco_compiler="$(parse_yaml reco.yml compiler "$reco_compiler")"
 fi
 
@@ -119,6 +117,8 @@ function lint {
             "-DAXI_MASTER_HAS_WID=1"
         )
     fi
+    reco_arg_width=$("${MAKE[@]}" print-ARG_WIDTH)
+
     if [ "$reco_arg_width" -gt 0 ]
     then
         EXTRA+=(

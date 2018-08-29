@@ -1,11 +1,12 @@
 
-BUILD_DIR := /tmp/workspace/.reco-work/sdaccel/build
+BUILD_DIR := $(ROOT_DIR)/.reco-work/sdaccel/build
 LOGS_DIR := $(ROOT_DIR)/.reco-work/sdaccel/logs
 DIST_DIR := $(ROOT_DIR)/.reco-work/sdaccel/dist
 REPORTS_DIR := $(ROOT_DIR)/.reco-work/sdaccel/reports
 XCLBIN_DIR := $(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin
 VERILOG_DIR := $(ROOT_DIR)/.reco-work/sdaccel/verilog
 export VENDOR_DIR := $(ROOT_DIR)/.reco-work/vendor
+ARG_WIDTH = $(shell ll2xmldef -total-argsize main.Top <  ${ROOT_DIR}/main.go.ll)
 
 XO_NAME := "reconfigure_io_sdaccel_builder_stub_0_1.xo"
 
@@ -22,7 +23,7 @@ CLFLAGS :=
 CPUS := 4
 
 GO_TEAK_BUILD_FLAGS :=
-AXI_CONFIG_FLAGS := -axi_data_width ${AXI_DATA_WIDTH}
+AXI_CONFIG_FLAGS = -axi_data_width ${AXI_DATA_WIDTH}
 
 ifeq ($(OPTIMIZE), yes)
 	GO_TEAK_FLAGS := -O -p${OPTIMIZE_LEVEL}
@@ -40,7 +41,7 @@ endif
 
 ifeq ($(COMPILER), rio)
 	AXI_CONFIG_FLAGS += -enable_rio
-	# AXI_CONFIG_FLAGS += -kernel_arg_width=TODO(pwaller)
+	AXI_CONFIG_FLAGS += -kernel_arg_width ${ARG_WIDTH}
 endif
 
 PART := "xcku115-flvf1924-1-c"
@@ -62,6 +63,8 @@ xo: ${BUILD_DIR}/${XO_NAME}
 graph: ${ROOT_DIR}/main-graph.pdf
 
 verilog: ${VERILOG_DIR}/main.v ${VERILOG_DIR}/includes ${VERILOG_DIR}/library
+
+print-% : ; @echo $($*)
 
 ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
