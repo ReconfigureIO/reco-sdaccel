@@ -5,7 +5,7 @@ INPUT="$1"
 OUTPUT="$2"
 
 PATH=${DIR}/eTeak:${DIR}/eTeak/bin:${PATH}
-GOPATH=${VENDOR_DIR}
+export GOPATH=${VENDOR_DIR}
 
 if [ "$COMPILER" == "rio" ]
 then
