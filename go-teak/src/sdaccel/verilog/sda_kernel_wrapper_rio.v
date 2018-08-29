@@ -14,6 +14,8 @@
 // card.
 //
 
+/* verilator lint_off DECLFILENAME */
+
 `timescale 1ns/1ps
 
 // Can be redefined on the synthesis command line.
@@ -466,3 +468,5 @@ teak___x24_main_x2e_Top_x3a_public kernelActionTop_u (
 );
 
 endmodule
+
+/* verilator lint_on DECLFILENAME */
