@@ -78,16 +78,6 @@ module sda_kernel_wrapper_rio
 parameter KernelArgsWidth =
   (`KERNEL_ARGUMENT_WIDTH > 0) ? `KERNEL_ARGUMENT_WIDTH : 1;
 
-parameter ReadAddrWidth = 29 + `AXI_MASTER_ADDR_WIDTH + `AXI_MASTER_ID_WIDTH + `AXI_MASTER_USER_WIDTH;
-parameter ReadDataWidth = 3 + `AXI_MASTER_DATA_WIDTH + `AXI_MASTER_ID_WIDTH + `AXI_MASTER_USER_WIDTH;
-parameter WriteAddrWidth = 29 + `AXI_MASTER_ADDR_WIDTH + `AXI_MASTER_ID_WIDTH + `AXI_MASTER_USER_WIDTH;
-parameter WriteRespWidth = 2 + `AXI_MASTER_ID_WIDTH + `AXI_MASTER_USER_WIDTH;
-`ifdef AXI_MASTER_HAS_WID
-parameter WriteDataWidth = 1 + 9*`AXI_MASTER_DATA_WIDTH/8 + `AXI_MASTER_ID_WIDTH + `AXI_MASTER_USER_WIDTH;
-`else
-parameter WriteDataWidth = 1 + 9*`AXI_MASTER_DATA_WIDTH/8 + `AXI_MASTER_USER_WIDTH;
-`endif
-
 // Derives the address bus width required to access the kernel arguments.
 parameter KernelArgsAddrWidth = (KernelArgsWidth <= 16) ? 7 :
   (KernelArgsWidth <= 48) ? 8 : (KernelArgsWidth <= 112) ? 9 : -1;
@@ -239,37 +229,16 @@ wire [31:0]                    reg_rdata_0;
 wire [31:0]                    reg_rdata_1;
 
 // Action control signals.
-wire argsReady;
-wire [KernelArgsWidth * 32-1:0] argsData;
-wire argsStop;
-
-wire retVal_0Ready;
-wire retVal_0Stop;
+wire                          argsValid;
+wire [KernelArgsWidth*32-1:0] argsData;
+wire                          argsStop;
+wire                          retValValid;
+wire                          retValStop;
 
 // Miscellaneous signals.
 wire [31:0] zeros = 32'b0;
 wire [31:0] m_axi_control_ext_AWADDR;
 wire [31:0] m_axi_control_ext_ARADDR;
-
-wire                     axiReadAddrValid;
-wire [ReadAddrWidth-1:0] axiReadAddrBus;
-wire                     axiReadAddrStop;
-
-wire                     axiReadDataValid;
-wire [ReadDataWidth-1:0] axiReadDataBus;
-wire                     axiReadDataStop;
-
-wire                      axiWriteAddrValid;
-wire [WriteAddrWidth-1:0] axiWriteAddrBus;
-wire                      axiWriteAddrStop;
-
-wire                      axiWriteDataValid;
-wire [WriteDataWidth-1:0] axiWriteDataBus;
-wire                      axiWriteDataStop;
-
-wire                      axiWriteRespValid;
-wire [WriteRespWidth-1:0] axiWriteRespBus;
-wire                      axiWriteRespStop;
 
 // Tie off unused control interface signals.
 assign m_axi_control_AWCACHE = 4'b0000;
@@ -302,8 +271,8 @@ assign m_axi_gmem_AWCACHE = m_axi_gmem_local_AWCACHE & `AXI_MASTER_CACHE_MASK;
 
 // Instantiate the reset controller.
 sda_kernel_reset_handler resetHandler_u
-  (reg_go_valid, reg_go_holdoff, reg_retVal_valid, reg_retVal_stop, argsReady,
-  argsStop, retVal_0Ready, retVal_0Stop, ~ap_rst_n, wrapper_reset, kernel_reset,
+  (reg_go_valid, reg_go_holdoff, reg_retVal_valid, reg_retVal_stop, argsValid,
+  argsStop, retValValid, retValStop, ~ap_rst_n, wrapper_reset, kernel_reset,
   ap_clk);
 
 // Instantiate the AXI slave register selection component.
@@ -345,119 +314,74 @@ assign m_axi_control_ext_AWADDR =
 assign m_axi_control_ext_ARADDR =
   {zeros [31:`AXI_SLAVE_ADDR_WIDTH], m_axi_control_ARADDR};
 
-// Insert SMI/AXI conversion buffers. Note that the order of signals in the
-// concatenated vectors must correspond to the order used in the corresponding
-// Go library AXI protocol data structures.
-axiOutputBuffer #(ReadAddrWidth) axiReadAddrBuffer (
-  axiReadAddrValid,
-  axiReadAddrBus,
-  axiReadAddrStop,
-  m_axi_gmem_ARVALID,
-  { m_axi_gmem_ARUSER,
-    m_axi_gmem_ARQOS,
-    m_axi_gmem_ARREGION,
-    m_axi_gmem_ARPROT,
-    m_axi_gmem_local_ARCACHE,
-    m_axi_gmem_ARLOCK[0],
-    m_axi_gmem_ARBURST,
-    m_axi_gmem_ARSIZE,
-    m_axi_gmem_ARLEN,
-    m_axi_gmem_ARADDR,
-    m_axi_gmem_ARID},
-  m_axi_gmem_ARREADY,
-  ap_clk, kernel_reset);
-
-axiInputBuffer #(ReadDataWidth) axiReadDataBuffer (
-  m_axi_gmem_RVALID,
-  { m_axi_gmem_RUSER,
-    m_axi_gmem_RLAST,
-    m_axi_gmem_RRESP,
-    m_axi_gmem_RDATA,
-    m_axi_gmem_RID},
-  m_axi_gmem_RREADY,
-  axiReadDataValid,
-  axiReadDataBus,
-  axiReadDataStop,
-  ap_clk, kernel_reset);
-
-axiOutputBuffer #(WriteAddrWidth) axiWriteAddrBuffer (
-  axiWriteAddrValid,
-  axiWriteAddrBus,
-  axiWriteAddrStop,
-  m_axi_gmem_AWVALID,
-  { m_axi_gmem_AWUSER,
-    m_axi_gmem_AWQOS,
-    m_axi_gmem_AWREGION,
-    m_axi_gmem_AWPROT,
-    m_axi_gmem_local_AWCACHE,
-    m_axi_gmem_AWLOCK[0],
-    m_axi_gmem_AWBURST,
-    m_axi_gmem_AWSIZE,
-    m_axi_gmem_AWLEN,
-    m_axi_gmem_AWADDR,
-    m_axi_gmem_AWID},
-  m_axi_gmem_AWREADY,
-  ap_clk, kernel_reset);
-
-axiOutputBuffer #(WriteDataWidth) axiWriteDataBuffer (
-  axiWriteDataValid,
-  axiWriteDataBus,
-  axiWriteDataStop,
-  m_axi_gmem_WVALID,
-  { m_axi_gmem_WUSER,
-    m_axi_gmem_WLAST,
-    m_axi_gmem_WSTRB,
-    m_axi_gmem_WDATA
-   `ifdef AXI_MASTER_HAS_WID ,m_axi_gmem_WID `endif
-  },
-  m_axi_gmem_WREADY,
-  ap_clk, kernel_reset);
-
-axiInputBuffer #(WriteRespWidth) axiWriteRespBuffer (
-  m_axi_gmem_BVALID,
-  { m_axi_gmem_BUSER,
-    m_axi_gmem_BRESP,
-    m_axi_gmem_BID},
-  m_axi_gmem_BREADY,
-  axiWriteRespValid,
-  axiWriteRespBus,
-  axiWriteRespStop,
-  ap_clk, kernel_reset);
-
-// Instantiate the simple generated action logic core.
-teak___x24_main_x2e_Top_x3a_public kernelActionTop_u (
-  argsReady,
-`ifdef KERNEL_ARGS_DATA
+// Instantiate the AXI wrapper if the kernel does not use native AXI signalling.
+`ifndef KERNEL_NATIVE_AXI
+sda_kernel_axi_adaptor #(
+  `AXI_MASTER_ADDR_WIDTH,
+  `AXI_MASTER_DATA_WIDTH,
+  `AXI_MASTER_USER_WIDTH,
+  `AXI_MASTER_ID_WIDTH,
+  KernelArgsWidth) kernel_axi_adaptor_u
+(
+  argsValid,
   argsData,
-`endif
   argsStop,
+  retValValid,
+  retValStop,
 
-  retVal_0Ready,
-  retVal_0Stop,
+  m_axi_gmem_AWADDR,
+  m_axi_gmem_AWLEN,
+  m_axi_gmem_AWSIZE,
+  m_axi_gmem_AWBURST,
+  m_axi_gmem_AWLOCK[0],
+  m_axi_gmem_local_AWCACHE,
+  m_axi_gmem_AWPROT,
+  m_axi_gmem_AWQOS,
+  m_axi_gmem_AWREGION,
+  m_axi_gmem_AWUSER,
+  m_axi_gmem_AWID,
+  m_axi_gmem_AWVALID,
+  m_axi_gmem_AWREADY,
 
-  axiReadAddrValid,
-  axiReadAddrBus,
-  axiReadAddrStop,
+  m_axi_gmem_WDATA,
+  m_axi_gmem_WSTRB,
+  m_axi_gmem_WLAST,
+  m_axi_gmem_WUSER,
+  m_axi_gmem_WVALID,
+  m_axi_gmem_WREADY,
 
-  axiReadDataValid,
-  axiReadDataBus,
-  axiReadDataStop,
+  m_axi_gmem_BRESP,
+  m_axi_gmem_BUSER,
+  m_axi_gmem_BID,
+  m_axi_gmem_BVALID,
+  m_axi_gmem_BREADY,
 
-  axiWriteAddrValid,
-  axiWriteAddrBus,
-  axiWriteAddrStop,
+  m_axi_gmem_ARADDR,
+  m_axi_gmem_ARLEN,
+  m_axi_gmem_ARSIZE,
+  m_axi_gmem_ARBURST,
+  m_axi_gmem_ARLOCK[0],
+  m_axi_gmem_local_ARCACHE,
+  m_axi_gmem_ARPROT,
+  m_axi_gmem_ARQOS,
+  m_axi_gmem_ARREGION,
+  m_axi_gmem_ARUSER,
+  m_axi_gmem_ARID,
+  m_axi_gmem_ARVALID,
+  m_axi_gmem_ARREADY,
 
-  axiWriteDataValid,
-  axiWriteDataBus,
-  axiWriteDataStop,
-
-  axiWriteRespValid,
-  axiWriteRespBus,
-  axiWriteRespStop,
+  m_axi_gmem_RDATA,
+  m_axi_gmem_RRESP,
+  m_axi_gmem_RLAST,
+  m_axi_gmem_RUSER,
+  m_axi_gmem_RID,
+  m_axi_gmem_RVALID,
+  m_axi_gmem_RREADY,
 
   ap_clk,
   kernel_reset
 );
+`endif
 
 endmodule
 
