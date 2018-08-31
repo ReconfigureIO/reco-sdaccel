@@ -43,7 +43,8 @@ proc load_ip_cores {ipSourceDirPath buildDirPath} {
 # Run main kernel synthesis in project flow.
 #
 proc sda_kernel_synthesis {sourceFileName moduleName includeCodePath
-  libraryCodePath partName axiDataWidth enableAxiWid wrapperTop kernelArgWidth} {
+  libraryCodePath partName axiDataWidth enableAxiWid wrapperTop kernelArgWidth
+  kernelHasSmiAdaptor} {
 set_part $partName
 
 #
@@ -84,6 +85,10 @@ if {0 != $enableAxiWid} {
 
 if {$kernelArgWidth > 0} {
     lappend extra_args -verilog_define KERNEL_ARGS_DATA=1
+}
+
+if {0 != $kernelHasSmiAdaptor} {
+    lappend extra_args -verilog_define KERNEL_HAS_SMI_ADAPTOR=1
 }
 
 synth_design \

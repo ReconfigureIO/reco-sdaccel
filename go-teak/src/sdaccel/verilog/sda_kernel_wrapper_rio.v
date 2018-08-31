@@ -314,8 +314,78 @@ assign m_axi_control_ext_AWADDR =
 assign m_axi_control_ext_ARADDR =
   {zeros [31:`AXI_SLAVE_ADDR_WIDTH], m_axi_control_ARADDR};
 
+// Directly instantiate the SMI wrapper toplevel which exposes auto-generated
+// native AXI signalling at the interface. The AXI bus parameters are hard
+// coded in the generated SMI wrapper and must match the parameters defined
+// for this wrapper.
+`ifdef KERNEL_HAS_SMI_ADAPTOR
+sda_kernel_smi_adaptor kernel_smi_adaptor_u
+(
+  argsValid,
+  argsData,
+  argsStop,
+  retValValid,
+  retValStop,
+
+  m_axi_gmem_AWADDR,
+  m_axi_gmem_AWLEN,
+  m_axi_gmem_AWSIZE,
+  m_axi_gmem_AWBURST,
+  m_axi_gmem_AWLOCK[0],
+  m_axi_gmem_local_AWCACHE,
+  m_axi_gmem_AWPROT,
+  m_axi_gmem_AWQOS,
+  m_axi_gmem_AWREGION,
+  m_axi_gmem_AWUSER,
+  m_axi_gmem_AWID,
+  m_axi_gmem_AWVALID,
+  m_axi_gmem_AWREADY,
+
+  m_axi_gmem_WDATA,
+  m_axi_gmem_WSTRB,
+  m_axi_gmem_WLAST,
+  m_axi_gmem_WUSER,
+`ifdef AXI_MASTER_HAS_WID
+  m_axi_gmem_WID,
+`endif
+  m_axi_gmem_WVALID,
+  m_axi_gmem_WREADY,
+
+  m_axi_gmem_BRESP,
+  m_axi_gmem_BUSER,
+  m_axi_gmem_BID,
+  m_axi_gmem_BVALID,
+  m_axi_gmem_BREADY,
+
+  m_axi_gmem_ARADDR,
+  m_axi_gmem_ARLEN,
+  m_axi_gmem_ARSIZE,
+  m_axi_gmem_ARBURST,
+  m_axi_gmem_ARLOCK[0],
+  m_axi_gmem_local_ARCACHE,
+  m_axi_gmem_ARPROT,
+  m_axi_gmem_ARQOS,
+  m_axi_gmem_ARREGION,
+  m_axi_gmem_ARUSER,
+  m_axi_gmem_ARID,
+  m_axi_gmem_ARVALID,
+  m_axi_gmem_ARREADY,
+
+  m_axi_gmem_RDATA,
+  m_axi_gmem_RRESP,
+  m_axi_gmem_RLAST,
+  m_axi_gmem_RUSER,
+  m_axi_gmem_RID,
+  m_axi_gmem_RVALID,
+  m_axi_gmem_RREADY,
+
+  ap_clk,
+  kernel_reset
+);
+`endif
+
 // Instantiate the AXI wrapper if the kernel does not use native AXI signalling.
-`ifndef KERNEL_NATIVE_AXI
+`ifndef KERNEL_HAS_SMI_ADAPTOR
 sda_kernel_axi_adaptor #(
   `AXI_MASTER_ADDR_WIDTH,
   `AXI_MASTER_DATA_WIDTH,

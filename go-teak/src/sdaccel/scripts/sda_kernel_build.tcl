@@ -76,6 +76,8 @@
 #   When present, will use the wrapper for rio kernels
 # -kernel_arg_width
 #   The width as a multiple of 4 bytes for the kernel arguments.
+# -kernel_has_smi_adaptor
+#   When present, indicates that the kernel was built for SMI memory accesses.
 #
 # The build script can be run from the command line using the Vivado batch mode
 # as follows, where <tcl_script_args> is replaced by the arguments specified
@@ -123,6 +125,7 @@ set axiDataWidth 512
 set enableAxiWid 0
 set wrapperTop "sda_kernel_wrapper_gmem"
 set kernelArgWidth 8
+set kernelHasSmiAdaptor 0
 
 #
 # Extract the TCL command line arguments.
@@ -202,6 +205,9 @@ while {$argIndex < $argc} {
       set kernelArgWidth [lindex $argv $argIndex]
       incr argIndex
     }
+    "-kernel_has_smi_adaptor" {
+      set kernelHasSmiAdaptor 1
+    }
     default {
       puts "Invalid TCL batch script argument : $arg"
       exit -1
@@ -276,7 +282,8 @@ if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
 
   sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath \
-    $libraryCodePath $partName $axiDataWidth $enableAxiWid $wrapperTop $kernelArgWidth
+    $libraryCodePath $partName $axiDataWidth $enableAxiWid $wrapperTop \
+    $kernelArgWidth $kernelHasSmiAdaptor
 
   sda_kernel_report $moduleName $partName $reportDirPath
 
