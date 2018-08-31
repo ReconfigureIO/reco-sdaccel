@@ -39,7 +39,8 @@ test:
 
 lint:
 	shellcheck sdaccel-builder
-	verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat
+	verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-DECLFILENAME
+
 
 go/bin:
 	mkdir -p $@
