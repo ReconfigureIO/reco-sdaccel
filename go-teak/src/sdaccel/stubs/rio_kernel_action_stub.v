@@ -1,3 +1,4 @@
+`ifndef KERNEL_HAS_SMI_ADAPTOR
 /* verilator lint_off DECLFILENAME */
 module teak___x24_main_x2e_Top_x3a_public (args0_0Ready, args0_0Stop, retVal1_0Ready, retVal1_0Stop, memReadAddr2_0Ready, memReadAddr2_0Data, memReadAddr2_0Stop, memReadData3_0Ready, memReadData3_0Data, memReadData3_0Stop, memWriteAddr4_0Ready, memWriteAddr4_0Data, memWriteAddr4_0Stop, memWriteData5_0Ready, memWriteData5_0Data, memWriteData5_0Stop, memWriteResp6_0Ready, memWriteResp6_0Data, memWriteResp6_0Stop, clk, reset);
 /* verilator lint_on DECLFILENAME */
@@ -50,3 +51,4 @@ module teak___x24_main_x2e_Top_x3a_public (args0_0Ready, args0_0Stop, retVal1_0R
   wire l9_0Ready;
   wire l9_0Stop;
 endmodule
+`endif

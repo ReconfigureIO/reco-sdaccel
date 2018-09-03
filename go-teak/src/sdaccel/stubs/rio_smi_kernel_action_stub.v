@@ -1,3 +1,4 @@
+`ifdef KERNEL_HAS_SMI_ADAPTOR
 module teak___x24_main_x2e_Top_x3a_public
   (args0_0Ready, args0_0Data, args0_0Stop, retVal1_0Ready, retVal1_0Stop,
   request2_0Ready, request2_0Data, request2_0Stop, response3_0Ready,
@@ -35,3 +36,4 @@ assign request4_0Data = 72'd0;
 assign response5_0Stop = 1'b0;
 
 endmodule
+`endif
