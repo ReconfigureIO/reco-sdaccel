@@ -50,7 +50,7 @@
 
 // Can be redefined on the synthesis command line.
 `ifndef KERNEL_ARGUMENT_WIDTH
-`define KERNEL_ARGUMENT_WIDTH 8
+`define KERNEL_ARGUMENT_WIDTH 1
 `endif
 
 // Module name to be substituted in post-synthesis netlist.
@@ -319,7 +319,7 @@ assign m_axi_control_ext_ARADDR =
 // coded in the generated SMI wrapper and must match the parameters defined
 // for this wrapper.
 `ifdef KERNEL_HAS_SMI_ADAPTOR
-sda_kernel_smi_adaptor kernel_smi_adaptor_u
+llvm_kernel_smi_adaptor kernel_smi_adaptor_u
 (
   argsValid,
   argsData,
