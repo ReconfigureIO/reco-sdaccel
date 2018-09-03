@@ -17,6 +17,7 @@ TARGET := "hw_emu"
 MEMORY_INTERFACE="axi"
 AXI_DATA_WIDTH := 64
 PORTS := 2
+SMI_TARGET_PLATFORM := "sdaccel"
 OPTIMIZE := "no"
 OPTIMIZE_LEVEL := 100
 CLFLAGS :=
@@ -36,12 +37,13 @@ export GO_TEAK_BIN := go-teak-sdaccel
 ifneq ($(MEMORY_INTERFACE), axi)
 	GO_TEAK_BIN := go-teak-smi
 	GO_TEAK_BUILD_FLAGS += --ports ${PORTS}
-	AXI_CONFIG_FLAGS += -enable_axi_wid
+	AXI_CONFIG_FLAGS += -enable_axi_wid -kernel_has_smi_adaptor
 endif
 
 ifeq ($(COMPILER), rio)
 	AXI_CONFIG_FLAGS += -enable_rio
 	AXI_CONFIG_FLAGS += -kernel_arg_width ${ARG_WIDTH}
+	SMI_TARGET_PLATFORM := "llvm"
 endif
 
 PART := "xcku115-flvf1924-1-c"
@@ -175,7 +177,11 @@ ${VERILOG_DIR}/library: ${VERILOG_DIR}
 	cp ${DIR}/go-teak/src/sdaccel/verilog/* ${VERILOG_DIR}/library
 ifeq ($(MEMORY_INTERFACE),smi)
 	cp ${DIR}/smi/verilog/* ${VERILOG_DIR}/library
-	cd ${VERILOG_DIR}/library; smiMemWrapperGen -numMemPorts ${PORTS} -axiBusWidth ${AXI_DATA_WIDTH}
+	cd ${VERILOG_DIR}/library; smiMemWrapperGen \
+		-targetPlatform ${SMI_TARGET_PLATFORM} \
+		-numMemPorts ${PORTS} \
+		-axiBusWidth ${AXI_DATA_WIDTH} \
+		-kernelArgsWidth ${ARG_WIDTH}
 endif
 
 ${VERILOG_DIR}/includes/%: ${DIR}/eTeak/verilog/SELF_files/% | ${VERILOG_DIR}/includes
