@@ -343,11 +343,11 @@ llvm_kernel_smi_adaptor kernel_smi_adaptor_u
 
   m_axi_gmem_WDATA,
   m_axi_gmem_WSTRB,
-  m_axi_gmem_WLAST,
-  m_axi_gmem_WUSER,
 `ifdef AXI_MASTER_HAS_WID
   m_axi_gmem_WID,
 `endif
+  m_axi_gmem_WLAST,
+  m_axi_gmem_WUSER,
   m_axi_gmem_WVALID,
   m_axi_gmem_WREADY,
 
