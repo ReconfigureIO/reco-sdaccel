@@ -53,7 +53,7 @@ MAKE=(
     "${RECO_ARGS[@]}"
 )
 
-export PATH="$DIR/smi/bin:$DIR/bin:$PATH"
+export PATH="$DIR/eTeak:$DIR/eTeak/bin:$DIR/smi/bin:$DIR/bin:$PATH"
 
 # Merge timing and utilization reports.
 # Exposed as the command report for easier testing without the full xocc flow.
@@ -149,7 +149,8 @@ function lint {
         -Wno-REDEFMACRO \
         -Wno-DECLFILENAME \
         -Wno-UNUSED \
-        -Wno-UNDRIVEN
+        -Wno-UNDRIVEN \
+        -Wno-MODDUP
 
 }
 
