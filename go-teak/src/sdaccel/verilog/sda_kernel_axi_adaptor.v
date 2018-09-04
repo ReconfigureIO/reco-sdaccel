@@ -13,6 +13,7 @@
 //
 
 `timescale 1ns/1ps
+`ifndef KERNEL_HAS_SMI_ADAPTOR
 
 module sda_kernel_axi_adaptor
   (argsValid, argsData, argsStop, retValValid, retValStop, m_axi_gmem_awaddr,
@@ -250,3 +251,4 @@ teak___x24_main_x2e_Top_x3a_public kernelActionTop_u (
 );
 
 endmodule
+`endif
