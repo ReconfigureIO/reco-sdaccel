@@ -24,16 +24,15 @@ OPTIMIZE_LEVEL := 100
 CLFLAGS :=
 CPUS := 4
 
-GO_TEAK_BUILD_FLAGS :=
+export GO_TEAK_BUILD_FLAGS :=
+export GO_TEAK_FLAGS :=
+export GO_TEAK_BIN := go-teak-sdaccel
+
 AXI_CONFIG_FLAGS = -axi_data_width ${AXI_DATA_WIDTH}
 
 ifeq ($(OPTIMIZE), yes)
 	GO_TEAK_FLAGS := -O -p${OPTIMIZE_LEVEL}
-else
-	GO_TEAK_FLAGS :=
 endif
-
-export GO_TEAK_BIN := go-teak-sdaccel
 
 ifneq ($(MEMORY_INTERFACE), axi)
 	GO_TEAK_BIN := go-teak-smi
