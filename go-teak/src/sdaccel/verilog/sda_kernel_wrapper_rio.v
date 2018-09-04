@@ -45,7 +45,7 @@
 
 // Can be redefined on the synthesis command line.
 `ifndef AXI_MASTER_CACHE_MASK
-`define AXI_MASTER_CACHE_MASK 4'b0001
+`define AXI_MASTER_CACHE_MASK 4'b0011
 `endif
 
 // Can be redefined on the synthesis command line.
