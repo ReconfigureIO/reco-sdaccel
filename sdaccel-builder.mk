@@ -6,7 +6,7 @@ REPORTS_DIR := $(ROOT_DIR)/.reco-work/sdaccel/reports
 XCLBIN_DIR := $(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin
 VERILOG_DIR := $(ROOT_DIR)/.reco-work/sdaccel/verilog
 export VENDOR_DIR := $(ROOT_DIR)/.reco-work/vendor
-ARG_WIDTH_EXT = $(shell ll2xmldef -total-argsize main.Top <  ${ROOT_DIR}/main.go.ll)
+ARG_WIDTH_EXT = $(shell args_width ${ROOT_DIR}/main.go.ll)
 ARG_WIDTH = $(if $(ARG_WIDTH_EXT), $(ARG_WIDTH_EXT), 0)
 
 XO_NAME := "reconfigure_io_sdaccel_builder_stub_0_1.xo"
@@ -24,16 +24,15 @@ OPTIMIZE_LEVEL := 100
 CLFLAGS :=
 CPUS := 4
 
-GO_TEAK_BUILD_FLAGS :=
+export GO_TEAK_BUILD_FLAGS :=
+export GO_TEAK_FLAGS :=
+export GO_TEAK_BIN := go-teak-sdaccel
+
 AXI_CONFIG_FLAGS = -axi_data_width ${AXI_DATA_WIDTH}
 
 ifeq ($(OPTIMIZE), yes)
 	GO_TEAK_FLAGS := -O -p${OPTIMIZE_LEVEL}
-else
-	GO_TEAK_FLAGS :=
 endif
-
-export GO_TEAK_BIN := go-teak-sdaccel
 
 ifneq ($(MEMORY_INTERFACE), axi)
 	GO_TEAK_BIN := go-teak-smi
