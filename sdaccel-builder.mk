@@ -6,8 +6,8 @@ REPORTS_DIR := $(ROOT_DIR)/.reco-work/sdaccel/reports
 XCLBIN_DIR := $(ROOT_DIR)/.reco-work/sdaccel/dist/xclbin
 VERILOG_DIR := $(ROOT_DIR)/.reco-work/sdaccel/verilog
 export VENDOR_DIR := $(ROOT_DIR)/.reco-work/vendor
-ARG_WIDTH_EXT := $(shell ll2xmldef -total-argsize main.Top <  ${ROOT_DIR}/main.go.ll)
-ARG_WIDTH := $(if $(ARG_WIDTH_EXT), $(ARG_WIDTH_EXT), 0)
+ARG_WIDTH_EXT = $(shell ll2xmldef -total-argsize main.Top <  ${ROOT_DIR}/main.go.ll)
+ARG_WIDTH = $(if $(ARG_WIDTH_EXT), $(ARG_WIDTH_EXT), 0)
 
 XO_NAME := "reconfigure_io_sdaccel_builder_stub_0_1.xo"
 
