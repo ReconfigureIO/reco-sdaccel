@@ -115,6 +115,7 @@ function lint {
         EXTRA=(
             "-DAXI_MASTER_DATA_WIDTH=$reco_memory_width"
             "-DAXI_MASTER_HAS_WID=1"
+            "-DKERNEL_HAS_SMI_ADAPTOR=1"
         )
     fi
     reco_arg_width=$("${MAKE[@]}" print-ARG_WIDTH)
