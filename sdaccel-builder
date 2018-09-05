@@ -118,7 +118,7 @@ function lint {
             "-DKERNEL_HAS_SMI_ADAPTOR=1"
         )
     fi
-    reco_arg_width=$("${MAKE[@]}" print-ARG_WIDTH)
+    reco_arg_width=$("${MAKE[@]}" -s print-ARG_WIDTH)
 
     if [ "$reco_arg_width" -gt 0 ]
     then
