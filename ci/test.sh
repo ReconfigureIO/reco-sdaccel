@@ -20,6 +20,7 @@ fi
 
 export INPUT=$INPUT
 
+sdaccel-builder clean
 sdaccel-builder lint
 
 #docker run --rm -i -v "$PWD":/mnt sdaccel-builder:latest /opt/sdaccel-builder/sdaccel-builder graph
