@@ -154,7 +154,10 @@ pipeline {
                 expression { (env.BRANCH_NAME in ["auto", "rollup", "try"]  || params.FORCE_HARDWARE_TEST) && !params.TEST_AFI}
             }
             steps {
-                parallel "memory benchmark": {
+                parallel "histogram array": {
+                    sh './ci/test_afi_generation.sh histogram-array test-histogram histogram "`git rev-parse HEAD`"'
+                },
+                "memory benchmark": {
                     sh './ci/test_afi_generation.sh memory-benchmark test-memory-benchmark memory-benchmark "`git rev-parse HEAD`"'
                 },
                 memcopy: {
