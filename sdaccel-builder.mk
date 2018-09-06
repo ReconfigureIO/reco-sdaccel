@@ -1,5 +1,4 @@
-
-BUILD_DIR := $(ROOT_DIR)/.reco-work/sdaccel/build
+BUILD_DIR := /tmp/workspace/.reco-work/sdaccel/build
 LOGS_DIR := $(ROOT_DIR)/.reco-work/sdaccel/logs
 DIST_DIR := $(ROOT_DIR)/.reco-work/sdaccel/dist
 REPORTS_DIR := $(ROOT_DIR)/.reco-work/sdaccel/reports
