@@ -11,6 +11,7 @@ reco_optimize="yes"
 reco_memory_interface="axi"
 reco_memory_width=64
 reco_ports=2
+reco_compiler=teak
 
 function parse_yaml {
     local file="$1"
@@ -34,41 +35,56 @@ if [ -e 'reco.yml' ]; then
     reco_memory_interface="$(parse_yaml reco.yml memory_interface "$reco_memory_interface")"
     reco_memory_width="$(parse_yaml reco.yml memory_width "$reco_memory_width")"
     reco_ports="$(parse_yaml reco.yml ports "$reco_ports")"
+    reco_compiler="$(parse_yaml reco.yml compiler "$reco_compiler")"
 fi
 
-export PATH="$DIR/smi/bin:$DIR/bin:$PATH"
+RECO_ARGS=(
+    "OPTIMIZE=$reco_optimize"
+    "MEMORY_INTERFACE=$reco_memory_interface"
+    "AXI_DATA_WIDTH=$reco_memory_width"
+    "PORTS=$reco_ports"
+    "COMPILER=$reco_compiler"
+)
+
+MAKE=(
+    make
+    --environment-overrides
+    --file "$DIR/sdaccel-builder.mk"
+    "${RECO_ARGS[@]}"
+)
+
+export PATH="$DIR/eTeak:$DIR/eTeak/bin:$DIR/smi/bin:$DIR/bin:$PATH"
 
 # Merge timing and utilization reports.
 # Exposed as the command report for easier testing without the full xocc flow.
 # e.g. sdaccel-builder report
 # Primarily will be used by the build & simulate commands
 function report {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" report
-
+    "${MAKE[@]}" TARGET=hw_emu report
 }
 
 function graph {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" graph
+    "${MAKE[@]}" TARGET=hw graph
 }
 
 function build {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" kernel sim
+    "${MAKE[@]}" TARGET=hw_emu kernel sim
     # run reports after everything
     report
 }
 
 function image {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" kernel
+    "${MAKE[@]}" TARGET=hw kernel
     # run reports after everything
     report
 }
 
 function test_go {
-    make -e -f "$DIR/sdaccel-builder.mk" OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" verilog
+    "${MAKE[@]}" verilog
 }
 
 function simulate {
-    make -e -f "$DIR/sdaccel-builder.mk" TARGET=hw_emu OPTIMIZE="$reco_optimize" MEMORY_INTERFACE="$reco_memory_interface" AXI_DATA_WIDTH="$reco_memory_width" PORTS="$reco_ports" sim cmds kernel
+    "${MAKE[@]}" TARGET=hw_emu sim cmds kernel
     # run reports after everything
     report
     export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
@@ -77,26 +93,66 @@ function simulate {
 
     # shellcheck source=/dev/null
     source "$XILINX_SDACCEL"/settings64.sh
-    XCL_EMULATION_MODE=hw_emu XCL_BINDIR="$PWD/.reco-work/sdaccel/dist/xclbin" bash -c "$@"
+    XCL_EMULATION_MODE=hw_emu \
+    XCL_BINDIR="$PWD/.reco-work/sdaccel/dist/xclbin" \
+        bash -c "$@"
 }
 
 function cmds {
-    make -e -f "$DIR/sdaccel-builder.mk" cmds
+    "${MAKE[@]}" cmds
 }
 
 function clean {
-    make -e -f "$DIR/sdaccel-builder.mk" clean
+    "${MAKE[@]}" clean
 }
 
 function lint {
     test_go
+    TOP=sda_kernel_wrapper_gmem
     EXTRA=()
     if [ "$reco_memory_interface" == "smi" ]
     then
-        EXTRA=("-DAXI_MASTER_DATA_WIDTH=$reco_memory_width" "-DAXI_MASTER_HAS_WID=1")
+        EXTRA=(
+            "-DAXI_MASTER_DATA_WIDTH=$reco_memory_width"
+            "-DAXI_MASTER_HAS_WID=1"
+            "-DKERNEL_HAS_SMI_ADAPTOR=1"
+        )
+    fi
+    reco_arg_width=$("${MAKE[@]}" -s print-ARG_WIDTH)
+
+    if [ "$reco_arg_width" -gt 0 ]
+    then
+        EXTRA+=(
+            "-DKERNEL_ARGS_DATA=1"
+            "-DKERNEL_ARGUMENT_WIDTH=$reco_arg_width"
+        )
     fi
 
-    verilator -Wall --lint-only -I".reco-work/sdaccel/verilog/includes" -I".reco-work/sdaccel/verilog/library" .reco-work/sdaccel/verilog/main.v "${EXTRA[@]}" --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-UNUSED -Wno-UNDRIVEN -Wno-REDEFMACRO -Wno-DECLFILENAME
+    if [ "$reco_compiler" == "rio" ]
+    then
+        TOP=sda_kernel_wrapper_rio
+        # Include gmem stub
+        EXTRA+=("$DIR/go-teak/src/sdaccel/stubs/sda_kernel_action_stub_gmem.v")
+    else
+        # Include rio stub
+        EXTRA+=("$DIR/go-teak/src/sdaccel/stubs/rio_kernel_action_stub.v")
+    fi
+
+    verilator \
+        -Wall \
+        --lint-only \
+        -I".reco-work/sdaccel/verilog/includes" \
+        .reco-work/sdaccel/verilog/library/* \
+        .reco-work/sdaccel/verilog/main.v \
+        "${EXTRA[@]}" \
+        --top-module "$TOP" \
+        --report-unoptflat \
+        -Wno-REDEFMACRO \
+        -Wno-DECLFILENAME \
+        -Wno-UNUSED \
+        -Wno-UNDRIVEN \
+        -Wno-MODDUP
+
 }
 
 function main {

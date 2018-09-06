@@ -1,0 +1,18 @@
+#!/bin/bash
+# Script to wrap up calling Vivado to build a .xo file.
+# usage: make_xo $PATH_TO_VERILOG_DIR $PART $PART_FAMILY extra arguments
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+SCRIPT="$DIR/../go-teak/src/sdaccel/scripts/sda_kernel_build.tcl"
+VERILOG_DIR="$1"
+PART="$2"
+PART_FAMILY="$3"
+AXI_CONFIG_FLAGS="${@:4}"
+
+vivado -notrace -mode batch \
+	   -source "$SCRIPT" -tclargs \
+	   -action_source_file "${VERILOG_DIR}/main.v" -include_source_dir "${VERILOG_DIR}/includes" \
+	   -library_source_dir "${VERILOG_DIR}/library" -param_args_file "${VERILOG_DIR}/main.v.xmldef" \
+	   -vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 -part "$PART" \
+	   -part_family "$PART_FAMILY" $AXI_CONFIG_FLAGS
