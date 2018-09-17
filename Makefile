@@ -23,10 +23,10 @@ JOB_DEFINITION := sdaccel-builder-build-staging
 BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "${PUBLISHED_DOCKER}" | .jobDefinitionName = "${JOB_DEFINITION}"')
 DEPLOY_JOB := $(shell cat aws/deploy.json | jq '.containerProperties.image = "${PUBLISHED_DEPLOY}"')
 
-export SDACCEL_WRAPPER_VERSION := v0.21.2
-export SMI_WRAPPER_VERSION := v0.3.3
+export SDACCEL_WRAPPER_VERSION := v0.22.1
+export SMI_WRAPPER_VERSION := v0.5.0
 GO_VERSION := 1.7.4
-SDACCEL_VERSION := 0.18.0
+SDACCEL_VERSION := 0.19.0
 
 .PHONY: clean all bundle/reco bundle/reco-jarvice bundle/workflows release update-changelog package/* deploy deploy-all docker-image upload aws upload-docker test go/src/github.com/ReconfigureIO/sdaccel
 
@@ -39,7 +39,8 @@ test:
 
 lint:
 	shellcheck sdaccel-builder
-	verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat
+	verilator --lint-only -Wall go-teak/src/sdaccel/stubs/*.v go-teak/src/sdaccel/verilog/*.v --top-module sda_kernel_wrapper_gmem --report-unoptflat -Wno-DECLFILENAME
+
 
 go/bin:
 	mkdir -p $@

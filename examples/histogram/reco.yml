@@ -1,2 +1,3 @@
 memory_interface: smi
 ports: 1
+compiler: rio

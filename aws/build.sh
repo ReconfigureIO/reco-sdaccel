@@ -6,6 +6,7 @@ source "/opt/sdaccel-builder/settings.sh"
 TIMEOUT="${TIMEOUT:-12h}"
 
 function post_event {
+    echo "$1 $2"
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "'"$1"'", "message": "'"$2"'", "code": '${3-0}'}' "$CALLBACK_URL" &> /dev/null
 }
 
@@ -36,17 +37,17 @@ timeout -k 1m "$TIMEOUT" /opt/sdaccel-builder/sdaccel-builder cmds && /opt/sdacc
 
 exit="$?"
 
+# Always upload debug if we have a $DEBUG_URL
 if [ -n "$DEBUG_URL" ]; then
-    if [ ! -d /tmp/workspace/.reco-work ]; then
-        post_event ERRORED "Cmd compilation failed. Check your host-side code" "$exit"
-        exit "$exit"
-    else
-        zip -qr artifacts.zip /tmp/workspace/.reco-work
-        aws s3 cp --quiet "artifacts.zip" "$DEBUG_URL"
-    fi
+    zip -qr artifacts.zip /tmp/workspace/.reco-work
+    aws s3 cp --quiet "artifacts.zip" "$DEBUG_URL"
 fi
 
 if [ $exit -ne 0 ]; then
+    if [ ! -d /tmp/workspace/.reco-work ]; then
+        post_event ERRORED "Cmd compilation failed. Check your host-side code" "$exit"
+    fi
+
     if [ $exit -eq 124 ]; then
         post_event ERRORED "Build timed out" "$exit"
     else

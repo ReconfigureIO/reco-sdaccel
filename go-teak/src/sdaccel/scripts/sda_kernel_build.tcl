@@ -72,6 +72,12 @@
 # -enable_axi_wid
 #   When present, indicates that the kernel code supports the AXI WID output
 #   signal.
+# -enable_rio
+#   When present, will use the wrapper for rio kernels
+# -kernel_arg_width
+#   The width as a multiple of 4 bytes for the kernel arguments.
+# -kernel_has_smi_adaptor
+#   When present, indicates that the kernel was built for SMI memory accesses.
 #
 # The build script can be run from the command line using the Vivado batch mode
 # as follows, where <tcl_script_args> is replaced by the arguments specified
@@ -117,6 +123,9 @@ set partName "xcku115-flvf1924-1-c"
 set partFamily "kintexu"
 set axiDataWidth 512
 set enableAxiWid 0
+set wrapperTop "sda_kernel_wrapper_gmem"
+set kernelArgWidth 8
+set kernelHasSmiAdaptor 0
 
 #
 # Extract the TCL command line arguments.
@@ -188,6 +197,16 @@ while {$argIndex < $argc} {
     }
     "-enable_axi_wid" {
       set enableAxiWid 1
+    }
+    "-enable_rio" {
+      set wrapperTop sda_kernel_wrapper_rio
+    }
+    "-kernel_arg_width" {
+      set kernelArgWidth [lindex $argv $argIndex]
+      incr argIndex
+    }
+    "-kernel_has_smi_adaptor" {
+      set kernelHasSmiAdaptor 1
     }
     default {
       puts "Invalid TCL batch script argument : $arg"
@@ -261,9 +280,13 @@ set synFileName [file join $synDirPath "${moduleName}.v"]
 set constraintFileName [file join $synDirPath "${moduleName}.xdc"]
 if {0 == $skipResynthesis || 0 == [file exists $synFileName]} {
   cd $synDirPath
+
   sda_kernel_synthesis $sourceFileName $moduleName $includeCodePath \
-    $libraryCodePath $partName $axiDataWidth $enableAxiWid
+    $libraryCodePath $partName $axiDataWidth $enableAxiWid $wrapperTop \
+    $kernelArgWidth $kernelHasSmiAdaptor
+
   sda_kernel_report $moduleName $partName $reportDirPath
+
   if {0 != $doRelativePlacement} {
     sda_kernel_constrain $moduleName
   }

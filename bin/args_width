@@ -1,0 +1,11 @@
+#!/bin/bash
+# usage:
+# $ args_width path/to/main.ll
+# 4
+# Will parse the ll, and output the number of 4 byte words required to store the args
+
+set -e
+
+BYTE_WIDTH=$(ll2xmldef -total-argsize main.Top < "$1")
+
+echo "$BYTE_WIDTH / 4" | bc
