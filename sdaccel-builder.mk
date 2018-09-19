@@ -89,10 +89,18 @@ ${BUILD_DIR}/reports: | ${BUILD_DIR}
 ${BUILD_DIR}/reports/timing.json: | ${BUILD_DIR}/reports
 	parse_times times.out > $@
 
-${REPORTS_DIR}/utilization.json: ${BUILD_DIR}/reports/timing.json | ${REPORTS_DIR}
+${BUILD_DIR}/reports/data_clk_frequency.json: ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin | ${BUILD_DIR}/reports
+	extract_data_clk_frequency ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin > $@
+
+${REPORTS_DIR}/build_report.json: ${BUILD_DIR}/reports/timing.json ${BUILD_DIR}/reports/data_clk_frequency.json | ${REPORTS_DIR}
+	merge_reports ${BUILD_DIR}/reports/reconfigure_io_sdaccel_builder_stub_0_1_util.json ${BUILD_DIR}/reports/data_clk_frequency.json ${BUILD_DIR}/reports/timing.json > $@
+
+${REPORTS_DIR}/sim_report.json: ${BUILD_DIR}/reports/timing.json | ${REPORTS_DIR}
 	merge_reports ${BUILD_DIR}/reports/reconfigure_io_sdaccel_builder_stub_0_1_util.json ${BUILD_DIR}/reports/timing.json > $@
 
-report: ${REPORTS_DIR}/utilization.json
+report: ${REPORTS_DIR}/build_report.json
+
+sim_report: ${REPORTS_DIR}/sim_report.json
 
 ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME} ${XCLBIN_DIR}
 	cd ${BUILD_DIR} && \
