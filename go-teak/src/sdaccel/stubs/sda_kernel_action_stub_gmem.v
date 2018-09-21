@@ -12,16 +12,25 @@
 `timescale 1ns/1ps
 
 // Can be redefined on the synthesis command line.
+
+`ifndef AXI_MASTER_ADDR_WIDTH
 `define AXI_MASTER_ADDR_WIDTH 64
+`endif
 
 // Can be redefined on the synthesis command line.
+`ifndef AXI_MASTER_DATA_WIDTH
 `define AXI_MASTER_DATA_WIDTH 64
+`endif
 
 // Can be redefined on the synthesis command line.
+`ifndef AXI_MASTER_ID_WIDTH
 `define AXI_MASTER_ID_WIDTH 1
+`endif
 
 // Can be redefined on the synthesis command line.
+`ifndef AXI_MASTER_USER_WIDTH
 `define AXI_MASTER_USER_WIDTH 1
+`endif
 
 // The module name is common for different kernel action toplevel entities.
 // verilator lint_off DECLFILENAME
