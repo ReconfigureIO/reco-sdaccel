@@ -1,0 +1,9 @@
+hash: 1ec5070ea78dcdfd5c6a06f9e9d4fa4bf926e83af94e30ade893b9075efe2d77
+updated: 2018-07-16T08:20:07.186393567-05:00
+imports:
+- name: github.com/ReconfigureIO/sdaccel
+  version: 4b48c582836d916519c03477ccc2e5b12f3bfbf3
+  subpackages:
+  - smi
+  - xcl
+testImports: []
