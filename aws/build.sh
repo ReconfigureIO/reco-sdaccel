@@ -72,7 +72,7 @@ if [ "$GENERATE_AFI" = "yes" ]; then
     AGFI=$(cat ./*_agfi_id.txt)
 fi
 
-REPORT_FILE=$(find .reco-work/sdaccel/reports/ -name 'utilization.json' -print)
+REPORT_FILE=$(find .reco-work/sdaccel/reports/ -name 'build_report.json' -print)
 post_report "$REPORT_URL" "$REPORT_FILE"
 
 zip -qr dist.zip .reco-work/sdaccel/dist

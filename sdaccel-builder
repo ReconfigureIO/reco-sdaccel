@@ -60,7 +60,11 @@ export PATH="$DIR/eTeak:$DIR/eTeak/bin:$DIR/smi/bin:$DIR/bin:$PATH"
 # e.g. sdaccel-builder report
 # Primarily will be used by the build & simulate commands
 function report {
-    "${MAKE[@]}" TARGET=hw_emu report
+    "${MAKE[@]}" TARGET=hw report
+}
+
+function sim_report {
+    "${MAKE[@]}" TARGET=hw_emu sim_report
 }
 
 function graph {
@@ -86,7 +90,7 @@ function test_go {
 function simulate {
     "${MAKE[@]}" TARGET=hw_emu sim cmds kernel
     # run reports after everything
-    report
+    sim_report
     export PATH="$PWD/.reco-work/sdaccel/dist/":$PATH
     # This is for the emconfig.json
     cd "$PWD/.reco-work/sdaccel/dist/"
