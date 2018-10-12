@@ -160,7 +160,7 @@ ${VERILOG_DIR}:
 VERILOG_SOURCES := $(shell find ${DIR}/eTeak/verilog/SELF_files/ -type f)
 INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/includes/%,$(VERILOG_SOURCES))
 
-${VERILOG_DIR}/main.v: ${ROOT_DIR}/${SOURCE_FILE} $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
+${VERILOG_DIR}/main.v: ${ROOT_DIR}/${SOURCE_FILE} $(INCLUDE_TARGETS) | ${VERILOG_DIR} ${DIST_DIR}/vendor/src fix
 ifeq ($(INPUT),go)
 	/usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" build_go $< $@
 else
@@ -168,18 +168,18 @@ else
 	cp ${ROOT_DIR}/main.v.xmldef ${VERILOG_DIR}
 endif
 
-${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) ${VERILOG_DIR} | ${DIST_DIR}/vendor/src fix
+${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) | ${VERILOG_DIR} ${DIST_DIR}/vendor/src fix
 	cd ${DIR}/eTeak && \
 	PATH=${DIR}/eTeak/bin:${PATH} \
 	GOPATH=${VENDOR_DIR} \
 	/usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" \
 		./go-teak graph ${GO_TEAK_FLAGS} $< -o $@
 
-${VERILOG_DIR}/includes: ${VERILOG_DIR}
+${VERILOG_DIR}/includes: | ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/includes
 	if [ -d "${ROOT_DIR}/includes/" ]; then cp ${ROOT_DIR}/includes/* ${VERILOG_DIR}/includes; fi
 
-${VERILOG_DIR}/library: ${VERILOG_DIR}
+${VERILOG_DIR}/library: | ${VERILOG_DIR}
 	mkdir -p ${VERILOG_DIR}/library
 	cp ${DIR}/go-teak/src/sdaccel/verilog/* ${VERILOG_DIR}/library
 ifeq ($(MEMORY_INTERFACE),smi)
