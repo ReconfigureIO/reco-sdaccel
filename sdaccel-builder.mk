@@ -123,7 +123,7 @@ ${DIST_DIR}/emconfig.json: ${DIST_DIR}
 sim: ${DIST_DIR}/emconfig.json
 
 fix:
-	${DIR}/go/bin/reco-fix .
+	${DIST_DIR}/vendor/src/.fixed
 
 ${DIST_DIR}:
 	mkdir -p "${DIST_DIR}"
@@ -135,15 +135,19 @@ ${REPORTS_DIR}:
 ${LOGS_DIR}:
 	mkdir -p "${LOGS_DIR}"
 
-${DIST_DIR}/vendor/src: ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel
+${DIST_DIR}/vendor/src: | ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel
 	mkdir -p "${VENDOR_DIR}"
 	ln -sfT "${ROOT_DIR}/vendor" "${VENDOR_DIR}/src"
+
+${DIST_DIR}/vendor/src/.fixed: | ${DIST_DIR}/vendor/src
+	${DIR}/go/bin/reco-fix .
+	touch ${DIST_DIR}/vendor/src/.fixed
 
 ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel:
 	mkdir -p ${ROOT_DIR}/vendor/github.com/ReconfigureIO
 	ln -sf "${DIR}/go/src/github.com/ReconfigureIO/sdaccel" ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel
 
-${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR} | ${DIST_DIR}/vendor/src fix
+${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR} | ${DIST_DIR}/vendor/src/.fixed
 	LIBRARY_PATH=${XILINX_SDX}/SDK/lib/lnx64.o/:${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH} \
 	CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ \
 	GOPATH=${VENDOR_DIR}:${DIR}/go \
@@ -160,7 +164,7 @@ ${VERILOG_DIR}:
 VERILOG_SOURCES := $(shell find ${DIR}/eTeak/verilog/SELF_files/ -type f)
 INCLUDE_TARGETS := $(patsubst ${DIR}/eTeak/verilog/SELF_files/%,${VERILOG_DIR}/includes/%,$(VERILOG_SOURCES))
 
-${VERILOG_DIR}/main.v: ${ROOT_DIR}/${SOURCE_FILE} $(INCLUDE_TARGETS) | ${VERILOG_DIR} ${DIST_DIR}/vendor/src fix
+${VERILOG_DIR}/main.v: ${ROOT_DIR}/${SOURCE_FILE} $(INCLUDE_TARGETS) | ${VERILOG_DIR} ${DIST_DIR}/vendor/src/.fixed
 ifeq ($(INPUT),go)
 	/usr/bin/time -ao ${ROOT_DIR}/times.out -f "verilog,%e,%M" build_go $< $@
 else
@@ -168,7 +172,7 @@ else
 	cp ${ROOT_DIR}/main.v.xmldef ${VERILOG_DIR}
 endif
 
-${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) | ${VERILOG_DIR} ${DIST_DIR}/vendor/src fix
+${ROOT_DIR}/main-graph.pdf: ${ROOT_DIR}/main.go $(INCLUDE_TARGETS) | ${VERILOG_DIR} ${DIST_DIR}/vendor/src/.fixed
 	cd ${DIR}/eTeak && \
 	PATH=${DIR}/eTeak/bin:${PATH} \
 	GOPATH=${VENDOR_DIR} \
