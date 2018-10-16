@@ -70,7 +70,7 @@ print-% : ; @echo $($*)
 ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
-${BUILD_DIR}/${XO_NAME}: ${BUILD_DIR} ${INPUT_FILE} ${VERILOG_DIR}/main.v ${VERILOG_DIR}/library | ${LOGS_DIR}
+${BUILD_DIR}/${XO_NAME}: ${INPUT_FILE} ${VERILOG_DIR}/main.v | ${BUILD_DIR} ${VERILOG_DIR}/library ${LOGS_DIR}
 	cd ${BUILD_DIR} && \
 	/usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" \
 		make_xo \
@@ -102,7 +102,7 @@ report: ${REPORTS_DIR}/build_report.json
 
 sim_report: ${REPORTS_DIR}/sim_report.json
 
-${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME} ${XCLBIN_DIR}
+${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME} | ${XCLBIN_DIR}
 	cd ${BUILD_DIR} && \
 	/usr/bin/time -ao ${ROOT_DIR}/times.out -f "xclbin,%e,%M" \
 		xocc \
@@ -115,7 +115,7 @@ ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME}
 			-o "$@" \
 			-r system
 
-${DIST_DIR}/emconfig.json: ${DIST_DIR}
+${DIST_DIR}/emconfig.json: | ${DIST_DIR}
 	cd ${DIST_DIR} && \
 	XCL_EMULATION_MODE=${TARGET} \
 		emconfigutil --xdevice ${DEVICE_FULL} --nd 1
@@ -126,7 +126,6 @@ fix: ${VENDOR_DIR}/.fixed
 
 ${DIST_DIR}:
 	mkdir -p "${DIST_DIR}"
-
 
 ${REPORTS_DIR}:
 	mkdir -p "${REPORTS_DIR}"
@@ -146,7 +145,7 @@ ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel:
 	mkdir -p ${ROOT_DIR}/vendor/github.com/ReconfigureIO
 	ln -sf "${DIR}/go/src/github.com/ReconfigureIO/sdaccel" ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel
 
-${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go ${DIST_DIR} | ${VENDOR_DIR}/.fixed
+${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go | ${DIST_DIR} ${VENDOR_DIR}/.fixed
 	LIBRARY_PATH=${XILINX_SDX}/SDK/lib/lnx64.o/:${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH} \
 	CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ \
 	GOPATH=${VENDOR_DIR}:${DIR}/go \
