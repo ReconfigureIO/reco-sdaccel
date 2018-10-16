@@ -90,7 +90,7 @@ ${BUILD_DIR}/reports/timing.json: | ${BUILD_DIR}/reports
 	parse_times times.out > $@
 
 ${BUILD_DIR}/reports/data_clk_frequency.json: ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin | ${BUILD_DIR}/reports
-	extract_data_clk_frequency ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin > $@
+	extract_data_clk_frequency ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin $@
 
 ${REPORTS_DIR}/build_report.json: ${BUILD_DIR}/reports/timing.json ${BUILD_DIR}/reports/data_clk_frequency.json | ${REPORTS_DIR}
 	merge_reports ${BUILD_DIR}/reports/reconfigure_io_sdaccel_builder_stub_0_1_util.json ${BUILD_DIR}/reports/data_clk_frequency.json ${BUILD_DIR}/reports/timing.json > $@
