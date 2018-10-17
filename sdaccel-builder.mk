@@ -70,7 +70,7 @@ print-% : ; @echo $($*)
 ${BUILD_DIR}:
 	mkdir -p ${BUILD_DIR}
 
-${BUILD_DIR}/${XO_NAME}: ${INPUT_FILE} ${VERILOG_DIR}/main.v | ${BUILD_DIR} ${VERILOG_DIR}/library ${LOGS_DIR}
+${BUILD_DIR}/${XO_NAME}: ${VERILOG_DIR}/main.v | ${BUILD_DIR} ${VERILOG_DIR}/library ${LOGS_DIR}
 	cd ${BUILD_DIR} && \
 	/usr/bin/time -ao ${ROOT_DIR}/times.out -f "xo,%e,%M" \
 		make_xo \
