@@ -98,11 +98,7 @@ ${REPORTS_DIR}/build_report.json: ${BUILD_DIR}/reports/timing.json ${BUILD_DIR}/
 ${REPORTS_DIR}/sim_report.json: ${BUILD_DIR}/reports/timing.json | ${REPORTS_DIR}
 	merge_reports ${BUILD_DIR}/reports/reconfigure_io_sdaccel_builder_stub_0_1_util.json ${BUILD_DIR}/reports/timing.json > $@
 
-# TODO: The clock speed reporting is currently causing problems so is disabled
-# here by using the simulation report in all contexts. Reinstate the full build
-# report once this issue has been fixed.
-# report: ${REPORTS_DIR}/build_report.json
-report: ${REPORTS_DIR}/sim_report.json
+report: ${REPORTS_DIR}/build_report.json
 
 sim_report: ${REPORTS_DIR}/sim_report.json
 
