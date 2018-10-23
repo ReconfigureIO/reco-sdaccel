@@ -1,3 +1,13 @@
+# sdaccel-builder v0.18.3
+
+## Features
+
+* Phased migration to new compiler.
+  * Use new compiler as the default for the histogram array example (#232)
+  * Add additional reporting for post P&R system clock speed (#233)
+
+## Bugfixes
+
 # sdaccel-builder v0.18.1
 
 ## Features
