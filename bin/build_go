@@ -10,8 +10,10 @@ export GOPATH=${VENDOR_DIR}
 if [ "$COMPILER" == "rio" ]
 then
     # TODO: This is used to generate the xmldef. Replace this with something better.
-    go2ll "$INPUT" > "$INPUT.ll"
-    ll2xmldef main.Top < "$INPUT.ll" > "$OUTPUT.xmldef"
+    go2ll "$INPUT" > "$INPUT.go2ll.ll"
+    ll2xmldef main.Top < "$INPUT.go2ll.ll" > "$OUTPUT.xmldef"
+
+    ll2ll -o "${INPUT}.ll" "${INPUT}.go2ll.ll"
 
     rio "$INPUT.ll"
     mv "$INPUT.ll.v" "$OUTPUT"
