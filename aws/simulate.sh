@@ -7,6 +7,17 @@ function post_event {
     curl -XPOST -H "Content-Type: application/json"  -d '{"status": "'"$1"'", "message": "'"$2"'", "code": '${3-0}'}' "$CALLBACK_URL" &> /dev/null
 }
 
+function post_report {
+    url="$1"
+    file="$2"
+
+    if [[ $url == s3:* ]] ; then
+        aws s3 cp --quiet "$file" "$url"
+    else
+        curl -XPOST -H "Content-Type: application/vnd.reconfigure.io/reports-v1+json" -d @"$file" "$url" &> /dev/null ; true
+    fi
+}
+
 post_event STARTED
 
 set +e
@@ -39,5 +50,8 @@ if [ $exit -ne 0 ]; then
     fi
     exit "$exit"
 fi
+
+REPORT_FILE=$(find .reco-work/sdaccel/reports/ -name 'utilization.json' -print)
+post_report "$REPORT_URL" "$REPORT_FILE"
 
 post_event COMPLETED
