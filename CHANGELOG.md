@@ -1,3 +1,10 @@
+# sdaccel-builder v0.18.6
+
+## Features
+ - Simulations now post an FPGA resource utilisation report to platform
+
+## Bugfixes
+
 # sdaccel-builder v0.18.5
 
 ## Features
