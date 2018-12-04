@@ -51,7 +51,7 @@ if [ $exit -ne 0 ]; then
     exit "$exit"
 fi
 
-REPORT_FILE=$(find .reco-work/sdaccel/reports/ -name 'utilization.json' -print)
+REPORT_FILE=$(find .reco-work/sdaccel/reports/ -name 'sim_report.json' -print)
 post_report "$REPORT_URL" "$REPORT_FILE"
 
 post_event COMPLETED
