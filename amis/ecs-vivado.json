@@ -6,7 +6,7 @@
         "source_ami": "ami-702a8b0f",
         "instance_type": "m4.2xlarge",
         "ssh_username": "centos",
-        "ami_name": "vivado-2017.1-ecs {{timestamp}}",
+        "ami_name": "vivado-2017.4-ecs {{timestamp}}",
         "ebs_optimized": true,
         "ami_block_device_mappings": [{
             "device_name": "/dev/sda1",
@@ -19,7 +19,7 @@
         }],
         "tags": {
             "service": "vivado-ecs",
-            "version": "2017.1",
+            "version": "2017.4",
             "build": "latest",
             "staging": "yes"
         },

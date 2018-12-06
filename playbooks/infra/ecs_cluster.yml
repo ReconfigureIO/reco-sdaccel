@@ -184,7 +184,7 @@
         owner: self
         ami_tags:
           service: vivado-ecs
-          version: 2017.1
+          version: 2017.4
           build: latest
           staging: "yes"
         sort: creationDate

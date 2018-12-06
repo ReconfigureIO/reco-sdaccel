@@ -27,7 +27,7 @@
         "environment": [
             {
                 "name": "XILINX_SDX",
-                "value": "/opt/Xilinx/SDx/2017.1.op"
+                "value": "/opt/Xilinx/SDx/2017.4.op"
             }
         ],
         "mountPoints": [
