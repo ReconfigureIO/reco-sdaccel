@@ -6,7 +6,7 @@ cd /tmp/aws-fpga
 wget -O aws-fpga-$VERSION.zip https://github.com/aws/aws-fpga/archive/v$VERSION.zip
 unzip aws-fpga-$VERSION.zip
 cd aws-fpga-$VERSION
-export XILINX_SDX=/opt/Xilinx/SDx/2018.2.op
+export XILINX_SDX=/opt/Xilinx/SDx/2018.2.op2258646
 export AWS_FPGA_REPO_DIR="$PWD"
 export SDK_DIR="$PWD/sdk"
 
