@@ -1076,6 +1076,8 @@ set_property core_revision $Revision $core
 set_property description $Description $core
 set_property taxonomy $Taxonomy $core
 set_property supported_families [list $Device Pre-Production] $core
+set_property sdx_kernel true $core
+set_property sdx_kernel_type rtl $core
 
 ## Add verilog files
 if {[llength $VerilogFiles] > 0} {
