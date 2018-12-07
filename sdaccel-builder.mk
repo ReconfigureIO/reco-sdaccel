@@ -12,7 +12,6 @@ XO_NAME := "reconfigure_io_sdaccel_builder_stub_0_1.xo"
 
 KERNEL_NAME := "kernel_test"
 DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_3"
-DEVICE_FULL := "xilinx:adm-pcie-ku3:2ddr-xpr:3.3"
 TARGET := "hw_emu"
 MEMORY_INTERFACE="axi"
 AXI_DATA_WIDTH := 64
@@ -110,7 +109,7 @@ ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME}
 			-O3 \
 			-t "${TARGET}" \
 			$(CLFLAGS) \
-			--platform ${DEVICE_FULL} \
+			--platform ${DEVICE} \
 			-l "$<" \
 			-o "$@" \
 			-r system
@@ -118,7 +117,7 @@ ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME}
 ${DIST_DIR}/emconfig.json: | ${DIST_DIR}
 	cd ${DIST_DIR} && \
 	XCL_EMULATION_MODE=${TARGET} \
-		emconfigutil --platform ${DEVICE_FULL} --nd 1
+		emconfigutil --platform ${DEVICE} --nd 1
 
 sim: ${DIST_DIR}/emconfig.json
 
