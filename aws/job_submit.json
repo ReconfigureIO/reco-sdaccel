@@ -34,7 +34,7 @@
             },
             {
                 "name": "DEVICE_FULL",
-                "value": "xilinx:aws-vu9p-f1:04261818-dynamic:5.0"
+                "value": "xilinx:aws-vu9p-f1-04261818:dynamic:5.0"
             },
             {
                 "name": "OUTPUT_URL",

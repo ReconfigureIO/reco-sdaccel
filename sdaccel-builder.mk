@@ -110,7 +110,7 @@ ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME}
 			-O3 \
 			-t "${TARGET}" \
 			$(CLFLAGS) \
-			--xdevice ${DEVICE_FULL} \
+			--platform ${DEVICE_FULL} \
 			-l "$<" \
 			-o "$@" \
 			-r system
@@ -118,7 +118,7 @@ ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME}
 ${DIST_DIR}/emconfig.json: | ${DIST_DIR}
 	cd ${DIST_DIR} && \
 	XCL_EMULATION_MODE=${TARGET} \
-		emconfigutil --xdevice ${DEVICE_FULL} --nd 1
+		emconfigutil --platform ${DEVICE_FULL} --nd 1
 
 sim: ${DIST_DIR}/emconfig.json
 
