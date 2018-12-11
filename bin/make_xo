@@ -16,6 +16,6 @@ vivado -notrace -mode batch \
 	   -include_source_dir "${VERILOG_DIR}/includes" \
 	   -library_source_dir "${VERILOG_DIR}/library" \
 	   -param_args_file "${VERILOG_DIR}/main.v.xmldef" \
-	   -vendor reconfigure.io -library sdaccel-builder -name stub -version 0.1 \
+	   -vendor rio -library sda -name stub -version 0.1 \
 	   -part "$PART" \
 	   -part_family "$PART_FAMILY" $AXI_CONFIG_FLAGS

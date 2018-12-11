@@ -8,7 +8,7 @@ export VENDOR_DIR := $(ROOT_DIR)/.reco-work/vendor
 ARG_WIDTH_EXT = $(shell args_width ${ROOT_DIR}/main.go.ll)
 ARG_WIDTH = $(if $(ARG_WIDTH_EXT), $(ARG_WIDTH_EXT), 0)
 
-XO_NAME := "reconfigure_io_sdaccel_builder_stub_0_1.xo"
+XO_NAME := "rio_sda_stub_0_1.xo"
 
 KERNEL_NAME := "kernel_test"
 DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_3"
@@ -93,10 +93,10 @@ ${BUILD_DIR}/reports/data_clk_frequency.json: | ${BUILD_DIR}/reports
 	extract_data_clk_frequency ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin $@
 
 ${REPORTS_DIR}/build_report.json: ${BUILD_DIR}/reports/timing.json ${BUILD_DIR}/reports/data_clk_frequency.json | ${REPORTS_DIR}
-	merge_reports ${BUILD_DIR}/reports/reconfigure_io_sdaccel_builder_stub_0_1_util.json ${BUILD_DIR}/reports/data_clk_frequency.json ${BUILD_DIR}/reports/timing.json > $@
+	merge_reports ${BUILD_DIR}/reports/rio_sda_stub_0_1_util.json ${BUILD_DIR}/reports/data_clk_frequency.json ${BUILD_DIR}/reports/timing.json > $@
 
 ${REPORTS_DIR}/sim_report.json: ${BUILD_DIR}/reports/timing.json | ${REPORTS_DIR}
-	merge_reports ${BUILD_DIR}/reports/reconfigure_io_sdaccel_builder_stub_0_1_util.json ${BUILD_DIR}/reports/timing.json > $@
+	merge_reports ${BUILD_DIR}/reports/rio_sda_stub_0_1_util.json ${BUILD_DIR}/reports/timing.json > $@
 
 report: ${REPORTS_DIR}/build_report.json
 
