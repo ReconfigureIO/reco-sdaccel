@@ -20,6 +20,7 @@ RUN \
         groff \
         golang-go \
         jq \
+        less \
         libgtk2.0-dev \
         make \
         python3 \
