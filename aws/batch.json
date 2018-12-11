@@ -25,7 +25,7 @@
             },
             {
                 "name": "XILINX_VIVADO",
-                "value": "/opt/Xilinx/SDx/2018.2.op2258646/Vivado"
+                "value": "/opt/Xilinx/Vivado/2018.2.op2258646"
             },
             {
                 "name": "XILINX_SDX",
@@ -37,11 +37,11 @@
             },
             {
                 "name": "LIBRARY_PATH",
-                "value": "/opt/Xilinx/SDx/2018.2.op2258646/SDK/lib/lnx64.o"
+                "value": "/opt/Xilinx/SDx/2018.2.op2258646/lib/lnx64.o"
             },
             {
                 "name": "LD_LIBRARY_PATH",
-                "value": "/opt/Xilinx/SDx/2018.2.op2258646/Vivado/lib/lnx64.o"
+                "value": "/opt/Xilinx/SDx/2018.2.op2258646/lib/lnx64.o"
             },
             {
                 "name": "DCP_BUCKET",
