@@ -39,3 +39,7 @@ ENV USER=root AWS_DEFAULT_REGION=us-east-1
 WORKDIR /mnt
 
 COPY examples /mnt/examples
+
+# Vivado doesn't support dash as /bin/sh, it expects bash.
+RUN echo "dash dash/sh boolean false" | debconf-set-selections \
+ && dpkg-reconfigure dash
