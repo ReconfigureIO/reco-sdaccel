@@ -146,7 +146,7 @@ ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel:
 	ln -sf "${DIR}/go/src/github.com/ReconfigureIO/sdaccel" ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel
 
 ${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go | ${DIST_DIR} ${VENDOR_DIR}/.fixed
-	LIBRARY_PATH=${XILINX_SDX}/SDK/lib/lnx64.o/:${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH} \
+	LIBRARY_PATH=${XILINX_SDX}/lib/lnx64.o/:${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH} \
 	CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ \
 	GOPATH=${VENDOR_DIR}:${DIR}/go \
 		go build -tags opencl -o "$@" "$<"
