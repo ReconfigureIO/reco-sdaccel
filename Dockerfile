@@ -43,3 +43,7 @@ COPY examples /mnt/examples
 # Vivado doesn't support dash as /bin/sh, it expects bash.
 RUN echo "dash dash/sh boolean false" | debconf-set-selections \
  && dpkg-reconfigure dash
+
+# Workaround for Vivado's compiler not looking in the right place...
+RUN find /usr/include/x86_64-linux-gnu/ -type d -exec bash -c 'mkdir -p /usr/include/${1#/usr/include/x86_64-linux-gnu/}' -- {} \; \
+  && find /usr/include/x86_64-linux-gnu/ -iname '*.h' -exec bash -c 'ln -sf $1 /usr/include/${1#/usr/include/x86_64-linux-gnu/}' -- {} \;
