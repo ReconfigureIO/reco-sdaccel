@@ -1,25 +1,40 @@
-FROM debian:jessie
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		make \
-        libgtk2.0-dev \
-        python-pip \
-        groff \
-        gcc \
+# syntax = docker/dockerfile:experimental
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# When DOCKER_BUILDKIT=1 is supported:
+# RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+# RUN --mount=type=cache,target=/var/cache/apt,id=apt-cache \
+#     --mount=type=cache,target=/var/lib/apt,id=apt-lib \
+
+RUN \
+    \
+    apt-get update \
+ && apt-get install --assume-yes --no-install-recommends \
+        awscli \
         bc \
         curl \
-        zip \
-        unzip \
-        time \
-        rsync \
-        python3-yaml \
-        python3 \
+        gcc \
         graphviz \
-	&& rm -rf /var/lib/apt/lists/* \
-    && pip install awscli \
-    && curl -L /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 > /usr/bin/jq \
-    && chmod +x /usr/bin/jq
+        groff \
+        golang-go \
+        jq \
+        libgtk2.0-dev \
+        make \
+        python3 \
+        python3-yaml \
+        rsync \
+        time \
+        zip \
+        unzip
+
 COPY build/reco /opt/sdaccel-builder
+
 COPY aws/*.sh /opt/
-ENV USER=root
-RUN aws configure set default.region us-east-1
+
+ENV USER=root AWS_DEFAULT_REGION=us-east-1
+
 WORKDIR /mnt
+
+COPY examples /mnt/examples
