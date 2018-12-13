@@ -1,9 +1,0 @@
-package: .
-import:
-- package: github.com/ReconfigureIO/sdaccel
-  version: ^0.18.0
-  subpackages:
-  - smi
-  - xcl
-ignore:
-- ReconfigureIO/reco-sdaccel/benchmarks
