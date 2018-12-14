@@ -13,15 +13,15 @@ export PATH="$DIR:$DIR/../reco-aws:$PATH"
 which reco-aws > /dev/null || (echo "reco-aws not found on PATH" && exit 1)
 which format_build_report.sh > /dev/null || (echo "format_build_report.sh not found on PATH" && exit 1)
 
-ERRFILE=$(mktemp --suffix ".log")
+JOB_ID=$(mktemp --suffix ".log")
 
 cd "examples/$NAME"
 set +e
 export GENERATE_AFI=yes
-NUMBER=$(reco-aws build 2>$ERRFILE)
+reco-aws build 1>$JOB_ID
 
 exit="$?"
-cat $ERRFILE
+NUMBER=$(cat $JOB_ID)
 
 if [ $exit -ne 0 ]; then
     exit "$exit"
@@ -34,6 +34,6 @@ mkdir -p ../../bench_tmp
 TMPFILE=$(mktemp --suffix ".log" -p ../../bench_tmp)
 reco-aws download-report "$NUMBER" | format_build_report.sh "$NAME" | tee -a "$TMPFILE"
 
-rm "$ERRFILE"
+rm "$JOB_ID"
 reco-aws run "$NUMBER" "$EXAMPLE"
 reco-aws run "$NUMBER" "bench-$BENCH" 2>&1 | tee -a "$TMPFILE"
