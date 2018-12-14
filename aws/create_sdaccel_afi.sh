@@ -21,7 +21,17 @@ script=${BASH_SOURCE[0]}
 full_script=$(readlink -f $script)
 script_name=$(basename $full_script)
 
-source $AWS_FPGA_REPO_DIR/shared/bin/set_common_functions.sh
+function info_msg {
+  echo -e "INFO: $1"
+}
+
+function err_msg {
+    echo -e >&2 "ERROR: $1"
+}
+
+function warn_msg {
+    echo -e "WARNING: $1"
+}
 
 debug=0
 
