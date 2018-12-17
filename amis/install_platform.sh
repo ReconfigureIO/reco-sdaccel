@@ -8,8 +8,11 @@ set -eux
 
 # * To obtain the "vivado platform" and install it into the
 #   /opt/Xilinx/SDx/platforms directory.
-# * To put the aws-fpga repository at /opt/Xilinx/aws-fpga, so that
-#   sdaccel_setup.sh can be sourced during our AFI build.
+#
+# * To put the aws-fpga repository at /opt/Xilinx/aws-fpga. TODO(pwaller): Not
+#   ideal to have a copy in /opt/Xilinx/aws-fpga AND one in /opt/aws-fpga. Get
+#   rid of one of these. The second copy is there while I figure out how to get
+#   sdaccel_setup.sh to work.
 
 # These variables need updating when we change the SDK/HDK version. RIO_ prefix
 # to avoid risk of interference with AWS environment variables since this script

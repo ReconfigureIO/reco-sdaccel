@@ -53,3 +53,17 @@ RUN echo "dash dash/sh boolean false" | debconf-set-selections \
 # Workaround for Vivado's compiler not looking in the right place...
 RUN find /usr/include/x86_64-linux-gnu/ -type d -exec bash -c 'mkdir -p /usr/include/${1#/usr/include/x86_64-linux-gnu/}' -- {} \; \
   && find /usr/include/x86_64-linux-gnu/ -iname '*.h' -exec bash -c 'ln -sf $1 /usr/include/${1#/usr/include/x86_64-linux-gnu/}' -- {} \;
+
+# Configurable.
+ENV RIO_AWS_FPGA_VERSION=v1.4.5
+
+# Clone aws-fpga to /opt/aws-fpga. This is needed so that we can source
+# sdaccel_setup.sh, which expects a git clone to be available.
+# Sourcing this script is required in order to run the AFI generation tools.
+RUN git clone \
+      --recursive \
+      --shallow-submodules \
+      --depth=1 \
+      --branch=${RIO_AWS_FPGA_VERSION} \
+      https://github.com/aws/aws-fpga \
+      /opt/aws-fpga
