@@ -12,8 +12,14 @@ echo "Before sdaccel_setup.sh: $(date) ..."
 pwd
 echo ENV:
 env
+
+OLD_DIR="$(pwd)"
+cd /opt/aws-fpga
 set -x
-source "/opt/aws-fpga/sdaccel_setup.sh"
+source sdaccel_setup.sh
+set +x
+cd "${OLD_DIR}"
+
 echo " ... after sdaccel_setup.sh: $(date)"
 
 TIMEOUT="${TIMEOUT:-12h}"
