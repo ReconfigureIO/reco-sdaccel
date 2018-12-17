@@ -16,6 +16,8 @@ RUN \
         bc \
         curl \
         gcc \
+        # required by sdaccel_setup.sh \
+        git \
         graphviz \
         groff \
         golang-go \
@@ -26,12 +28,16 @@ RUN \
         python3 \
         python3-yaml \
         rsync \
+        # required by sdaccel_setup.sh \
+        sudo \
         time \
         zip \
         unzip
 
-COPY build/reco /opt/sdaccel-builder
+# Needed for sdaccel_setup.sh
+RUN mkdir -p /etc/OpenCL/vendors
 
+COPY build/reco /opt/sdaccel-builder
 COPY aws/*.sh /opt/
 
 ENV USER=root AWS_DEFAULT_REGION=us-east-1
