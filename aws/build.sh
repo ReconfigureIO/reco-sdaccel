@@ -1,7 +1,16 @@
 #!/bin/bash
 set -e
+
 export PATH=$XILINX_SDX/bin:$XILINX_VIVADO/bin:$XILINX_SDX/runtime/bin:$PATH
 source "/opt/sdaccel-builder/settings.sh"
+
+# Required in order for the AFI tools to work. Note: this is pretty nasty since
+# sdaccel_setup.sh may reach out to the network. We would prefer to avoid this
+# since it introduces another failure mode. But for now, it's required as far as
+# I can tell.
+echo "Before sdaccel_setup.sh: $(date) ..."
+source "/opt/Xilinx/aws-fpga/sdaccel_setup.sh"
+echo " ... after sdaccel_setup.sh: $(date)"
 
 TIMEOUT="${TIMEOUT:-12h}"
 
