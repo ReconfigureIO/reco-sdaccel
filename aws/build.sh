@@ -9,7 +9,7 @@ source "/opt/sdaccel-builder/settings.sh"
 # since it introduces another failure mode. But for now, it's required as far as
 # I can tell.
 echo "Before sdaccel_setup.sh: $(date) ..."
-source "/opt/Xilinx/aws-fpga/sdaccel_setup.sh"
+source "/opt/aws-fpga/sdaccel_setup.sh"
 echo " ... after sdaccel_setup.sh: $(date)"
 
 TIMEOUT="${TIMEOUT:-12h}"
