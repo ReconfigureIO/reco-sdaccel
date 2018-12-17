@@ -9,6 +9,10 @@ source "/opt/sdaccel-builder/settings.sh"
 # since it introduces another failure mode. But for now, it's required as far as
 # I can tell.
 echo "Before sdaccel_setup.sh: $(date) ..."
+pwd
+echo ENV:
+env
+set -x
 source "/opt/aws-fpga/sdaccel_setup.sh"
 echo " ... after sdaccel_setup.sh: $(date)"
 
