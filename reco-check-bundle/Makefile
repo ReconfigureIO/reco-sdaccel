@@ -7,7 +7,7 @@ BUILDDATE := $(shell date -u +"%B %d, %Y")
 BUILDER := $(shell echo "`git config user.name` <`git config user.email`>")
 PROJECT_URL := https://github.com/ReconfigueIO/reco-sdaccel
 
-TARGETS = x86_64-unknown-linux x86_64-apple-darwin x86_64-pc-windows-msvc
+TARGETS = x86_64-unknown-linux x86_64-apple-darwin
 RELEASE_TARGETS := $(patsubst %,releases/${NAME}-${VERSION}-%.zip,$(TARGETS))
 
 .PHONY: all clean clean-all build/* upload

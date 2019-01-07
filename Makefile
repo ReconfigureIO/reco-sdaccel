@@ -23,7 +23,7 @@ JOB_DEFINITION := sdaccel-builder-build-staging
 BATCH_JOB := $(shell cat aws/batch.json | jq '.containerProperties.image = "${PUBLISHED_DOCKER}" | .jobDefinitionName = "${JOB_DEFINITION}"')
 DEPLOY_JOB := $(shell cat aws/deploy.json | jq '.containerProperties.image = "${PUBLISHED_DEPLOY}"')
 
-export SDACCEL_WRAPPER_VERSION := v0.22.3
+export SDACCEL_WRAPPER_VERSION := v0.23.0
 export SMI_WRAPPER_VERSION := v0.5.0
 GO_VERSION := 1.7.4
 SDACCEL_VERSION := 0.20.1
@@ -209,7 +209,7 @@ docker-image: bundle/reco
 upload-docker: docker-image
 	docker tag $(DOCKER_NAME):latest ${PUBLISHED_DOCKER}
 	docker tag $(DEPLOY_NAME):latest ${PUBLISHED_DEPLOY}
-	$$(aws ecr get-login --region us-east-1)
+	$$(aws ecr get-login --region us-east-1 --no-include-email)
 	docker push ${PUBLISHED_DOCKER}
 	docker push ${PUBLISHED_DEPLOY}
 
