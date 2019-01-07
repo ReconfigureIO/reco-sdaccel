@@ -44,12 +44,8 @@ func makeBlock(length uint32, last bool, inputChannel <-chan uint64) dataBlock {
 	for i := length; i != 0; {
 		next := <-inputChannel
 		t := i - 1
-		go func() {
-			x_arr[t] = int32(next)
-		}()
-		go func() {
-			y_arr[t] = int32(next >> 32)
-		}()
+		x_arr[t] = int32(next)
+		y_arr[t] = int32(next >> 32)
 		i = t
 	}
 

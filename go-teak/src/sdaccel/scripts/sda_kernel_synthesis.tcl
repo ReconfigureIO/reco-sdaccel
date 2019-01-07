@@ -43,7 +43,8 @@ proc load_ip_cores {ipSourceDirPath buildDirPath} {
 # Run main kernel synthesis in project flow.
 #
 proc sda_kernel_synthesis {sourceFileName moduleName includeCodePath
-  libraryCodePath partName axiDataWidth enableAxiWid} {
+  libraryCodePath partName axiDataWidth enableAxiWid wrapperTop kernelArgWidth
+  kernelHasSmiAdaptor} {
 set_part $partName
 
 #
@@ -76,26 +77,30 @@ foreach libraryCodeDir $libraryCodePath {
 #
 # Generate the synthesised netlist for the IP core.
 #
+set extra_args {}
+
 if {0 != $enableAxiWid} {
-  synth_design \
+    lappend extra_args -verilog_define AXI_MASTER_HAS_WID=1
+}
+
+if {$kernelArgWidth > 0} {
+    lappend extra_args -verilog_define KERNEL_ARGS_DATA=1
+}
+
+if {0 != $kernelHasSmiAdaptor} {
+    lappend extra_args -verilog_define KERNEL_HAS_SMI_ADAPTOR=1
+}
+
+synth_design \
     -mode out_of_context \
     -directive runtimeoptimized \
     -no_lc \
     -keep_equivalent_registers \
-    -top sda_kernel_wrapper_gmem \
+    -top $wrapperTop \
     -include_dirs $includeCodePath \
     -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth \
-    -verilog_define AXI_MASTER_HAS_WID=1
-} else {
-  synth_design \
-    -mode out_of_context \
-    -directive runtimeoptimized \
-    -no_lc \
-    -keep_equivalent_registers \
-    -top sda_kernel_wrapper_gmem \
-    -include_dirs $includeCodePath \
-    -verilog_define AXI_MASTER_DATA_WIDTH=$axiDataWidth
-}
+    -verilog_define KERNEL_ARGUMENT_WIDTH=$kernelArgWidth \
+    {*}$extra_args
 
 #
 # Prefix all the module names with the unique kernel name string.

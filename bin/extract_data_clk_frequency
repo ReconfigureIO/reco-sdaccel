@@ -1,0 +1,3 @@
+#!/bin/bash
+DATA_CLK="$(sed -n '/clock port="DATA_CLK"/ s/.*frequency="// p' "$1" | sed 's|"/>||')"
+echo "{\"Clock Frequency\":\"${DATA_CLK}\"}" > "$2"

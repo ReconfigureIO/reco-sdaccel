@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+INPUT="$1"
+OUTPUT="$2"
+
+PATH=${DIR}/eTeak:${DIR}/eTeak/bin:${PATH}
+export GOPATH=${VENDOR_DIR}
+
+if [ "$COMPILER" == "rio" ]
+then
+    # TODO: This is used to generate the xmldef. Replace this with something better.
+    go2ll "$INPUT" > "$INPUT.go2ll.ll"
+    ll2xmldef main.Top < "$INPUT.go2ll.ll" > "$OUTPUT.xmldef"
+
+    ll2ll -o "${INPUT}.ll" "${INPUT}.go2ll.ll"
+
+    rio "$INPUT.ll"
+    mv "$INPUT.ll.v" "$OUTPUT"
+else
+	cd ${DIR}/eTeak &&
+		${GO_TEAK_BIN} \
+			build \
+			--full-imports \
+			${GO_TEAK_FLAGS} \
+			${GO_TEAK_BUILD_FLAGS} \
+			"$INPUT" -o "$OUTPUT"
+fi

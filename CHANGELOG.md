@@ -1,3 +1,49 @@
+# sdaccel-builder v0.18.6
+
+## Features
+ - Simulations now post an FPGA resource utilisation report to platform
+
+## Bugfixes
+
+# sdaccel-builder v0.18.5
+
+## Features
+
+* Use new compiler update, which introduces ll2ll LLVM optimisation phase
+  (eTeak #661)
+* Removed support for reco-check under Windows to simplify the build process,
+  since it is not being actively used by any customers (#238, eTeak #668)
+
+## Bugfixes
+
+# sdaccel-builder v0.18.3
+
+## Features
+
+* Phased migration to new compiler.
+  * Use new compiler as the default for the histogram array example (#232)
+  * Add additional reporting for post P&R system clock speed (#233)
+
+## Bugfixes
+
+# sdaccel-builder v0.18.1
+
+## Features
+
+## Bugfixes
+
+# sdaccel-builder v0.18.0
+
+## Features
+
+## Bugfixes
+
+# sdaccel-builder v0.17.6
+
+## Features
+
+## Bugfixes
+
 # sdaccel-builder v0.17.5
 
 ## Features
