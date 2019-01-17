@@ -13,10 +13,11 @@
 # or in the "license" file accompanying this file. This file is distributed on
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or  
 # implied. See the License for the specific language governing permissions and
-# limitations under the License.                                              
+# limitations under the License.
 
 set -e
 
+VIVADO_RELEASE_VER='2018.2'
 script=${BASH_SOURCE[0]}
 full_script=$(readlink -f $script)
 script_name=$(basename $full_script)
@@ -99,12 +100,6 @@ while [ "$1" != "" ]; do
     esac                                          
     shift                                         
 done                                              
-
-if [ "$RELEASE_VER" == "" ]
-then
-    err_msg "Env variable RELEASE_VER not set, did you `source sdaccel_setup.sh`?"
-    exit 1
-fi
 
 if [[ -e "$xclbin" ]]
 then                 
@@ -197,7 +192,7 @@ cp ${timestamp}-primary.bit to_aws/${timestamp}_SH_CL_routed.dcp
 strategy=DEFAULT     
 hdk_version=$(grep 'HDK_VERSION' $HDK_DIR/hdk_version.txt | sed 's/=/ /g' | awk '{print $2}')
 shell_version=0x04261818
-tool_version=v$RELEASE_VER
+tool_version=v$VIVADO_RELEASE_VER
 device_id=0xF010                                                                                         
 vendor_id=0x1D0F                                                                                         
 subsystem_id=0x1D51                                                                                      
