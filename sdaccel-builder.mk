@@ -8,7 +8,7 @@ export VENDOR_DIR := $(ROOT_DIR)/.reco-work/vendor
 ARG_WIDTH_EXT = $(shell args_width ${ROOT_DIR}/main.go.ll)
 ARG_WIDTH = $(if $(ARG_WIDTH_EXT), $(ARG_WIDTH_EXT), 0)
 
-XO_NAME := "reconfigure_io_sdaccel_builder_stub_0_1.xo"
+XO_NAME := "rio_sda_stub_0_1.xo"
 
 KERNEL_NAME := "kernel_test"
 DEVICE := "xilinx_adm-pcie-ku3_2ddr-xpr_3_3"
@@ -93,10 +93,10 @@ ${BUILD_DIR}/reports/data_clk_frequency.json: | ${BUILD_DIR}/reports
 	extract_data_clk_frequency ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin $@
 
 ${REPORTS_DIR}/build_report.json: ${BUILD_DIR}/reports/timing.json ${BUILD_DIR}/reports/data_clk_frequency.json | ${REPORTS_DIR}
-	merge_reports ${BUILD_DIR}/reports/reconfigure_io_sdaccel_builder_stub_0_1_util.json ${BUILD_DIR}/reports/data_clk_frequency.json ${BUILD_DIR}/reports/timing.json > $@
+	merge_reports ${BUILD_DIR}/reports/rio_sda_stub_0_1_util.json ${BUILD_DIR}/reports/data_clk_frequency.json ${BUILD_DIR}/reports/timing.json > $@
 
 ${REPORTS_DIR}/sim_report.json: ${BUILD_DIR}/reports/timing.json | ${REPORTS_DIR}
-	merge_reports ${BUILD_DIR}/reports/reconfigure_io_sdaccel_builder_stub_0_1_util.json ${BUILD_DIR}/reports/timing.json > $@
+	merge_reports ${BUILD_DIR}/reports/rio_sda_stub_0_1_util.json ${BUILD_DIR}/reports/timing.json > $@
 
 report: ${REPORTS_DIR}/build_report.json
 
@@ -110,7 +110,7 @@ ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME}
 			-O3 \
 			-t "${TARGET}" \
 			$(CLFLAGS) \
-			--xdevice ${DEVICE_FULL} \
+			--platform ${DEVICE_FULL} \
 			-l "$<" \
 			-o "$@" \
 			-r system
@@ -118,7 +118,7 @@ ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME}
 ${DIST_DIR}/emconfig.json: | ${DIST_DIR}
 	cd ${DIST_DIR} && \
 	XCL_EMULATION_MODE=${TARGET} \
-		emconfigutil --xdevice ${DEVICE_FULL} --nd 1
+		emconfigutil --platform ${DEVICE_FULL} --nd 1
 
 sim: ${DIST_DIR}/emconfig.json
 
@@ -146,7 +146,7 @@ ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel:
 	ln -sf "${DIR}/go/src/github.com/ReconfigureIO/sdaccel" ${ROOT_DIR}/vendor/github.com/ReconfigureIO/sdaccel
 
 ${DIST_DIR}/%: ${ROOT_DIR}/cmd/%/main.go | ${DIST_DIR} ${VENDOR_DIR}/.fixed
-	LIBRARY_PATH=${XILINX_SDX}/SDK/lib/lnx64.o/:${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH} \
+	LIBRARY_PATH=${XILINX_SDX}/lib/lnx64.o/:${XILINX_SDX}/runtime/lib/x86_64/:/usr/lib/x86_64-linux-gnu/:${LIBRARY_PATH} \
 	CGO_CFLAGS=-I${XILINX_SDX}/runtime/include/1_2/ \
 	GOPATH=${VENDOR_DIR}:${DIR}/go \
 		go build -tags opencl -o "$@" "$<"

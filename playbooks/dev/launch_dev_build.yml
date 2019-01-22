@@ -2,7 +2,7 @@
   gather_facts: False
 
   vars:
-    version: 2017.1
+    version: 2018.2
     dev_build_hostname: dev-build.reconfigureio-infra.com
 
   tasks:

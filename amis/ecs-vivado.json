@@ -3,10 +3,10 @@
         "type": "amazon-ebs",
         "region": "us-east-1",
         "iam_instance_profile": "jenkins",
-        "source_ami": "ami-702a8b0f",
+        "source_ami": "ami-0da0d9ed98b33a214",
         "instance_type": "m4.2xlarge",
         "ssh_username": "centos",
-        "ami_name": "vivado-2017.1-ecs {{timestamp}}",
+        "ami_name": "vivado-2018.2-ecs {{timestamp}}",
         "ebs_optimized": true,
         "ami_block_device_mappings": [{
             "device_name": "/dev/sda1",
@@ -19,7 +19,7 @@
         }],
         "tags": {
             "service": "vivado-ecs",
-            "version": "2017.1",
+            "version": "2018.2",
             "build": "latest",
             "staging": "yes"
         },

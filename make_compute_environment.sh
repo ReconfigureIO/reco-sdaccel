@@ -1,7 +1,26 @@
 #!/bin/bash
 
+# Take an AMI and register it as a compute environment with AWS Batch.
+# For example usage, see below or invoke with no arguments.
+
 set -eu
 set -o pipefail
+
+if [[ "${1-}" == "" || "${2-}" == "" ]]; then
+    echo 'usage: ./make_compute_environment.sh <ami> <name prefix>
+
+For example:
+
+    $ ./make_compute_environment.sh ami-0bf310a6858243a7c staging-pwaller-test
+    {
+        "computeEnvironmentName": "staging-pwaller-test-1545045146",
+        "computeEnvironmentArn": "arn:aws:batch:us-east-1:398048034572:compute-environment/staging-pwaller-test-1545045146"
+    }
+
+After running this script you need to manually update the appropriate job queue on AWS Batch to refer to this new environment.
+'
+    exit 1
+fi
 
 main() {
     local imageid="$1"

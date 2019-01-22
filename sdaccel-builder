@@ -88,6 +88,9 @@ function test_go {
 }
 
 function simulate {
+    # shellcheck source=/dev/null
+    source "$XILINX_SDACCEL"/settings64.sh
+    
     "${MAKE[@]}" TARGET=hw_emu sim cmds kernel
     # run reports after everything
     sim_report
@@ -95,8 +98,6 @@ function simulate {
     # This is for the emconfig.json
     cd "$PWD/.reco-work/sdaccel/dist/"
 
-    # shellcheck source=/dev/null
-    source "$XILINX_SDACCEL"/settings64.sh
     XCL_EMULATION_MODE=hw_emu \
     XCL_BINDIR="$PWD/.reco-work/sdaccel/dist/xclbin" \
         bash -c "$@"
