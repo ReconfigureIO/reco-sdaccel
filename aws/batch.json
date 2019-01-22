@@ -15,6 +15,12 @@
                 "host": {
                     "sourcePath": "/opt/Xilinx"
                 },
+                "name": "Xilinx"
+            },
+            {
+                "host": {
+                    "sourcePath": "/opt/xilinx"
+                },
                 "name": "xilinx"
             }
         ],
@@ -54,8 +60,12 @@
         ],
         "mountPoints": [
             {
-                "sourceVolume": "xilinx",
+                "sourceVolume": "Xilinx",
                 "containerPath": "/opt/Xilinx"
+            },
+            {
+                "sourceVolume": "xilinx",
+                "containerPath": "/opt/xilinx"
             }
         ],
         "readonlyRootFilesystem": false,

@@ -32,7 +32,9 @@ RUN \
         sudo \
         time \
         zip \
-        unzip
+        unzip \
+        # required by sdaccel_setup.sh \
+        lsb-release 
 
 # Needed for sdaccel_setup.sh
 RUN mkdir -p /etc/OpenCL/vendors
