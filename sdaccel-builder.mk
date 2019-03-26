@@ -90,12 +90,15 @@ ${BUILD_DIR}/reports/timing.json: | ${BUILD_DIR}/reports
 	parse_times times.out > $@
 
 ${BUILD_DIR}/reports/data_clk_frequency.json: | ${BUILD_DIR}/reports
+	XCL_EMULATION_MODE=${TARGET} \
 	extract_data_clk_frequency ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin $@
 
 ${REPORTS_DIR}/build_report.json: ${BUILD_DIR}/reports/timing.json ${BUILD_DIR}/reports/data_clk_frequency.json | ${REPORTS_DIR}
+	XCL_EMULATION_MODE=${TARGET} \
 	merge_reports ${BUILD_DIR}/reports/rio_sda_stub_0_1_util.json ${BUILD_DIR}/reports/data_clk_frequency.json ${BUILD_DIR}/reports/timing.json > $@
 
 ${REPORTS_DIR}/sim_report.json: ${BUILD_DIR}/reports/timing.json | ${REPORTS_DIR}
+	XCL_EMULATION_MODE=${TARGET} \
 	merge_reports ${BUILD_DIR}/reports/rio_sda_stub_0_1_util.json ${BUILD_DIR}/reports/timing.json > $@
 
 report: ${REPORTS_DIR}/build_report.json
@@ -104,6 +107,7 @@ sim_report: ${REPORTS_DIR}/sim_report.json
 
 ${XCLBIN_DIR}/${KERNEL_NAME}.${TARGET}.${DEVICE}.xclbin: ${BUILD_DIR}/${XO_NAME} | ${XCLBIN_DIR}
 	cd ${BUILD_DIR} && \
+	XCL_EMULATION_MODE=${TARGET} \
 	/usr/bin/time -ao ${ROOT_DIR}/times.out -f "xclbin,%e,%M" \
 		xocc \
 			-j${CPUS} \
