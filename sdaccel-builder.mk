@@ -182,9 +182,13 @@ ${VERILOG_DIR}/includes: | ${VERILOG_DIR}
 	if [ -d "${ROOT_DIR}/includes/" ]; then cp ${ROOT_DIR}/includes/* ${VERILOG_DIR}/includes; fi
 
 ${VERILOG_DIR}/library: | ${VERILOG_DIR}
+	$(info Compiler is $(COMPILER))
 	mkdir -p ${VERILOG_DIR}/library
 	cp ${DIR}/go-teak/src/sdaccel/verilog/* ${VERILOG_DIR}/library
 ifeq ($(MEMORY_INTERFACE),smi)
+ifneq ($(COMPILER),rio)
+	$(error Using smi without rio is not supported)
+endif	
 	cp ${DIR}/smi/verilog/* ${VERILOG_DIR}/library
 	cd ${VERILOG_DIR}/library; smiMemWrapperGen \
 		-targetPlatform ${SMI_TARGET_PLATFORM} \
