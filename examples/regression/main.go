@@ -1,11 +1,11 @@
 package main
 
 import (
-	_ "sdaccel"
+	_ "github.com/ReconfigureIO/sdaccel"
 
-	aximemory "axi/memory"
-	axiprotocol "axi/protocol"
 	"github.com/ReconfigureIO/regression/linear"
+	aximemory "github.com/ReconfigureIO/sdaccel/axi/memory"
+	axiprotocol "github.com/ReconfigureIO/sdaccel/axi/protocol"
 )
 
 // The Top function will be presented as a kernel
