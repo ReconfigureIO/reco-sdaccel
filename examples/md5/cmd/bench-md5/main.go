@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/ReconfigureIO/sdaccel/xcl"
 	"testing"
-	"xcl"
 
 	"ReconfigureIO/reco-sdaccel/benchmarks"
 )

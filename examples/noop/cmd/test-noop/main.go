@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/ReconfigureIO/sdaccel/xcl"
 	"log"
 	"time"
-	"xcl"
 )
 
 func main() {

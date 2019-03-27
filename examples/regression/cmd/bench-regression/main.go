@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/binary"
 	//"math/rand"
+	"github.com/ReconfigureIO/sdaccel/xcl"
 	"testing"
-	"xcl"
 
 	"ReconfigureIO/reco-sdaccel/benchmarks"
 )
@@ -16,7 +16,7 @@ const (
 )
 
 func main() {
-    Process("Linear regression")
+	Process("Linear regression")
 }
 
 func Process(name string) {
@@ -42,16 +42,16 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	B.ReportAllocs()
 
 	// The data we'll send to the kernel for processing
-        input := [64]uint64{}
+	input := [64]uint64{}
 
-        // so we don't get a divide by zero error
-        input[0] = 1
-        input[1] = 0
+	// so we don't get a divide by zero error
+	input[0] = 1
+	input[1] = 0
 
 	inputBuff := world.Malloc(xcl.ReadOnly, uint(binary.Size(input)))
 	defer inputBuff.Free()
 
-        // don't care about these
+	// don't care about these
 	buff1 := world.Malloc(xcl.WriteOnly, 4)
 	defer buff1.Free()
 	buff2 := world.Malloc(xcl.WriteOnly, 4)
@@ -60,9 +60,9 @@ func doit(world xcl.World, krnl *xcl.Kernel, B *testing.B) {
 	binary.Write(inputBuff.Writer(), binary.LittleEndian, &input)
 
 	krnl.SetMemoryArg(0, inputBuff)
-        krnl.SetArg(1, 64)
+	krnl.SetArg(1, 64)
 
-        // don't care about 3rd/4th
+	// don't care about 3rd/4th
 	krnl.SetMemoryArg(2, buff1)
 	krnl.SetMemoryArg(3, buff2)
 
