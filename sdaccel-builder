@@ -52,7 +52,7 @@ MAKE=(
     --file "$DIR/sdaccel-builder.mk"
     "${RECO_ARGS[@]}"
 )
-echo "Using RECO_ARGS ${RECO_ARGS[@]}"
+echo "Using RECO_ARGS ${RECO_ARGS[*]}"
 
 export PATH="$DIR/eTeak:$DIR/eTeak/bin:$DIR/smi/bin:$DIR/bin:$PATH"
 
