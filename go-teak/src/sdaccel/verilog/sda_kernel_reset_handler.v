@@ -83,6 +83,12 @@ reg wrapperReset_q;
 reg [ResetPipeLength-1:0] wrapperResetPipe_q;
 reg [ResetPipeLength-1:0] kernelResetPipe_q;
 
+// Specifies the go/done toggle signals.
+reg  ctrlHoldoff_q;
+reg  ctrlGoActive_q;
+reg  ctrlDoneActive_q;
+wire ctrlGoHoldoff;
+
 // Miscellaneous signals.
 integer i;
 
@@ -103,8 +109,8 @@ end
 
 // Implement combinatorial logic for reset control state machine.
 always @(resetState_q, resetCount_q, kernelReset_q, regGoHoldoff_q, regDoneValid_q,
-  kernelGoValid_q, kernelDoneStop_q, regGoValid, regDoneStop, kernelGoHoldoff,
-  kernelDoneValid)
+  kernelGoValid_q, kernelDoneStop_q, regGoValid, regDoneStop, ctrlGoHoldoff,
+  ctrlDoneActive_q)
 begin
 
   // Hold current state by default.
@@ -132,7 +138,7 @@ begin
     // Wait for the kernel to accept the go signal.
     KernelStarting :
     begin
-      if (kernelGoValid_q & ~kernelGoHoldoff)
+      if (kernelGoValid_q & ~ctrlGoHoldoff)
       begin
         resetState_d = KernelRunning;
       end
@@ -145,7 +151,7 @@ begin
     // In the kernel runnning state, wait for the 'done' response.
     KernelRunning :
     begin
-      if (kernelDoneValid & ~kernelDoneStop_q)
+      if (ctrlDoneActive_q & ~kernelDoneStop_q)
       begin
         resetState_d = KernelExited;
       end
@@ -229,11 +235,6 @@ begin
   end
 end
 
-assign regGoHoldoff = regGoHoldoff_q;
-assign regDoneValid = regDoneValid_q;
-assign kernelGoValid = kernelGoValid_q;
-assign kernelDoneStop = kernelDoneStop_q;
-
 // Implement reset output pipelines.
 always @(posedge clk)
 begin
@@ -255,5 +256,34 @@ end
 
 assign wrapperReset = wrapperResetPipe_q [0];
 assign kernelReset = kernelResetPipe_q [0];
+
+// Implement go/done toggle registers in kernel reset domain.
+always @(posedge clk)
+begin
+  if (kernelReset)
+  begin
+    ctrlHoldoff_q <= 1'b1;
+    ctrlGoActive_q <= 1'b0;
+    ctrlDoneActive_q <= 1'b0;
+  end
+  else
+  begin
+    ctrlHoldoff_q <= 1'b0;
+    if (~ctrlGoActive_q)
+      ctrlGoActive_q <= kernelGoValid_q & ~ctrlHoldoff_q;
+    else
+      ctrlGoActive_q <= kernelGoHoldoff;
+    if (~ctrlDoneActive_q)
+      ctrlDoneActive_q <= kernelDoneValid & ~ctrlHoldoff_q;
+    else
+      ctrlDoneActive_q <= kernelDoneStop_q;
+  end
+end
+
+assign regGoHoldoff = regGoHoldoff_q;
+assign regDoneValid = regDoneValid_q;
+assign kernelGoValid = ctrlGoActive_q;
+assign kernelDoneStop = ctrlDoneActive_q | ctrlHoldoff_q;
+assign ctrlGoHoldoff = ctrlGoActive_q | ctrlHoldoff_q;
 
 endmodule
